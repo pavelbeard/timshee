@@ -4,8 +4,6 @@ services:
   postgresql:
     image: postgres:latest
     restart: always
-    ports:
-      - "4444:4444"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
