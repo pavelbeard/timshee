@@ -5,6 +5,7 @@ import sys
 
 SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "10.1.1.1")
 SERVER_PORT = os.getenv("SERVER_PORT", 8112)
+DJANGO_SETTINGS_DEBUG_MODE = os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 1)
 
 
 def call_django_functions(args, post_args: list | tuple) -> None:
@@ -18,9 +19,9 @@ def check_db(args, post_args: list | tuple, db: str, seconds: int = 0, attempts:
     _args.append(db)
 
     if seconds > 0:
-        _args += ["--seconds", seconds]
+        _args += ["--seconds", f"{seconds}"]
     if attempts > 0:
-        _args += ["--attempts", attempts]
+        _args += ["--attempts", f"{attempts}"]
 
     p = subprocess.Popen(_args)
     p.communicate()
@@ -33,10 +34,32 @@ def check_db(args, post_args: list | tuple, db: str, seconds: int = 0, attempts:
 
 
 def main():
-    pre_args = ["python", os.path.join(os.getenv("APP_HOME")), "manage.py"]
-    result1 = check_db(pre_args, post_args=["checkdb", "--database"], db="default")
+    app_home = os.path.join(os.getenv("APP_HOME"), os.getcwd())
+    pre_args = ["python", "manage.py"]
 
-    pass
+    result = None
+    if int(DJANGO_SETTINGS_DEBUG_MODE) == 1:
+        result = check_db(pre_args, post_args=["checkdb", "--database"], db="default")
+    elif int(DJANGO_SETTINGS_DEBUG_MODE) == 0:
+        result = check_db(pre_args, post_args=["checkdb", "--database"], db="timshee_db")
+
+    if result:
+        call_django_functions(pre_args, ["migrate"])
+        call_django_functions(pre_args, ["createsuperuser",
+                                         "--username", os.getenv("DJANGO_SUPERUSER_USERNAME", "admin"),
+                                         "--noinput",
+                                         "--email", os.getenv("DJANGO_SUPERUSER_EMAIL", "admin@example.com")])
+        call_django_functions(pre_args, ["collectstatic",
+                                         "--noinput",
+                                         "--clear"])
+
+        # p = subprocess.Popen(["python", "-c", "while True: pass"])
+        p = subprocess.Popen(["uvicorn",
+                              "timshee.asgi:application",
+                              "--host", f"0.0.0.0",
+                              "--port", f"{SERVER_PORT}"
+                              ])
+        p.communicate()
 
 
 if __name__ == '__main__':

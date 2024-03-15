@@ -9,12 +9,11 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -23,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b2$q(y+6ng6k-5+-er-s#0rvsqckx573@pds0r3hk^6yhp#j7t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+DEBUG = bool(int(os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 1)))
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -39,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # custom
     "rest_framework",
+    "corsheaders",
     "store.apps.StoreConfig",
 ]
 
@@ -50,6 +50,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # custom
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'timshee.urls'
@@ -72,17 +74,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'timshee.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv("POSTGRES_DB_NAME"),
+            'USER': os.getenv("POSTGRES_DB_USER"),
+            'PASSWORD': os.getenv("POSTGRES_DB_PASSWORD"),
+            'HOST': 'postgresql',
+            'PORT': os.getenv("POSTGRES_DB_PORT"),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -102,7 +114,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -114,15 +125,38 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-MEDIA_URL = "/media/"
-MEDIA_ROOT = "/media"
+STATIC_URL = '/backend/static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# custom
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/media"
+
+
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8112",
+        "http://127.0.0.1:8112",
+    ]
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:8112",
+        "http://127.0.0.1:8112",
+    ]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        "http://timshee-store:8111",
+    ]
+    CORS_ALLOWED_ORIGINS = [
+        "http://timshee-store:8111",
+    ]
+

@@ -11,13 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-settings = os.environ.get("DJANGO_SETTINGS_VERSION", "development")
-
-if settings == "development":
-    settings = 'timshee.settings'
-elif settings == "production":
-    settings = 'timshee.settings_enterprise'
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'timshee.settings')
 
 application = get_wsgi_application()

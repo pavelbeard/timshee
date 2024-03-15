@@ -28,7 +28,7 @@ class Command(BaseCommand):
             default=5
         )
         parser.add_argument(
-            '--retries',
+            '--attempts',
             nargs='?',
             type=int,
             help="Количество попыток подключения к БД. По умолчанию - 5.",
@@ -36,12 +36,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        wait, retries, database = options['seconds'], options['retries'], options['database']
+        wait, attempts, database = options['seconds'], options['attempts'], options['database']
         self.stdout.write(f"Wait for connection to the database {database}...")
         conn = None
 
         att = 0
-        for attempt in range(retries):
+        for attempt in range(attempts):
             try:
                 db_conn = connections[database]
                 db_conn.cursor()

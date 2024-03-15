@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+#  db:
+#    image: postgres:latest
+#    env_file:
+#      - postgres-files/test.env
+
+  django:
+    build:
+      context: timshee/
+      dockerfile: prod.Dockerfile
+    env_file:
+      - timshee/prod.env
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+    command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
+#    depends_on:
+#      - db
+
+  nginx:
+    build:
+      context: nginx/
+      dockerfile: prod.Dockerfile
+    ports:
+      - "8111:80"
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - django
+
+volumes:
+  prod.volume:
