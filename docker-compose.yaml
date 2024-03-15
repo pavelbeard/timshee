@@ -16,8 +16,8 @@ services:
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
     command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
-#    depends_on:
-#      - db
+    depends_on:
+      - postgresql
 
   nginx:
     build:
