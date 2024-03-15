@@ -1,10 +1,13 @@
 version: "3.9"
 
 services:
-#  db:
-#    image: postgres:latest
-#    env_file:
-#      - postgres-files/test.env
+  postgresql:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "4444:4444"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   django:
     build:
@@ -32,3 +35,4 @@ services:
 
 volumes:
   prod.volume:
+  postgres_data:
