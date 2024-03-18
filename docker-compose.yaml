@@ -4,6 +4,8 @@ services:
   postgresql:
     image: postgres:latest
     restart: always
+    env_file:
+      - postgres-files/prod.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -11,6 +13,7 @@ services:
     build:
       context: timshee/
       dockerfile: prod.Dockerfile
+    restart: always
     env_file:
       - timshee/prod.env
     volumes:
@@ -23,8 +26,10 @@ services:
     build:
       context: nginx/
       dockerfile: prod.Dockerfile
+    restart: always
     ports:
       - "8111:80"
+      - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
     command: ["nginx", "-g", "daemon off;"]

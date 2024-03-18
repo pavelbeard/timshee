@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "10.1.1.1")
+SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "0.0.0.0")
 SERVER_PORT = os.getenv("SERVER_PORT", 8112)
 DJANGO_SETTINGS_DEBUG_MODE = os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 1)
 
@@ -34,16 +34,9 @@ def check_db(args, post_args: list | tuple, db: str, seconds: int = 0, attempts:
 
 
 def main():
-    app_home = os.path.join(os.getenv("APP_HOME"), os.getcwd())
     pre_args = ["python", "manage.py"]
 
-    result = None
-    if int(DJANGO_SETTINGS_DEBUG_MODE) == 1:
-        result = check_db(pre_args, post_args=["checkdb", "--database"], db="default")
-    elif int(DJANGO_SETTINGS_DEBUG_MODE) == 0:
-        result = check_db(pre_args, post_args=["checkdb", "--database"], db="timshee_db")
-
-    if result:
+    if check_db(pre_args, post_args=["checkdb", "--database"], db="default"):
         call_django_functions(pre_args, ["migrate"])
         call_django_functions(pre_args, ["createsuperuser",
                                          "--username", os.getenv("DJANGO_SUPERUSER_USERNAME", "admin"),
@@ -56,7 +49,7 @@ def main():
         # p = subprocess.Popen(["python", "-c", "while True: pass"])
         p = subprocess.Popen(["uvicorn",
                               "timshee.asgi:application",
-                              "--host", f"0.0.0.0",
+                              "--host", f"{SERVER_ADDRESS}",
                               "--port", f"{SERVER_PORT}"
                               ])
         p.communicate()

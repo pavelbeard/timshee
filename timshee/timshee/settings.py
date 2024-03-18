@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
+import re
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -153,10 +154,5 @@ if DEBUG:
         "http://127.0.0.1:8112",
     ]
 else:
-    CSRF_TRUSTED_ORIGINS = [
-        "http://timshee-store:8111",
-    ]
-    CORS_ALLOWED_ORIGINS = [
-        "http://timshee-store:8111",
-    ]
-
+    CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
+    CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
