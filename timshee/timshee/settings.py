@@ -39,8 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # custom
     "rest_framework",
+    'rest_framework.authtoken',
     "corsheaders",
     "store.apps.StoreConfig",
+    "tokens.apps.TokensConfig",
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +73,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # custom
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -131,7 +139,6 @@ USE_TZ = True
 
 STATIC_URL = '/backend/static/'
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -143,16 +150,55 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = "/media"
 
-
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:8112",
+        "http://localhost:8113",
+        "https://localhost",
         "http://127.0.0.1:8112",
+        "http://127.0.0.1:8113",
+        "https://127.0.0.1",
     ]
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:8112",
+        "http://localhost:8113",
+        "https://localhost",
         "http://127.0.0.1:8112",
+        "http://127.0.0.1:8113",
+        "https://127.0.0.1",
     ]
 else:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
+
+# settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # Используйте SessionAuthentication для аутентификации через сеанс
+        'rest_framework.authentication.BasicAuthentication',  # Или BasicAuthentication, если нужно
+        # custom
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # django-oauth-toolkit >= 1.0.0
+        'drf_social_oauth2.authentication.SocialAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # Только аутентифицированные пользователи имеют доступ
+    ),
+}
+
+AUTHENTICATION_BACKENDS = (
+    'drf_social_oauth2.backends.DjangoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    # custom
+    'social_core.backends.google.GoogleOAuth2',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
