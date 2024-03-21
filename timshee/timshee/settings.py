@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework.authtoken',
     "corsheaders",
-    "store.apps.StoreConfig",
-    "tokens.apps.TokensConfig",
     'oauth2_provider',
     'social_django',
     'drf_social_oauth2',
+    # my
+    "store.apps.StoreConfig",
+    "cart.apps.CartConfig",
+
 ]
 
 MIDDLEWARE = [

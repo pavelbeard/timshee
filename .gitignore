@@ -5,5 +5,7 @@ timshee/settings.py
 timshee/product_images
 timshee/test.*
 nginx/test*
+nginx/server*
+timshee/db.sqlite3
 .idea
 notes

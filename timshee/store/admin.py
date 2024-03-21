@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth import admin as auth_admin
 from .models import Item, Category, Collection
 
 
@@ -17,3 +18,6 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     pass
+
+auth_admin.UserAdmin.raw_id_fields = ["groups"]
+# auth_admin.UserAdmin.fields = ["groups"]

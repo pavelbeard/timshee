@@ -17,8 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework.authtoken import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include("store.urls")),
+    path('api/', include("cart.urls")),
+    path('api/obtain-token/', views.obtain_auth_token),
     # здесь появится аутентификация
+    path('auth/', include("drf_social_oauth2.urls", namespace="drf"))
 ]

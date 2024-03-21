@@ -33,12 +33,14 @@ class Item(models.Model):
         ("U", "Unisex"),
     )
 
+    name = models.CharField(max_length=100, default="Без имени", verbose_name="Имя")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Пол")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name="Коллекция")
     description = models.TextField(default="", verbose_name="Описание")
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name="Цена")
     discount = models.DecimalField(default=0, max_digits=5, decimal_places=2, verbose_name="Скидка в процентах")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="Количество на складе")
     image = models.ImageField(
         upload_to="product_images/",
         verbose_name="Изображение", validators=[FileExtensionValidator(

@@ -1,9 +1,19 @@
-from rest_framework import generics
+from rest_framework import generics, views, permissions
+from rest_framework.response import Response
+
 from .models import Item, Category, Collection
 from .serializers import ItemSerializer, CategorySerializer, CollectionSerializer
 
 
 # Create your views here.
+
+class Test(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        content = {"content": "hellow"}
+        return Response(content)
+
 
 class ItemListCreateAPIView(generics.ListCreateAPIView):
     queryset = Item.objects.all()
