@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     path("countries/", views.CountryListCreateAPIView.as_view(), name="country-create"),
     path("countries/<int:pk>/", views.CountryListCreateAPIView.as_view(), name="country-detail"),
+    path("phonecodes/", views.CountryPhoneCodeListCreateAPIView.as_view(), name="phone-code-create"),
+    path("phonecodes/<int:pk>/", views.CountryPhoneCodeRetrieveUpdateDestroyAPIView.as_view(), name="phone-code-detail"),
     path("cities/", views.CityListCreateAPIView.as_view(), name="city-create"),
     path("cities/<int:pk>/", views.CityRetrieveUpdateDestroyAPIView.as_view(), name="city-detail"),
     path("addresses/", views.AddressListCreateAPIView.as_view(), name="address-create"),
