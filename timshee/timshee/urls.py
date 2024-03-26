@@ -21,9 +21,10 @@ from rest_framework.authtoken import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include("store.urls")),
-    path('api/', include("cart.urls")),
+    path('api/store/', include("store.urls")),
+    path('api/cart/', include("cart.urls")),
+    path('api/order/', include("order.urls")),
     path('api/obtain-token/', views.obtain_auth_token),
     # здесь появится аутентификация
-    path('auth/', include("drf_social_oauth2.urls", namespace="drf"))
+    path('auth/', include("drf_social_oauth2.urls", namespace="drf")),
 ]

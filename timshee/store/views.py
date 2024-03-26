@@ -7,14 +7,6 @@ from .serializers import ItemSerializer, CategorySerializer, CollectionSerialize
 
 # Create your views here.
 
-class Test(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        content = {"content": "hellow"}
-        return Response(content)
-
-
 class ItemListCreateAPIView(generics.ListCreateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
