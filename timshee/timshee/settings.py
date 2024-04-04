@@ -149,8 +149,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # custom
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = "/media"
+MEDIA_URL = "/backend/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [

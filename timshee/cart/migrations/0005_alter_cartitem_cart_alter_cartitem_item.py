@@ -12,14 +12,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='cartitem',
-            name='cart',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='items', serialize=False, to='cart.cart', verbose_name='Корзина'),
-        ),
-        migrations.AlterField(
-            model_name='cartitem',
-            name='item',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='store.item', verbose_name='Товар'),
-        ),
+        # migrations.AlterField(
+        #     model_name='cartitem',
+        #     name='cart',
+        #     field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='items', serialize=False, to='cart.cart', verbose_name='Корзина'),
+        # ),
+        # migrations.AlterField(
+        #     model_name='cartitem',
+        #     name='item',
+        #     field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='store.item', verbose_name='Товар'),
+        # ),
     ]

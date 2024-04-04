@@ -24,6 +24,8 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
+    # had to write obviously
+    id = models.BigAutoField(primary_key=True)
     cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE, verbose_name="Корзина")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
