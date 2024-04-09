@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # raise an error
         # migrations.AlterField(
         #     model_name='cartitem',
         #     name='cart',

@@ -50,7 +50,7 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return f"{self.id} - {self.category} - {self.collection}"
+        return f"{self.id} - {self.quantity} - {self.category} - {self.collection}"
 
     class Meta:
         verbose_name = "Item"
