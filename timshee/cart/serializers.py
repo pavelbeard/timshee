@@ -20,18 +20,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        # item = validated_data.get("item")
-        # cart = validated_data.get("cart")
-        # quantity = validated_data.get("quantity")
-        #
-        # cart_item = CartItem.objects.filter(item=item, cart=cart).first()
-        # if item.quantity < quantity:
-        #     raise serializers.ValidationError("Not enough items in stock")
-        #
-        # cart_item.quantity = quantity
-        # cart_item.save()
-        #
-        # return cart_item
         if "quantity" in validated_data:
             quantity = validated_data.get("quantity")
 
@@ -42,6 +30,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             instance.save()
 
         return instance
+
     class Meta:
         model = CartItem
         fields = ["id", "item", "quantity", "cart"]

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
-from .models import Item, Category, Collection
+from .models import Item, Category, Collection#, Color
 
 
 # Register your models here.
@@ -8,6 +8,11 @@ from .models import Item, Category, Collection
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     pass
+
+
+# @admin.register(Color)
+# class ColorAdmin(admin.ModelAdmin):
+#     pass
 
 
 @admin.register(Category)

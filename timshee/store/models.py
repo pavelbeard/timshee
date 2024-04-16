@@ -1,3 +1,6 @@
+from colorfield import fields
+from auxiliaries.auxiliaries_methods import calculate_discount as calc_discount
+
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
@@ -35,6 +38,7 @@ class Item(models.Model):
 
     name = models.CharField(max_length=100, default="Без имени", verbose_name="Имя")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Пол")
+    color = fields.ColorField(default='#FF0000', verbose_name="Цвет")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name="Коллекция")
     description = models.TextField(default="", verbose_name="Описание")
@@ -51,6 +55,12 @@ class Item(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.quantity} - {self.category} - {self.collection}"
+
+    def calculate_discount(self):
+        discount = self.discount
+        price = self.price
+
+        return calc_discount(price, discount, quantity=1)
 
     class Meta:
         verbose_name = "Item"

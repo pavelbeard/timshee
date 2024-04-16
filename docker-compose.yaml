@@ -18,6 +18,7 @@ services:
       - timshee/prod.env
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod.volume-images:/home/timshee_store_app/app/media/product_images
     command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
     depends_on:
       - postgresql
@@ -32,10 +33,12 @@ services:
       - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod.volume-images:/home/timshee_store_app/app/media/product_images
     command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - django
 
 volumes:
   prod.volume:
+  prod.volume-images:
   postgres_data:

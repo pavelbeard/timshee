@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'social_django',
     'drf_social_oauth2',
+    'colorfield',
+    'django_filters',
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -156,22 +158,28 @@ if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:8112",
         "http://localhost:8113",
+        "http://localhost:3000",
         "https://localhost",
         "http://127.0.0.1:8112",
         "http://127.0.0.1:8113",
+        "http://127.0.0.1:3000",
         "https://127.0.0.1",
     ]
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:8112",
         "http://localhost:8113",
+        "http://localhost:3000",
         "https://localhost",
         "http://127.0.0.1:8112",
         "http://127.0.0.1:8113",
+        "http://127.0.0.1:3000",
         "https://127.0.0.1",
     ]
 else:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
+
+CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"]
 
 # settings.py
 
@@ -187,6 +195,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # Только аутентифицированные пользователи имеют доступ
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
 

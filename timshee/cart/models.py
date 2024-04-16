@@ -1,10 +1,7 @@
+from auxiliaries.auxiliaries_methods import calculate_discount
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from store.models import Item
-
-import uuid
 
 
 # Create your models here.
@@ -41,7 +38,4 @@ class CartItem(models.Model):
         price = self.item.price
         quantity = self.quantity
 
-        if discount == 0:
-            return quantity * price
-        else:
-            return quantity * (price - (price * (discount / 100)))
+        return calculate_discount(price, quantity, discount)
