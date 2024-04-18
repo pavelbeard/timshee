@@ -1,10 +1,14 @@
+from distutils.log import Log
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 
 from .filters import ItemFilter
-from .models import Item, Category, Collection
-from .serializers import ItemSerializer, CategorySerializer, CollectionSerializer
+from .models import Item, Category, Collection, Size, Type, Logo, RoundImage
+from .serializers import (ItemSerializer, CollectionSerializer, CategorySerializer,
+                          SizeSerializer, TypeSerializer, LogoSerializer,
+                          RoundImageSerializer)
 
 
 # Create your views here.
@@ -29,6 +33,48 @@ class ItemListCreateAPIView(generics.ListCreateAPIView):
 class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+
+class RoundImageListCreateAPIView(generics.ListCreateAPIView):
+    queryset = RoundImage.objects.all()
+    serializer_class = RoundImageSerializer
+    pagination_class = None
+
+
+class RoundImageRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = RoundImage.objects.all()
+    serializer_class = RoundImageSerializer
+    pagination_class = None
+
+
+class LogoListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Logo.objects.all()
+    serializer_class = LogoSerializer
+
+
+class LogoRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = Logo.objects.all()
+    serializer_class = LogoSerializer
+
+
+class TypeListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
+
+
+class TypeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
+
+
+class SizeListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer
+
+
+class SizeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer
 
 
 class CategoryListCreateAPIView(generics.ListCreateAPIView):

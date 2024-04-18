@@ -3,8 +3,8 @@ test.docker-compose.yml
 frontend/timshee/node_modules
 postgres-files/test.*
 timshee/settings.py
-timshee/product_images
 timshee/test.*
+timshee/media
 nginx/test*
 nginx/server*
 timshee/db.sqlite3
