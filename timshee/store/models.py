@@ -34,17 +34,6 @@ class Type(models.Model):
         verbose_name_plural = 'Types'
 
 
-class Size(models.Model):
-    size = models.CharField(max_length=4, unique=True)
-
-    def __str__(self):
-        return self.size
-
-    class Meta:
-        verbose_name = 'Size'
-        verbose_name_plural = 'Sizes'
-
-
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Имя категории")
     category_image = models.ImageField(
@@ -89,8 +78,8 @@ class Item(models.Model):
     name = models.CharField(max_length=100, default="Без имени", verbose_name="Имя")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Пол")
     color = fields.ColorField(default='#FF0000', verbose_name="Цвет")
+    sizes = models.ManyToManyField('Size', through='ItemSize', related_name="items")
     type = models.ForeignKey(Type, on_delete=models.CASCADE, verbose_name="Тип товара", null=True, blank=True)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, verbose_name="Размер", null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name="Коллекция")
     description = models.TextField(default="", verbose_name="Описание")
@@ -119,9 +108,35 @@ class Item(models.Model):
         verbose_name_plural = "Items"
 
 
+class Size(models.Model):
+    size = models.CharField(max_length=4, unique=True)
+
+    def __str__(self):
+        return self.size
+
+    class Meta:
+        verbose_name = 'Size'
+        verbose_name_plural = 'Sizes'
+
+
+class ItemSize(models.Model):
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, null=True, blank=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.size} - {self.item}"
+
+
 class RoundImage(models.Model):
     """It needs for make merry-go-round of images in an internet-store"""
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="Картинка товара")
+    item = models.ForeignKey(
+        Item,
+        related_name="round_images",
+        on_delete=models.CASCADE,
+        verbose_name="Картинка товара",
+        null=True,
+        blank=True
+    )
     image = models.ImageField(
         upload_to="product_images/1/",
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])]

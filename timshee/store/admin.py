@@ -1,13 +1,19 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
-from .models import Item, Category, Collection, Size, Type, Logo, RoundImage
+from .models import Item, Category, Collection, Size, Type, Logo, RoundImage, ItemSize
 
 
 # Register your models here.
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-    pass
+    class RoundImagesInline(admin.TabularInline):
+        model = RoundImage
+
+    class SizesInLine(admin.TabularInline):
+        model = ItemSize
+
+    inlines = [RoundImagesInline, SizesInLine]
 
 
 @admin.register(RoundImage)
@@ -27,6 +33,11 @@ class TypeAdmin(admin.ModelAdmin):
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ItemSize)
+class ItemSizeAdmin(admin.ModelAdmin):
     pass
 
 

@@ -18,21 +18,25 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class CartListCreateAPIView(generics.ListCreateAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    pagination_class = None
 
 
 class CartRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    pagination_class = None
 
 
 class CartItemListCreateAPIView(generics.ListCreateAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+    pagination_class = None
 
 
 class CartItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+    pagination_class = None
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)

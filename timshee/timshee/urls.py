@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/store/', include("store.urls")),
     path('api/cart/', include("cart.urls")),
     path('api/order/', include("order.urls")),
+    path('api/stuff/', include("stuff.urls")),
     path('api/obtain-token/', views.obtain_auth_token),
     # здесь появится аутентификация
     path('auth/', include("drf_social_oauth2.urls", namespace="drf")),

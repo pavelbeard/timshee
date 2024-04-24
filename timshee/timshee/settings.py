@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
     "order.apps.OrderConfig",
+    "stuff.apps.StuffConfig",
 ]
 
 MIDDLEWARE = [
@@ -180,18 +181,19 @@ else:
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
 
 CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"]
+CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         # Используйте SessionAuthentication для аутентификации через сеанс
-        'rest_framework.authentication.BasicAuthentication',  # Или BasicAuthentication, если нужно
+        # 'rest_framework.authentication.BasicAuthentication',  # Или BasicAuthentication, если нужно
         # custom
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # django-oauth-toolkit >= 1.0.0
-        'drf_social_oauth2.authentication.SocialAuthentication',
+        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # django-oauth-toolkit >= 1.0.0
+        # 'drf_social_oauth2.authentication.SocialAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # Только аутентифицированные пользователи имеют доступ
@@ -206,6 +208,7 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'drf_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'stuff.authentication.EmailAuthenticationBackend',
     # custom
     'social_core.backends.google.GoogleOAuth2',
 )

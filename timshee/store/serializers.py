@@ -10,7 +10,7 @@ class RoundImageSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     round_images = serializers.SerializerMethodField()
-    size = serializers.SerializerMethodField()
+    sizes = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     collection = serializers.SerializerMethodField()
@@ -20,9 +20,9 @@ class ItemSerializer(serializers.ModelSerializer):
         serializer = RoundImageSerializer(qs, many=True)
         return serializer.data
 
-    def get_size(self, obj):
-        qs = Size.objects.filter(item=obj).first()
-        serializer = SizeSerializer(qs, many=False)
+    def get_sizes(self, obj):
+        qs = Size.objects.filter(items=obj)
+        serializer = SizeSerializer(qs, many=True)
         return serializer.data
 
     def get_type(self, obj):

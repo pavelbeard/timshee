@@ -1,6 +1,7 @@
 ЛОГОТИП.eps
 test.docker-compose.yml
 frontend/timshee/node_modules
+frontend/timshee/.env
 postgres-files/test.*
 timshee/settings.py
 timshee/test.*

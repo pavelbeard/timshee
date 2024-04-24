@@ -1,5 +1,14 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Cart, CartItem
+
+User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email"]
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -37,7 +46,13 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
     items = CartItemSerializer(many=True, read_only=True)
+
+    def get_user(self, obj):
+        user = User.objects.get(pk=obj.user.id)
+        serializer = UserSerializer(user, many=False)
+        return serializer.data
 
     class Meta:
         model = Cart
