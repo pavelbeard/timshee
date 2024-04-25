@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
-from .models import Item, Category, Collection, Size, Type, Logo, RoundImage, ItemSize
+from .models import Item, Category, Collection, SizeColor, Type, Logo, RoundImage, ItemSizeColor, Color, Size
 
 
 # Register your models here.
@@ -11,7 +11,7 @@ class ItemAdmin(admin.ModelAdmin):
         model = RoundImage
 
     class SizesInLine(admin.TabularInline):
-        model = ItemSize
+        model = ItemSizeColor
 
     inlines = [RoundImagesInline, SizesInLine]
 
@@ -31,19 +31,32 @@ class TypeAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ItemSize)
-class ItemSizeAdmin(admin.ModelAdmin):
+@admin.register(SizeColor)
+class SizeColorAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ItemSizeColor)
+class ItemSizeColorAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    pass
+    class TypeInline(admin.TabularInline):
+        model = Type
+
+    inlines = [TypeInline]
 
 
 @admin.register(Collection)
@@ -52,4 +65,3 @@ class CollectionAdmin(admin.ModelAdmin):
 
 
 auth_admin.UserAdmin.raw_id_fields = ["groups"]
-# auth_admin.UserAdmin.fields = ["groups"]

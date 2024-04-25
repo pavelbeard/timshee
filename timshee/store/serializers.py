@@ -1,5 +1,38 @@
 from rest_framework import serializers
-from .models import Item, Category, Collection, Size, Type, Logo, RoundImage
+from .models import Item, Category, Collection, SizeColor, Type, Logo, RoundImage, Color, ItemSizeColor, Size
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = "__all__"
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = '__all__'
+
+
+class ItemSizeColorSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+
+    def get_size(self, obj):
+        qs = Size.objects.filter(name=obj.size_color.size).first()
+        serializer = SizeSerializer(qs, many=False)
+        return serializer.data
+
+    def get_color(self, obj):
+        print(obj.size_color)
+        qs = Color.objects.filter(id=obj.size_color.color.id).first()
+        serializer = ColorSerializer(qs, many=False)
+        return serializer.data
+
+
+    class Meta:
+        model = ItemSizeColor
+        fields = ["size", "color", "quantity"]
 
 
 class RoundImageSerializer(serializers.ModelSerializer):
@@ -10,9 +43,8 @@ class RoundImageSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     round_images = serializers.SerializerMethodField()
-    sizes = serializers.SerializerMethodField()
+    sizes_colors = serializers.SerializerMethodField(label="color_sizes")
     type = serializers.SerializerMethodField()
-    category = serializers.SerializerMethodField()
     collection = serializers.SerializerMethodField()
 
     def get_round_images(self, obj):
@@ -20,19 +52,14 @@ class ItemSerializer(serializers.ModelSerializer):
         serializer = RoundImageSerializer(qs, many=True)
         return serializer.data
 
-    def get_sizes(self, obj):
-        qs = Size.objects.filter(items=obj)
-        serializer = SizeSerializer(qs, many=True)
+    def get_sizes_colors(self, obj):
+        qs = ItemSizeColor.objects.filter(item=obj)
+        serializer = ItemSizeColorSerializer(qs, many=True)
         return serializer.data
 
     def get_type(self, obj):
         qs = Type.objects.filter(item=obj).first()
         serializer = TypeSerializer(qs, many=False)
-        return serializer.data
-
-    def get_category(self, obj):
-        qs = Category.objects.filter(item=obj).first()
-        serializer = CategorySerializer(qs, many=False)
         return serializer.data
 
     def get_collection(self, obj):
@@ -51,21 +78,41 @@ class LogoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TypeSerializer(serializers.ModelSerializer):
+class SizeColorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Type
-        fields = "__all__"
-
-
-class SizeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Size
+        model = SizeColor
         fields = "__all__"
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    types = serializers.SerializerMethodField()
+
+    def get_types(self, obj):
+        qs = Type.objects.filter(category=obj)
+        serializer = TypeSerializer(qs, many=True)
+        return serializer.data
+
     class Meta:
         model = Category
+        fields = "__all__"
+
+
+class CategoryNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["name"]
+
+
+class TypeSerializer(serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()
+
+    def get_category(self, obj):
+        qs = Category.objects.filter(name=obj.category.name).first()
+        serializer = CategoryNameSerializer(qs, many=False)
+        return serializer.data
+
+    class Meta:
+        model = Type
         fields = "__all__"
 
 

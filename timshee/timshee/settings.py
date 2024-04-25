@@ -46,11 +46,13 @@ INSTALLED_APPS = [
     'drf_social_oauth2',
     'colorfield',
     'django_filters',
+    "debug_toolbar" if DEBUG else "",
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
     "order.apps.OrderConfig",
     "stuff.apps.StuffConfig",
+
 ]
 
 MIDDLEWARE = [
@@ -63,7 +65,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # custom
     'corsheaders.middleware.CorsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else "",
 ]
+
+if DEBUG:
+    INTERNAL_IPS = [
+        "localhost",
+        "127.0.0.1",
+    ]
 
 ROOT_URLCONF = 'timshee.urls'
 

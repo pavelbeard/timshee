@@ -4,11 +4,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 
-from .filters import ItemFilter
-from .models import Item, Category, Collection, Size, Type, Logo, RoundImage
+from .filters import ItemFilter, CategoryFilter
+from .models import Item, Category, Collection, SizeColor, Type, Logo, RoundImage, Color, Size
 from .serializers import (ItemSerializer, CollectionSerializer, CategorySerializer,
-                          SizeSerializer, TypeSerializer, LogoSerializer,
-                          RoundImageSerializer)
+                          SizeColorSerializer, TypeSerializer, LogoSerializer,
+                          RoundImageSerializer, ColorSerializer, SizeSerializer)
 
 
 # Create your views here.
@@ -24,6 +24,7 @@ class ItemListCreateAPIView(generics.ListCreateAPIView):
         queryset = super().get_queryset()
 
         for item in queryset:
+            print(item)
             if item.discount > 0:
                 item.price = item.calculate_discount()
 
@@ -60,6 +61,7 @@ class LogoRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
 class TypeListCreateAPIView(generics.ListCreateAPIView):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
+    pagination_class = None
 
 
 class TypeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
@@ -70,6 +72,7 @@ class TypeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
 class SizeListCreateAPIView(generics.ListCreateAPIView):
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
+    pagination_class = None
 
 
 class SizeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
@@ -77,10 +80,34 @@ class SizeRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = SizeSerializer
 
 
+class ColorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+    pagination_class = None
+
+
+class ColorRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+
+
+class SizeColorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = SizeColor.objects.all()
+    serializer_class = SizeColorSerializer
+    pagination_class = None
+
+
+class SizeColorRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = SizeColor.objects.all()
+    serializer_class = SizeColorSerializer
+
+
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CategoryFilter
 
 
 class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

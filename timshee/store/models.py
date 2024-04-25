@@ -1,5 +1,8 @@
+import re
+
 from colorfield import fields
 from auxiliaries.auxiliaries_methods import calculate_discount as calc_discount
+from django.core.exceptions import ValidationError
 
 from django.db import models
 from django.core.validators import FileExtensionValidator
@@ -24,10 +27,12 @@ class Logo(models.Model):
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, verbose_name="Тип товара")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True,
+                                 verbose_name="Код категории")
 
     def __str__(self):
-        return self.name
+        return f"Type: {self.name}, {self.category}"
 
     class Meta:
         verbose_name = 'Type'
@@ -41,14 +46,26 @@ class Category(models.Model):
         verbose_name="Изображение категории",
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
         null=True,
+        blank=True,
     )
 
     def __str__(self):
-        return self.name
+        return f"Category: {self.name}"
 
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
+
+
+def validation_link(value):
+    pattern = r'^\w+-\w+-\d{4}(?:-\d{4})?$'
+    if not re.match(pattern, value):
+        raise ValidationError(
+            f'Ссылка "{value}" не соответствует формату. '
+            f'Она должна состоять из двух слов, разделенных горизонтальной чертой, '
+            f'и одного или двух годов, также разделенных горизонтальной чертой. '
+            f'Например: "autumn-winter-2024-2025".'
+        )
 
 
 class Collection(models.Model):
@@ -59,9 +76,15 @@ class Collection(models.Model):
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
         null=True,
     )
+    link = models.CharField(
+        max_length=256,
+        validators=[validation_link],
+        verbose_name="Ссылка на коллекцию",
+        null=True,
+    )
 
     def __str__(self):
-        return self.name
+        return f"Collection: {self.name}"
 
     class Meta:
         verbose_name = "Collection"
@@ -77,10 +100,8 @@ class Item(models.Model):
 
     name = models.CharField(max_length=100, default="Без имени", verbose_name="Имя")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Пол")
-    color = fields.ColorField(default='#FF0000', verbose_name="Цвет")
-    sizes = models.ManyToManyField('Size', through='ItemSize', related_name="items")
+    sizes_colors = models.ManyToManyField('SizeColor', through='ItemSizeColor', related_name="items")
     type = models.ForeignKey(Type, on_delete=models.CASCADE, verbose_name="Тип товара", null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name="Коллекция")
     description = models.TextField(default="", verbose_name="Описание")
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name="Цена")
@@ -95,7 +116,7 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return f"{self.id} - {self.quantity} - {self.category} - {self.collection}"
+        return f"Id: {self.id}, Name: {self.name}, Quantity: {self.quantity}, {self.type}, {self.collection}"
 
     def calculate_discount(self):
         discount = self.discount
@@ -109,22 +130,57 @@ class Item(models.Model):
 
 
 class Size(models.Model):
-    size = models.CharField(max_length=4, unique=True)
+    name = models.CharField(max_length=4)
 
     def __str__(self):
-        return self.size
+        # return f"Size: {self.name}"
+        return f"{self.name}"
 
     class Meta:
-        verbose_name = 'Size'
-        verbose_name_plural = 'Sizes'
+        verbose_name = "Size"
+        verbose_name_plural = "Sizes"
 
 
-class ItemSize(models.Model):
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, null=True, blank=True)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True, blank=True)
+class SizeColor(models.Model):
+    size = models.ForeignKey("Size", on_delete=models.CASCADE, null=True, blank=True)
+    color = models.ForeignKey("Color", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.size} - {self.item}"
+        return f"{self.size}, {self.color}"
+
+    class Meta:
+        verbose_name = 'Size and color'
+        verbose_name_plural = 'Sizes and colors'
+
+        unique_together = (('size', 'color'),)
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    hex = fields.ColorField(default='#FF0000', verbose_name="Цвет")
+
+    def __str__(self):
+        return f"Color: {self.name}"
+
+    class Meta:
+        verbose_name = 'Color'
+        verbose_name_plural = 'Colors'
+
+
+class ItemSizeColor(models.Model):
+    size_color = models.ForeignKey(SizeColor, on_delete=models.CASCADE, null=True, blank=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True, blank=True)
+    quantity = models.PositiveIntegerField(default=0, verbose_name="Количество товаров этого размера и цвета")
+
+    def __str__(self):
+        return (f"[{self.size_color}], "
+                f"[{self.item}], [Quantity: "
+                f"{self.quantity}]")
+
+    class Meta:
+        verbose_name = 'Item size colors'
+        verbose_name_plural = 'Item size colors'
+        unique_together = (("size_color", "item"),)
 
 
 class RoundImage(models.Model):
