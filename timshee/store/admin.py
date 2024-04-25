@@ -1,65 +1,56 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
-from .models import Item, Category, Collection, SizeColor, Type, Logo, RoundImage, ItemSizeColor, Color, Size
+
+from . import models
 
 
 # Register your models here.
 
-@admin.register(Item)
+@admin.register(models.Item)
 class ItemAdmin(admin.ModelAdmin):
-    class RoundImagesInline(admin.TabularInline):
-        model = RoundImage
+    class StockInLine(admin.TabularInline):
+        model = models.Stock
 
-    class SizesInLine(admin.TabularInline):
-        model = ItemSizeColor
-
-    inlines = [RoundImagesInline, SizesInLine]
+    inlines = [StockInLine]
 
 
-@admin.register(RoundImage)
-class RoundImageAdmin(admin.ModelAdmin):
+@admin.register(models.StockImage)
+class StockImageAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Logo)
-class LogoAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Type)
+@admin.register(models.Type)
 class TypeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Color)
-class ColorAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Size)
+@admin.register(models.Size)
 class SizeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(SizeColor)
-class SizeColorAdmin(admin.ModelAdmin):
+@admin.register(models.Color)
+class ColorAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ItemSizeColor)
-class ItemSizeColorAdmin(admin.ModelAdmin):
-    pass
+@admin.register(models.Stock)
+class StockAdmin(admin.ModelAdmin):
+    class StockImageInline(admin.TabularInline):
+        model = models.StockImage
+
+    inlines = [StockImageInline]
 
 
-@admin.register(Category)
+@admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
     class TypeInline(admin.TabularInline):
-        model = Type
+        model = models.Type
 
     inlines = [TypeInline]
 
 
-@admin.register(Collection)
+@admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
     pass
 

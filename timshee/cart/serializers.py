@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Cart, CartItem
-from store.models import ItemSizeColor
-from store.serializers import ItemSizeColorSerializer
+# from store.models import ItemSizeColor
+# from store.serializers import ItemSizeColorSerializer
 
 
 User = get_user_model()
@@ -44,14 +44,14 @@ class CartItemSerializer(serializers.ModelSerializer):
     #
     #     return instance
 
-    def get_items(self, obj):
-        qs = ItemSizeColor.objects.filter(cartitem=obj)
-        serializer = ItemSizeColorSerializer(qs, many=True)
-        return serializer.data
+    # def get_items(self, obj):
+    #     qs = ItemSizeColor.objects.filter(cartitem=obj)
+    #     serializer = ItemSizeColorSerializer(qs, many=True)
+    #     return serializer.data
 
     class Meta:
         model = CartItem
-        fields = ["id", "items", "quantity_in_cart", "cart"]
+        fields = "__all__"
 
 
 class CartSerializer(serializers.ModelSerializer):

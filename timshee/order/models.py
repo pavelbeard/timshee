@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -60,6 +62,7 @@ class Address(models.Model):
 
 
 class Order(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     STATUS_CHOICES = (
         ('created', 'CREATED'),
         ('pending', 'PENDING'),
@@ -69,16 +72,23 @@ class Order(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    items = models.ManyToManyField(CartItem)
+    shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="created")
-    shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=True, null=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    cart_items = models.ManyToManyField(CartItem, related_name="orders")
-
-    class Meta:
-        verbose_name = "Order"
-        verbose_name_plural = "Orders"
 
     def __str__(self):
-        return f"Order: {self.id} - Status: {self.status}"
+        return str(self.uuid)
+
+    class Meta:
+        verbose_name = 'Order'
+        verbose_name_plural = 'Orders'
+
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+#     item = models.ForeignKey(Item, on_delete=models.CASCADE)
+#     quantity = models.PositiveIntegerField(default=1)
+#
+#     def __str__(self):
+#         return self.item.name

@@ -2,11 +2,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 
-from .filters import ItemFilter, CategoryFilter
-from .models import Item, Category, Collection, SizeColor, Type, Logo, RoundImage, Color, Size
+# from .filters import ItemFilter, CategoryFilter
+from .models import Item, Category, Collection, Type, Stock, StockImage, Color, Size
 from .serializers import (ItemSerializer, CollectionSerializer, CategorySerializer,
-                          SizeColorSerializer, TypeSerializer, LogoSerializer,
-                          RoundImageSerializer, ColorSerializer, SizeSerializer)
+                          TypeSerializer,
+                          StockImageSerializer, ColorSerializer, SizeSerializer)
 
 
 # Create your views here.
@@ -16,17 +16,7 @@ class ItemListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
     pagination_class = PageNumberPagination
     filter_backends = [DjangoFilterBackend]
-    filterset_class = ItemFilter
-
-    # def get_queryset(self):
-    #     queryset = super().get_queryset()
-    #
-    #     for item in queryset:
-    #         print(item)
-    #         if item.discount > 0:
-    #             item.price = item.calculate_discount()
-    #
-    #     return queryset
+    # filterset_class = ItemFilter
 
 
 class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -34,26 +24,16 @@ class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ItemSerializer
 
 
-class RoundImageListCreateAPIView(generics.ListCreateAPIView):
-    queryset = RoundImage.objects.all()
-    serializer_class = RoundImageSerializer
+class StockImageListCreateAPIView(generics.ListCreateAPIView):
+    queryset = StockImage.objects.all()
+    serializer_class = StockImageSerializer
     pagination_class = None
 
 
-class RoundImageRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
-    queryset = RoundImage.objects.all()
-    serializer_class = RoundImageSerializer
+class StockImageRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+    queryset = StockImage.objects.all()
+    serializer_class = StockImageSerializer
     pagination_class = None
-
-
-class LogoListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Logo.objects.all()
-    serializer_class = LogoSerializer
-
-
-class LogoRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
-    queryset = Logo.objects.all()
-    serializer_class = LogoSerializer
 
 
 class TypeListCreateAPIView(generics.ListCreateAPIView):
@@ -89,23 +69,12 @@ class ColorRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = ColorSerializer
 
 
-class SizeColorListCreateAPIView(generics.ListCreateAPIView):
-    queryset = SizeColor.objects.all()
-    serializer_class = SizeColorSerializer
-    pagination_class = None
-
-
-class SizeColorRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
-    queryset = SizeColor.objects.all()
-    serializer_class = SizeColorSerializer
-
-
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None
     filter_backends = [DjangoFilterBackend]
-    filterset_class = CategoryFilter
+    # filterset_class = CategoryFilter
 
 
 class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
