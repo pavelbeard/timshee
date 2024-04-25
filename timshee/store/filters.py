@@ -61,7 +61,6 @@ class ItemFilter(filters.FilterSet):
             "collection": ["exact"],
             "price": ["exact", "lte", "gte"],
             "discount": ["exact", "lte", "gte"],
-            "quantity": ["exact", "gte"],
         }
 
 

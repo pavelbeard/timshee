@@ -1,5 +1,3 @@
-from distutils.log import Log
-
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -20,15 +18,15 @@ class ItemListCreateAPIView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = ItemFilter
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        for item in queryset:
-            print(item)
-            if item.discount > 0:
-                item.price = item.calculate_discount()
-
-        return queryset
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #
+    #     for item in queryset:
+    #         print(item)
+    #         if item.discount > 0:
+    #             item.price = item.calculate_discount()
+    #
+    #     return queryset
 
 
 class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

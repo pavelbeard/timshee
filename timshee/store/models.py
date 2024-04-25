@@ -106,7 +106,6 @@ class Item(models.Model):
     description = models.TextField(default="", verbose_name="Описание")
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name="Цена")
     discount = models.DecimalField(default=0, max_digits=5, decimal_places=2, verbose_name="Скидка в процентах")
-    quantity = models.PositiveIntegerField(default=1, verbose_name="Количество на складе")
     image = models.ImageField(
         upload_to="product_images/item_images/",
         verbose_name="Изображение", validators=[FileExtensionValidator(
@@ -116,7 +115,7 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return f"Id: {self.id}, Name: {self.name}, Quantity: {self.quantity}, {self.type}, {self.collection}"
+        return f"Id: {self.id}, Name: {self.name}, {self.type}, {self.collection}"
 
     def calculate_discount(self):
         discount = self.discount
