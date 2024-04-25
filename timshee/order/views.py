@@ -1,53 +1,36 @@
 from django.shortcuts import render
 from rest_framework import generics, viewsets
 
-from .models import Country, City, Address, Order, CountryPhoneCode
-from .serializers import CountrySerializer, CitySerializer, AddressSerializer, OrderSerializer, \
-    CountryPhoneCodeSerializer
+from . import models, serializers
 
 
 # Create your views here.
 
 class CountryViewSet(viewsets.ModelViewSet):
-    queryset = Country.objects.all()
-    serializer_class = CountrySerializer
+    queryset = models.Country.objects.all()
+    serializer_class = serializers.CountrySerializer
     pagination_class = None
 
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
-    queryset = CountryPhoneCode.objects.all()
-    serializer_class = CountryPhoneCodeSerializer
+    queryset = models.CountryPhoneCode.objects.all()
+    serializer_class = serializers.CountryPhoneCodeSerializer
     pagination_class = None
 
 
 class CityViewSet(viewsets.ModelViewSet):
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
+    queryset = models.City.objects.all()
+    serializer_class = serializers.CitySerializer
     pagination_class = None
 
 
 class AddressViewSet(viewsets.ModelViewSet):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
+    queryset = models.Address.objects.all()
+    serializer_class = serializers.AddressSerializer
     pagination_class = None
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    queryset = models.Order.objects.all()
+    serializer_class = serializers.OrderSerializer
     pagination_class = None
-
-
-class OrderListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-
-class AddressRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
-
-
-class OrderRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer

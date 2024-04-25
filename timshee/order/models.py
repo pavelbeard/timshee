@@ -44,6 +44,7 @@ class City(models.Model):
 
 
 class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     street = models.CharField(max_length=255)
     interior = models.CharField(max_length=255)
@@ -62,7 +63,6 @@ class Address(models.Model):
 
 
 class Order(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     STATUS_CHOICES = (
         ('created', 'CREATED'),
         ('pending', 'PENDING'),
@@ -72,23 +72,15 @@ class Order(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    items = models.ManyToManyField(CartItem)
+    cart_items = models.ManyToManyField(CartItem)
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.id)
 
     class Meta:
         verbose_name = 'Order'
         verbose_name_plural = 'Orders'
-
-# class OrderItem(models.Model):
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-#     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-#     quantity = models.PositiveIntegerField(default=1)
-#
-#     def __str__(self):
-#         return self.item.name

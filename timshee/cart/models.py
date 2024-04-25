@@ -28,7 +28,7 @@ class CartItem(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.stock)
+        return str(self.stock) + f" [Quantity in cart: {self.quantity_in_cart}]"
 
     class Meta:
         verbose_name = 'CartItem'
