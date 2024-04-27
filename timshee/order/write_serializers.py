@@ -19,6 +19,8 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+
     class Meta:
         model = models.Address
         fields = "__all__"

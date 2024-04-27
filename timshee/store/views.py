@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 
 from cart import models as cart_models
-from . import models, serializers, filters
+from . import models, serializers, write_serializers, filters
 
 
 User = get_user_model()
@@ -16,18 +16,28 @@ User = get_user_model()
 
 class ItemViewSet(viewsets.ModelViewSet):
     queryset = models.Item.objects.all()
-    serializer_class = serializers.ItemSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ItemFilter
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.ItemSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.ItemSerializer
+
 
 class StockViewSet(viewsets.ModelViewSet):
     queryset = models.Stock.objects.all()
-    serializer_class = serializers.StockSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.StockFilter
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.StockSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.StockSerializer
 
     @action(detail=True, methods=['post'])
     def put_in_cart(self, request, *args, **kwargs):

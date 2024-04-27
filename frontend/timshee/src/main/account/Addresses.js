@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../redux/slices/menuSlice";
 import {changeAddress} from "../../redux/slices/editAddressSlice";
 
@@ -8,6 +8,8 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const Addresses = ({ showInAccountPrimaryOne }) => {
     const dispatch = useDispatch();
+
+    const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
 
     const [addresses, setAddresses] = useState([]);
 
@@ -24,9 +26,10 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
 
     }
 
+
     useEffect(() => {
         getAddresses();
-    }, []);
+    }, [isEditAddressMenuClicked]);
 
     if (showInAccountPrimaryOne) {
         return (
@@ -71,7 +74,7 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
                         <div>{address.postal_code}</div>
                         <div>{address.city.name}</div>
                         <div>{address.city.country.name}</div>
-                        <div>{address.phone_number}</div>
+                        <div>{"+" + address.phone_code.phone_code + " " + address.phone_number}</div>
                         <div>{address.email}</div>
                         <div onClick={() => {
                             callEditAddressForm({
@@ -80,8 +83,8 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
                                 address1: address.address1,
                                 address2: address.address2,
                                 postal_code: address.postal_code,
-                                city: address.city.name,
-                                country: address.city.country.name,
+                                city_obj: address.city,
+                                phone_code_obj: address.phone_code,
                                 phone_number: address.phone_number,
                                 email: address.email,
                                 address_id: address.id,

@@ -16,12 +16,14 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Country
         fields = "__all__"
+        depth = 2
 
 
 class CountryPhoneCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CountryPhoneCode
         fields = "__all__"
+        depth = 3
 
 
 class CitySerializer(serializers.ModelSerializer):

@@ -19,5 +19,5 @@ class StrictCartSerializer(serializers.ModelSerializer):
         return StrictUserSerializer(obj.user).data
 
     class Meta:
-        model = models.AnonymousCart
+        model = models.Cart
         fields = '__all__'

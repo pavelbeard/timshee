@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from store import models as store_models
-from . import models, serializers
+from . import models, serializers, write_serializers
 
 
 # Create your views here.
@@ -20,7 +20,12 @@ def _decrease(cart_item_obj, request) -> bool:
 
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = models.CartItem.objects.all()
-    serializer_class = serializers.CartItemSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.CartItemSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.CartItemSerializer
 
     @action(detail=True, methods=['POST'])
     def increase(self, request, pk=None):
@@ -44,12 +49,22 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = models.Cart.objects.all()
-    serializer_class = serializers.CartSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.CartSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.CartSerializer
 
 
 class AnonymousCartItemViewSet(viewsets.ModelViewSet):
     queryset = models.AnonymousCartItem.objects.all()
-    serializer_class = serializers.AnonymousCartItemSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.AnonymousCartItemSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.AnonymousCartItemSerializer
 
     @action(detail=True, methods=['POST'])
     def increase(self, request, pk=None):
@@ -60,7 +75,6 @@ class AnonymousCartItemViewSet(viewsets.ModelViewSet):
         else:
             return Response({"details": "failed to increase quantity, not enough stock"},
                             status=status.HTTP_400_BAD_REQUEST)
-
 
     @action(detail=True, methods=['POST'])
     def decrease(self, request, pk=None):
@@ -75,4 +89,9 @@ class AnonymousCartItemViewSet(viewsets.ModelViewSet):
 
 class AnonymousCartViewSet(viewsets.ModelViewSet):
     queryset = models.AnonymousCart.objects.all()
-    serializer_class = serializers.AnonymousCartSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.AnonymousCartSerializer
+        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+            return write_serializers.AnonymousCartSerializer
