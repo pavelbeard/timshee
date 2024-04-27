@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers, permissions
 
 from auxiliaries.auxiliaries_methods import generate_random_symbols
 from rest_framework.permissions import IsAuthenticated
@@ -15,9 +15,13 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class GetCsrfToken(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    allowed_methods = ["get"]
+
     def get(self, request):
         get_token(request)
-        return JsonResponse({'detail': "CSRF token has set successfully"}, safe=False)
+        return JsonResponse({'detail': "CSRF token has set successfully"},
+                            safe=False, status=status.HTTP_200_OK)
 
 
 User = get_user_model()
@@ -27,6 +31,7 @@ User = get_user_model()
 class RegisterAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = []
+    allowed_methods = ["post"]
 
     def post(self, request):
         email = request.data.get('email')
@@ -38,7 +43,6 @@ class RegisterAPIView(generics.GenericAPIView):
             return JsonResponse({'detail': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.create_user(
-            # username=f"{first_name}_{last_name}{generate_random_symbols()}",
             username=email,
             email=email,
             password=password,
@@ -54,6 +58,7 @@ class RegisterAPIView(generics.GenericAPIView):
 class LoginAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = []
+    allowed_methods = ["post"]
 
     def post(self, request):
         email = request.data.get('email')
@@ -64,11 +69,14 @@ class LoginAPIView(generics.GenericAPIView):
             token, created = Token.objects.get_or_create(user=user)
             return JsonResponse({'token': token.key}, safe=False, status=status.HTTP_200_OK)
         else:
-            return JsonResponse({'error': 'Credentials are worst'}, safe=False, status=status.HTTP_401_UNAUTHORIZED)
+            return JsonResponse({'error': 'Credentials are worst'},
+                                safe=False, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @method_decorator(csrf_protect, name='dispatch')
 class LogoutAPIView(generics.GenericAPIView):
+    allowed_methods = ["post"]
+
     def post(self, request):
         request.user.auth_token.delete()
         return JsonResponse({'status': 'Logged out'}, safe=False, status=status.HTTP_200_OK)
@@ -76,8 +84,10 @@ class LogoutAPIView(generics.GenericAPIView):
 
 class CheckAuthenticatedAPIView(generics.GenericAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    allowed_methods = ["get"]
 
     def get(self, request):
         user_id = request.user.id
-        return JsonResponse({'status': 'Authenticated', 'user': user_id}, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse({'status': 'Authenticated', 'user': user_id},
+                            safe=False,
+                            status=status.HTTP_200_OK)

@@ -10,5 +10,7 @@ router.register(r'phone-codes', views.CountryPhoneCodeViewSet)
 router.register(r'cities', views.CityViewSet)
 router.register(r'addresses', views.AddressViewSet)
 router.register(r'orders', views.OrderViewSet)
+router.register(r'anon-addresses', views.AnonymousAddressViewSet)
+router.register(r'anon-orders', views.AnonymousOrderViewSet)
 
 urlpatterns = [path("", include(router.urls))]

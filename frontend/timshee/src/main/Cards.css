@@ -1,0 +1,61 @@
+.cards-container {
+    padding-top: 50px;
+    justify-content: space-between;
+    display: flex;
+}
+
+.item-cards {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    /*OLD*/
+    /*display: grid;*/
+    /*grid-template-columns: repeat(3, 1fr);*/
+    padding: 40px 60px;
+}
+
+.item-cards-for-lte-3 {
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+.empty-space {
+    padding: 100px;
+}
+
+
+.card {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    /*NEW*/
+    flex: 0 0 auto;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+/*OLD STYLE*/
+/*.card:nth-child(3n+1) {*/
+/*    margin: 0 10px 20px 0;*/
+/*}*/
+/**/
+/*.card:nth-child(3n+3) {*/
+/*    margin: 0 0 20px 20px;*/
+/*}*/
+
+/*for smartphones and tablets*/
+@media only screen and (max-width: 600px) {
+    /*OLD*/
+    /*.item-cards {*/
+    /*    grid-template-columns: 1fr;*/
+    /*    padding: 20px;*/
+    /*}*/
+    /**/
+    /*.card:nth-child(3n+1), .card:nth-child(3n+3) {*/
+    /*    margin: 0 0 20px 0;*/
+    /*}*/
+
+    .cards-container {
+        padding-top: 25px
+    }
+}

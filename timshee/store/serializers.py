@@ -1,59 +1,73 @@
 from rest_framework import serializers
-from .models import Item, Category, Collection, Type, Stock, Color, StockImage, Size
+from . import models, strict_serializers
 
 
 class CategoryNameSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
+        model = models.Category
         fields = ["name"]
 
 
 class TypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Type
+        model = models.Type
         fields = "__all__"
         depth = 2
 
 
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Size
+        model = models.Size
         fields = "__all__"
 
 
 class ColorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Color
+        model = models.Color
         fields = '__all__'
 
 
 class StockSerializer(serializers.ModelSerializer):
+    item = serializers.SerializerMethodField()
+
+    def get_item(self, obj):
+        return strict_serializers.StrictItemSerializer(obj.item, many=False).data
+
     class Meta:
-        model = Stock
+        model = models.Stock
         fields = "__all__"
         depth = 2
 
 
 class StockImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = StockImage
+        model = models.StockImage
         fields = "__all__"
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    sizes = serializers.SerializerMethodField()
+    colors = serializers.SerializerMethodField()
+
+    def get_sizes(self, obj):
+        return SizeSerializer(obj.sizes.distinct(), many=True).data
+
+    def get_colors(self, obj):
+        return ColorSerializer(obj.colors.distinct(), many=True).data
+
     class Meta:
-        model = Item
+        model = models.Item
         fields = "__all__"
         depth = 2
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
+        model = models.Category
         fields = "__all__"
 
 
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Collection
+        model = models.Collection
         fields = "__all__"

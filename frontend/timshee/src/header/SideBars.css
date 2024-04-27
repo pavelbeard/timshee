@@ -1,0 +1,52 @@
+.overlay-1 {
+    top: auto;
+}
+
+.side-menu-container {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    margin: 0;
+}
+
+.side-menu-header, .side-menu {
+    padding: 10px 20px;
+    width: 300px;
+    background-color: #fff;
+}
+
+.side-menu-header {
+    display: flex;
+    align-items: center;
+    height: 30px;
+}
+
+.side-menu {
+    border-top: 1px #e4e4e4 solid;
+    height: 100%;
+}
+
+.side-menu > .nav-list {
+    align-items: start;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    height: 30px;
+    padding: 20px 40px;
+}
+
+#search-bar {
+    margin-left: 10px;
+    width: 90%;
+    border: none;
+    letter-spacing: 3px;
+    outline: none;
+}
+
+#search-bar::placeholder {
+    color: black;
+    font-weight: 100;
+}

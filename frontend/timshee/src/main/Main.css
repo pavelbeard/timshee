@@ -1,0 +1,77 @@
+@font-face {
+    font-family: 'Bebas Neue Cyrillic';
+    src: url('../fonts/bebasneuecyrillic/BebasNeueCyrillic.eot');
+    src: local('Bebas Neue Cyrillic'), local('BebasNeueCyrillic'),
+        url('../fonts/bebasneuecyrillic/BebasNeueCyrillic.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/bebasneuecyrillic/BebasNeueCyrillic.woff2') format('woff2'),
+        url('../fonts/bebasneuecyrillic/BebasNeueCyrillic.woff') format('woff'),
+        url('../fonts/bebasneuecyrillic/BebasNeueCyrillic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Bebas Neue Cyrillic';
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.34);
+}
+
+.header, .footer {
+    display: flex;
+}
+
+.nav-list {
+    display: flex;
+    align-items: center;
+}
+
+
+.nav-item {
+    margin-right: 20px;
+    list-style-type: none;
+    position: relative;
+    display: inline-block;
+}
+
+.nav-item:before, li.nav-item > a:before {
+    position: absolute;
+    bottom: -2px;
+    content: "";
+    width: 0;
+    height: 1px;
+    margin: 0 auto;
+    background: #c6c6c6;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+    visibility: hidden;
+}
+
+.nav-item:hover:before, li.nav-item > a:hover:before {
+    visibility: visible;
+    width: 100%;
+}
+
+li.nav-item > a, .nav-item, .link-to-main-collection {
+    text-decoration: none;
+    letter-spacing: 2px;
+    outline: none;
+}
+
+li.nav-item > a:last-child, .nav-item:last-child {
+    margin-right: 0;
+}
+
+li.nav-item:visited, li.nav-item > a:visited, .link-to-main-collection:visited {
+    color: black;
+}

@@ -28,13 +28,19 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.City
         fields = "__all__"
+        depth = 2
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        return strict_serializers.StrictUserSerializer(obj.user).data
+
     class Meta:
         model = models.Address
         fields = "__all__"
-        depth = 1
+        depth = 2
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -55,3 +61,17 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = "__all__"
         depth = 3
+
+
+class AnonymousAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AnonymousAddress
+        fields = "__all__"
+        depth = 2
+
+
+class AnonymousOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AnonymousOrder
+        fields = "__all__"
+        depth = 2

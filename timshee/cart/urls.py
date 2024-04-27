@@ -5,6 +5,8 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register('cart-items', views.CartItemViewSet)
-router.register('cart', views.CartViewSet)
+router.register('carts', views.CartViewSet)
+router.register('anon-cart-items', views.AnonymousCartItemViewSet)
+router.register('anon-carts', views.AnonymousCartViewSet)
 
 urlpatterns = router.urls
