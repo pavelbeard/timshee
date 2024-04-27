@@ -10,5 +10,7 @@ nginx/test*
 nginx/server*
 timshee/db.sqlite3
 timshee/db.sqlite3.bkp
+# temporally
+frontend/*
 .idea
 notes
