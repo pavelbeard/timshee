@@ -13,9 +13,9 @@ class CountryPhoneCodeFilter(django_filters.FilterSet):
 
 
 
-class CityFilter(django_filters.FilterSet):
+class ProvinceFilter(django_filters.FilterSet):
     class Meta:
-        model = models.City
+        model = models.Province
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'country__name': ['exact', 'icontains', 'istartswith'],
@@ -28,8 +28,8 @@ class AddressFilter(django_filters.FilterSet):
         model = models.Address
         fields = {
             'user__id': ['exact'],
-            'city__country__name': ['exact', 'icontains', 'istartswith'],
-            'city__country__id': ['exact'],
+            'province__country__name': ['exact', 'icontains', 'istartswith'],
+            'province__country__id': ['exact'],
         }
 
 

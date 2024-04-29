@@ -2,6 +2,8 @@
 test.docker-compose.yml
 frontend/timshee/node_modules
 frontend/timshee/.env
+frontend/timshee/.env.development.testing
+frontend/server*
 postgres-files/test.*
 timshee/settings.py
 timshee/test.*
@@ -10,7 +12,8 @@ nginx/test*
 nginx/server*
 timshee/db.sqlite3
 timshee/db.sqlite3.bkp
-# temporally
-frontend/*
+
 .idea
+*test*
+*development*
 notes

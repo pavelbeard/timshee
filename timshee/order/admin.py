@@ -15,8 +15,8 @@ class CountryPhoneCodeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(models.City)
-class CityAdmin(admin.ModelAdmin):
+@admin.register(models.Province)
+class ProvinceAdmin(admin.ModelAdmin):
     pass
 
 

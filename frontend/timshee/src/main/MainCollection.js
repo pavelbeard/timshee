@@ -1,9 +1,10 @@
 import React from 'react';
 import {useEffect, useState} from "react";
 
-import collectionImg from "../media/product_images/IMG_9781_hZFZGbl.JPG";
 import "./MainCollection.css"
 import {Link} from "react-router-dom";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const MainCollection = ({ data }) => {
     const [imageSize, setImageSize] = React.useState('');
@@ -29,7 +30,7 @@ const MainCollection = ({ data }) => {
 
     return (
         <div className="collection-introduction">
-            <img src={collectionImg} alt="collection-img" height={imageSize}/>
+            <img src={data?.collection_image} alt="collection-img" height={imageSize}/>
             <Link
                 className="link-to-main-collection"
                 to={`/collections/${data ? data.link : "alt"}`}

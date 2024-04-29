@@ -25,6 +25,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change_me")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = bool(int(os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 1)))
+TESTING = bool(int(os.getenv("DJANGO_SETTINGS_TESTING_MODE", 0)))
 
 ALLOWED_HOSTS = ["*"]
 
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     'drf_social_oauth2',
     'colorfield',
     'django_filters',
-    "debug_toolbar" if DEBUG else "",
+    "debug_toolbar" if (DEBUG or TESTING)else "",
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -65,10 +66,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # custom
     'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else "",
+    'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
 ]
 
-if DEBUG:
+if DEBUG or TESTING:
     INTERNAL_IPS = [
         "localhost",
         "127.0.0.1",
@@ -107,7 +108,7 @@ if DEBUG:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
+elif TESTING or not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -164,7 +165,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/backend/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-if DEBUG:
+if DEBUG or TESTING:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:8112",
         "http://localhost:8113",
@@ -186,13 +187,17 @@ if DEBUG:
         "https://127.0.0.1",
     ]
 else:
-    CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
-    CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS"))
+    CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
+    CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
 
 CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"]
 CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE__X_FORWARDED_PROTO = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

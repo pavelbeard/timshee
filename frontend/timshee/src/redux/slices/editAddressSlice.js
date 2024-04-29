@@ -8,7 +8,8 @@ export const editAddressSlice = createSlice({
         address1: "",
         address2: "",
         postal_code: "",
-        city_obj: {},
+        province_obj: {},
+        city: "",
         phone_code_obj: {},
         phone_number: "",
         email: "",
@@ -22,7 +23,8 @@ export const editAddressSlice = createSlice({
             state.address1 = action.payload.address1;
             state.address2 = action.payload.address2;
             state.postal_code = action.payload.postal_code;
-            state.city_obj = action.payload.city_obj;
+            state.city = action.payload.city;
+            state.province_obj = action.payload.province_obj;
             state.phone_code_obj = action.payload.phone_code_obj;
             state.phone_number = action.payload.phone_number;
             state.email = action.payload.email;

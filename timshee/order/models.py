@@ -32,13 +32,13 @@ class CountryPhoneCode(models.Model):
         return f"{self.country.name} (+{self.phone_code})"
 
 
-class City(models.Model):
+class Province(models.Model):
     name = models.CharField(max_length=100)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "City"
-        verbose_name_plural = "Cities"
+        verbose_name = "Province"
+        verbose_name_plural = "Provinces"
 
     def __str__(self):
         return f"{self.name}, {self.country.name}"
@@ -48,7 +48,8 @@ class Address(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    city = models.CharField(max_length=50)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
     address1 = models.CharField(max_length=255)
     address2 = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=20)
@@ -63,7 +64,7 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
     def __str__(self):
-        return f"{self.address1}, {self.city.name}"
+        return f"{self.address1}, {self.province.name} {self.city}"
 
 
 class Order(models.Model):
@@ -92,7 +93,8 @@ class AnonymousAddress(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     session = models.OneToOneField(Session, on_delete=models.CASCADE, blank=True, null=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    city = models.CharField(max_length=50)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
     address1 = models.CharField(max_length=255)
     address2 = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=20)
@@ -106,7 +108,7 @@ class AnonymousAddress(models.Model):
         verbose_name_plural = "Anonymous addresses"
 
     def __str__(self):
-        return f"{self.address1}, {self.city.name}"
+        return f"{self.address1}, {self.province.name} {self.city}"
 
 
 class AnonymousOrder(models.Model):

@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Order',
             fields=[
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(auto_created=True, default=1, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('status', models.CharField(choices=[('created', 'CREATED'), ('pending', 'PENDING'), ('processing', 'PROCESSING'), ('completed', 'COMPLETED'), ('cancelled', 'CANCELLED')], default='created', max_length=20)),
                 ('updated_at', models.DateTimeField(auto_now=True)),

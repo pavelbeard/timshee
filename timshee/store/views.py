@@ -53,24 +53,30 @@ class StockImageViewSet(viewsets.ModelViewSet):
 class TypeViewSet(viewsets.ModelViewSet):
     queryset = models.Type.objects.all()
     serializer_class = serializers.TypeSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = models.Collection.objects.all()
     serializer_class = serializers.CollectionSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class SizeViewSet(viewsets.ModelViewSet):
     queryset = models.Size.objects.all()
     serializer_class = serializers.SizeSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class ColorViewSet(viewsets.ModelViewSet):
     queryset = models.Color.objects.all()
     serializer_class = serializers.ColorSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
 

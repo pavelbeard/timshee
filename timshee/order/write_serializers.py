@@ -12,14 +12,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', "last_name", 'email']
 
 
-class CitySerializer(serializers.ModelSerializer):
+class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.City
+        model = models.Province
         fields = "__all__"
 
 
 class AddressSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=False)
+    user = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = models.Address

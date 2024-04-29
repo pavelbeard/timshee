@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from . import models, serializers, write_serializers, filters
 
@@ -18,16 +21,16 @@ class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
     filterset_class = filters.CountryPhoneCodeFilter
 
 
-class CityViewSet(viewsets.ModelViewSet):
-    queryset = models.City.objects.all()
+class ProvinceViewSet(viewsets.ModelViewSet):
+    queryset = models.Province.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = filters.CityFilter
+    filterset_class = filters.ProvinceFilter
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return serializers.CitySerializer
+            return serializers.ProvinceSerializer
         elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
-            return write_serializers.CitySerializer
+            return write_serializers.ProvinceSerializer
 
 
 class AddressViewSet(viewsets.ModelViewSet):
@@ -40,6 +43,10 @@ class AddressViewSet(viewsets.ModelViewSet):
             return serializers.AddressSerializer
         elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
             return write_serializers.AddressSerializer
+
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        return super().update(request, *args, **kwargs)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -68,6 +75,7 @@ class AnonymousAddressViewSet(viewsets.ModelViewSet):
 class AnonymousOrderViewSet(viewsets.ModelViewSet):
     queryset = models.AnonymousOrder.objects.all()
     permission_classes = (permissions.AllowAny,)
+
     # filter_backends = (DjangoFilterBackend,)
     # filterset = filters.AnonymousOrderFilter
 

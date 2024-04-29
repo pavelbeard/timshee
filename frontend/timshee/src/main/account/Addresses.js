@@ -22,11 +22,6 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
         setAddresses(json)
     };
 
-    const setAddressesNotAsPrimary = async (e) => {
-
-    }
-
-
     useEffect(() => {
         getAddresses();
     }, [isEditAddressMenuClicked]);
@@ -34,21 +29,22 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
     if (showInAccountPrimaryOne) {
         return (
             <div>
-                <div>Primary address:</div>
-                {addresses.map((address) => {
+                <div className="primary-address">PRIMARY ADDRESS:</div>
+                {addresses.map((address, index) => {
                     if (address.as_primary)
                         return (
-                            <>
+                            <div key={index}>
                                 <div>{address.first_name}</div>
                                 <div>{address.last_name}</div>
                                 <div>{address.address1}</div>
                                 <div>{address.address2}</div>
                                 <div>{address.postal_code}</div>
-                                <div>{address.city.name}</div>
-                                <div>{address.city.country.name}</div>
+                                <div>{address.city}</div>
+                                <div>{address.province.name}</div>
+                                <div>{address.province.country.name}</div>
                                 <div>{address.phone_number}</div>
                                 <div>{address.email}</div>
-                            </>
+                            </div>
                         );
                 })}
                 <Link className="edit-addresses" to="/account/addresses">Edit addresses</Link>
@@ -66,14 +62,14 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
             {addresses.map((address, index) => {
                 return (
                     <div key={index}>
-                        {address.as_primary && (<div>PRIMARY ADDRESS</div>)}
                         <div>{address.first_name}</div>
                         <div>{address.last_name}</div>
                         <div>{address.address1}</div>
                         <div>{address.address2}</div>
                         <div>{address.postal_code}</div>
-                        <div>{address.city.name}</div>
-                        <div>{address.city.country.name}</div>
+                        <div>{address.city}</div>
+                        <div>{address.province.name}</div>
+                        <div>{address.province.country.name}</div>
                         <div>{"+" + address.phone_code.phone_code + " " + address.phone_number}</div>
                         <div>{address.email}</div>
                         <div onClick={() => {
@@ -83,7 +79,8 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
                                 address1: address.address1,
                                 address2: address.address2,
                                 postal_code: address.postal_code,
-                                city_obj: address.city,
+                                city: address.city,
+                                province_obj: address.province,
                                 phone_code_obj: address.phone_code,
                                 phone_number: address.phone_number,
                                 email: address.email,

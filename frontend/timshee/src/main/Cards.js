@@ -2,7 +2,6 @@ import React from 'react';
 import {useEffect} from "react";
 
 import "./Cards.css";
-import testImg from "../media/product_images/collection_images/IMG_9782.JPG";
 
 const Cards = ({ data }) => {
     const [imageSize, setImageSize] = React.useState('');
@@ -33,7 +32,7 @@ const Cards = ({ data }) => {
                 {
                     data ? data?.map((item, index) =>
                         <div className="card" key={index}>
-                            <img src={testImg} alt={"alt" + index} height={imageSize}/>
+                            <img src={item?.category_image} alt={"alt" + index} height={imageSize}/>
                             <p>{item.name}</p>
                         </div>
                     ) : (

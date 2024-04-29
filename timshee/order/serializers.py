@@ -26,9 +26,9 @@ class CountryPhoneCodeSerializer(serializers.ModelSerializer):
         depth = 3
 
 
-class CitySerializer(serializers.ModelSerializer):
+class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.City
+        model = models.Province
         fields = "__all__"
         depth = 2
 

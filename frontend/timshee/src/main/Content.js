@@ -35,6 +35,7 @@ const Content = () => {
     useEffect(() => {
         fetchData();
         fetchMainCollection();
+
         // const interval = setInterval(() => {
         //     fetchData();
         //     fetchMainCollection();
