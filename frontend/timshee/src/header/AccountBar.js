@@ -10,7 +10,7 @@ const AccountBar = ({ showAccountBar, hideAccountBar }) => {
             <div className="account-container">
                 <ul className="account-list">
                     <li className="account-list-item"><Link to="/account/details">Details</Link></li>
-                    <li className="account-list-item"><Link to="/account/address-book">Address book</Link></li>
+                    <li className="account-list-item"><Link to="/account/addresses">Address book</Link></li>
                 </ul>
             </div>
         )

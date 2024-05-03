@@ -4,6 +4,7 @@ frontend/timshee/node_modules
 frontend/timshee/.env
 frontend/timshee/.env.development.testing
 frontend/server*
+frontend/timshee/src/media/product_images
 postgres-files/test.*
 timshee/settings.py
 timshee/test.*

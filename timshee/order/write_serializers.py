@@ -19,7 +19,7 @@ class ProvinceSerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=False, read_only=True)
+    # user = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = models.Address

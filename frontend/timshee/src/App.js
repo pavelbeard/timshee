@@ -30,9 +30,6 @@ const App = () => {
                 credentials: "include",
             });
             const json = await response.json();
-            // const links = json.map((item) => {
-            //     return item.link;
-            // });
             setCollectionLinks(json);
         } catch (e) {
 
@@ -56,7 +53,7 @@ const App = () => {
                         <Route path="/account/register" element={<Register />} />
                         <Route path="/account/addresses" element={<Addresses />} />
                         {
-                            collectionLinks.map((item, index) => {
+                            typeof collectionLinks.map === "function" && collectionLinks.map((item, index) => {
                                 return (
                                     <Route
                                         path={`/collections/${item.link}`}

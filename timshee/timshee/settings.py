@@ -190,7 +190,7 @@ else:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
 
-CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS"]
+CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 
 # settings.py

@@ -1,0 +1,83 @@
+.edit-address-form-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-address-form-title {
+    margin-bottom: 20px;
+    letter-spacing: 3px;
+}
+
+.edit-address-form {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 450px;
+    height: 650px;
+    background: #fff;
+}
+
+.edit-address-form > div {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.edit-address-form > div > label {
+    display: flex;
+    flex-direction: column;
+}
+
+#last-as-primary {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#last-as-primary > span{
+    text-align: center;
+}
+
+.label-text {
+    margin-left: 30px;
+}
+
+.edit-address-form > div > label > input,
+.edit-address-form > div > label > select {
+    outline: none;
+    border: none;
+    border-bottom: 1px solid #e4e4e4;
+}
+
+.edit-address-form > div:last-child {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0;
+}
+
+.edit-address-form > div:last-child > * {
+    margin-top: 15px;
+}
+
+.edit-address-form > div:last-child > button {
+    height: 40px;
+    width: 120px;
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    padding: 15px;
+    font-family: "Bebas Neue Cyrillic";
+    letter-spacing: 3px;
+    cursor: pointer;
+}
+
+.edit-address-form > div:last-child > button:hover {
+    background: #000;
+    color: #fff;
+}
+
+.edit-address-form > div:last-child > img {
+    padding-top: 15px;
+    cursor: pointer;
+}
+

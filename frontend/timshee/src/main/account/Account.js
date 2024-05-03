@@ -56,14 +56,14 @@ const Account = () => {
     }
 
     return (
-        <div className="account common">
-            <div>
+        <div className="account common account-authorized">
+            <div className="first-block">
                 Account:
                 <form onClick={logoutF}>
                     <button type="submit">Logout</button>
                 </form>
             </div>
-            <div className="addresses">
+            <div className="second-block">
                 <Addresses showInAccountPrimaryOne={true}/>
             </div>
         </div>

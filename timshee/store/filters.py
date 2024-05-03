@@ -4,11 +4,17 @@ from store import models as store_models
 
 
 class ItemFilter(django_filters.FilterSet):
+    o = django_filters.OrderingFilter(
+        fields=(
+            ('price', 'price',)
+        )
+    )
+
     class Meta:
         model = store_models.Item
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
-            'price': ['gte', 'lte', 'gt', 'lt', 'exact'],
+            'price': ['gte', 'lte', 'gt', 'lt', 'exact', ],
             'discount': ['gte', 'lte', 'gt', 'lt', 'exact'],
             'sizes__value': ['exact'],
             'colors__name': ['exact', 'icontains', 'istartswith'],

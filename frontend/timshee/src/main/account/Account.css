@@ -1,3 +1,142 @@
 .common {
-    padding: 30px;
+    padding: 30px 50px;
+}
+
+.account-authorized > div {
+    margin-bottom: 20px;
+}
+
+.first-block {
+    padding: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.first-block > form > button {
+    display: flex;
+    border: none;
+    outline: none;
+    background: none;
+    align-items: center;
+    font-family: "Bebas Neue Cyrillic";
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.first-block > form > button, .first-block {
+    letter-spacing: 3px;
+}
+
+.divider {
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.primary-address-container {
+    width: 60vw;
+    padding-right: 20px;
+}
+
+.primary-address-name {
+    letter-spacing: 3px;
+}
+
+.primary-address{
+    display: flex;
+    flex-direction: column;
+}
+
+.primary-address, .filler {
+    letter-spacing: 3px;
+    height: 16px;
+    margin-top: 20px;
+}
+
+.primary-address > div {
+    margin-bottom: 5px;
+    letter-spacing: 0;
+}
+
+.primary-address > div:first-child {
+    margin-bottom: 30px;
+}
+
+/*.primary-address > div:last-child {*/
+/*    margin-bottom: 30px;*/
+/*}*/
+
+.edit-addresses, .return-to-account, .add-address {
+    margin-top: 20px;
+}
+
+.add-address {
+    padding: 0 0 30px 50px;
+}
+
+.edit-addresses, .return-to-account > a, .add-address > p {
+    padding: 20px;
+    letter-spacing: 3px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    color: #000;
+    width: 125px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.return-to-account {
+    padding: 30px 50px;
+}
+
+.edit-addresses:hover, .return-to-account > a:hover, .add-address > p:hover {
+    color: #ffffff;
+    background: #000000;
+}
+
+.addresses-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 30px 50px;
+}
+
+.address-item {
+    width: 90%;
+}
+
+.address-item > div:nth-child(3) {
+    margin-bottom: 30px;
+}
+
+.address-item > div:nth-child(n + 4) {
+    margin-bottom: 5px;
+}
+
+.change-block {
+    margin-top: 10px;
+    display: flex;
+}
+
+.change-block > div {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.change-block > div:before {
+    content: "";
+    width: 100%;
+    /*height: 1px;*/
+    border: .5px solid #000;
+}
+
+
+@media only screen and (max-width: 600px) {
+    .addresses-container {
+        display: flex;
+        flex-direction: column;
+    }
+
 }
