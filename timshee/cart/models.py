@@ -1,7 +1,7 @@
 from auxiliaries.auxiliaries_methods import calculate_discount
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from django.db import models
+from django.db import models, IntegrityError
 
 from store.models import Stock
 
@@ -32,25 +32,34 @@ class CartItem(models.Model):
         return str(self.stock) + f" [Quantity in cart: {self.quantity_in_cart}]"
 
     def increase_quantity_in_cart(self, quantity):
-        if quantity > 0:
-            self.quantity_in_cart += quantity
-            if self.stock.in_stock > 0:
-                self.stock.in_stock -= quantity
-                self.stock.save()
-                self.save()
-                return True
+        quantity = int(quantity)
 
-        return False
+        try:
+            if quantity > 0:
+                self.quantity_in_cart += quantity
+                if self.stock.in_stock > 0:
+                    self.stock.in_stock -= quantity
+                    self.stock.save()
+                    self.save()
+                    return True
+        except IntegrityError as e:
+            return False
+
+    increase_quantity_in_cart.short_description = "Increase quantity in cart"
 
     def decrease_quantity_in_cart(self, quantity):
-        if self.quantity_in_cart > 0:
-            self.quantity_in_cart -= quantity
-            self.stock.in_stock += quantity
-            self.stock.save()
-            self.save()
-            return True
+        quantity = int(quantity)
+        try:
+            if self.quantity_in_cart > 0:
+                self.quantity_in_cart -= quantity
+                self.save()
+                self.stock.in_stock += quantity
+                self.stock.save()
+                return True
+        except IntegrityError as e:
+            return False
 
-        return False
+    decrease_quantity_in_cart.short_description = "Decrease quantity in cart"
 
     class Meta:
         verbose_name = 'CartItem'
@@ -81,25 +90,30 @@ class AnonymousCartItem(models.Model):
         return str(self.stock) + f" [Quantity in cart: {self.quantity_in_cart}]"
 
     def increase_quantity_in_cart(self, quantity):
-        if 0 < quantity <= self.stock.in_stock:
-            self.quantity_in_cart += quantity
-            if self.stock.in_stock > 0:
-                self.stock.in_stock -= quantity
-                self.stock.save()
-                self.save()
-                return True
+        quantity = int(quantity)
 
-        return False
+        try:
+            if quantity > 0:
+                self.quantity_in_cart += quantity
+                if self.stock.in_stock > 0:
+                    self.stock.in_stock -= quantity
+                    self.stock.save()
+                    self.save()
+                    return True
+        except IntegrityError as e:
+            return False
 
     def decrease_quantity_in_cart(self, quantity):
-        if self.quantity_in_cart > 0:
-            self.quantity_in_cart -= quantity
-            self.stock.in_stock += quantity
-            self.stock.save()
-            self.save()
-            return True
-
-        return False
+        quantity = int(quantity)
+        try:
+            if self.quantity_in_cart > 0:
+                self.quantity_in_cart -= quantity
+                self.save()
+                self.stock.in_stock += quantity
+                self.stock.save()
+                return True
+        except IntegrityError as e:
+            return False
 
     class Meta:
         verbose_name = 'Anonymous cart item'

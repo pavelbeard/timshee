@@ -6,6 +6,7 @@ import menuLvl2Slice from "./slices/menuLvl2Slice";
 import checkAuthSlice from "./slices/checkAuthSlice";
 import editAddressSlice from "./slices/editAddressSlice";
 import filtersSlice from "./slices/shopSlices/filtersSlice";
+import itemSlice from "./slices/shopSlices/itemSlice";
 
 export default configureStore({
     reducer: {
@@ -16,6 +17,7 @@ export default configureStore({
         auth: checkAuthSlice,
         editAddress: editAddressSlice,
 
-        filters: filtersSlice
+        filters: filtersSlice,
+        item: itemSlice,
     }
 })

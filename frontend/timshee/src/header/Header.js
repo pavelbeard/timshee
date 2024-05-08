@@ -20,12 +20,7 @@ const Header = () => {
                 <Logo/>
                 <Info/>
             </header>
-            {
-                isCursorEnteredLvl1 ? (
-                    <MenuLvl1 />
-                ) : (<></>)
-            }
-
+            {isCursorEnteredLvl1 && <MenuLvl1 />}
         </div>
     );
 }

@@ -29,7 +29,6 @@ class ItemViewSet(viewsets.ModelViewSet):
 
 class StockViewSet(viewsets.ModelViewSet):
     queryset = models.Stock.objects.all()
-    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.StockFilter
 
@@ -46,8 +45,8 @@ class StockViewSet(viewsets.ModelViewSet):
 
 
 class StockImageViewSet(viewsets.ModelViewSet):
-    queryset = models.StockImage.objects.all()
-    serializer_class = serializers.StockImageSerializer
+    queryset = models.CarouselImage.objects.all()
+    serializer_class = serializers.CarouselImageSerializer
 
 
 class TypeViewSet(viewsets.ModelViewSet):

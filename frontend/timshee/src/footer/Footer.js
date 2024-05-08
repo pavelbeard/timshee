@@ -1,3 +1,5 @@
+import React from 'react';
+
 import Contacts from './Contacts';
 import SocialNetworks from './SocialNetworks';
 import "./Footer.css";

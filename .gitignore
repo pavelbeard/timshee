@@ -18,3 +18,6 @@ timshee/db.sqlite3.bkp
 *test*
 *development*
 notes
+fs.js
+package.json
+package-lock.json

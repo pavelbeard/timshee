@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {menuLvl1Slice} from "./menuLvl1Slice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -12,21 +11,25 @@ const initialState = {
 
 export const checkAuthStatus = createAsyncThunk(
     "auth/checkAuthSlice",
-    async () => {
-        const response = await fetch(API_URL + "api/stuff/check-auth/", {
-            headers: {
-                'Authorization': `Token ${localStorage.getItem("token")}`,
-            },
-            credentials: "include",
-        });
+    async (arg, thunkAPI) => {
+        try {
+            const response = await fetch(API_URL + "api/stuff/check-auth/", {
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem("token")}`,
+                },
+                credentials: "include",
+            });
 
-        if (response.ok) {
-            const json = await response.json();
-            localStorage.setItem("userId", json.user);
-            return response.ok;
+            if (response.ok) {
+                const json = await response.json();
+                localStorage.setItem("userId", json.user);
+                return response.ok;
+            } else if (response.status === 401) {
+                return thunkAPI.rejectWithValue(response.statusText);
+            }
+        } catch (e) {
+
         }
-
-        throw new Error(response.statusText);
     }
 );
 

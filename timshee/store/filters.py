@@ -24,6 +24,11 @@ class ItemFilter(django_filters.FilterSet):
             # 'stock__price': ['gte', 'lte', 'exact']
         }
 
+    @property
+    def qs(self, *args, **kwargs):
+        parent = super().qs
+        return parent.distinct()
+
 
 class StockFilter(django_filters.FilterSet):
     class Meta:
@@ -39,3 +44,8 @@ class StockFilter(django_filters.FilterSet):
             'size__value': ['exact'],
             'color__name': ['exact', 'icontains', 'istartswith'],
         }
+
+    # @property
+    # def qs(self, *args, **kwargs):
+    #     parent = super().qs
+    #     return parent.distinct()

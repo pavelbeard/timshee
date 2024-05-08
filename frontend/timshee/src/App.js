@@ -8,6 +8,8 @@ import Login from "./main/account/Login";
 import Register from "./main/account/Register";
 import Account from "./main/account/Account";
 import Addresses from "./main/account/Addresses";
+import ItemCards from "./main/shop/ItemCards";
+import ItemCard from "./main/shop/ItemCard";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -47,6 +49,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Main />}>
                         <Route path="/shop" element={<Shop />} />
+                        <Route path="/shop/:collection/:type/:itemName" element={<ItemCard />} />
                         <Route path="/account/details" element={<Account />} />
                         <Route path="/account/address-book" element={<Addresses />} />
                         <Route path="/account/login" element={<Login />} />

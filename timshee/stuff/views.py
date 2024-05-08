@@ -88,6 +88,6 @@ class CheckAuthenticatedAPIView(generics.GenericAPIView):
 
     def get(self, request):
         user_id = request.user.id
-        return JsonResponse({'status': 'Authenticated', 'user': user_id},
+        return JsonResponse({'authorized': True, 'user': user_id},
                             safe=False,
                             status=status.HTTP_200_OK)

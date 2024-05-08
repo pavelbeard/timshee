@@ -1,6 +1,6 @@
 import "./Account.css";
-import {useState} from "react";
-import {useNavigate, redirect} from "react-router-dom";
+import React from "react";
+import {useNavigate} from "react-router-dom";
 import Cookies from "js-cookie";
 import {useDispatch, useSelector} from "react-redux";
 import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
@@ -13,17 +13,6 @@ const Account = () => {
     const navigate = useNavigate();
     const csrftoken = Cookies.get("csrftoken");
     const {isValid} = useSelector(state => state.auth);
-
-    const [addresses, setAddresses] = useState([]);
-
-    const getAddresses = async () => {
-        const userId = Number(localStorage.getItem("userId"));
-        const response = await fetch(API_URL + `api/order/addresses/${userId}/`, {
-            credentials: "include",
-        });
-        const json = await response.json();
-        setAddresses(json)
-    }
 
     const logoutF = async (e) => {
         e.preventDefault();

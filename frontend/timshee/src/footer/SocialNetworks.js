@@ -1,3 +1,5 @@
+import React from 'react';
+
 import "../main/Main.css";
 import "./SocialNetworks.css";
 

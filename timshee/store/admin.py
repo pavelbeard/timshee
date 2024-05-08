@@ -11,10 +11,13 @@ class ItemAdmin(admin.ModelAdmin):
     class StockInLine(admin.TabularInline):
         model = models.Stock
 
-    inlines = [StockInLine]
+    class CarouselImageInline(admin.TabularInline):
+        model = models.CarouselImage
+
+    inlines = [StockInLine, CarouselImageInline]
 
 
-@admin.register(models.StockImage)
+@admin.register(models.CarouselImage)
 class StockImageAdmin(admin.ModelAdmin):
     pass
 
@@ -36,10 +39,7 @@ class ColorAdmin(admin.ModelAdmin):
 
 @admin.register(models.Stock)
 class StockAdmin(admin.ModelAdmin):
-    class StockImageInline(admin.TabularInline):
-        model = models.StockImage
-
-    inlines = [StockImageInline]
+    pass
 
 
 @admin.register(models.Category)

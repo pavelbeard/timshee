@@ -12,6 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
+    const isAuthenticated = useSelector(state => state.auth.isValid);
 
     const [quantityOfCart, setQuantityOfCart] = React.useState(0);
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
@@ -33,31 +34,29 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
         }, 300)
     };
 
-    const userId = localStorage.getItem("userId") || null;
+    const cartId = localStorage.getItem("cartId") || localStorage.getItem("anonCartId");
 
     const getQuantityOfCart = async () => {
-        if (userId) {
-            try {
-                const response = await fetch( API_URL + `api/cart/items/${localStorage.getItem("user_id")}` );
-                const json = await response.json();
-                const quantity = json.reduce((acc, item) => {
-                    return acc + item.quantity
-                }, 0);
-                setQuantityOfCart(quantity);
-            } catch (error) {
+        const url = [API_URL, isAuthenticated
+            ? `api/cart/cart-items/?cart__id=${cartId}`
+            : `api/cart/anon-cart-items/?anon_cart=${cartId}`].join("")
+        try {
+            const response = await fetch(url);
+            const json = await response.json();
+            const quantity = json.reduce((acc, item) => {
+                return acc + item.quantity_in_cart
+            }, 0);
+            setQuantityOfCart(quantity || 0);
+        } catch (error) {
 
-            }
-        } else {
-            const quantityOfCartAnonUser = localStorage.getItem("quantity_cart_anon_user");
-            setQuantityOfCart(Number(quantityOfCartAnonUser));
         }
 
     };
 
     useEffect(() => {
         getQuantityOfCart();
-        // const interval = setInterval(() => getQuantityOfCart(), 3000);
-    }, []);
+
+    }, [isAuthenticated]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>

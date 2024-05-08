@@ -120,9 +120,9 @@ class Stock(models.Model):
         unique_together = (("item", "size", "color"),)
 
 
-class StockImage(models.Model):
+class CarouselImage(models.Model):
     """It needs for make merry-go-round of images in an internet-store"""
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    item = models.ForeignKey("Item", on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to="product_images/1/",
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])]
@@ -132,8 +132,8 @@ class StockImage(models.Model):
         return self.image.name
 
     class Meta:
-        verbose_name = "Stock Image"
-        verbose_name_plural = "Stock Images"
+        verbose_name = "Carousel Image"
+        verbose_name_plural = "Carousel Images"
 
 
 class Item(models.Model):

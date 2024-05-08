@@ -1,4 +1,5 @@
-import {useEffect, useRef, useState} from "react";
+import React from 'react';
+import {useEffect, useState} from "react";
 import ItemCards from "./ItemCards";
 
 import "./Shop.css";
@@ -261,6 +262,7 @@ const Shop = ({collectionId, collectionName}) => {
                 }
             </div>
             <ItemCards items={items}/>
+            <div className="pagination">1 2 3 4...5</div>
         </div>
     )
 };

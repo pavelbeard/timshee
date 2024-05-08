@@ -1,21 +1,14 @@
 from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.shortcuts import redirect
+from django.urls import path
 
 from . import models
 from .models import AnonymousCartItem
 
 
 # Register your models here.
-
-def _change_quantity(obj, quantity_in_cart_cleaned, quantity_in_cart_actual):
-    if quantity_in_cart_cleaned > quantity_in_cart_actual:
-        obj.stock.in_stock -= quantity_in_cart_cleaned
-    elif quantity_in_cart_cleaned < quantity_in_cart_actual:
-        obj.stock.in_stock += quantity_in_cart_actual
-
-    return obj.stock.save
-
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
@@ -24,14 +17,26 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(models.CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    def save_model(self, request, obj, form, change):
-        if change:
-            quantity_in_cart_cleaned = form.cleaned_data['quantity_in_cart']
-            quantity_in_cart_actual = self.model.objects.filter(pk=obj.id).first().quantity_in_cart
+    change_form_template = "admin/cart/cart_item_change_form.html"
+    readonly_fields = ["quantity_in_cart"]
 
-            _change_quantity(obj, quantity_in_cart_cleaned, quantity_in_cart_actual)()
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="increase"),
+            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="decrease"),
+        ]
+        return custom_urls + urls
 
-            return super().save_model(request, obj, form, change)
+    def increase(self, request, obj_id):
+        obj = models.CartItem.objects.get(pk=obj_id)
+        obj.increase_quantity_in_cart(quantity=1)
+        return redirect("..")
+
+    def decrease(self, request, obj_id):
+        obj = models.CartItem.objects.get(pk=obj_id)
+        obj.decrease_quantity_in_cart(quantity=1)
+        return redirect("..")
 
 
 @admin.register(models.AnonymousCart)
@@ -41,11 +46,23 @@ class AnonymousCartAdmin(admin.ModelAdmin):
 
 @admin.register(models.AnonymousCartItem)
 class AnonymousCartItemAdmin(admin.ModelAdmin):
-    def save_model(self, request, obj, form, change):
-        if change:
-            quantity_in_cart_cleaned = form.cleaned_data.get('quantity_in_cart')
-            quantity_in_cart_actual = self.model.objects.filter(pk=obj.id).first().quantity_in_cart
+    change_form_template = "admin/cart/cart_item_change_form.html"
+    readonly_fields = ["quantity_in_cart"]
 
-        _change_quantity(obj, quantity_in_cart_cleaned, quantity_in_cart_actual)()
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="increase"),
+            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="decrease"),
+        ]
+        return custom_urls + urls
 
-        return super().save_model(request, obj, form, change)
+    def increase(self, request, obj_id):
+        obj = models.AnonymousCartItem.objects.get(pk=obj_id)
+        obj.increase_quantity_in_cart(quantity=1)
+        return redirect("..")
+
+    def decrease(self, request, obj_id):
+        obj = models.AnonymousCartItem.objects.get(pk=obj_id)
+        obj.decrease_quantity_in_cÏart(quantity=1)
+        return redirect("..")

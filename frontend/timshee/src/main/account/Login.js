@@ -1,10 +1,11 @@
 import Cookies from 'js-cookie';
-
-import "./Login.css";
+import React from 'react';
 import {useState} from "react";
 import {Navigate, redirect, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
+
+import "./Login.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 

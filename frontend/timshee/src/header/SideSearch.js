@@ -1,9 +1,10 @@
-import "./SideBars.css";
-import search from "../media/static_images/buscador.svg";
-import close from "../media/static_images/cruz.svg";
+import React from 'react';
 import {useDispatch} from "react-redux";
 import {toggleSearch} from "../redux/slices/searchSlice";
 
+import "./SideBars.css";
+import search from "../media/static_images/buscador.svg";
+import close from "../media/static_images/cruz.svg";
 const SideSearch = () => {
     // Here is going to be some search function
     //

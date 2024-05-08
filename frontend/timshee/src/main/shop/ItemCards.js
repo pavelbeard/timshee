@@ -1,8 +1,11 @@
+import React from 'react';
 import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {setItemData} from "../../redux/slices/shopSlices/itemSlice";
 
 import "./Shop.css";
 import "./ItemCards.css";
-import testImg from "../../media/static_images/B0011883-FA342-099-20240112110000_3_800x.jpg"
 
 const Colors = ( {item, visibility}) => {
     return (
@@ -11,8 +14,6 @@ const Colors = ( {item, visibility}) => {
                 return (
                     <div key={index * 2} style={{
                         backgroundColor: color.hex,
-                        width: "10px",
-                        height: "10px",
                     }}></div>
                 )
             })}
@@ -38,7 +39,11 @@ const Sizes = ({ item, visibility }) => {
 
 
 const ItemCard = ({ item, imageSize }) => {
+    const dispatch = useDispatch();
     const [visibility, setVisibility] = useState(false);
+
+    const itemUrl = `/shop/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
+        + `/${item.name.replace(/ /g, "-").toLowerCase()}`;
 
     return (
         <div
@@ -46,13 +51,14 @@ const ItemCard = ({ item, imageSize }) => {
             onMouseLeave={() => setVisibility(false)}
             className="item-card"
         >
-            <img src={item.image && testImg} alt="alt-item-image" height={imageSize}/>
+            <Link to={itemUrl} onClick={() => dispatch(setItemData({
+                ...item
+            }))}><img src={item.image} alt="alt-item-image" height={imageSize}/></Link>
             <div className="item-data">
                 <p>{item.name}</p>
                 <p>{item.price}</p>
             </div>
             <div className="item-data-hidden">
-                <div className="add-to-cart">Add to cart</div>
                 <Colors item={item} visibility={visibility} />
                 <Sizes item={item} visibility={visibility} />
             </div>

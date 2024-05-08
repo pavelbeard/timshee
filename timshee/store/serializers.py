@@ -39,21 +39,26 @@ class StockSerializer(serializers.ModelSerializer):
         depth = 2
 
 
-class StockImageSerializer(serializers.ModelSerializer):
+class CarouselImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.StockImage
+        model = models.CarouselImage
         fields = "__all__"
 
 
 class ItemSerializer(serializers.ModelSerializer):
     sizes = serializers.SerializerMethodField()
     colors = serializers.SerializerMethodField()
+    carousel_images = serializers.SerializerMethodField()
 
     def get_sizes(self, obj):
         return SizeSerializer(obj.sizes.distinct(), many=True).data
 
     def get_colors(self, obj):
         return ColorSerializer(obj.colors.distinct(), many=True).data
+
+    def get_carousel_images(self, obj):
+        carousel_images = models.CarouselImage.objects.filter(item=obj.pk)
+        return CarouselImageSerializer(carousel_images, many=True).data
 
     class Meta:
         model = models.Item
