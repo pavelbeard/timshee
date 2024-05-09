@@ -6,15 +6,16 @@ import {useDispatch, useSelector} from "react-redux";
 import "./Info.css";
 import "./Navigation.css";
 import AccountBar from "./AccountBar";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import {toggleCart} from "../redux/slices/menuSlice";
+import {getQuantityOfCart} from "../redux/slices/shopSlices/itemSlice";
 
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
     const isAuthenticated = useSelector(state => state.auth.isValid);
+    const {hasAdded, hasDeleted, quantityOfCart} = useSelector(state => state.item);
 
-    const [quantityOfCart, setQuantityOfCart] = React.useState(0);
+    // const [quantityOfCart, setQuantityOfCart] = React.useState(0);
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
 
     const clickSearch = () => {
@@ -34,29 +35,10 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
         }, 300)
     };
 
-    const cartId = localStorage.getItem("cartId") || localStorage.getItem("anonCartId");
-
-    const getQuantityOfCart = async () => {
-        const url = [API_URL, isAuthenticated
-            ? `api/cart/cart-items/?cart__id=${cartId}`
-            : `api/cart/anon-cart-items/?anon_cart=${cartId}`].join("")
-        try {
-            const response = await fetch(url);
-            const json = await response.json();
-            const quantity = json.reduce((acc, item) => {
-                return acc + item.quantity_in_cart
-            }, 0);
-            setQuantityOfCart(quantity || 0);
-        } catch (error) {
-
-        }
-
-    };
-
     useEffect(() => {
-        getQuantityOfCart();
+        dispatch(getQuantityOfCart({isAuthenticated}));
 
-    }, [isAuthenticated]);
+    }, [isAuthenticated, hasAdded, hasDeleted, quantityOfCart]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>
@@ -76,7 +58,7 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
                     isAccountBarVisible && <AccountBar showAccountBar={showAccountBar} hideAccountBar={hideAccountBar}/>
                 }
             </li>
-            <li className="nav-item">Cart ({quantityOfCart})</li>
+            <li className="nav-item" onClick={() => dispatch(toggleCart())}>Cart ({quantityOfCart})</li>
         </ul>
     )
 };

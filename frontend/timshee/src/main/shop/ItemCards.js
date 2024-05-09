@@ -91,7 +91,7 @@ const ItemCards = ({items}) => {
     return (
         <div className="items-cards-container">
             {items?.map((item, index) => {
-                return <ItemCard item={item} key={index} imageSize={imageSize}/>
+                return <ItemCard item={item} key={index} imageSize={imageSize} inStock={item.in_stock}/>
             })}
         </div>
     )

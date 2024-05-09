@@ -10,6 +10,7 @@ import "./Main.css";
 import SideSearch from "../header/SideSearch";
 import {checkAuthStatus} from "../redux/slices/checkAuthSlice";
 import EditAddressForm from "./account/forms/EditAddressForm";
+import Cart from "./cart/Cart";
 
 
 const Main = () => {
@@ -17,17 +18,18 @@ const Main = () => {
     const isSearchClicked = useSelector(state => state.search.isActive);
     const isSideMenuClicked = useSelector(state => state.menu.isActive);
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
+    const isCartClicked = useSelector(state => state.menu.isCartClicked);
 
     useEffect(() => {
         dispatch(checkAuthStatus());
-        if (isSearchClicked || isSideMenuClicked) {
+        if (isSearchClicked || isSideMenuClicked || isCartClicked) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";
         }
 
         return () => document.body.style.overflow = "auto";
-    }, [isSearchClicked, isSideMenuClicked, isEditAddressMenuClicked]);
+    }, [isSearchClicked, isSideMenuClicked, isEditAddressMenuClicked, isCartClicked]);
 
     return (
         <div className="main">
@@ -37,6 +39,7 @@ const Main = () => {
             <Footer />
             {isSideMenuClicked && <SideMenu />}
             {isEditAddressMenuClicked && <EditAddressForm />}
+            {isCartClicked && <Cart />}
         </div>
     )
 }

@@ -102,7 +102,7 @@
     color: #ffffff;
 }
 
-.add-to-cart\.item-card, .has-added {
+.add-to-cart\.item-card, .has-added, .out-of-stock {
     display: flex;
     justify-content: center;
     outline: 1px solid;
@@ -113,7 +113,7 @@
     letter-spacing: 3px;
 }
 
-.has-added {
+.has-added, .out-of-stock {
     background-color: #000000;
     color: #ffffff;
     cursor: not-allowed;

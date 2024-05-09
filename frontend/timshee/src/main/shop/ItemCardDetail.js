@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 
 import "./ItemCard.css";
-import testImage from "../../media/static_images/B0011883-FA342-099-20240112110000_3_800x.jpg";
 import arrowLeft from "../../media/static_images/arrow-left.svg";
 import arrowRight from "../../media/static_images/arrow-right.svg";
 import {addItem, createCart} from "./cartLogic";
-import Cookies from "js-cookie";
+import {setHasAdded} from "../../redux/slices/shopSlices/itemSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -26,16 +25,20 @@ const Carousel = ({ images, imageSize }) => {
     return(
         <div className="img-container" style={{ height: `${imageSize}px`}}>
             <img src={arrowLeft} className="prev-image" alt="arrow-left" onClick={prevImage} height={10} />
-            <img src={images[currentImageIndex]?.image || testImage} alt={`alt-img-${images[currentImageIndex]?.id || 1}`} height={imageSize} />
+            <img src={`${API_URL}${images[currentImageIndex]?.image}`} alt={`alt-img-${images[currentImageIndex]?.id || 1}`} height={imageSize} />
             <img src={arrowRight} className="next-image" alt="arrow-right" onClick={nextImage} height={10} />
         </div>
     )
 };
 
 
-const ItemCard = () => {
+const ItemCardDetail = () => {
+    const dispatch = useDispatch();
     const {isValid} = useSelector((state) => state.auth);
-    const data = useSelector(state => state.item.data && JSON.parse(localStorage.getItem("item")));
+    const {hasAdded} = useSelector(state => state.item);
+
+    const data = useSelector(state => state.item.data
+        && JSON.parse(localStorage.getItem("item")));
     const [imageSize, setImageSize] = React.useState("");
     const [chosenSize, setChosenSize] = React.useState(
         data.sizes.map((size, index) => (index === 0
@@ -45,16 +48,16 @@ const ItemCard = () => {
     const [chosenColor, setChosenColor] = React.useState([]);
     const [stockItemChars, setStockItemChars] = React.useState([]);
     const [inStock, setInStock] = React.useState([]);
-    const [hasAdded, setHasAdded] = React.useState(false);
+    const [notEnough, setNotEnough] = React.useState(false);
 
     const showItemsInStock = (stock) => {
-        const currentSize = chosenSize.filter(s => s.chosen === true)[0].sizeValue;
+        const currentSize = chosenSize.filter(s => s.chosen === true)[0]?.sizeValue;
         const stockItems = stock || stockItemChars;
         const toShow = stockItems.filter(
             item => item.size.value === currentSize
         );
 
-        if (toShow) {
+        if (toShow?.length > 0) {
             // when stockItems are putting in "inStock" setChosenColor also is setting up.
             setChosenColor(toShow.map((item, index) => {
                 return index === 0
@@ -62,6 +65,11 @@ const ItemCard = () => {
                     : {colorId: index, colorName: item.color.name, chosen: false}
             }))
             setInStock(toShow);
+            outOfStock({
+                size: currentSize,
+                color: toShow[0].color.name,
+                stockItems: toShow
+            });
         }
     };
 
@@ -70,7 +78,7 @@ const ItemCard = () => {
             prevState.map(i =>
                 i.sizeId === index ? {...i, chosen: true} : {...i, chosen: false}
             ));
-        setHasAdded(false);
+        dispatch(setHasAdded(false));
     };
 
     const chooseColorId = (index) => {
@@ -78,7 +86,22 @@ const ItemCard = () => {
             prevState.map(i =>
             i.colorId === index ? {...i, chosen: true} : {...i, chosen: false}
         ));
-        setHasAdded(false);
+        dispatch(setHasAdded(false))
+    };
+
+    const outOfStock = ({size=null, color=null, stockItems=[]}) => {
+        const chosenS = size || chosenSize.filter(s => s.chosen === true)[0]?.sizeValue;
+        const chosenC = color || chosenColor.filter(c => c.chosen === true)[0]?.colorName;
+        const chosenI = (inStock.length > 0 ? inStock : stockItems).filter(item =>
+            item?.size.value === chosenS
+            &&
+            item?.color.name === chosenC
+        )[0]?.in_stock === 0
+        if (chosenI) {
+            setNotEnough(true)
+        } else {
+            setNotEnough(false)
+        }
     };
 
     const getStockItems = async (itemName) => {
@@ -122,7 +145,7 @@ const ItemCard = () => {
         window.addEventListener("resize", handleResize);
 
         return () => window.removeEventListener("resize", handleResize);
-    }, [chosenSize]);
+    }, [chosenSize, notEnough]);
 
     const addToCart = async () => {
         const chosenItem = inStock.filter(
@@ -149,9 +172,11 @@ const ItemCard = () => {
             }
         }
 
-        if (await addItem({data: json, authorized: isValid})) {
-            setHasAdded(true);
-        }
+        await addItem({
+            data: json,
+            authorized: isValid,
+            dispatch: dispatch
+        })
     };
 
     return (
@@ -172,7 +197,10 @@ const ItemCard = () => {
                                     key={size.id}
                                     data-size-value={size.value}
                                     className={chosenSize[index]?.chosen ? "chosen-size" : "" }
-                                    onClick={() => chooseSize(index)}
+                                    onClick={() => {
+                                        chooseSize(index)
+                                        outOfStock({});
+                                    }}
                                 >
                                     <div>{size.value}</div>
                                 </div>
@@ -189,16 +217,23 @@ const ItemCard = () => {
                                     }}
                                     data-color-name={item.color.name}
                                     className={chosenColor[index]?.chosen ? "chosen-color" : ""}
-                                    onClick={() => chooseColorId(index)}
+                                    onClick={() => {
+                                        chooseColorId(index)
+                                        outOfStock({});
+                                    }
+                                }
                                 >
                                 </div>
                             )
                         })}
                     </div>
                     {
-                        hasAdded
-                            ? <div className="add-to-cart has-added">has added</div>
-                            : <div className="add-to-cart add-to-cart.item-card" onClick={addToCart}>Add to cart</div>
+                        notEnough
+                            ? <div className="add-to-cart out-of-stock">Out of stock</div>
+                            : hasAdded
+                                ? <div className="add-to-cart has-added">has added</div>
+                                :
+                                <div className="add-to-cart add-to-cart.item-card" onClick={addToCart}>Add to cart</div>
                     }
                 </div>
             </div>
@@ -206,4 +241,4 @@ const ItemCard = () => {
     )
 };
 
-export default ItemCard;
+export default ItemCardDetail;

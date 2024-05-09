@@ -23,8 +23,8 @@ class CartItemAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="increase"),
-            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="decrease"),
+            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="authincrease"),
+            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="authdecrease"),
         ]
         return custom_urls + urls
 
@@ -46,14 +46,14 @@ class AnonymousCartAdmin(admin.ModelAdmin):
 
 @admin.register(models.AnonymousCartItem)
 class AnonymousCartItemAdmin(admin.ModelAdmin):
-    change_form_template = "admin/cart/cart_item_change_form.html"
+    change_form_template = "admin/cart/anonymous_cart_item_change_form.html"
     readonly_fields = ["quantity_in_cart"]
 
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="increase"),
-            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="decrease"),
+            path("<int:obj_id>/increase/", self.admin_site.admin_view(self.increase), name="anonincrease"),
+            path("<int:obj_id>/decrease/", self.admin_site.admin_view(self.decrease), name="anondecrease"),
         ]
         return custom_urls + urls
 
@@ -64,5 +64,5 @@ class AnonymousCartItemAdmin(admin.ModelAdmin):
 
     def decrease(self, request, obj_id):
         obj = models.AnonymousCartItem.objects.get(pk=obj_id)
-        obj.decrease_quantity_in_cÏart(quantity=1)
+        obj.decrease_quantity_in_cart(quantity=1)
         return redirect("..")

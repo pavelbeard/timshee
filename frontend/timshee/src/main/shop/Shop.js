@@ -29,8 +29,6 @@ const Shop = ({collectionId, collectionName}) => {
     const [orderBy, setOrderBy] = useState("");
 
     // for update component
-
-
     const getItems = async () => {
         const filterSizes = sizes.length > 0 ? "&sizes__value="
             + sizes.join('&sizes__value=') : "";
@@ -49,6 +47,7 @@ const Shop = ({collectionId, collectionName}) => {
         const response = await fetch(encodedURI);
         const json = await response.json();
         setItems(json.results);
+        localStorage.setItem("items", JSON.stringify(json.results));
     };
 
     const getSizes = async () => {

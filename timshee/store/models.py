@@ -96,8 +96,6 @@ class Stock(models.Model):
     size = models.ForeignKey("Size", on_delete=models.CASCADE)
     color = models.ForeignKey("Color", on_delete=models.CASCADE)
     in_stock = models.PositiveIntegerField(default=1)
-    # price = models.DecimalField(max_digits=5, decimal_places=2)
-    # discount = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
 
     def __str__(self):
         return (f"[Stock: {self.item}] [Size: {self.size}] [Color: {self.color}] "
@@ -150,8 +148,8 @@ class Item(models.Model):
     colors = models.ManyToManyField("Color", through='Stock')
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
     description = models.TextField()
-    price = models.DecimalField(max_digits=5, decimal_places=2)
-    discount = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    discount = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
     image = models.ImageField(
         upload_to="product_images/item_images/",
         verbose_name="Изображение",

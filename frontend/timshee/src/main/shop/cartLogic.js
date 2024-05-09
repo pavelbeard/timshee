@@ -1,4 +1,6 @@
 import Cookies from "js-cookie";
+import {useDispatch, useSelector} from "react-redux";
+import {setHasAdded} from "../../redux/slices/shopSlices/itemSlice";
 
 const csrftoken = Cookies.get("csrftoken");
 const API_URL = process.env.REACT_APP_API_URL;
@@ -53,9 +55,12 @@ export async function createCart (authorized) {
 }
 
 
-export async function addItem ({increase = false,
-                                   data,
-                                   authorized}) {
+export async function addItem ({
+       increase = false,
+       data,
+       authorized,
+       dispatch
+}) {
     let url;
     const itemId = data?.itemId;
     if (!increase)
@@ -90,10 +95,14 @@ export async function addItem ({increase = false,
 
             if (json.exist) {
                 data = {...data, itemId: json.id};
-                await addItem({increase: true, data: data, authorized: authorized});
+                await addItem({
+                    increase: true, data: data, authorized: authorized, dispatch: dispatch
+                });
+            } else {
+                dispatch(setHasAdded(true));
             }
         } else {
-            return false;
+            dispatch(setHasAdded(false));
         }
 
         return true;

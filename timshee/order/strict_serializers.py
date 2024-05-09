@@ -17,7 +17,8 @@ class StrictUserSerializer(serializers.ModelSerializer):
 class StrictItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = store_models.Item
-        exclude = ["sizes", "colors", "collection"]
+        # exclude = ["sizes", "colors", "collection"]
+        fields = "__all__"
         depth = 2
 
 

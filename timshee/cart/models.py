@@ -61,6 +61,12 @@ class CartItem(models.Model):
 
     decrease_quantity_in_cart.short_description = "Decrease quantity in cart"
 
+    def save(self, *args, **kwargs):
+        if self.quantity_in_cart == 0:
+            self.delete()
+        else:
+            super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'CartItem'
         verbose_name_plural = 'CartItems'

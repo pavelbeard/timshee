@@ -7,8 +7,8 @@
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static 'cart/css/change-form.css' %}"/>
     <div class="increase-decrease">
-        <a href="{% url 'admin:authincrease' original.pk %}" class="btn btn-success">+ put</a>
-        <a href="{% url 'admin:authdecrease' original.pk %}" class="btn btn-danger">- pull</a>
+        <a href="{% url 'admin:anonincrease' original.pk %}" class="btn btn-success">+ put</a>
+        <a href="{% url 'admin:anondecrease' original.pk %}" class="btn btn-danger">- pull</a>
     </div>
 {% endblock %}
 

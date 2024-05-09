@@ -10,8 +10,16 @@ from .models import CartItem
 # logger = logging.getLogger(__name__)
 
 
+# @receiver(post_delete, sender=CartItem)
+# def delete_if_cart_is_empty(sender, instance, **kwargs):
+#     cart = instance.cart
+#     if cart.items.count() == 0:
+#         cart.delete()
+
+
 @receiver(post_delete, sender=CartItem)
-def delete_if_cart_is_empty(sender, instance, **kwargs):
-    cart = instance.cart
-    if cart.items.count() == 0:
-        cart.delete()
+def delete_from_cart(sender, instance, **kwargs):
+    print(instance)
+    quantity = instance.quantity_in_cart
+    if quantity == 0:
+        instance.delete()
