@@ -13,6 +13,9 @@ import {
     getCartItems,
     getQuantityOfCart, setHasAdded,
 } from "../../redux/slices/shopSlices/itemSlice";
+import {checkPendingForPay, createOrder} from "../../redux/slices/shopSlices/orderSlice";
+import {toggleSearch} from "../../redux/slices/searchSlice";
+import {resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -32,24 +35,19 @@ const CartItems = ({data, dispatch}) => {
         dispatch(changeQuantity({itemSrc: item, increase, isAuthenticated}));
         dispatch(getQuantityOfCart({isAuthenticated}));
         dispatch(getCartItems({isAuthenticated}));
-        dispatch(setHasAdded(false));
+        dispatch(resetIsAdded());
     };
 
     // that one is deleting all items if itemId undefined or one item with an id
     const removeItems = (itemId=0) => {
-        dispatch(deleteCartItems({
-            isAuthenticated,
-            itemId
-        }));
+        dispatch(deleteCartItems({isAuthenticated, itemId}));
         dispatch(getQuantityOfCart({isAuthenticated}));
         dispatch(getCartItems({isAuthenticated}));
-        dispatch(setHasAdded(false));
+        dispatch(resetIsAdded());
     };
 
     useEffect(() => {
-        //
-        // I'M GOING TO UPGRADE THIS SECTION
-        if (data.length > 0) {
+        if (data?.length > 0) {
             const newQuantityList = data.map(item => ({
                 itemId: item.id, quantityInCart: item.quantity_in_cart,
             }));
@@ -60,7 +58,7 @@ const CartItems = ({data, dispatch}) => {
     return (
         <div className="cart-items">
             {
-                typeof data.map === "function" && data.map((item, index) => {
+                typeof data?.map === "function" && data.map((item, index) => {
                     const itemUrl = `/shop/${item.stock.item.collection.link}/${item.stock.item.type.name.replace(/ /g, "-").toLowerCase()}`
                         + `/${item.stock.item.name.replace(/ /g, "-").toLowerCase()}`;
                     return (
@@ -105,7 +103,7 @@ const CartItems = ({data, dispatch}) => {
                 })
             }
             {
-                data.length > 0 &&
+                data?.length > 0 &&
                 <div className="cart-item-remove" onClick={() => removeItems()}>
                     Remove all
                 </div>
@@ -118,38 +116,89 @@ const Cart = () => {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isValid);
     const {cartItems, hasDeleted} = useSelector(state => state.item);
+    const {isCartClicked} = useSelector(state => state.menu);
+    const {isPendingForPayment} = useSelector(state => state.order);
+    const [conditions, setConditions] = React.useState(false);
+
+    const checkPendingForPayment = () => {
+        dispatch(checkPendingForPay({isAuthenticated: isAuthenticated}));
+    };
+
+
+    const createAnOrder = () => {
+        const tmp = isPendingForPayment;
+        console.log(tmp);
+
+        if (!tmp) {
+            dispatch(createOrder({items: cartItems, isAuthenticated: isAuthenticated}));
+        }
+    };
 
     useEffect(() => {
         dispatch(getCartItems({isAuthenticated}));
-    }, [isAuthenticated, hasDeleted]);
+    }, [isAuthenticated, isPendingForPayment, isCartClicked, hasDeleted]);
 
-    return(
-        <div className="overlay cart-container">
-            <div className="cart-empty-space" onClick={() => dispatch(toggleCart())}></div>
-            <div className="cart">
+    const cartBody = () => {
+        return (
+            <div className={isCartClicked ? "cart" : "cart cart-wide cart-high cart-empty"}>
                 <div className="cart-header">
                     <div>Your cart</div>
-                    <img src={close} alt="alt-close-cart" height={20} onClick={() => dispatch(toggleCart())}/>
+                    {isCartClicked && <img src={close} alt="alt-close-cart" height={20} onClick={() => dispatch(toggleCart())}/>}
                 </div>
-                <CartItems data={cartItems} dispatch={dispatch} />
-                <div className="cart-footer">
-                    <div></div>
-                    <div className="terms-and-conditions">
-                        <div>Shipping and taxes calculated at checkout</div>
-                        <label>
-                            <input id="privacy" type="checkbox"/>
-                            <span>I have read the <Link className="privcay" to="/privacy-information">Privacy Information Notice</Link></span>
-                        </label>
-                    </div>
-                    <div className="cart-checkout">
-                        {cartItems.reduce((acc, item) => {
-                            return acc + (parseFloat(item.stock.item.price) * parseFloat(item.quantity_in_cart));
-                        }, 0)}
-                    </div>
-                </div>
+                {typeof cartItems !== "undefined" && cartItems.length > 0
+                    ? (
+                        <>
+                            <CartItems data={cartItems} dispatch={dispatch}/>
+                            <div className="cart-footer">
+                                <div></div>
+                                <div className="terms-and-conditions">
+                                    <div>Shipping and taxes calculated at checkout</div>
+                                    <label>
+                                        <input id="privacy" type="checkbox"/>
+                                        <span>I have read the
+                                            <Link className="privacy" to="/privacy-information">
+                                                Privacy Information Notice
+                                            </Link>
+                                        </span>
+                                    </label>
+                                </div>
+                                <Link to="/shop/checkout" className="cart-checkout-parent"
+                                    onClick={() => dispatch(toggleCart())}>
+                                    <div className="cart-checkout" onClick={() => {
+                                        checkPendingForPayment();
+                                        createAnOrder();
+                                    }}>
+                                        Checkout • {cartItems?.reduce((acc, item) => {
+                                        return acc + (parseFloat(item.stock.item.price) * parseFloat(item.quantity_in_cart));
+                                    }, 0)}
+                                    </div>
+                                </Link>
+                        </div>
+                        </>
+
+                    ) : (
+                        <div className="cart-is-empty">
+                            <h1>Cart is empty</h1>
+                        </div>
+                    )
+                }
+
             </div>
-        </div>
-    )
+        )
+    };
+
+    if (!isCartClicked) {
+        return cartBody();
+    } else {
+        return (
+            <div className="overlay cart-container">
+                <div className="cart-empty-space" onClick={() => dispatch(toggleCart())}></div>
+                {cartBody()}
+            </div>
+        )
+    }
+
+
 };
 
 export default Cart;

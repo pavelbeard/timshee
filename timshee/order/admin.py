@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Max
 
 from . import models
 
@@ -27,7 +28,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ["order_number"]
 
 
 @admin.register(models.AnonymousAddress)
@@ -37,4 +38,4 @@ class AnonymousAddressAdmin(admin.ModelAdmin):
 
 @admin.register(models.AnonymousOrder)
 class AnonymousOrderAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ["order_number"]

@@ -21,3 +21,16 @@ class StrictCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Cart
         fields = '__all__'
+
+
+class StrictAnonymousCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AnonymousCart
+        exclude = ['session']
+
+
+class StrictAnonymousCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AnonymousCartItem
+        fields = '__all__'
+        # exclude = ['session']

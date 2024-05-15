@@ -12,7 +12,6 @@ class CountryPhoneCodeFilter(django_filters.FilterSet):
         }
 
 
-
 class ProvinceFilter(django_filters.FilterSet):
     class Meta:
         model = models.Province
@@ -39,3 +38,24 @@ class AnonymousAddressFilter(django_filters.FilterSet):
         fields = {
             'session': ['exact']
         }
+
+
+class OrderFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Order
+        fields = {
+            "id": ["exact"],
+            "user__id": ["exact"],
+            "order_number": ["exact"],
+        }
+
+
+class AnonymousOrderFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.AnonymousOrder
+        fields = {
+            "id": ["exact"],
+            "order_number": ["exact"],
+        }
+
+

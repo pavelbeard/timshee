@@ -59,9 +59,6 @@ package-lock.json
 /node_modules/side-channel/.nycrc
 /node_modules/.package-lock.json
 /node_modules/debug/.travis.yml
-/timshee/store/migrations/0004_rename_stockimage_carouselimage_and_more.py
-/timshee/store/migrations/0005_alter_item_discount_alter_item_price.py
-/timshee/order/migrations/0016_alter_province_options_alter_address_province_and_more.py
 /node_modules/object-inspect/example/all.js
 /node_modules/express/lib/application.js
 /node_modules/array-flatten/array-flatten.js
@@ -246,7 +243,6 @@ package-lock.json
 /node_modules/ipaddr.js/lib/ipaddr.js
 /node_modules/ipaddr.js/lib/ipaddr.js.d.ts
 /node_modules/ipaddr.js/ipaddr.min.js
-/frontend/timshee/src/redux/slices/shopSlices/itemSlice.js
 /node_modules/body-parser/lib/types/json.js
 /node_modules/debug/karma.conf.js
 /node_modules/negotiator/lib/language.js

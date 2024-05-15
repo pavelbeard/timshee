@@ -78,20 +78,28 @@
     display: flex;
 }
 
+.item-card-specs {
+    display: flex;
+    justify-content: flex-start;
+}
+
 .item-card-sizes > *, .item-card-colors > * {
-    width: 32px;
-    height: 32px;
+    /*width: 32px;*/
+    /*height: 32px;*/
+    font-family: 'Bebas Neue Cyrillic';
     margin-right: 20px;
     font-size: 16px;
     letter-spacing: 1px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none;
+    outline: none;
 }
 
-.item-card-sizes > * {
-    border-radius: 100%;
-}
+/*.item-card-sizes > * {*/
+/*    border-radius: 100%;*/
+/*}*/
 
 .chosen-size, .chosen-color {
     outline: 1px solid;

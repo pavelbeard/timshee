@@ -7,10 +7,10 @@ import {setItemData} from "../../redux/slices/shopSlices/itemSlice";
 import "./Shop.css";
 import "./ItemCards.css";
 
-const Colors = ( {item, visibility}) => {
+const Colors = ( {colors, visibility}) => {
     return (
         <div className={visibility ? "item-colors visible" : "item-colors invisible"}>
-            {item.colors.map((color, index) => {
+            {colors.map((color, index) => {
                 return (
                     <div key={index * 2} style={{
                         backgroundColor: color.hex,
@@ -21,14 +21,14 @@ const Colors = ( {item, visibility}) => {
     )
 };
 
-const Sizes = ({ item, visibility }) => {
+const Sizes = ({ sizes, visibility }) => {
     useEffect(() => {
 
     }, [visibility])
 
     return (
         <div className={visibility ? "item-sizes visible" : "item-sizes invisible"}>
-            {item.sizes.map((size, index) => {
+            {sizes.map((size, index) => {
                 return (
                     <div key={index * 3}>{size.value}</div>
                 )
@@ -59,8 +59,8 @@ const ItemCard = ({ item, imageSize }) => {
                 <p>{item.price}</p>
             </div>
             <div className="item-data-hidden">
-                <Colors item={item} visibility={visibility} />
-                <Sizes item={item} visibility={visibility} />
+                <Colors colors={item.colors} visibility={visibility} />
+                <Sizes sizes={item.sizes} visibility={visibility} />
             </div>
         </div>
     )

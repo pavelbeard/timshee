@@ -153,6 +153,7 @@ span.labels:hover::before {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     padding: 20px 40px;
+    justify-items: center;
 }
 
 .item-card {
@@ -229,6 +230,56 @@ span.labels:hover::before {
     justify-content: center;
     padding: 15px 30px;
     font-weight: 100;
+}
+
+.pagination > div {
+    font-size: 18px;
+    padding: 10px;
+}
+
+.page-link {
+    text-decoration: none;
+    color: #000000;
+}
+
+.page-link:visited {
+    color: #000000;
+}
+
+.enabled, .disabled, .span {
+    position: relative;
+}
+
+.enabled {
+    cursor: pointer;
+}
+
+.enabled::before, .span::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    outline: .5px solid #e4e4e4;
+    width: 100%;
+}
+
+.disabled {
+    cursor: default;
+}
+
+.disabled::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    outline: 1px solid #000000;
+    width: 100%;
+}
+
+.pagination-arrows {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
 /*for mobile devices*/

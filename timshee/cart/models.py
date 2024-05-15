@@ -68,8 +68,8 @@ class CartItem(models.Model):
             super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = 'CartItem'
-        verbose_name_plural = 'CartItems'
+        verbose_name = 'Cart item'
+        verbose_name_plural = 'Cart items'
         unique_together = (('cart', 'stock'),)
 
 
@@ -77,7 +77,7 @@ class AnonymousCart(models.Model):
     session = models.OneToOneField(Session, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.session)
+        return f"[Session: {self.session}] [SessionID: {self.id}]"
 
     class Meta:
         verbose_name = "Anonymous cart"
@@ -120,8 +120,14 @@ class AnonymousCartItem(models.Model):
                 return True
         except IntegrityError as e:
             return False
+        
+    def save(self, *args, **kwargs):
+        if self.quantity_in_cart == 0:
+            self.delete()
+        else:
+            super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Anonymous cart item'
-        verbose_name_plural = 'Anonymous cart item'
+        verbose_name_plural = 'Anonymous cart items'
         unique_together = (('anon_cart', 'stock'),)

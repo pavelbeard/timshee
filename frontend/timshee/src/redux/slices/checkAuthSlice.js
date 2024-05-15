@@ -22,8 +22,13 @@ export const checkAuthStatus = createAsyncThunk(
 
             if (response.ok) {
                 const json = await response.json();
-                localStorage.setItem("userId", json.user);
-                return response.ok;
+                if (json.authenticated) {
+                    localStorage.setItem("userId", json.user);
+                    localStorage.setItem("userName", json.user_name);
+                    return true;
+                } else {
+                    return thunkAPI.rejectWithValue(false);
+                }
             } else if (response.status === 401) {
                 return thunkAPI.rejectWithValue(response.statusText);
             }

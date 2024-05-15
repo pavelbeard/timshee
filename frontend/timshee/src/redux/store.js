@@ -7,6 +7,8 @@ import checkAuthSlice from "./slices/checkAuthSlice";
 import editAddressSlice from "./slices/editAddressSlice";
 import filtersSlice from "./slices/shopSlices/filtersSlice";
 import itemSlice from "./slices/shopSlices/itemSlice";
+import orderSlice from "./slices/shopSlices/orderSlice";
+import cartSlice from "./slices/shopSlices/cartSlice";
 
 export default configureStore({
     reducer: {
@@ -19,5 +21,7 @@ export default configureStore({
 
         filters: filtersSlice,
         item: itemSlice,
+        order: orderSlice,
+        cart: cartSlice,
     }
-})
+});

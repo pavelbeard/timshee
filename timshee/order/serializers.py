@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from . import models, strict_serializers
+from cart import strict_serializers as cart_strict_serializers
 
 User = get_user_model()
 
@@ -46,12 +47,8 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    cart_items = serializers.SerializerMethodField()
     shipping_address = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
-
-    def get_cart_items(self, obj):
-        return strict_serializers.StrictCartItemSerializer(obj.cart_items, many=True).data
 
     def get_shipping_address(self, obj):
         return strict_serializers.StrictAddressSerializer(obj.shipping_address).data
@@ -68,12 +65,17 @@ class OrderSerializer(serializers.ModelSerializer):
 class AnonymousAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AnonymousAddress
-        fields = "__all__"
+        exclude = ["session"]
         depth = 2
 
 
 class AnonymousOrderSerializer(serializers.ModelSerializer):
+    shipping_address = serializers.SerializerMethodField()
+
+    def get_shipping_address(self, obj):
+        return strict_serializers.StrictAnonymousAddressSerializer(obj.shipping_address).data
+
     class Meta:
         model = models.AnonymousOrder
-        fields = "__all__"
+        exclude = ["session"]
         depth = 2

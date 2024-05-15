@@ -50,3 +50,10 @@ class StrictCartItemSerializer(serializers.ModelSerializer):
         model = cart_models.CartItem
         exclude = ['cart']
         depth = 2
+
+
+class StrictAnonymousAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AnonymousAddress
+        exclude = ['session']
+

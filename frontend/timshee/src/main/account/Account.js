@@ -47,7 +47,8 @@ const Account = () => {
     return (
         <div className="account common account-authorized">
             <div className="first-block">
-                Account:
+                <span>Account:</span>
+                <span className="user-name">{localStorage.getItem("userName")}</span>
                 <form onClick={logoutF}>
                     <button type="submit">Logout</button>
                 </form>

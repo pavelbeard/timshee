@@ -1,12 +1,15 @@
+import uuid
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.sessions.models import Session
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from store import models as store_models
 from . import models, serializers, write_serializers, filters
-from .models import CartItem
 
 
 # Create your views here.
@@ -64,7 +67,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
                 "id": cart_item.id,
                 "quantity_in_cart": cart_item.quantity_in_cart
             },
-                            status=status.HTTP_200_OK)
+                status=status.HTTP_200_OK)
         else:
             return Response({"details": "failed to increase quantity, not enough stock"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -84,7 +87,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['DELETE'])
     def delete_all(self, request, pk=None):
-        items = CartItem.objects.filter(cart__user__id=request.user.id)
+        items = models.CartItem.objects.filter(cart__user__id=request.user.id)
         for item in items:
             item.delete()
 
@@ -122,7 +125,8 @@ class CartViewSet(viewsets.ModelViewSet):
 
 
 class AnonymousCartItemViewSet(viewsets.ModelViewSet):
-    permission_classes = []
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
     queryset = models.AnonymousCartItem.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AnonymousCartItemFilter
@@ -165,7 +169,7 @@ class AnonymousCartItemViewSet(viewsets.ModelViewSet):
                 "id": cart_item.id,
                 "quantity_in_cart": cart_item.quantity_in_cart
             },
-                            status=status.HTTP_200_OK)
+                status=status.HTTP_200_OK)
         else:
             return Response({"details": "failed to increase quantity, not enough stock"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -179,14 +183,26 @@ class AnonymousCartItemViewSet(viewsets.ModelViewSet):
                 "id": cart_item.id,
                 "quantity_in_cart": cart_item.quantity_in_cart
             },
-                            status=status.HTTP_200_OK)
+                status=status.HTTP_200_OK)
         else:
             return Response({"details": "Cart has already been decreased to zero"},
                             status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=['DELETE'])
+    def delete_all(self, request, pk=None):
+        anon_cart_id = request.data['anon_cart']
+        items = models.AnonymousCartItem.objects.filter(anon_cart=anon_cart_id)
+
+        for item in items:
+            item.delete()
+
+        return Response({"details": f"Items for anonymous user {anon_cart_id} have been deleted"},
+                        status=status.HTTP_204_NO_CONTENT)
+
 
 class AnonymousCartViewSet(viewsets.ModelViewSet):
-    permission_classes = []
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
     queryset = models.AnonymousCart.objects.all()
 
     def get_serializer_class(self):
@@ -196,16 +212,25 @@ class AnonymousCartViewSet(viewsets.ModelViewSet):
             return write_serializers.AnonymousCartSerializer
 
     def create(self, request, *args, **kwargs):
-        session = Session.objects.get(session_key=request.session.session_key)
-        obj = self.queryset.filter(session=session)
-        if obj.exists():
-            return Response({
-                "details": "cart already exists",
-                "id": obj.first().id},
-                status=status.HTTP_200_OK
+        session = None
+        try:
+            session = Session.objects.get(session_key=request.session.session_key)
+        except Session.DoesNotExist:
+            session = Session.objects.create(
+                session_key=uuid.uuid4().hex,
+                expire_date=timezone.now() + timezone.timedelta(days=1),
             )
+        finally:
+            obj = self.queryset.filter(Q(session=session) | Q(id=request.data.get('id')))
+            if obj.exists():
+                return Response({
+                    "details": "cart already exists",
+                    "session": obj.first().session.session_key,
+                    "id": obj.first().id},
+                    status=status.HTTP_200_OK
+                )
 
-        serializer = write_serializers.AnonymousCartSerializer(data={"session": session.session_key})
+            serializer = write_serializers.AnonymousCartSerializer(data={"session": session.session_key})
 
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

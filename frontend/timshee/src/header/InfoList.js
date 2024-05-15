@@ -8,14 +8,15 @@ import "./Navigation.css";
 import AccountBar from "./AccountBar";
 import {toggleCart} from "../redux/slices/menuSlice";
 import {getQuantityOfCart} from "../redux/slices/shopSlices/itemSlice";
+import {Link} from "react-router-dom";
 
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
     const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {hasAdded, hasDeleted, quantityOfCart} = useSelector(state => state.item);
+    const {hasDeleted, quantityOfCart} = useSelector(state => state.item);
+    const {isAdded} = useSelector(state => state.cart);
 
-    // const [quantityOfCart, setQuantityOfCart] = React.useState(0);
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
 
     const clickSearch = () => {
@@ -38,7 +39,7 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
     useEffect(() => {
         dispatch(getQuantityOfCart({isAuthenticated}));
 
-    }, [isAuthenticated, hasAdded, hasDeleted, quantityOfCart]);
+    }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>
@@ -58,7 +59,13 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
                     isAccountBarVisible && <AccountBar showAccountBar={showAccountBar} hideAccountBar={hideAccountBar}/>
                 }
             </li>
-            <li className="nav-item" onClick={() => dispatch(toggleCart())}>Cart ({quantityOfCart})</li>
+            <li className="nav-item" onClick={() => {
+                if(document.location.pathname !== "/cart") {
+                    dispatch(toggleCart());
+                }
+            }}>Cart ({quantityOfCart || 0})
+                <Link to="/cart"></Link>
+            </li>
         </ul>
     )
 };

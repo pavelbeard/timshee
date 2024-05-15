@@ -33,6 +33,7 @@ const Login = () => {
 
             if (response.ok) {
                 const json = await response.json();
+                localStorage.clear();
                 localStorage.setItem("token", json.token);
                 dispatch(checkAuthStatus());
                 navigate("/");
@@ -58,32 +59,35 @@ const Login = () => {
     }
 
     return (
-        <div className="login">
-            <form onSubmit={handleSubmit}>
-                {errorMessage && <div className="errorMessage">{errorMessage}</div>}
-                <div>
-                    <label htmlFor="email">email:
-                        <input
-                            id="email"
-                            type="text"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                        />
-                    </label>
+        <div className="login-form-container">
+            <form className="login-form" onSubmit={handleSubmit}>
+                {errorMessage &&
+                    <label className="errorMessage login-labels">
+                        <span className="label-text">{errorMessage}</span>
+                    </label>}
+                <label className="login-labels" htmlFor="email">
+                    <span className="label-text">email:</span>
+                    <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                    />
+                </label>
+                <label className="login-labels" htmlFor="password">
+                    <span className="label-text">password:</span>
+                    <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                    />
+                </label>
+                <div className="login-button">
+                    <button type="submit">Login</button>
                 </div>
-                <div>
-                    <label htmlFor="password">password:
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <button type="submit">Login</button>
             </form>
         </div>
     )

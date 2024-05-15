@@ -18,9 +18,7 @@ const Navigation = () => {
 
     useEffect(() => {
         const showBurgerMenu = () => {
-            const width = window.innerWidth;
-            const tmp = width < 768;
-            setIsWindowNotWide(tmp);
+            setIsWindowNotWide(window.innerWidth < 768);
         }
 
         showBurgerMenu();

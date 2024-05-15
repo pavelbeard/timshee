@@ -27,6 +27,7 @@ const SideMenu = () => {
                     <InfoList itIsPartOfSideMenu={true}/>
                 </div>
             </div>
+            <div className="side-menu-empty" onClick={closeMenu}></div>
         </div>
     )
 };

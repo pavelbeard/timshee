@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from django.db import models
+from django.db import models, transaction
 
 from cart.models import CartItem, AnonymousCartItem
 
@@ -67,6 +67,10 @@ class Address(models.Model):
         return f"{self.address1}, {self.province.name} {self.city}"
 
 
+class OrderNumber(models.Model):
+    last_order_id = models.PositiveIntegerField(default=10000)
+
+
 class Order(models.Model):
     STATUS_CHOICES = (
         ('created', 'CREATED'),
@@ -76,17 +80,27 @@ class Order(models.Model):
         ('cancelled', 'CANCELLED'),
     )
 
+    order_number = models.CharField(max_length=255, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    cart_items = models.ManyToManyField(CartItem)
+    ordered_items = models.JSONField(blank=True, null=True)
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_for_pay')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return (f"[OrderID: {self.id}] [Status: {self.status}] "
-                f"[Created: {self.created_at}] [Updated: {self.updated_at}]"
-                f"")
+        return (f"[OrderID: {self.order_number}] [Status: {self.status}] "
+                f"[Created: {self.created_at}] [Updated: {self.updated_at}]")
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self.pk is None:
+                order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
+                if not created:
+                    order_number_obj.last_order_id += 1
+                    order_number_obj.save()
+                self.order_number = f"{order_number_obj.last_order_id}-AU"
+            super().save(*args, **kwargs)
 
 
 class AnonymousAddress(models.Model):
@@ -120,17 +134,28 @@ class AnonymousOrder(models.Model):
         ('cancelled', 'CANCELLED'),
     )
 
+    order_number = models.CharField(max_length=255, unique=True)
     session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
-    cart_items = models.ManyToManyField(AnonymousCartItem)
+    ordered_items = models.JSONField(blank=True, null=True)
     shipping_address = models.ForeignKey(AnonymousAddress, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_for_pay')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return (f"[OrderID: {self.id}] [Status: {self.status}] "
-                f"[Created: {self.created_at}] [Updated: {self.updated_at}]"
-                f"")
+        return (f"[OrderID: {self.id}] "
+                f"[OrderNUM: {self.order_number}] [Status: {self.status}] "
+                f"[Created: {self.created_at}] [Updated: {self.updated_at}]")
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self.pk is None:
+                order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
+                if not created:
+                    order_number_obj.last_order_id += 1
+                    order_number_obj.save()
+                self.order_number = f"{order_number_obj.last_order_id}-AN"
+            super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Anonymous order'

@@ -36,12 +36,6 @@ const Content = () => {
     useEffect(() => {
         fetchData();
         fetchMainCollection();
-
-        // const interval = setInterval(() => {
-        //     fetchData();
-        //     fetchMainCollection();
-        // }, 3000);
-        // return () => clearInterval(interval);
     }, []);
 
 

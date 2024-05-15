@@ -1,11 +1,12 @@
 import React from "react";
 import {useState} from "react";
 
-import "./Register.css";
 import Cookies from "js-cookie";
 import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
 import {useDispatch} from "react-redux";
 import {useNavigate} from "react-router-dom";
+
+import "./Register.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -61,65 +62,65 @@ const Register = () => {
 
 
     return (
-        <div className="register">
-            {errorMessage && <div className="errorMessage">{errorMessage}</div>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="firstName">firstname:
-                        <input
-                            id="firstName"
-                            type="text"
-                            value={firstName}
-                            onChange={e => setFirstName(e.target.value)}
-                            required
-                        />
-                    </label>
+        <div className="register-form-container">
+            {errorMessage &&
+                <label  className="errorMessage register-labels">
+                    <span className="label-text">{errorMessage}</span>
+                </label>}
+            <form className="register-form" onSubmit={handleSubmit}>
+                <label className="register-labels" htmlFor="firstName">
+                    <span className="label-text">firstname:</span>
+                    <input
+                        id="firstName"
+                        type="text"
+                        value={firstName}
+                        onChange={e => setFirstName(e.target.value)}
+                        required
+                    />
+                </label>
+                <label className="register-labels" htmlFor="lastName">
+                    <span className="label-text">last name:</span>
+                    <input
+                        id="lastName"
+                        type="text"
+                        value={lastName}
+                        onChange={e => setLastName(e.target.value)}
+                        required
+                    />
+                </label>
+                <label className="register-labels" htmlFor="email">
+                    <span className="label-text">email:</span>
+                    <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                    />
+                </label>
+                <label className="register-labels" htmlFor="password">
+                    <span className="label-text">password:</span>
+                    <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                    />
+                </label>
+                <label className="register-labels" htmlFor="confirmPassword">
+                    <span className="label-text">confirm password:</span>
+                    <input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                    />
+                </label>
+                <div className="register-button">
+                    <button type="submit">Register</button>
                 </div>
-                <div>
-                    <label htmlFor="lastName">last name:
-                        <input
-                            id="lastName"
-                            type="text"
-                            value={lastName}
-                            onChange={e => setLastName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label htmlFor="email">email:
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label htmlFor="password">password:
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label htmlFor="confirmPassword">confirm password:
-                        <input
-                            id="confirmPassword"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <button type="submit">Register</button>
             </form>
         </div>
     )

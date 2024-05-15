@@ -132,6 +132,11 @@
     border: .5px solid #000;
 }
 
+.user-name {
+    padding: 10px;
+    outline: 1px solid #000000;
+    margin: 10px;
+}
 
 @media only screen and (max-width: 600px) {
     .addresses-container {

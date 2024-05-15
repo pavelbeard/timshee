@@ -34,6 +34,7 @@ class StockFilter(django_filters.FilterSet):
     class Meta:
         model = store_models.Stock
         fields = {
+            'id': ["exact"],
             'item__name': ['exact', 'icontains', 'istartswith'],
             'item__description': ['exact', 'icontains', 'istartswith'],
             'item__gender': ['exact'],

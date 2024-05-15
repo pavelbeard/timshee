@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import generics, status, serializers, permissions
 
 from auxiliaries.auxiliaries_methods import generate_random_symbols
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -84,10 +85,20 @@ class LogoutAPIView(generics.GenericAPIView):
 
 class CheckAuthenticatedAPIView(generics.GenericAPIView):
     authentication_classes = [TokenAuthentication]
-    allowed_methods = ["get"]
+    permission_classes = [IsAuthenticated]
+    allowed_methods = ["GET"]
+
+    def handle_exception(self, exc):
+        if isinstance(exc, (NotAuthenticated, AuthenticationFailed)):
+            return JsonResponse(
+                {
+                    "authenticated": False, "error": "Not authenticated",
+                }
+                , status=status.HTTP_200_OK)
+        return super().handle_exception(exc)
 
     def get(self, request):
         user_id = request.user.id
-        return JsonResponse({'authorized': True, 'user': user_id},
+        return JsonResponse({'authenticated': True, 'user': user_id, 'user_name': request.user.email},
                             safe=False,
                             status=status.HTTP_200_OK)
