@@ -47,6 +47,7 @@ class OrderFilter(django_filters.FilterSet):
             "id": ["exact"],
             "user__id": ["exact"],
             "order_number": ["exact"],
+            "status": ["exact"],
         }
 
 
@@ -56,6 +57,7 @@ class AnonymousOrderFilter(django_filters.FilterSet):
         fields = {
             "id": ["exact"],
             "order_number": ["exact"],
+            "status": ["exact"],
         }
 
 

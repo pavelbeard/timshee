@@ -14,6 +14,8 @@ import Cart from "./cart/Cart";
 
 
 const Main = () => {
+    window.document.title = "Timshee";
+
     const dispatch = useDispatch();
     const isSearchClicked = useSelector(state => state.search.isActive);
     const isSideMenuClicked = useSelector(state => state.menu.isActive);

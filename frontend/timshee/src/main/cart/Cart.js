@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
-import {toggleCart} from "../../redux/slices/menuSlice";
+import {Link, Navigate, useNavigate} from "react-router-dom";
+import {closeCart, toggleCart} from "../../redux/slices/menuSlice";
 
 import "../Main.css";
 import "./Cart.css";
@@ -13,8 +13,9 @@ import {
     getCartItems,
     getQuantityOfCart, setHasAdded,
 } from "../../redux/slices/shopSlices/itemSlice";
-import {checkPendingForPay, createOrder} from "../../redux/slices/shopSlices/orderSlice";
-import {toggleSearch} from "../../redux/slices/searchSlice";
+import {
+    checkout,
+} from "../../redux/slices/shopSlices/orderSlice";
 import {resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -113,30 +114,26 @@ const CartItems = ({data, dispatch}) => {
 };
 
 const Cart = () => {
+    window.document.title = "Cart | Timshee";
+
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const isAuthenticated = useSelector(state => state.auth.isValid);
     const {cartItems, hasDeleted} = useSelector(state => state.item);
     const {isCartClicked} = useSelector(state => state.menu);
-    const {isPendingForPayment} = useSelector(state => state.order);
-    const [conditions, setConditions] = React.useState(false);
+    const {orderStates} = useSelector(state => state.order);
 
-    const checkPendingForPayment = () => {
-        dispatch(checkPendingForPay({isAuthenticated: isAuthenticated}));
-    };
-
-
-    const createAnOrder = () => {
-        const tmp = isPendingForPayment;
-        console.log(tmp);
-
-        if (!tmp) {
-            dispatch(createOrder({items: cartItems, isAuthenticated: isAuthenticated}));
+    useEffect(() => {
+        if (orderStates.isOrderPending !== undefined) {
+            const orderNumber = JSON.parse(localStorage.getItem("order"))['order_number'];
+            dispatch(closeCart());
+            navigate(`/shop/${orderNumber}/checkout`);
         }
-    };
+    }, [orderStates.isOrderPending]);
 
     useEffect(() => {
         dispatch(getCartItems({isAuthenticated}));
-    }, [isAuthenticated, isPendingForPayment, isCartClicked, hasDeleted]);
+    }, [isAuthenticated, isCartClicked, hasDeleted]);
 
     const cartBody = () => {
         return (
@@ -162,18 +159,16 @@ const Cart = () => {
                                         </span>
                                     </label>
                                 </div>
-                                <Link to="/shop/checkout" className="cart-checkout-parent"
-                                    onClick={() => dispatch(toggleCart())}>
-                                    <div className="cart-checkout" onClick={() => {
-                                        checkPendingForPayment();
-                                        createAnOrder();
-                                    }}>
+                                <div className="cart-checkout" onClick={() => {
+                                    dispatch(checkout({items: cartItems, isAuthenticated: isAuthenticated}));
+                                }}>
                                         Checkout • {cartItems?.reduce((acc, item) => {
-                                        return acc + (parseFloat(item.stock.item.price) * parseFloat(item.quantity_in_cart));
+                                        return acc + (
+                                            parseFloat(item.stock.item.price) * parseFloat(item.quantity_in_cart)
+                                        ).toFixed(2);
                                     }, 0)}
-                                    </div>
-                                </Link>
-                        </div>
+                                </div>
+                            </div>
                         </>
 
                     ) : (

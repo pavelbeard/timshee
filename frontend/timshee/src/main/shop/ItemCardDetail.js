@@ -151,22 +151,6 @@ const ItemCardDetail = () => {
                                     <option key={size.id} value={size.value}>{size.value}</option>
                                 ))}
                             </select>
-                            {/*{data.sizes && data.sizes.map((size, index) => {*/}
-                            {/*    return(*/}
-                            {/*        <div*/}
-                            {/*            key={size.id}*/}
-                            {/*            data-size-value={size.value}*/}
-                            {/*            className={chosenSize[index]?.chosen ? "chosen-size" : "" }*/}
-                            {/*            onClick={() => {*/}
-                            {/*                chooseSize(index)*/}
-                            {/*                outOfStock({});*/}
-                            {/*            }}*/}
-                            {/*        >*/}
-                            {/*            <div>{size.value}</div>*/}
-                            {/*        </div>*/}
-                            {/*    )*/}
-                            {/*    })*/}
-                            {/*}*/}
                         </div>
                         <div className="item-card-colors">
                             <label htmlFor="colors">
@@ -179,24 +163,6 @@ const ItemCardDetail = () => {
                                     </option>
                                 ))}
                             </select>
-                            {/*{typeof inStock.map === "function" && inStock.map((item, index) => {*/}
-                            {/*    return (*/}
-                            {/*        <div*/}
-                            {/*            key={item.id}*/}
-                            {/*            style={{*/}
-                            {/*                backgroundColor: item.color.hex,*/}
-                            {/*            }}*/}
-                            {/*            data-color-name={item.color.name}*/}
-                            {/*            className={chosenColor[index]?.chosen ? "chosen-color" : ""}*/}
-                            {/*            onClick={() => {*/}
-                            {/*                chooseColorId(index)*/}
-                            {/*                outOfStock({});*/}
-                            {/*            }*/}
-                            {/*        }*/}
-                            {/*        >*/}
-                            {/*        </div>*/}
-                            {/*    )*/}
-                            {/*})}*/}
                         </div>
                     </div>
                     {

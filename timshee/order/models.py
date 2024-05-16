@@ -93,14 +93,17 @@ class Order(models.Model):
                 f"[Created: {self.created_at}] [Updated: {self.updated_at}]")
 
     def save(self, *args, **kwargs):
-        with transaction.atomic():
-            if self.pk is None:
-                order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
-                if not created:
-                    order_number_obj.last_order_id += 1
-                    order_number_obj.save()
-                self.order_number = f"{order_number_obj.last_order_id}-AU"
-            super().save(*args, **kwargs)
+        # with transaction.atomic():
+        if self.pk is None:
+            # order_number_obj, created = OrderNumber.objects.select_for_update().get_or_create(pk=1)
+            order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
+            if not created:
+                order_number_obj.last_order_id += 1
+                order_number_obj.save()
+
+            self.order_number = f"{order_number_obj.last_order_id}-AU"
+
+        return super().save(*args, **kwargs)
 
 
 class AnonymousAddress(models.Model):
@@ -148,14 +151,17 @@ class AnonymousOrder(models.Model):
                 f"[Created: {self.created_at}] [Updated: {self.updated_at}]")
 
     def save(self, *args, **kwargs):
-        with transaction.atomic():
-            if self.pk is None:
-                order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
-                if not created:
-                    order_number_obj.last_order_id += 1
-                    order_number_obj.save()
-                self.order_number = f"{order_number_obj.last_order_id}-AN"
-            super().save(*args, **kwargs)
+        # with transaction.atomic():
+        if self.pk is None:
+            # order_number_obj, created = OrderNumber.objects.select_for_update().get_or_create(pk=1)
+            order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
+            if not created:
+                order_number_obj.last_order_id += 1
+                order_number_obj.save()
+
+            self.order_number = f"{order_number_obj.last_order_id}-AN"
+
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Anonymous order'

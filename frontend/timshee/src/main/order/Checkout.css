@@ -1,0 +1,12 @@
+.checkout-container {
+    display: flex;
+    height: 100vh;
+}
+
+.checkout-shipping-information {
+    width: 65%;
+}
+
+.checkout-items-container {
+    width: 35%;
+}

@@ -6,7 +6,7 @@ import {useDispatch, useSelector} from "react-redux";
 import "./Info.css";
 import "./Navigation.css";
 import AccountBar from "./AccountBar";
-import {toggleCart} from "../redux/slices/menuSlice";
+import {closeCart, toggleCart} from "../redux/slices/menuSlice";
 import {getQuantityOfCart} from "../redux/slices/shopSlices/itemSlice";
 import {Link} from "react-router-dom";
 
@@ -60,7 +60,9 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
                 }
             </li>
             <li className="nav-item" onClick={() => {
-                if(document.location.pathname !== "/cart") {
+                if(document.location.pathname === "/checkout") {
+                    dispatch(closeCart());
+                } else {
                     dispatch(toggleCart());
                 }
             }}>Cart ({quantityOfCart || 0})

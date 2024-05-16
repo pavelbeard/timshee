@@ -44,7 +44,6 @@ class AnonymousAddressSerializer(serializers.ModelSerializer):
 
 class AnonymousOrderSerializer(serializers.ModelSerializer):
     order_number = serializers.CharField(read_only=True)
-    session = serializers.CharField(read_only=True)
 
     class Meta:
         model = models.AnonymousOrder

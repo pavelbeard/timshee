@@ -16,6 +16,9 @@ export const menuSlice = createSlice({
         },
         toggleCart: (state) => {
             state.isCartClicked = !state.isCartClicked;
+        },
+        closeCart: (state) => {
+            state.isCartClicked = false;
         }
     }
 })
@@ -24,5 +27,6 @@ export const {
     toggleMenu,
     toggleAddressEditForm,
     toggleCart,
+    closeCart,
 } = menuSlice.actions;
 export default menuSlice.reducer;

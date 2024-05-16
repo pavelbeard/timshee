@@ -66,6 +66,8 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPag
 };
 
 const Shop = ({collectionId, collectionName}) => {
+    window.document.title = "Shop | Timshee";
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {sizesData, colorsData, categoriesData, sizes, colors, categories, filters} = useSelector(state => state.filters);

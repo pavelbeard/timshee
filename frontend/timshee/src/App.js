@@ -11,6 +11,7 @@ import Addresses from "./main/account/Addresses";
 import ItemCardDetail from "./main/shop/ItemCardDetail";
 import NotFound from "./NotFound";
 import Cart from "./main/cart/Cart";
+import Checkout from "./main/order/Checkout";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -54,7 +55,6 @@ const App = () => {
                         <Route path="/shop/:collection/:gender" element={<Shop />} />
                         <Route path="/shop/:collection/:type/:itemName" element={<ItemCardDetail />} />
                         <Route path="/shop/page/:page" element={<Shop />} />
-                        <Route path="/shop/:orderId/checkout" element={<Shop />} />
                         <Route path="/account/details" element={<Account />} />
                         <Route path="/account/address-book" element={<Addresses />} />
                         <Route path="/account/login" element={<Login />} />
@@ -71,8 +71,9 @@ const App = () => {
                                 )
                             })
                         }
-                        <Route path="*" element={<NotFound />} />
                     </Route>
+                    <Route path="/shop/:orderId/checkout" element={<Checkout />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>
         </Provider>
