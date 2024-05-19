@@ -12,6 +12,7 @@ import ItemCardDetail from "./main/shop/ItemCardDetail";
 import NotFound from "./NotFound";
 import Cart from "./main/cart/Cart";
 import Checkout from "./main/order/Checkout";
+import TestComponent from "./test/TestComponent";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -73,6 +74,7 @@ const App = () => {
                         }
                     </Route>
                     <Route path="/shop/:orderId/checkout" element={<Checkout />} />
+                    <Route path="/test" element={<TestComponent />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>

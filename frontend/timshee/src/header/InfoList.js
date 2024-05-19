@@ -38,7 +38,6 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
 
     useEffect(() => {
         dispatch(getQuantityOfCart({isAuthenticated}));
-
     }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart]);
 
     return (

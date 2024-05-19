@@ -1,0 +1,82 @@
+.checkout-shipping-address {
+    padding: 50px 30px 10px 30px;
+}
+
+.shipping-address-form > div {
+    margin-bottom: 1.5rem;
+}
+
+.shipping-address-form > div > label {
+    display: flex;
+    position: relative;
+}
+
+.shipping-address-form > div > label > span {
+    width: 100%;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    margin-left: 0.6rem;
+    /*position: absolute;*/
+}
+
+.shipping-address-form > div > label > select, .shipping-address-form > div > label > input {
+    outline: 1px solid #e4e4e4;
+    padding: 0;
+    background: none;
+    border-radius: 5px;
+    border: none;
+    height: 25px;
+}
+
+
+.shipping-address-form > div > label {
+    flex-direction: column;
+}
+
+.shipping-address-location {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.shipping-address-location > label:first-child,
+.shipping-address-location > label:nth-child(2) {
+    margin-right: 20px;
+}
+
+.shipping-address-name {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.shipping-address-name > label:first-child {
+    margin-right: 10px;
+}
+
+.shipping-address-name > label:last-child {
+    margin-left: 10px;
+}
+
+.form-submit {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-submit > div {
+    display: flex;
+}
+
+.form-submit > div > img {
+    margin-right: 15px;
+}
+
+.form-submit > div > a {
+    text-decoration: none;
+    color: #000000;
+    cursor: pointer;
+}
+
+.shipping-address-form-text {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #737373;
+    font-size: 14px;
+}

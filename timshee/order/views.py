@@ -79,6 +79,7 @@ class AnonymousOrderViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AnonymousOrderFilter
     authentication_classes = []
+    # allowed_methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
     def get_serializer_class(self):
         if self.action == 'list':

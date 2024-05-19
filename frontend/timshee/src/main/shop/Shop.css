@@ -98,6 +98,7 @@ span.labels:hover::before {
     margin-left: 20px;
     outline: none;
     border: none;
+    appearance: none;
 }
 
 .items-count {

@@ -22,10 +22,8 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({data, dispatch}) => {
     const csrftoken = Cookies.get("csrftoken");
+    // const {hasChanged} = useSelector(state => state.item);
     const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {hasChanged} = useSelector(state => state.item);
-
-    const [quantityList, setQuantityList] = React.useState([]);
 
     const findItem = (itemSrc) => {
         return JSON.parse(localStorage.getItem("items"))
@@ -48,13 +46,8 @@ const CartItems = ({data, dispatch}) => {
     };
 
     useEffect(() => {
-        if (data?.length > 0) {
-            const newQuantityList = data.map(item => ({
-                itemId: item.id, quantityInCart: item.quantity_in_cart,
-            }));
-            setQuantityList(newQuantityList);
-        }
-    }, [data, hasChanged, isAuthenticated]);
+
+    }, [data, isAuthenticated]);
 
     return (
         <div className="cart-items">
@@ -83,20 +76,12 @@ const CartItems = ({data, dispatch}) => {
                                 <div className="cart-item-color">{item.stock.color.name}</div>
                                 <div className="cart-item-quantity">
                                     <div className="change-quantity"
-                                         onClick={() =>
-                                             changeQuantityComponent(item, false)}
-                                    >-
-                                    </div>
-                                    <div>{quantityList[index]?.quantityInCart}</div>
+                                         onClick={() => changeQuantityComponent(item, false)}>-</div>
+                                    <div>{item['quantity_in_cart']}</div>
                                     <div className="change-quantity"
-                                         onClick={() =>
-                                             changeQuantityComponent(item, true)}
-                                    >±
-                                    </div>
-                                    <div className="cart-item-remove" onClick={
-                                        () => removeItems(item.id)
-                                    }>Remove
-                                    </div>
+                                         onClick={() => changeQuantityComponent(item, true)}>±</div>
+                                    <div className="cart-item-remove"
+                                         onClick={() => removeItems(item.id)}>Remove</div>
                                 </div>
                             </div>
                         </div>
@@ -119,9 +104,10 @@ const Cart = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {cartItems, hasDeleted} = useSelector(state => state.item);
+    const {cartItems, hasDeleted, hasChanged} = useSelector(state => state.item);
     const {isCartClicked} = useSelector(state => state.menu);
     const {orderStates} = useSelector(state => state.order);
+
 
     useEffect(() => {
         if (orderStates.isOrderPending !== undefined) {
@@ -133,7 +119,7 @@ const Cart = () => {
 
     useEffect(() => {
         dispatch(getCartItems({isAuthenticated}));
-    }, [isAuthenticated, isCartClicked, hasDeleted]);
+    }, [isAuthenticated, isCartClicked, hasChanged, hasDeleted]);
 
     const cartBody = () => {
         return (
@@ -145,6 +131,9 @@ const Cart = () => {
                 {typeof cartItems !== "undefined" && cartItems.length > 0
                     ? (
                         <>
+                            {cartItems.map((item, index) => (
+                                <div key={index}>{item['quantity_in_cart']}</div>
+                            ))}
                             <CartItems data={cartItems} dispatch={dispatch}/>
                             <div className="cart-footer">
                                 <div></div>

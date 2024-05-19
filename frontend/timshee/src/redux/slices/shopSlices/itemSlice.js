@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
+import {deleteOrder} from "./checkout";
 
 const initialState = {
     data: {},
@@ -7,7 +8,6 @@ const initialState = {
     hasAdded: false,
     quantityOfCart: 0,
     cartItems: [],
-    quantityList: [],
     hasChanged: false,
     hasDeleted: false,
     collections: [],
@@ -85,6 +85,7 @@ export const changeQuantity = createAsyncThunk(
                         ? `api/cart/anon-cart-items/${itemSrc.id}/increase/`
                         : `api/cart/anon-cart-items/${itemSrc.id}/decrease/`
             ].join("");
+
             const body = {
                 "quantity_in_cart": 1,
                 "cart": isAuthenticated
@@ -92,6 +93,7 @@ export const changeQuantity = createAsyncThunk(
                     : localStorage.getItem("anonCartId"),
                 "stock": itemSrc.stock.id,
             }
+
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -105,14 +107,18 @@ export const changeQuantity = createAsyncThunk(
             });
 
             if (response.ok) {
+                // MODIFY THAT CODE
                 const json = await response.json();
-                const prevState = [...initialState.quantityList];
-                const newState = prevState.map(item =>
-                        item.itemId === json.id
-                            ? {...item, quantityInCart: json.quantity_in_cart}
-                            : item
-                );
-                return {newState: newState, hasChanged: true};
+                console.log(json);
+                const quantityInCart = parseInt(json["quantity_in_cart"]);
+                if (quantityInCart === 0) {
+                    if (await deleteOrder(isAuthenticated)) {
+                        localStorage.removeItem("order");
+                    }
+                }
+                return quantityInCart;
+            } else {
+                return 0;
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e);
@@ -156,6 +162,7 @@ export const deleteCartItems = createAsyncThunk(
             });
 
             if (response.ok) {
+                await deleteOrder(isAuthenticated);
                 return true;
             } else {
                 thunkAPI.rejectWithValue(false);
@@ -170,6 +177,11 @@ export const getCartItems = createAsyncThunk(
     "items/getCartItems",
     async({isAuthenticated}, thunkAPI) => {
         const cartId = localStorage.getItem("cartId") || localStorage.getItem("anonCartId");
+
+        if (cartId === null || cartId === undefined) {
+            return thunkAPI.rejectWithValue(null);
+        }
+
         const url = [
             API_URL,
             isAuthenticated
@@ -180,8 +192,7 @@ export const getCartItems = createAsyncThunk(
         try {
             const response = await fetch(url);
             if (response.ok) {
-                const json = await response.json();
-                return json;
+                return await response.json();
             } else {
                 thunkAPI.rejectWithValue(response.statusText);
             }
@@ -282,14 +293,12 @@ export const itemSlice = createSlice({
             })
             .addCase(changeQuantity.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.quantityList = action.payload.newState;
-                state.hasChanged = action.payload.hasChanged;
+                state.hasChanged = action.payload;
             })
             .addCase(changeQuantity.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-                state.quantityList = [];
-                state.hasChanged = false;
+                state.hasChanged = 0;
             })
             .addCase(getCollections.pending, (state) => {
                 state.isLoading = true;

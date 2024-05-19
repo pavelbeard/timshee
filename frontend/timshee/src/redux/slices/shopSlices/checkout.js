@@ -72,3 +72,28 @@ export const createOrder = async (items, isAuthenticated) => {
     });
     return await response.json();
 }
+
+export const deleteOrder = async (isAuthenticated) => {
+    const orderId = JSON.parse(localStorage.getItem("order"))?.id;
+
+    if (orderId === undefined) {
+        return false;
+    }
+
+    const url = `${API_URL}api/order/${
+        isAuthenticated ? "orders" : "anon-orders"
+    }/${orderId}/`;
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+            "Accept": "application/json",
+            "Authorization": `Token ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+    });
+
+    return response.status === 204;
+}

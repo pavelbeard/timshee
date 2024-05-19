@@ -5,7 +5,7 @@ const initialState = {
     isLoading: false,
     error: null,
     isCreated: false,
-    isAdded: false,
+    isAdded: 0,
 };
 
 const csrftoken = Cookies.get("csrftoken");
@@ -119,12 +119,13 @@ export const addCartItem = createAsyncThunk(
                 const json = await response.json();
 
                 if (json['exist']) {
-                    return await increaseCartItem(isAuthenticated, json.id, headers, data);
+                    const isAdded = await increaseCartItem(isAuthenticated, json.id, headers, data);
+                    return isAdded ? +1 : -1;
                 } else {
-                    return true;
+                    return +1;
                 }
             } else {
-                return false
+                return -1;
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e);
@@ -137,7 +138,7 @@ export const cartSlice = createSlice({
     initialState,
     reducers: {
         resetIsAdded: (state) => {
-            state.isAdded = false;
+            state.isAdded = 0;
         }
     },
     extraReducers: (builder) => {
@@ -159,12 +160,12 @@ export const cartSlice = createSlice({
             })
             .addCase(addCartItem.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.isAdded = action.payload;
+                state.isAdded += action.payload;
             })
             .addCase(addCartItem.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-                state.isAdded = false;
+                state.isAdded = 0;
             })
     }
 });
