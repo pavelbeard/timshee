@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from . import models, strict_serializers
-from cart import strict_serializers as cart_strict_serializers
 
 User = get_user_model()
 
@@ -79,3 +78,9 @@ class AnonymousOrderSerializer(serializers.ModelSerializer):
         model = models.AnonymousOrder
         exclude = ["session"]
         depth = 2
+
+
+class ShippingMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ShippingMethod
+        fields = "__all__"

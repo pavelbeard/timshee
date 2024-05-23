@@ -1,240 +1,95 @@
-import uuid
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from django.utils import timezone
-from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.sessions.models import Session
-from rest_framework import viewsets, status, permissions, generics
-from rest_framework.decorators import action
+from rest_framework import status, permissions
+from rest_framework import status, permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from store import models as store_models
-from . import models, serializers, write_serializers, filters
+from . import service
 
 
 # Create your views here.
 
-def _increase(cart_item_obj, request, pk=None) -> bool:
-    quantity = request.data['quantity_in_cart']
-    return cart_item_obj.increase_quantity_in_cart(quantity)
+class CartAPIView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    allowed_methods = ("GET", "POST", "PUT", "DELETE", "OPTIONS")
 
-
-def _decrease(cart_item_obj, request) -> bool:
-    quantity = request.data['quantity_in_cart']
-    return cart_item_obj.decrease_quantity_in_cart(quantity)
-
-
-class CartItemViewSet(viewsets.ModelViewSet):
-    queryset = models.CartItem.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = filters.CartItemFilter
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.CartItemSerializer
-        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy", "increase", "decrease"]:
-            return write_serializers.CartItemSerializer
-
-    def create(self, request, *args, **kwargs):
-        stock_id = request.data['stock']
-        obj = self.queryset.filter(stock=stock_id)
-        if obj.exists():
-            return Response({
-                "detail": "That stock already exists",
-                "exist": True,
-                "id": obj.first().id
-            }, status=status.HTTP_200_OK)
-
-        serializer = write_serializers.CartItemSerializer(data=request.data)
-
-        if not serializer.is_valid(raise_exception=True):
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()
-
+    def get(self, request, *args, **kwargs):
+        cart = service.Cart(request)
         return Response({
-            "details": "cart item has created",
-            "exist": False,
-            "id": serializer.data.get('cart')
+            "data": list(cart.__iter__()),
+            "total_quantity": cart.get_total_quantity(),
+            "total_price": cart.get_total_price(),
         }, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['POST'])
-    def increase(self, request, pk=None):
-        cart_item = self.get_object()
-        if _increase(cart_item, request, pk):
-            return Response({
-                "details": "quantity increased",
-                "id": cart_item.id,
-                "quantity_in_cart": cart_item.quantity_in_cart
-            },
-                status=status.HTTP_200_OK)
-        else:
-            return Response({"details": "failed to increase quantity, not enough stock"},
-                            status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        cart = service.Cart(request)
 
-    @action(detail=True, methods=['POST'])
-    def decrease(self, request, pk=None):
-        cart_item = self.get_object()
-        if _decrease(cart_item, request):
-            return Response({
-                "details": "quantity decreased",
-                "id": cart_item.id,
-                "quantity_in_cart": cart_item.quantity_in_cart
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'status': 'Cart has already been decreased to zero'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['DELETE'])
-    def delete_all(self, request, pk=None):
-        items = models.CartItem.objects.filter(cart__user__id=request.user.id)
-        for item in items:
-            item.delete()
-
-        return Response({"details": f"Items for {request.user} have been deleted"},
-                        status=status.HTTP_204_NO_CONTENT)
-
-
-class CartViewSet(viewsets.ModelViewSet):
-    queryset = models.Cart.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.CartSerializer
-        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
-            return write_serializers.CartSerializer
-
-    def create(self, request, *args, **kwargs):
-        user_id = request.data['user']
-        cart = self.queryset.filter(user=user_id)
-
-        if cart.exists():
-            return Response({
-                "detail": "cart already exists",
-                "id": cart.first().id,
-            }, status=status.HTTP_200_OK)
-
-        serializer = write_serializers.CartSerializer(data={"user": user_id})
-
-        if not serializer.is_valid(raise_exception=True):
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class AnonymousCartItemViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = []
-    queryset = models.AnonymousCartItem.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = filters.AnonymousCartItemFilter
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.AnonymousCartItemSerializer
-        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
-            return write_serializers.AnonymousCartItemSerializer
-
-    def create(self, request, *args, **kwargs):
-        stock_id = request.data['stock']
-        obj = self.queryset.filter(stock=stock_id)
-        if obj.exists():
-            return Response({
-                "details": "That stock already exists",
-                "exist": True,
-                "id": obj.first().id,
-            }, status=status.HTTP_200_OK)
-
-        serializer = write_serializers.AnonymousCartItemSerializer(data=request.data)
-
-        if not serializer.is_valid(raise_exception=True):
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()
+        stock_id = cart.add_item(
+            item_id=data["item_id"],
+            size_id=data["size_id"],
+            color_id=data["color_id"],
+            quantity=data["quantity"],
+        )
 
         return Response({
-            "details": "cart item has created",
-            "exist": False,
-            "id": serializer.data.get('anon_cart'),
-        }, status=status.HTTP_200_OK)
+            "detail": "item has been added",
+            "quantity": cart.__getitem__(str(stock_id))['quantity'],
+            "cart_item": cart.__getitem__(str(stock_id))['stock'],
+        },
+            status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['POST'])
-    def increase(self, request, pk=None):
-        cart_item = self.get_object()
-        if _increase(cart_item, request, pk):
-            return Response({
-                "details": "quantity increased",
-                "id": cart_item.id,
-                "quantity_in_cart": cart_item.quantity_in_cart
-            },
-                status=status.HTTP_200_OK)
-        else:
-            return Response({"details": "failed to increase quantity, not enough stock"},
-                            status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        data = request.data
+        cart = service.Cart(request)
+        stock_id = str(data["stock_id"])
 
-    @action(detail=True, methods=['POST'])
-    def decrease(self, request, pk=None):
-        cart_item = self.get_object()
-        if _decrease(cart_item, request):
-            return Response({
-                "details": "quantity decreased",
-                "id": cart_item.id,
-                "quantity_in_cart": cart_item.quantity_in_cart
-            },
-                status=status.HTTP_200_OK)
-        else:
-            return Response({"details": "Cart has already been decreased to zero"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['DELETE'])
-    def delete_all(self, request, pk=None):
-        anon_cart_id = request.data['anon_cart']
-        items = models.AnonymousCartItem.objects.filter(anon_cart=anon_cart_id)
-
-        for item in items:
-            item.delete()
-
-        return Response({"details": f"Items for anonymous user {anon_cart_id} have been deleted"},
-                        status=status.HTTP_204_NO_CONTENT)
-
-
-class AnonymousCartViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = []
-    queryset = models.AnonymousCart.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.AnonymousCartSerializer
-        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
-            return write_serializers.AnonymousCartSerializer
-
-    def create(self, request, *args, **kwargs):
-        session = None
-        try:
-            session = Session.objects.get(session_key=request.session.session_key)
-        except Session.DoesNotExist:
-            session = Session.objects.create(
-                session_key=uuid.uuid4().hex,
-                expire_date=timezone.now() + timezone.timedelta(days=1),
+        if cart[stock_id]:
+            cart.change_quantity(
+                stock_id=data["stock_id"],
+                quantity=data["quantity"],
+                increase=data["increase"]
             )
-        finally:
-            obj = self.queryset.filter(Q(session=session) | Q(id=request.data.get('id')))
-            if obj.exists():
+
+            quantity = cart.__getitem__(str(stock_id)).get('quantity')
+            stock = cart.__getitem__(str(stock_id)).get('stock')
+
+            if quantity and stock:
                 return Response({
-                    "details": "cart already exists",
-                    "session": obj.first().session.session_key,
-                    "id": obj.first().id},
-                    status=status.HTTP_200_OK
-                )
+                    "detail": f"item's quantity has been {"increased" if not data['increase'] else "decreased"}",
+                    "quantity": quantity,
+                    "stock": stock
+                },
+                    status=status.HTTP_200_OK)
 
-            serializer = write_serializers.AnonymousCartSerializer(data={"session": session.session_key})
+        return Response({
+            "detail": f"stock id {data['stock_id']} not exists"
+        },
+            status=status.HTTP_204_NO_CONTENT)
 
-        if not serializer.is_valid(raise_exception=True):
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, *args, **kwargs):
+        cart = service.Cart(request)
 
-        serializer.save()
+        if "remove" in request.data:
+            cart.remove_item(stock_id=request.data["stock_id"])
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+                "detail": "item has been removed"
+            },
+                status=status.HTTP_204_NO_CONTENT)
+        elif "clear" in request.data:
+            cart.clear()
+            return Response({
+                "detail": "cart has been removed"
+            },
+                status=status.HTTP_204_NO_CONTENT)
+        elif "clear_by_has_ordered" in request.data:
+            cart.clear(has_ordered=True)
+            return Response({
+                "detail": "cart has been removed by reason: order has been paid"
+            },
+                status=status.HTTP_204_NO_CONTENT)
+        if not cart[str(request.data.get("stock_id"))]:
+            return Response({
+                "detail": f"stock id {request['data']} not exists"
+            },
+                status=status.HTTP_204_NO_CONTENT)

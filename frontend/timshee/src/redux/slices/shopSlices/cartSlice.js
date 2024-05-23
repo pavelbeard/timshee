@@ -4,6 +4,11 @@ import Cookies from "js-cookie";
 const initialState = {
     isLoading: false,
     error: null,
+    cart: {
+        cartItems: [],
+        totalQuantityInCart: 0,
+        totalPrice: 0,
+    },
     isCreated: false,
     isAdded: 0,
 };
@@ -11,101 +16,17 @@ const initialState = {
 const csrftoken = Cookies.get("csrftoken");
 const API_URL = process.env.REACT_APP_API_URL;
 
-export const createCart = createAsyncThunk(
-    'cart/createCart',
-    async ({isAuthenticated}, thunkAPI) => {
-        let url, body, headers;
-        if (isAuthenticated) {
-            body = {
-                user: localStorage.getItem("userId"),
-                id: localStorage.getItem("cartId"),
-            };
-            url = `${API_URL}api/cart/carts/`;
-            headers = {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-                "Accept": "application/json",
-                "Authorization": `Token ${localStorage.getItem("token")}`,
-            };
-        } else {
-            body = {
-                session: 0,
-                id: localStorage.getItem("anonCartId"),
-            };
-            url = `${API_URL}api/cart/anon-carts/`;
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            };
-        }
-
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers,
-                body: JSON.stringify(body),
-                credentials: "include",
-            });
-            if (response.status === 200 || response.status === 201) {
-                const json = await response.json();
-
-                if (isAuthenticated) {
-                    localStorage.setItem("cartId", json.id);
-                } else {
-                    localStorage.setItem("anonCartId", json.id);
-                }
-
-            } else {
-                return false;
-            }
-        } catch (e) {
-            return thunkAPI.rejectWithValue(e);
-        }
-    }
-);
-
-const increaseCartItem = async (isAuthenticated, itemId, headers, data) => {
-    let url;
-
-    if (isAuthenticated) {
-        url = `${API_URL}api/cart/cart-items/${itemId}/increase/`;
-    } else {
-        url = `${API_URL}api/cart/anon-cart-items/${itemId}/increase/` ;
-    }
-
-    const response = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(data),
-        credentials: "include",
-    });
-
-    return response.status === 200;
-};
-
 export const addCartItem = createAsyncThunk(
     "cart/addCartItem",
     async ({data, isAuthenticated}, thunkAPI) => {
         let url, headers, body;
-        if (isAuthenticated) {
-            url = `${API_URL}api/cart/cart-items/`;
-        } else {
-            url = `${API_URL}api/cart/anon-cart-items/`;
-        }
+        url = `${API_URL}api/cart/cart/`;
 
-        if (isAuthenticated) {
-            headers = {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-                "Accept": "application/json",
-                "Authorization": `Token ${localStorage.getItem("token")}`,
-            };
-        } else {
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            };
-        }
+        headers = {
+            "X-CSRFToken": csrftoken,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        };
 
         try {
             const response = await fetch(url, {
@@ -117,18 +38,33 @@ export const addCartItem = createAsyncThunk(
 
             if (response.status === 200 || response.status === 201) {
                 const json = await response.json();
-
-                if (json['exist']) {
-                    const isAdded = await increaseCartItem(isAuthenticated, json.id, headers, data);
-                    return isAdded ? +1 : -1;
-                } else {
-                    return +1;
-                }
+                return parseInt(json['quantity']);
             } else {
                 return -1;
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e);
+        }
+    }
+);
+
+export const getCartItems = createAsyncThunk(
+    "items/getCartItems",
+    async({isAuthenticated}, thunkAPI) => {
+        const url = `${API_URL}api/cart/cart/`;
+
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+            });
+            if (response.ok) {
+                return await response.json();
+            } else {
+                thunkAPI.rejectWithValue(response.statusText);
+            }
+        } catch (e) {
+            thunkAPI.rejectWithValue(e);
         }
     }
 );
@@ -142,19 +78,7 @@ export const cartSlice = createSlice({
         }
     },
     extraReducers: (builder) => {
-        builder.
-            addCase(createCart.pending, (state, action) => {
-                state.isLoading = true;
-            })
-            .addCase(createCart.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.isCreated = action.payload;
-            })
-            .addCase(createCart.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.isCreated = false;
-            })
+        builder
             .addCase(addCartItem.pending, (state, action) => {
                 state.isLoading = true;
             })
@@ -166,6 +90,28 @@ export const cartSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
                 state.isAdded = 0;
+            })
+            .addCase(getCartItems.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(getCartItems.fulfilled, (state, action) => {
+                state.isLoading = false;
+                // state.cartItems = action.payload;
+                state.cart = {
+                    cartItems: action.payload['data'],
+                    totalQuantityInCart: action.payload['total_quantity'],
+                    totalPrice: action.payload['total_price'],
+                };
+            })
+            .addCase(getCartItems.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                // state.cartItems = [];
+                state.cart = {
+                    cartItems: [],
+                    totalQuantityInCart: 0,
+                    totalPrice: 0,
+                }
             })
     }
 });

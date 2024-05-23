@@ -1,4 +1,4 @@
-.checkout-shipping-address {
+.checkout-shipping-form {
     padding: 50px 30px 10px 30px;
 }
 
@@ -19,13 +19,17 @@
     /*position: absolute;*/
 }
 
-.shipping-address-form > div > label > select, .shipping-address-form > div > label > input {
+.shipping-address-form > div > label > select, .shipping-address-form > div > label > input, #shippingAddresses {
     outline: 1px solid #e4e4e4;
-    padding: 0;
+    padding-left: 10px;
     background: none;
     border-radius: 5px;
     border: none;
     height: 25px;
+}
+
+#shippingAddresses {
+    width: 100%;
 }
 
 
@@ -63,6 +67,23 @@
 
 .form-submit > div {
     display: flex;
+    align-items: center;
+}
+
+.form-submit > button {
+    background: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    letter-spacing: 3px;
+    font-family: "Bebas Neue Cyrillic";
+    outline: 1px solid;
+}
+
+.form-submit > button:hover {
+    background: #fff;
+    color: #000;
 }
 
 .form-submit > div > img {
@@ -79,4 +100,28 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #737373;
     font-size: 14px;
+}
+
+.shipping-method {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    border: 1px solid #e4e4e4;
+    border-bottom: none;
+}
+
+.shipping-method > label > span {
+    margin-left: 0.5rem;
+}
+
+form > .shipping-method:nth-child(2) {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;;
+}
+
+form > div.shipping-method:nth-last-child(-n+2) {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom: 1px solid #e4e4e4;
+    margin-bottom: 20px;
 }

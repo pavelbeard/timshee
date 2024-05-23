@@ -70,7 +70,8 @@ const Shop = ({collectionId, collectionName}) => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {sizesData, colorsData, categoriesData, sizes, colors, categories, filters} = useSelector(state => state.filters);
+    const {sizesData, colorsData, categoriesData, sizes, colors, categories, filters}
+        = useSelector(state => state.filters);
 
     const [items, setItems] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -120,14 +121,15 @@ const Shop = ({collectionId, collectionName}) => {
                 + filterSizes
                 + filterColors
                 + filterCategories
-                + filterOrderBy);
+                + filterOrderBy
+        );
 
         const response = await fetch(encodedURI);
         const json = await response.json();
         setPagesCount(Math.ceil(json.count / 9));
         setItems(json.results);
         setTotalItems(json.count);
-        localStorage.setItem("items", JSON.stringify(json.results));
+        // localStorage.setItem("items", JSON.stringify(json.results));
     };
 
     const getSizes = async () => {
@@ -210,11 +212,14 @@ const Shop = ({collectionId, collectionName}) => {
     }, []);
 
     useEffect(() => {
-        getItems();
-        getSizes();
-        getColors();
-        getCategories();
+        const fetchData = async () => {
+            await getItems();
+            await getSizes();
+            await getColors();
+            await getCategories();
+        }
 
+        fetchData();
     }, [sizes, colors, categories, filters, orderBy, currentPage]);
 
     const sizesBlock = () => {
@@ -313,7 +318,7 @@ const Shop = ({collectionId, collectionName}) => {
         setActiveFilter(activeFilter === filter ? null : filter);
     };
 
-    return (
+    return items.length > 0 ? (
         <div className="shop-container">
             <div className="collection-name">{collectionName}</div>
             <div className="settings-container">
@@ -327,7 +332,7 @@ const Shop = ({collectionId, collectionName}) => {
                     {activeFilter === "category" && categoryBlock()}
                 </div>
                 <div className="sort-by">
-                <label htmlFor="sort-by">Order By:
+                    <label htmlFor="sort-by">Order By:
                         <select name="sort-by" id="sort-by" defaultValue="" onChange={handleOrderByChange}>
                             <option value="">---</option>
                             <option value="price">ascending</option>
@@ -335,8 +340,7 @@ const Shop = ({collectionId, collectionName}) => {
                         </select>
                     </label>
                 </div>
-                <div className="items-count">{totalItems }</div>
-                {/*<div className="items-count">{items?.length}</div>*/}
+                <div className="items-count">{totalItems}</div>
             </div>
             <div className="all-filters-container">
                 {
@@ -364,6 +368,10 @@ const Shop = ({collectionId, collectionName}) => {
                 />
             }
             </div>
+        </div>
+    ) : (
+        <div className="shop-container loading">
+            <h3>LOADING...</h3>
         </div>
     )
 };

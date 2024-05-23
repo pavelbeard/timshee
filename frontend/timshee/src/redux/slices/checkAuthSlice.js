@@ -9,6 +9,32 @@ const initialState = {
     error: null,
 }
 
+export const logout = createAsyncThunk(
+    "auth/logout",
+    async(arg, thunkAPI) => {
+        try {
+            const csrftoken = localStorage.getItem("csrftoken");
+            await fetch(API_URL + "api/stuff/logout/", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Token " + localStorage.getItem("token"),
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                },
+                credentials: "include",
+            });
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userId");
+
+            return false;
+        } catch (e) {
+            thunkAPI.rejectWithValue(e);
+        }
+    }
+)
+
 export const checkAuthStatus = createAsyncThunk(
     "auth/checkAuthSlice",
     async (arg, thunkAPI) => {
@@ -27,7 +53,7 @@ export const checkAuthStatus = createAsyncThunk(
                     localStorage.setItem("userName", json.user_name);
                     return true;
                 } else {
-                    return thunkAPI.rejectWithValue(false);
+                    return false;
                 }
             } else if (response.status === 401) {
                 return thunkAPI.rejectWithValue(response.statusText);
@@ -48,7 +74,7 @@ const checkAuthSlice = createSlice({
                 state.isLoading = true;
             })
             .addCase(checkAuthStatus.fulfilled, (state, action) => {
-                state.isValid = true;
+                state.isValid = action.payload;
                 state.isLoading = false;
                 state.error = null;
             })
@@ -56,6 +82,18 @@ const checkAuthSlice = createSlice({
                 state.isValid = false;
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            .addCase(logout.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(logout.fulfilled, (state, action) => {
+                state.isValid = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.error = action.payload;
+                state.isValid = false;
+                state.isLoading = false;
             });
     }
 });

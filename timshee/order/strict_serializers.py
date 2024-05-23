@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
 from store import models as store_models
-from cart import models as cart_models
+
 from . import models
 
 User = get_user_model()
@@ -40,16 +39,6 @@ class StrictAddressSerializer(serializers.ModelSerializer):
         exclude = ['user']
 
 
-class StrictCartItemSerializer(serializers.ModelSerializer):
-    stock = serializers.SerializerMethodField()
-
-    def get_stock(self, obj):
-        return StrictStockSerializer(obj.stock).data
-
-    class Meta:
-        model = cart_models.CartItem
-        exclude = ['cart']
-        depth = 2
 
 
 class StrictAnonymousAddressSerializer(serializers.ModelSerializer):

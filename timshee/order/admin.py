@@ -39,3 +39,8 @@ class AnonymousAddressAdmin(admin.ModelAdmin):
 @admin.register(models.AnonymousOrder)
 class AnonymousOrderAdmin(admin.ModelAdmin):
     readonly_fields = ["order_number"]
+
+
+@admin.register(models.ShippingMethod)
+class ShippingMethodAdmin(admin.ModelAdmin):
+    pass

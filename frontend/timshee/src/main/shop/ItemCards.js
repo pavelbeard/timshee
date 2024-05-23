@@ -38,36 +38,14 @@ const Sizes = ({ sizes, visibility }) => {
 };
 
 
-const ItemCard = ({ item, imageSize }) => {
-    const dispatch = useDispatch();
-    const [visibility, setVisibility] = useState(false);
-
-    const itemUrl = `/shop/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
-        + `/${item.name.replace(/ /g, "-").toLowerCase()}`;
-
-    return (
-        <div
-            onMouseEnter={() => setVisibility(true)}
-            onMouseLeave={() => setVisibility(false)}
-            className="item-card"
-        >
-            <Link to={itemUrl} onClick={() => dispatch(setItemData({
-                ...item
-            }))}><img src={item.image} alt="alt-item-image" height={imageSize}/></Link>
-            <div className="item-data">
-                <p>{item.name}</p>
-                <p>{item.price}</p>
-            </div>
-            <div className="item-data-hidden">
-                <Colors colors={item.colors} visibility={visibility} />
-                <Sizes sizes={item.sizes} visibility={visibility} />
-            </div>
-        </div>
-    )
-};
-
 const ItemCards = ({items}) => {
     const [imageSize, setImageSize] = useState("");
+    const [visibility, setVisibility] = useState(false);
+
+    const setItemUrl = (item) => {
+        return `/shop/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
+                    + `/${item.id}/${item.name.replace(/ /g, "-").toLowerCase()}`;
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -91,7 +69,24 @@ const ItemCards = ({items}) => {
     return (
         <div className="items-cards-container">
             {items?.map((item, index) => {
-                return <ItemCard item={item} key={index} imageSize={imageSize} inStock={item.in_stock}/>
+                return (
+                    <div key={index}
+                        onMouseEnter={() => setVisibility(true)}
+                        onMouseLeave={() => setVisibility(false)}
+                        className="item-card">
+                            <Link to={(setItemUrl(item))}>
+                                <img src={item.image} alt="alt-item-image" height={imageSize}/>
+                            </Link>
+                            <div className="item-data">
+                                <p>{item.name}</p>
+                                <p>{item.price}</p>
+                            </div>
+                            <div className="item-data-hidden">
+                                <Colors colors={item.colors} visibility={visibility} />
+                                <Sizes sizes={item.sizes} visibility={visibility} />
+                            </div>
+                    </div>
+                )
             })}
         </div>
     )

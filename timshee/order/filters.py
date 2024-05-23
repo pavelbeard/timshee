@@ -61,3 +61,9 @@ class AnonymousOrderFilter(django_filters.FilterSet):
         }
 
 
+class ShippingMethodFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.ShippingMethod
+        fields = {
+            "id": ["exact"],
+        }

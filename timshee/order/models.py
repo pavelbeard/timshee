@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.db import models, transaction
 
-from cart.models import CartItem, AnonymousCartItem
-
 
 # Create your models here.
 
@@ -84,6 +82,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_items = models.JSONField(blank=True, null=True)
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
+    shipping_method = models.ForeignKey("ShippingMethod", on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_for_pay')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -109,7 +108,7 @@ class Order(models.Model):
 class AnonymousAddress(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    session = models.OneToOneField(Session, on_delete=models.CASCADE, blank=True, null=True)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
     city = models.CharField(max_length=50)
     province = models.ForeignKey(Province, on_delete=models.CASCADE)
     address1 = models.CharField(max_length=255)
@@ -141,6 +140,7 @@ class AnonymousOrder(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
     ordered_items = models.JSONField(blank=True, null=True)
     shipping_address = models.ForeignKey(AnonymousAddress, on_delete=models.CASCADE, blank=True, null=True)
+    shipping_method = models.ForeignKey("ShippingMethod", on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_for_pay')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -166,3 +166,16 @@ class AnonymousOrder(models.Model):
     class Meta:
         verbose_name = 'Anonymous order'
         verbose_name_plural = 'Anonymous orders'
+
+
+class ShippingMethod(models.Model):
+    shipping_name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    #
+
+    def __str__(self):
+        return self.shipping_name
+
+    class Meta:
+        verbose_name = 'Shipping method'
+        verbose_name_plural = 'Shipping methods'

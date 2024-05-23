@@ -1,28 +1,26 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {Link, Navigate, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {closeCart, toggleCart} from "../../redux/slices/menuSlice";
 
 import "../Main.css";
 import "./Cart.css";
 import close from "../../media/static_images/cruz.svg";
-import Cookies from "js-cookie";
 import {
     changeQuantity,
     deleteCartItems,
-    getCartItems,
-    getQuantityOfCart, setHasAdded,
 } from "../../redux/slices/shopSlices/itemSlice";
 import {
-    checkout,
+    checkout, setStep,
 } from "../../redux/slices/shopSlices/orderSlice";
-import {resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
+import {
+    resetIsAdded,
+    getCartItems
+} from "../../redux/slices/shopSlices/cartSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({data, dispatch}) => {
-    const csrftoken = Cookies.get("csrftoken");
-    // const {hasChanged} = useSelector(state => state.item);
     const isAuthenticated = useSelector(state => state.auth.isValid);
 
     const findItem = (itemSrc) => {
@@ -30,19 +28,22 @@ const CartItems = ({data, dispatch}) => {
             .filter(item => item.id === itemSrc.stock.item.id)[0];
     };
 
-    const changeQuantityComponent = (item, increase) => {
-        dispatch(changeQuantity({itemSrc: item, increase, isAuthenticated}));
-        dispatch(getQuantityOfCart({isAuthenticated}));
+    const changeQuantityComponent = (item, decreaseStock) => {
+        dispatch(changeQuantity({itemSrc: item, decreaseStock, isAuthenticated}));
         dispatch(getCartItems({isAuthenticated}));
         dispatch(resetIsAdded());
     };
 
     // that one is deleting all items if itemId undefined or one item with an id
-    const removeItems = (itemId=0) => {
-        dispatch(deleteCartItems({isAuthenticated, itemId}));
-        dispatch(getQuantityOfCart({isAuthenticated}));
+    const removeItems = ({stockId = 0}) => {
+        dispatch(deleteCartItems({isAuthenticated, stockId}));
         dispatch(getCartItems({isAuthenticated}));
         dispatch(resetIsAdded());
+    };
+
+    const setItemUrl = (item) => {
+        return `/shop/${item.stock.item.collection.link}/${item.stock.item.type.name.replace(/ /g, "-").toLowerCase()}`
+                        + `/${item.stock.item.name.replace(/ /g, "-").toLowerCase()}`;
     };
 
     useEffect(() => {
@@ -53,8 +54,6 @@ const CartItems = ({data, dispatch}) => {
         <div className="cart-items">
             {
                 typeof data?.map === "function" && data.map((item, index) => {
-                    const itemUrl = `/shop/${item.stock.item.collection.link}/${item.stock.item.type.name.replace(/ /g, "-").toLowerCase()}`
-                        + `/${item.stock.item.name.replace(/ /g, "-").toLowerCase()}`;
                     return (
                         <div className="cart-item-container" key={index}>
                             <div className="cart-item-image">
@@ -76,12 +75,14 @@ const CartItems = ({data, dispatch}) => {
                                 <div className="cart-item-color">{item.stock.color.name}</div>
                                 <div className="cart-item-quantity">
                                     <div className="change-quantity"
-                                         onClick={() => changeQuantityComponent(item, false)}>-</div>
-                                    <div>{item['quantity_in_cart']}</div>
+                                         onClick={() => changeQuantityComponent(item, true)}>-</div>
+                                    <div>{item['quantity']}</div>
                                     <div className="change-quantity"
-                                         onClick={() => changeQuantityComponent(item, true)}>±</div>
+                                         onClick={() => changeQuantityComponent(item, false)}>±</div>
                                     <div className="cart-item-remove"
-                                         onClick={() => removeItems(item.id)}>Remove</div>
+                                         onClick={() => removeItems({
+                                             stockId: item.stock.id,
+                                         })}>Remove</div>
                                 </div>
                             </div>
                         </div>
@@ -90,7 +91,7 @@ const CartItems = ({data, dispatch}) => {
             }
             {
                 data?.length > 0 &&
-                <div className="cart-item-remove" onClick={() => removeItems()}>
+                <div className="cart-item-remove" onClick={() => removeItems({})}>
                     Remove all
                 </div>
             }
@@ -104,9 +105,10 @@ const Cart = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {cartItems, hasDeleted, hasChanged} = useSelector(state => state.item);
+    const {hasDeleted, hasChanged} = useSelector(state => state.item);
+    const {cart} = useSelector(state => state.cart);
     const {isCartClicked} = useSelector(state => state.menu);
-    const {orderStates} = useSelector(state => state.order);
+    const {orderStates, steps} = useSelector(state => state.order);
 
 
     useEffect(() => {
@@ -128,13 +130,10 @@ const Cart = () => {
                     <div>Your cart</div>
                     {isCartClicked && <img src={close} alt="alt-close-cart" height={20} onClick={() => dispatch(toggleCart())}/>}
                 </div>
-                {typeof cartItems !== "undefined" && cartItems.length > 0
+                {typeof cart.cartItems !== "undefined" && cart.cartItems.length > 0
                     ? (
                         <>
-                            {cartItems.map((item, index) => (
-                                <div key={index}>{item['quantity_in_cart']}</div>
-                            ))}
-                            <CartItems data={cartItems} dispatch={dispatch}/>
+                            <CartItems data={cart.cartItems} dispatch={dispatch}/>
                             <div className="cart-footer">
                                 <div></div>
                                 <div className="terms-and-conditions">
@@ -149,13 +148,14 @@ const Cart = () => {
                                     </label>
                                 </div>
                                 <div className="cart-checkout" onClick={() => {
-                                    dispatch(checkout({items: cartItems, isAuthenticated: isAuthenticated}));
+                                    dispatch(setStep(steps[0]));
+                                    dispatch(checkout({
+                                        totalPrice: cart.totalPrice,
+                                        items: cart.cartItems,
+                                        isAuthenticated: isAuthenticated
+                                    }));
                                 }}>
-                                        Checkout • {cartItems?.reduce((acc, item) => {
-                                        return acc + (
-                                            parseFloat(item.stock.item.price) * parseFloat(item.quantity_in_cart)
-                                        ).toFixed(2);
-                                    }, 0)}
+                                        Checkout • {cart.totalPrice}
                                 </div>
                             </div>
                         </>
@@ -181,8 +181,6 @@ const Cart = () => {
             </div>
         )
     }
-
-
 };
 
 export default Cart;

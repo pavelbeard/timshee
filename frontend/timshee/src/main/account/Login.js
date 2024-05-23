@@ -33,7 +33,6 @@ const Login = () => {
 
             if (response.ok) {
                 const json = await response.json();
-                localStorage.clear();
                 localStorage.setItem("token", json.token);
                 dispatch(checkAuthStatus());
                 navigate("/");

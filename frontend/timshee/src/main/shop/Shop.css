@@ -4,6 +4,12 @@
     align-items: stretch;
 }
 
+.loading {
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
 .collection-name {
     display: flex;
     height: 100px;

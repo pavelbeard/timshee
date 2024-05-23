@@ -7,6 +7,8 @@ const initialState = {
     inStock: false,
     hasAdded: false,
     quantityOfCart: 0,
+    items: [],
+    itemDetail: undefined,
     cartItems: [],
     hasChanged: false,
     hasDeleted: false,
@@ -25,25 +27,44 @@ export const checkInStock = createAsyncThunk(
             const url = [
                 `${API_URL}api/store/stocks/`,
                 `?item__id=${itemId}`,
-                `&size__value=${size}`,
-                `&color__name=${color}`
+                `&size__id=${size}`,
+                `&color__id=${color}`
             ].join("");
             const response = await fetch(encodeURI(url), {
                 method: "GET",
                 credentials: "include",
             });
 
-            if (response.status === 200) {
+            if (response.ok) {
                 const json = await response.json();
+                return parseInt(json[0]['in_stock']) !== 0;
+            } else {
+                return response.statusText;
+            }
+        } catch (e) {
+            thunkAPI.rejectWithValue(e);
+        }
+    }
+);
 
-                if (parseInt(json[0]['in_stock']) !== 0) {
-                    localStorage.setItem("selectedItem", JSON.stringify(json[0]));
-                    return true;
-                } else {
-                    localStorage.removeItem("selectedItem");
-                    return false;
-                }
+export const getItemDetail = createAsyncThunk(
+    "items/getItemDetail",
+    async ({itemId}, thunkAPI) => {
+        try {
+            const url = `${API_URL}api/store/items/${itemId}/`;
+            const response = await fetch(encodeURI(url), {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                credentials: "include",
+            });
 
+            if (response.ok) {
+                return await response.json();
+            } else {
+                return {};
             }
         } catch (e) {
             thunkAPI.rejectWithValue(e);
@@ -71,53 +92,39 @@ export const getCollections = createAsyncThunk(
 
 export const changeQuantity = createAsyncThunk(
     "items/changeQuantity",
-    async ({itemSrc, increase, isAuthenticated}, thunkAPI) => {
+    async ({itemSrc, decreaseStock, isAuthenticated}, thunkAPI) => {
         //
         // FOR UPGRADE
         const csrftoken = Cookies.get("csrftoken");
         try {
-            const url = [API_URL,
-                isAuthenticated
-                    ? increase
-                        ? `api/cart/cart-items/${itemSrc.id}/increase/`
-                        : `api/cart/cart-items/${itemSrc.id}/decrease/`
-                    : increase
-                        ? `api/cart/anon-cart-items/${itemSrc.id}/increase/`
-                        : `api/cart/anon-cart-items/${itemSrc.id}/decrease/`
-            ].join("");
-
+            const url = `${API_URL}api/cart/cart/`;
+            const headers = {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+                "Accept": "application/json",
+                // "Authorization": `Token ${localStorage.getItem("token")}`,
+            }
             const body = {
-                "quantity_in_cart": 1,
-                "cart": isAuthenticated
-                    ? localStorage.getItem("cartId")
-                    : localStorage.getItem("anonCartId"),
-                "stock": itemSrc.stock.id,
+                "stock_id": itemSrc.stock.id,
+                "quantity": 1,
+                "increase": decreaseStock
             }
 
             const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "Accept": "application/json",
-                    "Authorization": `Token ${localStorage.getItem("token")}`,
-                },
+                method: "PUT",
+                headers,
                 body: JSON.stringify(body),
                 credentials: "include",
             });
 
-            if (response.ok) {
+            if (response.status === 200) {
                 // MODIFY THAT CODE
                 const json = await response.json();
-                console.log(json);
-                const quantityInCart = parseInt(json["quantity_in_cart"]);
-                if (quantityInCart === 0) {
-                    if (await deleteOrder(isAuthenticated)) {
-                        localStorage.removeItem("order");
-                    }
+                return parseInt(json["quantity"]);
+            } else if (response.status === 204) {
+                if (await deleteOrder(isAuthenticated)) {
+                    localStorage.removeItem("order");
                 }
-                return quantityInCart;
-            } else {
                 return 0;
             }
         } catch (e) {
@@ -128,23 +135,25 @@ export const changeQuantity = createAsyncThunk(
 
 export const deleteCartItems = createAsyncThunk(
     "items/deleteCartItems",
-    async ({isAuthenticated, itemId=0}, thunkAPI) => {
+    async ({
+               isAuthenticated, hasOrdered = false, stockId=0
+           }, thunkAPI) => {
         const csrftoken = Cookies.get("csrftoken");
-        const url = [
-            API_URL,
-            isAuthenticated
-                ? itemId === 0
-                    ? "api/cart/cart-items/delete_all/"
-                    : `api/cart/cart-items/${itemId}/`
-                : itemId === 0
-                    ? "api/cart/anon-cart-items/delete_all/"
-                    : `api/cart/anon-cart-items/${itemId}/`,
-        ].join("");
+        const url = `${API_URL}api/cart/cart/`;
 
-        let body = {};
-        if (!isAuthenticated) {
+        let body;
+        if (stockId === 0 && !hasOrdered) {
             body = {
-                "anon_cart": localStorage.getItem("anonCartId"),
+                "clear": true
+            }
+        } else if (hasOrdered) {
+            body = {
+                "clear_by_has_ordered": true,
+            }
+        } else {
+            body = {
+                "stock_id": stockId,
+                "remove": true
             };
         }
 
@@ -155,14 +164,16 @@ export const deleteCartItems = createAsyncThunk(
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrftoken,
                     "Accept": "application/json",
-                    "Authorization": `Token ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify(body),
                 credentials: "include",
             });
 
             if (response.ok) {
-                await deleteOrder(isAuthenticated);
+                if (!hasOrdered) {
+                    await deleteOrder(isAuthenticated);
+                }
+                localStorage.removeItem("order");
                 return true;
             } else {
                 thunkAPI.rejectWithValue(false);
@@ -173,109 +184,21 @@ export const deleteCartItems = createAsyncThunk(
     }
 );
 
-export const getCartItems = createAsyncThunk(
-    "items/getCartItems",
-    async({isAuthenticated}, thunkAPI) => {
-        const cartId = localStorage.getItem("cartId") || localStorage.getItem("anonCartId");
 
-        if (cartId === null || cartId === undefined) {
-            return thunkAPI.rejectWithValue(null);
-        }
-
-        const url = [
-            API_URL,
-            isAuthenticated
-                ? `api/cart/cart-items/?cart__id=${cartId}`
-                : `api/cart/anon-cart-items/?anon_cart=${cartId}`,
-        ].join("")
-
-        try {
-            const response = await fetch(url);
-            if (response.ok) {
-                return await response.json();
-            } else {
-                thunkAPI.rejectWithValue(response.statusText);
-            }
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
-        }
-    }
-);
-
-export const getQuantityOfCart = createAsyncThunk(
-    "items/getQuantityOfCart",
-    async ({isAuthenticated}, thunkAPI) => {
-        const cartId = localStorage.getItem("cartId");
-        const anonCartId = localStorage.getItem("anonCartId");
-
-        let url;
-        if (cartId && isAuthenticated) {
-            url = `${API_URL}api/cart/cart-items/?cart__id=${cartId}`;
-        } else if (anonCartId && !isAuthenticated) {
-            url = `${API_URL}api/cart/anon-cart-items/?anon_cart=${anonCartId}`;
-        } else {
-            return;
-        }
-
-        try {
-            const response = await fetch(url);
-
-            if (response.ok) {
-                const json = await response.json();
-                const quantity = json.reduce((acc, item) => {
-                    return acc + item.quantity_in_cart
-                }, 0);
-                return quantity;
-            } else {
-                return 0;
-            }
-        } catch (error) {
-            thunkAPI.rejectWithValue(0);
-        }
-    }
-);
 
 export const itemSlice = createSlice({
     name: 'item',
     initialState,
     reducers: {
         setItemData: (state, action) => {
-            localStorage.setItem("item", JSON.stringify(action.payload));
             state.data = action.payload;
         },
         setHasAdded: (state, action) => {
             state.hasAdded = action.payload;
         },
-        setQuantityList: (state, action) => {
-            state.quantityList = action.payload;
-        }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getQuantityOfCart.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(getQuantityOfCart.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.quantityOfCart = action.payload;
-            })
-            .addCase(getQuantityOfCart.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.quantityOfCart = 0;
-            })
-            .addCase(getCartItems.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(getCartItems.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.cartItems = action.payload;
-            })
-            .addCase(getCartItems.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.cartItems = [];
-            })
             .addCase(deleteCartItems.pending, (state) => {
                 state.isLoading = true;
             })
@@ -323,6 +246,18 @@ export const itemSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
                 state.inStock = false;
+            })
+            .addCase(getItemDetail.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getItemDetail.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.itemDetail = action.payload;
+            })
+            .addCase(getItemDetail.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                state.itemDetail = undefined;
             });
     }
 });
@@ -330,6 +265,5 @@ export const itemSlice = createSlice({
 export const {
     setItemData,
     setHasAdded,
-    setQuantityList,
 } = itemSlice.actions;
 export default itemSlice.reducer;

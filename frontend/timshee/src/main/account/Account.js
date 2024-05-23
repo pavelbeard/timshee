@@ -28,7 +28,9 @@ const Account = () => {
                 credentials: "include",
             });
 
-            localStorage.clear();
+            localStorage.removeItem("token");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userId");
             dispatch(checkAuthStatus())
             navigate("/");
         } catch (e) {

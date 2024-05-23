@@ -4,8 +4,6 @@ import {useEffect, useState} from "react";
 import "./MainCollection.css"
 import {Link} from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL;
-
 const MainCollection = ({ data }) => {
     const [imageSize, setImageSize] = React.useState('');
 

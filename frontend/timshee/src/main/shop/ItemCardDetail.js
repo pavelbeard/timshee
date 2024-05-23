@@ -4,8 +4,9 @@ import {useDispatch, useSelector} from "react-redux";
 import "./ItemCard.css";
 import arrowLeft from "../../media/static_images/arrow-left.svg";
 import arrowRight from "../../media/static_images/arrow-right.svg";
-import {checkInStock, getQuantityOfCart, setHasAdded} from "../../redux/slices/shopSlices/itemSlice";
-import {addCartItem, createCart, resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
+import {checkInStock, getItemDetail, setHasAdded, setItemData} from "../../redux/slices/shopSlices/itemSlice";
+import {addCartItem, resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
+import {useParams} from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -34,12 +35,12 @@ const Carousel = ({ images, imageSize }) => {
 
 const ItemCardDetail = () => {
     const dispatch = useDispatch();
+    const parameter = useParams();
     const {isValid} = useSelector((state) => state.auth);
-    const {isCreated, isAdded} = useSelector(state => state.cart);
+    const {isAdded} = useSelector(state => state.cart);
     const {inStock} = useSelector(state => state.item);
 
-    const data = useSelector(state => state.item.data
-        && JSON.parse(localStorage.getItem("item")));
+    const {itemDetail: item} = useSelector(state => state.item);
 
     const [imageSize, setImageSize] = React.useState("");
     
@@ -50,7 +51,7 @@ const ItemCardDetail = () => {
     const changeSize = (e) => {
         setSelectedSize(e.target.value);
         dispatch(checkInStock({
-            itemId: data.id, size: e.target.value, color: selectedColor
+            itemId: item.id, size: e.target.value, color: selectedColor
         }));
         dispatch(resetIsAdded());
     };
@@ -58,24 +59,32 @@ const ItemCardDetail = () => {
     const changeColor = (e) => {
         setSelectedColor(e.target.value);
         dispatch(checkInStock({
-            itemId: data.id, size: selectedSize, color: e.target.value
+            itemId: item.id, size: selectedSize, color: e.target.value
         }));
         dispatch(resetIsAdded());
     };
 
     useEffect(() => {
-        if (data.sizes.length > 0) {
-            setSelectedSize(data.sizes[0].value);
-        }
+        dispatch(getItemDetail({itemId: parameter.itemId}));
+    }, [])
 
-        if (data.colors.length > 0) {
-            setSelectedColor(data.colors[0].name)
-        }
+    useEffect(() => {
+        if (item !== undefined) {
+            if (item.sizes.length > 0) {
+                setSelectedSize(item.sizes[0].id);
+            }
 
-        if (data.sizes.length > 0 && data.colors.length > 0) {
-            dispatch(checkInStock({itemId: data.id, size: data.sizes[0].value, color: data.colors[0].name}));
+            if (item.colors.length > 0) {
+                setSelectedColor(item.colors[0].id)
+            }
+
+            if (item.sizes.length > 0 && item.colors.length > 0) {
+                dispatch(checkInStock({
+                    itemId: item.id, size: item.sizes[0].id, color: item.colors[0].id
+                }));
+            }
         }
-    }, []);
+    }, [item]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -98,90 +107,71 @@ const ItemCardDetail = () => {
     }, [inStock, isAdded]);
 
     const addToCart = async () => {
-        const chosenItem = JSON.parse(localStorage.getItem("selectedItem"));
-
-        if (!(localStorage.getItem("cartId")))
-            dispatch(createCart({isAuthenticated: isValid}));
-        if (!(localStorage.getItem("anonCartId")))
-            dispatch(createCart({isAuthenticated: isValid}));
-
-        let json;
-
-        if (isValid) {
-            json = {
-                "quantity_in_cart": 1,
-                "cart": localStorage.getItem("cartId"),
-                "stock": chosenItem.id,
-            }
-        } else {
-            json = {
-                "quantity_in_cart": 1,
-                "anon_cart": localStorage.getItem("anonCartId"),
-                "stock": chosenItem.id,
-            }
-        }
-
-        dispatch(addCartItem({
-            data: json,
-            isAuthenticated: isValid,
-        }));
-        dispatch(getQuantityOfCart({
-            isAuthenticated: isValid,
-        }));
+        const data = {
+            "item_id": item.id,
+            "size_id": selectedSize,
+            "color_id": selectedColor,
+            "quantity": 1
+        };
+        dispatch(addCartItem({data, isAuthenticated: isValid}));
     };
 
-    return (
-        <div className="item-card-container">
-            <div className="empty-space left"></div>
-            <div className="item-card-content">
-                <Carousel images={data.carousel_images} imageSize={imageSize}/>
-                <div className="item-card-info">
-                    <div className="item-name-price">
-                        <div>{data.name}</div>
-                        <div>{data.price}</div>
-                    </div>
-                    <div className="item-description"><pre>{data.description}</pre></div>
-                    <div className="item-card-specs">
-                        <div className="item-card-sizes">
-                            <label htmlFor="sizes">
-                                <span>Sizes:</span>
-                            </label>
-                            <select id="sizes" value={selectedSize} onChange={changeSize}>
-                                {data.sizes.map((size) => (
-                                    <option key={size.id} value={size.value}>{size.value}</option>
-                                ))}
-                            </select>
+    if (item !== undefined) {
+        return (
+            <div className="item-card-container">
+                <div className="empty-space left"></div>
+                <div className="item-card-content">
+                    <Carousel images={item.carousel_images} imageSize={imageSize}/>
+                    <div className="item-card-info">
+                        <div className="item-name-price">
+                            <div>{item.name}</div>
+                            <div>{item.price}</div>
                         </div>
-                        <div className="item-card-colors">
-                            <label htmlFor="colors">
-                                <span>Colors:</span>
-                            </label>
-                            <select id="colors" value={selectedColor} onChange={changeColor}>
-                                {data.colors.map((color) => (
-                                    <option key={color.id} value={color.name}>
-                                        {color.name}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="item-description"><pre>{item.description}</pre></div>
+                        <div className="item-card-specs">
+                            <div className="item-card-sizes">
+                                <label htmlFor="sizes">
+                                    <span>Sizes:</span>
+                                </label>
+                                <select id="sizes" value={selectedSize} onChange={changeSize}>
+                                    {item.sizes.map((size) => (
+                                        <option key={size.id} value={size.id}>{size.value}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="item-card-colors">
+                                <label htmlFor="colors">
+                                    <span>Colors:</span>
+                                </label>
+                                <select id="colors" value={selectedColor} onChange={changeColor}>
+                                    {item.colors.map((color) => (
+                                        <option key={color.id} value={color.id}>
+                                            {color.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
+                        {
+                            !inStock
+                                ? <div className="add-to-cart out-of-stock">Out of stock</div>
+                                : isAdded
+                                    ?
+                                    <div className="add-to-cart has-added">
+                                        has added
+                                    </div>
+                                    :
+                                    <div className="add-to-cart add-to-cart.item-card" onClick={addToCart}>
+                                        Add to cart
+                                    </div>
+                        }
                     </div>
-                    {
-                        !inStock
-                            ? <div className="add-to-cart out-of-stock">Out of stock</div>
-                            : isAdded
-                                ?
-                                <div className="add-to-cart has-added">
-                                    has added
-                                </div>
-                                :
-                                <div className="add-to-cart add-to-cart.item-card" onClick={addToCart}>
-                                    Add to cart
-                                </div>
-                    }
                 </div>
             </div>
-        </div>
-    )
+        )
+    } else {
+        return <div>Loading...</div>
+    }
 };
 
 export default ItemCardDetail;

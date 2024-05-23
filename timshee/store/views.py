@@ -21,9 +21,9 @@ class ItemViewSet(viewsets.ModelViewSet):
     filterset_class = filters.ItemFilter
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', "retrieve"]:
             return serializers.ItemSerializer
-        elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
+        elif self.action in ["create", "update", "partial_update", "destroy"]:
             return write_serializers.ItemSerializer
 
 

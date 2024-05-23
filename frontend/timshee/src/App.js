@@ -13,6 +13,7 @@ import NotFound from "./NotFound";
 import Cart from "./main/cart/Cart";
 import Checkout from "./main/order/Checkout";
 import TestComponent from "./test/TestComponent";
+import OrderPaid from "./main/order/OrderPaid";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -54,7 +55,7 @@ const App = () => {
                         <Route path="/cart" element={<Cart />} />
                         <Route path="/shop" element={<Shop />} />
                         <Route path="/shop/:collection/:gender" element={<Shop />} />
-                        <Route path="/shop/:collection/:type/:itemName" element={<ItemCardDetail />} />
+                        <Route path="/shop/:collection/:type/:itemId/:itemName" element={<ItemCardDetail />} />
                         <Route path="/shop/page/:page" element={<Shop />} />
                         <Route path="/account/details" element={<Account />} />
                         <Route path="/account/address-book" element={<Addresses />} />
@@ -72,8 +73,12 @@ const App = () => {
                                 )
                             })
                         }
+                        <Route path="/shop/:orderId/checkout/order-paid" element={<OrderPaid />} />
                     </Route>
                     <Route path="/shop/:orderId/checkout" element={<Checkout />} />
+                    <Route path="/shop/:orderId/checkout/:step" element={<Checkout />} />
+                    {/*<Route path="/shop/:orderId/checkout/order-failed" element={<OrderPaid />} />*/}
+                    <Route path="/test" element={<TestComponent />} />
                     <Route path="/test" element={<TestComponent />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>

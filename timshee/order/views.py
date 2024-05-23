@@ -1,6 +1,7 @@
-from django.contrib.sessions.models import Session
+import copy
+
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status, generics
+from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
 from . import models, serializers, write_serializers, filters
@@ -59,6 +60,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
             return write_serializers.OrderSerializer
 
+    def create(self, request, *args, **kwargs):
+        qs = self.queryset.filter(user=request.user, status="pending_for_pay")
+        if len(qs) > 0:
+            return Response({
+                "detail": "you need to pay for order first", "pending": True,
+                "data": write_serializers.OrderSerializer(qs.first(), many=False).data
+            }, status=status.HTTP_200_OK)
+
+        return super().create(request, *args, **kwargs)
+
 
 class AnonymousAddressViewSet(viewsets.ModelViewSet):
     queryset = models.AnonymousAddress.objects.all()
@@ -72,6 +83,24 @@ class AnonymousAddressViewSet(viewsets.ModelViewSet):
         elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
             return write_serializers.AnonymousAddressSerializer
 
+    def create(self, request, *args, **kwargs):
+        session_key = request.session.session_key
+
+        if session_key is None:
+            request.session.create()
+
+        data = copy.copy(request.data)
+        data['session'] = session_key
+
+        serializer = write_serializers.AnonymousAddressSerializer(data=data, many=False)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class AnonymousOrderViewSet(viewsets.ModelViewSet):
     queryset = models.AnonymousOrder.objects.all()
@@ -79,7 +108,6 @@ class AnonymousOrderViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AnonymousOrderFilter
     authentication_classes = []
-    # allowed_methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -88,27 +116,34 @@ class AnonymousOrderViewSet(viewsets.ModelViewSet):
             return write_serializers.AnonymousOrderSerializer
 
     def create(self, request, *args, **kwargs):
-        if request.user.is_anonymous:
-            session_key = request.session.session_key or request.GET.get('sessionKey')
-            request.data['session'] = session_key
+        session_key = request.session.session_key
 
-        return super().create(request, *args, **kwargs)
+        if not session_key:
+            request.session.create()
+
+        qs = self.queryset.filter(session=session_key, status="pending_for_pay")
+        if len(qs) > 0:
+            return Response({
+                "detail": "you need to pay for order first", "pending": True,
+                "data": write_serializers.AnonymousOrderSerializer(qs.first(), many=False).data
+            }, status=status.HTTP_200_OK)
+
+        data = copy.copy(request.data)
+        data['session'] = session_key
+        serializer = self.get_serializer(data=data)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CheckPendingForPay(generics.GenericAPIView):
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            order_model = models.Order.objects.filter(user=request.user)
-        else:
-            session_key = request.session.session_key or request.GET.get('sessionKey')
-            session = models.Session.objects.get(session_key=session_key)
-            order_model = models.AnonymousOrder.objects.filter(session=session)
-
-        pending = False
-
-        for obj in order_model:
-            if obj.status == "pending_for_pay":
-                pending = True
-                break
-
-        return Response({"pending": pending}, status=status.HTTP_200_OK)
+class ShippingMethodViewSet(viewsets.ModelViewSet):
+    queryset = models.ShippingMethod.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = filters.ShippingMethodFilter
+    serializer_class = serializers.ShippingMethodSerializer

@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "cart.apps.CartConfig",
     "order.apps.OrderConfig",
     "stuff.apps.StuffConfig",
-
+    "payment.apps.PaymentConfig",
 ]
 
 MIDDLEWARE = [
@@ -197,7 +197,7 @@ else:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
 
-CORS_ALLOWED_METHODS = ["GET", "POST", "OPTIONS", "DELETE"]
+CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
@@ -239,3 +239,11 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
 ]
+
+CART_SESSION_ID = "cart"
+
+SESSION_COOKIE_AGE = 60 * 60 * 24
+
+ACCOUNT_ID = os.getenv("ACCOUNT_ID")
+API_KEY = os.getenv("SECRET_KEY")
+CLIENT_REDIRECT = "http://localhost:3000/"

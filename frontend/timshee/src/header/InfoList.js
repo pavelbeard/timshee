@@ -7,15 +7,15 @@ import "./Info.css";
 import "./Navigation.css";
 import AccountBar from "./AccountBar";
 import {closeCart, toggleCart} from "../redux/slices/menuSlice";
-import {getQuantityOfCart} from "../redux/slices/shopSlices/itemSlice";
 import {Link} from "react-router-dom";
+import {getCartItems, resetIsAdded} from "../redux/slices/shopSlices/cartSlice";
 
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
     const isAuthenticated = useSelector(state => state.auth.isValid);
     const {hasDeleted, quantityOfCart} = useSelector(state => state.item);
-    const {isAdded} = useSelector(state => state.cart);
+    const {cart, isAdded} = useSelector(state => state.cart);
 
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
 
@@ -37,8 +37,8 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
     };
 
     useEffect(() => {
-        dispatch(getQuantityOfCart({isAuthenticated}));
-    }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart]);
+        dispatch(getCartItems({isAuthenticated}));
+    }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart, cart.totalQuantityInCart]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>
@@ -59,12 +59,16 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
                 }
             </li>
             <li className="nav-item" onClick={() => {
-                if(document.location.pathname === "/checkout") {
+                if(
+                    document.location.pathname === "/checkout" ||
+                    document.location.pathname === "/cart"
+                ) {
                     dispatch(closeCart());
                 } else {
                     dispatch(toggleCart());
+                    dispatch(resetIsAdded());
                 }
-            }}>Cart ({quantityOfCart || 0})
+            }}>Cart ({cart.totalQuantityInCart || 0})
                 <Link to="/cart"></Link>
             </li>
         </ul>
