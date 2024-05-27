@@ -16,6 +16,7 @@ export const createAddress = async ({data, isAuthenticated}) => {
             "X-CSRFToken": csrftoken,
             "Content-Type": "application/json",
         }
+        data['is_last'] = true;
     }
     const url = isAuthenticated
         ? `${API_URL}api/order/addresses/`
@@ -63,23 +64,33 @@ export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthe
 
     if (response.ok) {
         return await response.json();
+    } else {
+        return response
+    }
+};
+
+export const deleteAddress = async (addressId) => {
+    const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+            "Authorization": `Token ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
     }
 };
 
 export const updateOrder = async (
     {orderId, totalPrice, newItems, isAuthenticated, addData, status = "pending_for_pay"}
 ) => {
-    let body;
-    if (isAuthenticated) {
-        body = {
-            "status": status,
-            "user": localStorage.getItem("userId"),
-        };
-    } else {
-        body = {
-            "status": status,
-        };
-    }
+    const body = {
+        "status": status,
+    };
 
     if (totalPrice !== undefined && newItems !== undefined) {
         const copyItems = [...newItems];
@@ -108,14 +119,20 @@ export const updateOrder = async (
         ? `${API_URL}api/order/orders/${orderId}/`
         : `${API_URL}api/order/anon-orders/${orderId}/`;
 
+    const headers = isAuthenticated ? {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+        "Authorization": `Token ${localStorage.getItem("token")}`,
+    } : {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    }
+
     const response = await fetch(url, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        },
+        headers,
         body: JSON.stringify(body),
         credentials: "include",
     });
@@ -131,26 +148,13 @@ export const createOrder = async (totalPrice, items, isAuthenticated) => {
         return {...item, stock: {...stock, item: newItem}};
     });
 
-    let body;
-    if (isAuthenticated) {
-        body = JSON.stringify({
-            "ordered_items": {
-                "data": filteredItems,
-                "total_price": totalPrice,
-            },
-            "status": "pending_for_pay",
-            "user": localStorage.getItem("userId"),
-        });
-
-    } else {
-        body = JSON.stringify({
-            "ordered_items": {
-                "data": filteredItems,
-                "total_price": totalPrice,
-            },
-            "status": "pending_for_pay",
-        });
-    }
+    const body = {
+        "ordered_items": {
+            "data": filteredItems,
+            "total_price": totalPrice,
+        },
+        "status": "pending_for_pay",
+    };
 
     const url = [
         API_URL,
@@ -166,19 +170,13 @@ export const createOrder = async (totalPrice, items, isAuthenticated) => {
             "Accept": "application/json",
             "Authorization": `Token ${localStorage.getItem("token")}`,
         },
-        body,
+        body: JSON.stringify(body),
         credentials: "include",
     });
     return await response.json();
 }
 
-export const deleteOrder = async (isAuthenticated) => {
-    const orderId = JSON.parse(localStorage.getItem("order"))?.id;
-
-    if (orderId === undefined) {
-        return false;
-    }
-
+export const deleteOrder = async ({isAuthenticated, orderId}) => {
     const url = `${API_URL}api/order/${
         isAuthenticated ? "orders" : "anon-orders"
     }/${orderId}/`;
@@ -194,5 +192,5 @@ export const deleteOrder = async (isAuthenticated) => {
         credentials: "include",
     });
 
-    return response.status === 204;
+    return response.ok;
 }

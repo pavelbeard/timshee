@@ -24,9 +24,9 @@ class Cart:
     def add_item(self, item_id, color_id, size_id, quantity=1, override_quantity=False):
         quantity = int(quantity)
         stock = store_models.Stock.objects.filter(
-            item__pk=item_id,
-            item__colors__pk=color_id,
-            item__sizes__pk=size_id,
+            item__id=item_id,
+            color__id=color_id,
+            size__id=size_id,
         ).first()
 
         stock_id = str(stock.id)

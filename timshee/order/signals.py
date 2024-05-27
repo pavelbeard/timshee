@@ -9,3 +9,9 @@ def set_as_primary_address(sender, instance, **kwargs):
     if instance.as_primary:
         print("I'm working...")
         models.Address.objects.filter(user=instance.user, as_primary=True).update(as_primary=False)
+
+
+@receiver(pre_save, sender=models.AnonymousAddress)
+def set_as_is_last(sender, instance, **kwargs):
+    if instance.is_last:
+        models.AnonymousAddress.objects.filter(session=instance.session, is_last=True).update(is_last=False)

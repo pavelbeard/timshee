@@ -1,15 +1,16 @@
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model, authenticate, models
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+from order import serializers as order_serializers
+from rest_framework import generics, status, permissions, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework import generics, status, serializers, permissions
-
-from auxiliaries.auxiliaries_methods import generate_random_symbols
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 # Create your views here.
@@ -66,7 +67,7 @@ class LoginAPIView(generics.GenericAPIView):
         password = request.data.get('password')
         user = authenticate(username=email, password=password)
 
-        if user:
+        if not isinstance(user, ValidationError):
             token, created = Token.objects.get_or_create(user=user)
             return JsonResponse({'token': token.key}, safe=False, status=status.HTTP_200_OK)
         else:
@@ -102,3 +103,17 @@ class CheckAuthenticatedAPIView(generics.GenericAPIView):
         return JsonResponse({'authenticated': True, 'user': user_id, 'user_name': request.user.email},
                             safe=False,
                             status=status.HTTP_200_OK)
+
+
+class EmailViewSet(viewsets.ModelViewSet):
+    queryset = models.User.objects.all()
+    serializer_class = order_serializers.UserSerializer
+    allowed_methods = ["GET"]
+
+    @action(detail=False, methods=["GET"])
+    def get_email(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            user = request.user
+            return Response({"email": user.email}, status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_403_FORBIDDEN)

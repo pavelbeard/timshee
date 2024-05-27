@@ -4,15 +4,15 @@ import "./CheckoutItems.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const CheckoutItems = () => {
+const CheckoutItems = ({ items }) => {
     const [checkoutItems, setCheckoutItems] = React.useState([]);
     const [imageSize, setImageSize] = React.useState(100);
 
     useEffect(() => {
-        if (checkoutItems.length === 0) {
-            setCheckoutItems(JSON.parse(localStorage.getItem('order'))['ordered_items']['data']);
+        if (items?.length > 0) {
+            setCheckoutItems(items);
         }
-    }, []);
+    }, [items]);
 
     useEffect(() => {
         const mobileWidth = () => {

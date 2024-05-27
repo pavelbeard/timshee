@@ -1,40 +1,92 @@
-import { createSlice } from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {deleteAddress as extDeleteAddress}  from "./shopSlices/checkout";
+
+const API_URL = process.env.REACT_APP_API_URL;
+
+export const deleteAddress = createAsyncThunk(
+    "editAddress/deleteAddress",
+    async ({isAuthenticated, addressId}, thunkAPI) => {
+        try {
+            const response = await extDeleteAddress(addressId);
+            return response !== undefined
+        } catch (e) {
+            thunkAPI.rejectWithValue(e);
+        }
+    }
+);
+
+export const getAddressDetail = createAsyncThunk(
+    "editAddress/getAddressDetail",
+    async ({addressId}, thunkAPI) => {
+        try {
+            const url = `${API_URL}api/order/addresses/${addressId}/`;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": `Token ${localStorage.getItem("token")}`,
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (e) {
+            thunkAPI.rejectWithValue(e)
+        }
+    }
+);
 
 export const editAddressSlice = createSlice({
     name: "editAddress",
     initialState: {
-        first_name: "",
-        last_name: "",
-        address1: "",
-        address2: "",
-        postal_code: "",
-        province_obj: null,
-        city: "",
-        phone_code_obj: null,
-        phone_number: "",
-        email: "",
-        address_id: "",
-        as_primary: false,
+        isLoading: undefined,
+        hasDeleted: undefined,
+        error: undefined,
+        address: undefined,
+        addressId: undefined,
     },
     reducers: {
-        changeAddress: (state, action) => {
-            if (action?.payload?.first_name) {
-                state.first_name = action.payload.first_name;
-                state.last_name = action.payload.last_name;
-                state.address1 = action.payload.address1;
-                state.address2 = action.payload.address2;
-                state.postal_code = action.payload.postal_code;
-                state.city = action.payload.city;
-                state.province_obj = action.payload.province_obj;
-                state.phone_code_obj = action.payload.phone_code_obj;
-                state.phone_number = action.payload.phone_number;
-                state.email = action.payload.email;
-                state.address_id = action.payload.address_id;
-                state.as_primary = action.payload.as_primary;
-            }
+        changeAddressId: (state, action) => {
+            state.addressId = action.payload;
+        },
+        resetAddress: (state, action) => {
+            state.address = undefined;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(deleteAddress.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(deleteAddress.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.hasDeleted = action.payload;
+            })
+            .addCase(deleteAddress.rejected, (state, action) => {
+                state.isLoading = undefined;
+                state.error = action.payload;
+                state.hasDeleted = undefined;
+            })
+            .addCase(getAddressDetail.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(getAddressDetail.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.address = action.payload;
+            })
+            .addCase(getAddressDetail.rejected, (state, action) => {
+                state.isLoading = undefined;
+                state.error = action.payload;
+                state.address = undefined;
+            })
     }
-})
+});
 
-export const {changeAddress} = editAddressSlice.actions;
+
+export const {
+    changeAddressId,
+    resetAddress
+} = editAddressSlice.actions;
 export default editAddressSlice.reducer;

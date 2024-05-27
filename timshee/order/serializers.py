@@ -47,10 +47,15 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     shipping_address = serializers.SerializerMethodField()
-    user = serializers.SerializerMethodField()
+    shipping_method = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField(required=False)
+    order_number = serializers.CharField(required=False)
 
     def get_shipping_address(self, obj):
         return strict_serializers.StrictAddressSerializer(obj.shipping_address).data
+
+    def get_shipping_method(self, obj):
+        return ShippingMethodSerializer(obj.shipping_method).data
 
     def get_user(self, obj):
         return UserSerializer(obj.user).data
@@ -70,9 +75,13 @@ class AnonymousAddressSerializer(serializers.ModelSerializer):
 
 class AnonymousOrderSerializer(serializers.ModelSerializer):
     shipping_address = serializers.SerializerMethodField()
+    shipping_method = serializers.SerializerMethodField()
 
     def get_shipping_address(self, obj):
         return strict_serializers.StrictAnonymousAddressSerializer(obj.shipping_address).data
+
+    def get_shipping_method(self, obj):
+        return ShippingMethodSerializer(obj.shipping_method).data
 
     class Meta:
         model = models.AnonymousOrder

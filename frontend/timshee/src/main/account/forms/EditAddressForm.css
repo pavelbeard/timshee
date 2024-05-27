@@ -2,6 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: fixed;
 }
 
 .edit-address-form-title {
@@ -10,6 +11,7 @@
 }
 
 .edit-address-form {
+    position: absolute;
     padding: 30px;
     display: flex;
     flex-direction: column;
@@ -17,6 +19,7 @@
     width: 450px;
     height: 650px;
     background: #fff;
+    z-index: 1;
 }
 
 .edit-address-form > div {
@@ -79,5 +82,23 @@
 .edit-address-form > div:last-child > img {
     padding-top: 15px;
     cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+    .edit-address-form {
+        width: 250px;
+        height: 600px;
+    }
+}
+
+@media (orientation: landscape) {
+    .overlay {
+        overflow-y: auto;
+    }
+    .edit-address-form {
+        top: 10px;
+        width: 450px;
+        height: 600px;
+    }
 }
 

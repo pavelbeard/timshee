@@ -37,7 +37,8 @@ export const checkInStock = createAsyncThunk(
 
             if (response.ok) {
                 const json = await response.json();
-                return parseInt(json[0]['in_stock']) !== 0;
+                const inStock = parseInt(json[0]?.in_stock || 0) !== 0;
+                return inStock;
             } else {
                 return response.statusText;
             }
@@ -92,7 +93,7 @@ export const getCollections = createAsyncThunk(
 
 export const changeQuantity = createAsyncThunk(
     "items/changeQuantity",
-    async ({itemSrc, decreaseStock, isAuthenticated}, thunkAPI) => {
+    async ({itemSrc, decreaseStock, isAuthenticated, orderId=0}, thunkAPI) => {
         //
         // FOR UPGRADE
         const csrftoken = Cookies.get("csrftoken");
@@ -122,8 +123,8 @@ export const changeQuantity = createAsyncThunk(
                 const json = await response.json();
                 return parseInt(json["quantity"]);
             } else if (response.status === 204) {
-                if (await deleteOrder(isAuthenticated)) {
-                    localStorage.removeItem("order");
+                if (orderId !== 0) {
+                    await deleteOrder({isAuthenticated, orderId})
                 }
                 return 0;
             }
@@ -136,7 +137,7 @@ export const changeQuantity = createAsyncThunk(
 export const deleteCartItems = createAsyncThunk(
     "items/deleteCartItems",
     async ({
-               isAuthenticated, hasOrdered = false, stockId=0
+               isAuthenticated, hasOrdered = false, stockId=0, orderId=0
            }, thunkAPI) => {
         const csrftoken = Cookies.get("csrftoken");
         const url = `${API_URL}api/cart/cart/`;
@@ -170,10 +171,10 @@ export const deleteCartItems = createAsyncThunk(
             });
 
             if (response.ok) {
-                if (!hasOrdered) {
-                    await deleteOrder(isAuthenticated);
+                if (orderId !== 0) {
+                    await deleteOrder({isAuthenticated, orderId});
+                    localStorage.removeItem("order");
                 }
-                localStorage.removeItem("order");
                 return true;
             } else {
                 thunkAPI.rejectWithValue(false);

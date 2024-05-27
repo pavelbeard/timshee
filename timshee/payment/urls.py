@@ -1,7 +1,9 @@
 from django.urls import path
+from rest_framework import routers
 
 from . import views
 
-urlpatterns = [
-    path("create-payment/", views.PaymentAPIView.as_view(), name="payment"),
-]
+router = routers.DefaultRouter()
+router.register(r'payment', views.PaymentViewSet)
+
+urlpatterns = router.urls

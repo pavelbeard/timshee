@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
+    getOrderDetail,
     getShippingMethodDetail,
     getShippingMethods,
     setStep,
@@ -11,49 +12,55 @@ import {Link, useNavigate} from "react-router-dom";
 
 import "./CheckoutForms.css";
 
-const ShippingMethodForm = ({totalPrice, orderId, orderNumber, setShippingPrice }) => {
+const ShippingMethodForm = ({ orderId, setCurrentStep, setShippingPrice, setOrderShippingMethod }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const shippingMethodStorage = JSON.parse(localStorage.getItem("order"))["shipping_method"];
-
     const [shippingMethod, setShippingMethod] = useState(0);
-    const [shippingPriceInternal, setShippingPriceInternal] = useState(0.00);
 
-    const {shippingMethodData, steps} = useSelector(state => state.order);
+    const {shippingMethodData, order: shippingMethodPreset} = useSelector(state => state.order);
     const isAuthenticated = useSelector((state) => state.auth.isValid);
 
-    useEffect(() => {
-        if (shippingMethodData.shippingMethods.length > 0) {
+    
 
-            if (shippingMethodStorage === undefined) {
-                setShippingMethod(shippingMethodData.shippingMethods[0].id);
-                setShippingPrice(shippingMethodData.shippingMethods[0].price);
-            }
-            else {
-                setShippingMethod(shippingMethodStorage);
-                setShippingPrice(shippingMethodData.shippingMethod?.price);
-            }
 
-        }
-    }, [shippingMethodData]);
+
+
+
+
+
+
+
+
 
     useEffect(() => {
         dispatch(getShippingMethods());
-    }, [])
+    }, []);
 
     useEffect(() => {
-        dispatch(getShippingMethodDetail({shippingMethodId: shippingMethodStorage || 0}));
-    }, []);
+        if (shippingMethodPreset && shippingMethodPreset.shipping_method) {
+            setShippingMethod(shippingMethodPreset.shipping_method.id);
+            setShippingPrice(shippingMethodPreset.shipping_method.price);
+        }
+    }, [shippingMethodPreset, setShippingPrice, setOrderShippingMethod]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const shipMethod = shippingMethod !== 0 ? shippingMethod : JSON.parse();
+        const selectedMethod = shippingMethodData.shippingMethods.find(
+            method => method.id === shippingMethod
+        );
         dispatch(updateOrderShippingMethod({
-            orderId, shippingMethodId: shippingMethod, isAuthenticated
+            orderId,
+            shippingMethodId: shippingMethod,
+            isAuthenticated
         }));
-        dispatch(setStep(steps[2]));
-        navigate(`/shop/${orderNumber}/checkout/${steps[2].step}`);
+        dispatch(getShippingMethodDetail({
+            shippingMethodId: selectedMethod.id
+        }));
+        setShippingPrice(selectedMethod.price);
+        setOrderShippingMethod(selectedMethod);
+        setCurrentStep("payment");
+        navigate(`/shop/${orderId}/checkout/payment`);
     };
 
     if (shippingMethodData.shippingMethods.length > 0) {
@@ -70,7 +77,6 @@ const ShippingMethodForm = ({totalPrice, orderId, orderNumber, setShippingPrice 
                                    onChange={e => {
                                        setShippingMethod(parseInt(e.target.value));
                                        setShippingPrice(method.price);
-                                       setShippingPriceInternal(method.price)
                                    }}/>
                             <span>{method.shipping_name}</span>
                         </label>
@@ -80,7 +86,9 @@ const ShippingMethodForm = ({totalPrice, orderId, orderNumber, setShippingPrice 
                 <div className="form-submit">
                     <div>
                         <img src={backImg} alt="alt-back-to-info" height={14}/>
-                        <Link to={`/shop/${orderNumber}/checkout`} onClick={() => dispatch(setStep(steps[2]))}>
+                        <Link to={`/shop/${orderId}/checkout`} onClick={
+                            () => setCurrentStep("information")
+                        }>
                             Return to information
                         </Link>
                     </div>

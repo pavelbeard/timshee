@@ -118,6 +118,7 @@ class AnonymousAddress(models.Model):
     phone_code = models.ForeignKey(CountryPhoneCode, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=20)
     additional_data = models.TextField(blank=True, null=True)
+    is_last = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Anonymous address"

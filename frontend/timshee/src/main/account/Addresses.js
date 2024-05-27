@@ -1,87 +1,62 @@
-import React from 'react';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from 'react';
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../redux/slices/menuSlice";
-import {changeAddress} from "../../redux/slices/editAddressSlice";
-import Cookies from "js-cookie";
+import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
+import {deleteAddress} from "../../redux/slices/shopSlices/checkout";
+import {
+    getShippingAddresses
+} from "./forms/reducers/asyncThunks";
+import {editAddress} from "./forms/reducers/addressFormSlice";
 
-const API_URL = process.env.REACT_APP_API_URL;
-
-const Addresses = ({ showInAccountPrimaryOne }) => {
+const Addresses = () => {
     const dispatch = useDispatch();
-    const csrftoken = Cookies.get("csrftoken");
 
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
+    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const {addresses, addressObject, isLoading} = useSelector(state => state.addressForm);
 
-    const [addresses, setAddresses] = useState([]);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [deletingAddress, setDeletingAddress] = useState(false);
-
-    const getAddresses = async () => {
-        const userId = parseInt(localStorage.getItem('userId'));
-        const response = await fetch(API_URL + `api/order/addresses/?user__id=${userId}`, {
-            credentials: "include",
-        });
-        const json = await response.json();
-        setAddresses(json);
-    };
-
-    const deleteAddress = async (addressId) => {
-        try {
-            const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "Authorization": `Token ${localStorage.getItem("token")}`,
-                },
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Could not delete address");
-            }
-
-            setDeletingAddress(prevDeletingAddress => !prevDeletingAddress)
-        } catch (e) {
-            setErrorMessage("Something went wrong: " + e.message);
-        }
-    }
+    const [showAddressForm, setShowAddressForm] = useState(false);
 
     useEffect(() => {
-        getAddresses();
-    }, [isEditAddressMenuClicked, deletingAddress]);
+        if (isAuthenticated) {
+            dispatch(getShippingAddresses({isAuthenticated: true}));
+        }
 
-    if (showInAccountPrimaryOne) {
-        return (
-            <div className="primary-address-container">
-                <div className="primary-address-name">PRIMARY ADDRESS</div>
-                <div className="divider"></div>
-                {addresses.map((address, index) => {
-                    if (address.as_primary)
-                        return (
-                            <div className="primary-address" key={index}>
-                                <div>{address.first_name} {address.last_name}</div>
-                                <div>{address.address1}</div>
-                                <div>{address.address2}</div>
-                                <div>{address.postal_code}</div>
-                                <div>{address.city}</div>
-                                <div>{address.province.name}</div>
-                                <div>{address.province.country.name}</div>
-                                <div>{address.phone_number}</div>
-                                <div>{address.email}</div>
-                                <Link className="edit-addresses" to="/account/addresses">Edit addresses</Link>
-                            </div>
-                        );
-                })}
-            </div>
-        )
-    }
+    }, [addressObject.firstName, isEditAddressMenuClicked]);
 
-    const callEditAddressForm = (data) => {
+    useEffect(() => {
+        dispatch(checkAuthStatus());
+    }, []);
+
+
+    const callEditAddressForm = (rawAddressObject) => {
         dispatch(toggleAddressEditForm());
-        dispatch(changeAddress(data));
+        // setShowAddressForm(true);
+        dispatch(editAddress({
+            id: rawAddressObject?.id,
+            firstName: rawAddressObject?.first_name || "",
+            lastName: rawAddressObject?.last_name || "",
+            streetAddress: rawAddressObject?.address1 || "",
+            apartment: rawAddressObject?.address2 || "",
+            postalCode: rawAddressObject?.postal_code || "",
+            city: rawAddressObject?.city || "",
+            province: {
+                id: rawAddressObject?.province.id || 0,
+                name: rawAddressObject?.province.name || "",
+                country: {
+                    id: rawAddressObject?.province.country.id || 0,
+                    name: rawAddressObject?.province.name || "",
+                }
+            },
+            phoneCode: {
+                country: rawAddressObject?.phone_code.country || 0,
+                phoneCode: rawAddressObject?.phone_code.phone_code || "",
+            },
+            phoneNumber: rawAddressObject?.phone_number || "",
+            email: rawAddressObject?.email || "",
+            asPrimary: rawAddressObject?.as_primary || false,
+        }));
     };
 
     return (
@@ -89,51 +64,42 @@ const Addresses = ({ showInAccountPrimaryOne }) => {
             <div className="return-to-account">
                 <Link to="/account/details">RETURN TO ACCOUNT</Link>
             </div>
-            <div className="addresses-container">
+            <div className="items-container">
                 {addresses.map((address, index) => {
                     return (
-                        <div className="address-item" key={index}>
+                        <div className="item" key={index}>
                             {
                                 address.as_primary ?
-                                    <div className="primary-address">PRIMARY ADDRESS</div>
+                                    <div className="info-block">PRIMARY ADDRESS</div>
                                     :
                                     <div className="filler">ADDRESS {index + 1} </div>
                             }
                             <div className="divider"></div>
-                            <div>{address.first_name} {address.last_name}</div>
-                            <div>{address.address1}</div>
-                            <div>{address.address2}</div>
-                            <div>{address.postal_code}</div>
-                            <div>{address.city}</div>
-                            <div>{address.province.name}</div>
-                            <div>{address.province.country.name}</div>
-                            <div>{"+" + address.phone_code.phone_code + " " + address.phone_number}</div>
+                            <div>{address?.first_name} {address?.last_name}</div>
+                            <div>{address?.address1}</div>
+                            <div>{address?.address2}</div>
+                            <div>{address?.postal_code}</div>
+                            <div>{address?.city}</div>
+                            <div>{address?.province.name}</div>
+                            <div>{address?.province.country.name}</div>
+                            <div>{"±" + address?.phone_code.phone_code + " " + address?.phone_number}</div>
                             <div>{address.email}</div>
                             <div className="change-block">
-                                <div onClick={() => {
-                                    callEditAddressForm({
-                                        first_name: address.first_name,
-                                        last_name: address.last_name,
-                                        address1: address.address1,
-                                        address2: address.address2,
-                                        postal_code: address.postal_code,
-                                        city: address.city,
-                                        province_obj: address.province,
-                                        phone_code_obj: address.phone_code,
-                                        phone_number: address.phone_number,
-                                        email: address.email,
-                                        address_id: address.id,
-                                        as_primary: address.as_primary,
-                                    });
-                                }}>Edit
+                                <div onClick={() => callEditAddressForm(address)}>
+                                    Edit
                                 </div>
-                                <div onClick={() => deleteAddress(address.id)}>Delete</div>
+                                {/*<Modal show={showAddressForm} handleClose={setShowAddressForm}>*/}
+                                {/*    <EditAddressForm closeForm={setShowAddressForm} />*/}
+                                {/*</Modal>*/}
+                                <div onClick={() => dispatch(deleteAddress(address.id))}>
+                                    Delete
+                                </div>
                             </div>
                         </div>
                     )
                 })}
             </div>
-            <div className="add-address" onClick={() => callEditAddressForm(null)}>
+            <div className="add-address" onClick={() => callEditAddressForm(undefined)}>
                 <p>Add address</p>
             </div>
         </>

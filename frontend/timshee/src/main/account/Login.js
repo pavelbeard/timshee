@@ -40,7 +40,7 @@ const Login = () => {
                 throw new Error(response.statusText);
             }
         } catch (e) {
-            setErrorMessage("Error")
+            setErrorMessage(e.message);
         }
     }
 

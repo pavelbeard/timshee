@@ -29,6 +29,7 @@ class AddressFilter(django_filters.FilterSet):
             'user__id': ['exact'],
             'province__country__name': ['exact', 'icontains', 'istartswith'],
             'province__country__id': ['exact'],
+            'as_primary': ['exact'],
         }
 
 
@@ -36,7 +37,8 @@ class AnonymousAddressFilter(django_filters.FilterSet):
     class Meta:
         model = models.AnonymousAddress
         fields = {
-            'session': ['exact']
+            'session': ['exact'],
+            'is_last': ['exact'],
         }
 
 

@@ -37,12 +37,11 @@ class StrictAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Address
         exclude = ['user']
-
-
+        depth = 2
 
 
 class StrictAnonymousAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AnonymousAddress
         exclude = ['session']
-
+        depth = 2

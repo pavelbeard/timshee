@@ -35,8 +35,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class AnonymousAddressSerializer(serializers.ModelSerializer):
-    session = serializers.CharField(read_only=True)
-
     class Meta:
         model = models.AnonymousAddress
         fields = "__all__"

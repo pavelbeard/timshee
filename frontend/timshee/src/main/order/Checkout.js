@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {
-    checkout,
-    getCountries, getOrders,
+    getCountries,
+    getOrderDetail,
     getPhoneCodes,
     getProvinces,
-    getShippingAddress, getShippingMethods,
-    resetOrderStates, setStep
+    resetOrderId,
 } from "../../redux/slices/shopSlices/orderSlice";
 import CheckoutItems from "./CheckoutItems";
 import ShippingAddressForm from "./forms/ShippingAddressForm";
@@ -15,90 +14,107 @@ import "./Checkout.css";
 
 import logo from "../../media/static_images/img.png";
 import forwardImg from "../../media/static_images/forward_to.svg";
-import {Link, Navigate, useNavigate} from "react-router-dom";
+import {Link, Navigate, useNavigate, useParams} from "react-router-dom";
 import ShippingMethodForm from "./forms/ShippingMethodForm";
 import PaymentForm from "./forms/PaymentForm";
-
-
-// STATUS_CHOICES = (
-//         ('created', 'CREATED'),
-//         ('pending_for_pay', 'PENDING FOR PAY'),
-//         ('processing', 'PROCESSING'),
-//         ('completed', 'COMPLETED'),
-//         ('cancelled', 'CANCELLED'),
-//     )
-
+import {getOrder} from "./api";
+import {setOrderedData, setTotalPrice} from "./api/checkoutSlice";
 
 
 const Checkout = () => {
     window.document.title = 'Timshee | Checkout';
 
-    const currentStep = JSON.parse(localStorage.getItem("step"));
-
-    const orderNumber = JSON.parse(localStorage.getItem("order"))['order_number'];
-    const orderId = JSON.parse(localStorage.getItem("order"))['id'];
-
+    const params = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [totalPrice, setTotalPrice] = React.useState(0.00);
+    const {countries, phoneCodes, provinces,
+        orderData, order
+    } = useSelector(state => state.order);
+    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const {isLoading, error, totalPrice, orderedData} = useSelector(state => state.checkout);
+
     const [orderShippingAddress, setOrderShippingAddress] = React.useState();
     const [orderShippingMethod, setOrderShippingMethod] = React.useState();
     const [shippingPrice, setShippingPrice] = React.useState(0.00);
+    const [currentStep, setCurrentStep] = React.useState(localStorage.getItem("currentStep") || "information");
 
-    const {step, steps, countries,
-        phoneCodes, provinces, orderData} = useSelector(state => state.order);
-    const isAuthenticated = useSelector(state => state.auth.isValid);
-
-
-    // switch (currentStep?.step) {
-    //     case "information":
-    //         navigate(`/shop/${orderNumber}/checkout/information`);
-    //         break;
-    //     case "shipping":
-    //         navigate(`/shop/${orderNumber}/checkout/shipping`);
-    //         break
-    //     case "payment":
-    //         navigate(`/shop/${orderNumber}/checkout/payment`);
-    //         break;
-    // }
-
-
+    // SET CHECKOUT ITEMS
     useEffect(() => {
+        const fetchOrder = async () => {
+            const result = await getOrder({
+                orderId: params.orderId,
+                isAuthenticated,
+                dispatch,
+            });
 
-    }, [shippingPrice]);
+            if (result) {
+                dispatch(setOrderedData(result.ordered_items.data));
+                dispatch(setTotalPrice(result.ordered_items.total_price));
+            }
+        };
 
-    useEffect(() => {
-        if (step === undefined || step === null) {
-            dispatch(setStep(steps[0]));
+        fetchOrder();
+    }, []);
+
+    // SET SHIPPING ADDRESS DATA
+
+    const setCorrectShippingPrice = () => {
+        if (currentStep !== "information" && orderShippingMethod !== undefined) {
+            setShippingPrice(order.shipping_method.price);
         }
-    }, [step]);
+    };
 
     useEffect(() => {
-        if (orderData.order !== undefined) {
-            setOrderShippingAddress(orderData.order.shipping_address);
-            setOrderShippingMethod(orderData.order.shipping_method);
+    }, [order]);
+
+    useEffect(() => {
+        if (order) {
+            setOrderShippingAddress(order.shipping_address);
+            setOrderShippingMethod(order.shipping_method);
+            setCorrectShippingPrice();
         }
-    }, [orderData]);
+    }, [order, currentStep]);
 
     useEffect(() => {
         if (document.location.pathname === "/checkout") {
-            dispatch(resetOrderStates());
+            dispatch(resetOrderId());
         }
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
-        setTotalPrice(JSON.parse(localStorage.getItem('order'))['ordered_items']['total_price']);
         dispatch(getCountries());
         dispatch(getPhoneCodes());
         dispatch(getProvinces());
-        dispatch(getOrders({orderId, isAuthenticated}));
-    }, []);
+        dispatch(getOrderDetail({isAuthenticated, orderId: params.orderId}))
+    }, [dispatch, isAuthenticated, params.orderId]);
+
+    useEffect(() => {
+        localStorage.setItem("currentStep", currentStep);
+    }, [currentStep]);
+
+    const handleStepChange = (nextStep) => {
+        if (nextStep === "information") {
+            setShippingPrice(0.00);
+        }
+
+        if (nextStep === "shipping" && orderShippingAddress === undefined) {
+            return;
+        }
+
+        if (nextStep === "payment" && orderShippingMethod === undefined) {
+            return;
+        }
+
+        setCurrentStep(nextStep);
+    };
 
     const checkoutItemsContainer = () => {
         return (
             <div className="checkout-items-container">
-                <div className="checkout-items"><CheckoutItems/></div>
+                <div className="checkout-items">
+                    <CheckoutItems items={orderedData}/>
+                </div>
                 <div className="checkout-subtotal">
                     <div className="checkout-fees">
                         <span>Subtotal:</span>
@@ -124,69 +140,90 @@ const Checkout = () => {
                     <div className="checkout-logo">
                         <img src={logo} alt="alt-logo" height={40}/>
                     </div>
-                    <div className="checkout-nav">
+                    {order !== undefined && <div className="checkout-nav">
                         <span>
-                            <Link to={`/cart`} onClick={() => dispatch(resetOrderStates())}>
+                            <Link to={`/cart`} onClick={() => {
+                                handleStepChange("information")
+                                dispatch(resetOrderId());
+                            }}>
                                 Cart
                             </Link>
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-1" height={10}/>
-                        <span className={step?.value > 0 ? "span-color-black" : "span-color-gray"}
+                        <span className={currentStep === "information" ? "span-color-black" : "span-color-gray"}
                               onClick={() => {
-                                  dispatch(setStep(steps[0]));
-                                  navigate(`/shop/${orderNumber}/checkout/${steps[0].step}/`);
+                                  handleStepChange("information");
+                                  setShippingPrice(0.00);
+                                  navigate(`/shop/${params.orderId}/checkout/information`);
                               }}>
                             Information
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-2" height={10}/>
-                        <span className={step?.value > 1 && orderShippingAddress ? "span-color-black" : "span-color-gray"}
-                              onClick={() => {
-                                  if (orderShippingAddress !== undefined) {
-                                      dispatch(setStep(steps[1]));
-                                      navigate(`/shop/${orderNumber}/checkout/${steps[1].step}/`);
-                                  }
-                              }}>
+                        <span
+                            className={currentStep === "shipping" && orderShippingAddress ? "span-color-black" : "span-color-gray"}
+                            onClick={() => {
+                                if (orderShippingAddress !== undefined) {
+                                    handleStepChange("shipping");
+                                    navigate(`/shop/${params.orderId}/checkout/shipping`);
+                                }
+                            }}>
                             Shipping
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-3" height={10}/>
-                        <span className={step?.value > 2 ? "span-color-black" : "span-color-gray"}
+                        <span className={currentStep === "payment" ? "span-color-black" : "span-color-gray"}
                               onClick={() => {
-                                  dispatch(setStep(steps[2]));
-                                  navigate(`/shop/${orderNumber}/checkout/${steps[2].step}/`);
+                                  if (orderShippingMethod !== undefined) {
+                                      handleStepChange("payment");
+                                      navigate(`/shop/${params.orderId}/checkout/payment`);
+                                  }
                               }}>
                             Payment
                         </span>
-                    </div>
+                    </div>}
                 </div>
-                <div className="checkout-shipping-form">
+                {order !== undefined && <div className="checkout-shipping-form">
                     {
-                        step?.step === "information"
+                        currentStep === "information"
                         &&
                         <ShippingAddressForm
-                            orderNumber={orderNumber}
+                            orderId={params.orderId}
                             countries={countries}
                             phoneCodes={phoneCodes}
                             provinces={provinces}
+                            setCurrentStep={handleStepChange}
                         />
                     }
                     {
-                        (step?.step === "shipping" && orderShippingAddress !== undefined)
+                        currentStep === "shipping"
                         &&
                         <ShippingMethodForm
-                            totalPrice={totalPrice}
-                            orderId={orderId}
-                            orderNumber={orderNumber}
+                            orderId={params.orderId}
+                            setCurrentStep={handleStepChange}
                             setShippingPrice={setShippingPrice}
+                            setOrderShippingMethod={setOrderShippingMethod}
                         />
                     }
                     {
-                        (step?.step === "payment" && orderShippingMethod !== undefined)
+                        currentStep === "payment"
                         &&
-                        <PaymentForm orderId={orderId} />
+                        <PaymentForm orderId={params.orderId}/>
                     }
-                </div>
+                </div>}
             </div>
-            {checkoutItemsContainer()}
+            {order !== undefined
+                ? checkoutItemsContainer()
+                :
+                <div style={{
+                    display: "flex",
+                    paddingTop: "4rem",
+                    justifyContent: "center",
+                    width: "45%",
+                }}>
+                    <span>
+                        <h3>LOADING...</h3>
+                    </span>
+                </div>
+            }
         </div>
     )
 };

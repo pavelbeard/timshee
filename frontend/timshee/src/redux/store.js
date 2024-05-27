@@ -10,6 +10,10 @@ import itemSlice from "./slices/shopSlices/itemSlice";
 import orderSlice from "./slices/shopSlices/orderSlice";
 import cartSlice from "./slices/shopSlices/cartSlice";
 import paymentSlice from "./slices/shopSlices/paymentSlice";
+import shippingAddressFormSlice from "../main/order/forms/reducers/shippingAddressFormSlice";
+import checkoutSlice from "../main/order/api/checkoutSlice";
+import addressFormSlice from "../main/account/forms/reducers/addressFormSlice";
+import ordersSlice from "../main/account/forms/reducers/ordersSlice";
 
 export default configureStore({
     reducer: {
@@ -24,6 +28,10 @@ export default configureStore({
         item: itemSlice,
         cart: cartSlice,
         order: orderSlice,
+        checkout: checkoutSlice,
         payment: paymentSlice,
+        addressForm: addressFormSlice,
+        shippingAddressForm: shippingAddressFormSlice,
+        ordersPage: ordersSlice,
     }
 });

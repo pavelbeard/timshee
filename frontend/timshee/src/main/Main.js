@@ -24,7 +24,7 @@ const Main = () => {
 
     useEffect(() => {
         dispatch(checkAuthStatus());
-        if (isSearchClicked || isSideMenuClicked || isCartClicked) {
+        if (isSearchClicked || isSideMenuClicked || isCartClicked || isEditAddressMenuClicked) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";

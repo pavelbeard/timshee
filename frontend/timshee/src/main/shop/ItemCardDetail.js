@@ -35,7 +35,7 @@ const Carousel = ({ images, imageSize }) => {
 
 const ItemCardDetail = () => {
     const dispatch = useDispatch();
-    const parameter = useParams();
+    const params = useParams();
     const {isValid} = useSelector((state) => state.auth);
     const {isAdded} = useSelector(state => state.cart);
     const {inStock} = useSelector(state => state.item);
@@ -49,39 +49,38 @@ const ItemCardDetail = () => {
 
 
     const changeSize = (e) => {
-        setSelectedSize(e.target.value);
+        const size = parseInt(e.target.value);
+        setSelectedSize(size);
         dispatch(checkInStock({
-            itemId: item.id, size: e.target.value, color: selectedColor
+            itemId: item.id, size: size, color: selectedColor
         }));
         dispatch(resetIsAdded());
     };
 
     const changeColor = (e) => {
-        setSelectedColor(e.target.value);
+        const color = parseInt(e.target.value);
+        setSelectedColor(color);
         dispatch(checkInStock({
-            itemId: item.id, size: selectedSize, color: e.target.value
+            itemId: item.id, size: selectedSize, color: color
         }));
         dispatch(resetIsAdded());
     };
 
     useEffect(() => {
-        dispatch(getItemDetail({itemId: parameter.itemId}));
-    }, [])
+        dispatch(getItemDetail({itemId: params.itemId}));
+    }, []);
+
 
     useEffect(() => {
         if (item !== undefined) {
-            if (item.sizes.length > 0) {
-                setSelectedSize(item.sizes[0].id);
-            }
-
-            if (item.colors.length > 0) {
-                setSelectedColor(item.colors[0].id)
-            }
-
             if (item.sizes.length > 0 && item.colors.length > 0) {
+                const size = item.sizes[0].id;
+                const color = item.colors[0].id;
                 dispatch(checkInStock({
-                    itemId: item.id, size: item.sizes[0].id, color: item.colors[0].id
+                    itemId: params.itemId, size: size, color: color
                 }));
+                setSelectedSize(size);
+                setSelectedColor(color);
             }
         }
     }, [item]);

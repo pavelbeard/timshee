@@ -1,279 +1,198 @@
-import React from 'react';
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../../redux/slices/menuSlice";
-import {changeAddress} from "../../../redux/slices/editAddressSlice";
+import {changeAddressId, resetAddress} from "../../../redux/slices/editAddressSlice";
 import Cookies from "js-cookie";
 import "./EditAddressForm.css";
 
 import "../../Main.css";
 import crossBtn from "../../../media/static_images/cruz.svg";
+import {createAddress, updateAddress} from "../../../redux/slices/shopSlices/checkout";
+import {
+    getAddressDetail,
+    getCountries,
+    getPhoneCodes,
+    getProvinces
+} from "./reducers/asyncThunks";
+import {
+    setError,
+    setPhoneCode,
+    setPhoneCodesFiltered,
+    setProvince,
+    setProvincesFiltered,
+    editAddress as setAddressObject
+} from "./reducers/addressFormSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const EditAddressForm = () => {
     const dispatch = useDispatch();
-    const csrftoken = Cookies.get("csrftoken");
-    //DANGEROUS!!!! BUT NECESSARY!
-    const nameInputRef = useRef();
 
     const {
-        first_name, last_name, address1,
-        address2, postal_code, province_obj,
-        city, phone_code_obj, phone_number,
-        email, address_id, as_primary
-    } = useSelector(state => state.editAddress);
+        addressFormObject, countries, provinces,
+        phoneCodes, isError, provincesFilteredList
+    } = useSelector(state => state.addressForm);
+    const isAuthenticated = useSelector(state => state.auth.isValid);
 
-    const [errorMessage, setErrorMessage] = useState("");
-    const [firstName, setFirstName] = useState(first_name);
-    const [lastName, setLastName] = useState(last_name);
-    const [addressOne, setAddress1] = useState(address1);
-    const [addressTwo, setAddress2] = useState(address2);
-    const [provinceId, setProvinceId] = useState(province_obj?.id);
-    const [countryId, setCountryId] = useState(province_obj?.country.id);
-    const [cityName, setCityName] = useState(city);
-    const [postCode, setPostcode] = useState(postal_code);
-    const [phoneCode, setPhoneCode] = useState(phone_code_obj && {});
-    const [phone, setPhone] = useState(phone_number);
-    const [emailField, setEmailField] = useState(email);
-    const [asPrimary, setAsPrimary] = useState(as_primary);
+    // FETCH COUNTRIES, PROVINCES AND MORE
+    useEffect(() => {
+        dispatch(getCountries());
+        dispatch(getProvinces());
+        dispatch(getPhoneCodes());
+    }, []);
 
-    const [provinceObj, setProvinceObj] = useState(province_obj && {});
-
-    const [countryName, setCountryName] = useState(provinceObj?.country?.name);
-    const [provinceName, setProvinceName] = useState(provinceObj?.name);
-
-    const [countriesList, setCountriesList] = useState([]);
-    const [provincesList, setProvincesList] = useState([]);
-
-    const getCountries = async () => {
-        const countriesResponse = await fetch(API_URL + "api/order/countries/", {
-            credentials: "include",
-        });
-        const countries = await countriesResponse.json();
-        setCountriesList(countries);
-    };
-
-    const getCities = async () => {
-        try {
-            if (countryId) {
-                    const response = await fetch(API_URL + `api/order/provinces/?country__id=${countryId}`, {
-                    credentials: "include",
-                });
-                const json = await response.json();
-                setProvincesList(json);
-            }
-        } catch (e) {
-            setErrorMessage("HAS HAPPENED A BAD THING...");
+    //
+    useEffect(() => {
+        if (addressFormObject.id !== 0 && addressFormObject.id !== undefined) {
+            dispatch(getAddressDetail({addressId: addressFormObject.id}));
         }
-    };
+    }, []);
 
-    const getPhoneCode = async () => {
-        try {
-            if (countryId) {
-                const response = await fetch(API_URL + `api/order/phone-codes/?country__id=${countryId}`, {
-                    credentials: "include",
-                });
-                const json = await response.json();
-                setPhoneCode(json[0]);
-            }
-        } catch (e) {
-            setErrorMessage("HAS HAPPENED A BAD THING...");
+    useEffect(() => {
+        if (countries.length > 0 && provinces.length > 0 && phoneCodes.length > 0) {
+            const filteredProvinces = provinces.filter(p =>
+                p.country.id === countries[0].id
+            );
+
+            const filteredPhoneCodes = phoneCodes.filter(phoneCode =>
+                phoneCode.country.id === countries[0].id
+            )
+
+            dispatch(setProvincesFiltered(filteredProvinces));
+            dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
         }
-    }
+    }, [countries]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const data = {
+            first_name: addressFormObject.firstName,
+            last_name: addressFormObject.lastName,
+            address1: addressFormObject.streetAddress,
+            address2: addressFormObject.apartment,
+            postal_code: addressFormObject.postalCode,
+            province: addressFormObject.province.id,
+            city: addressFormObject.city,
+            phone_code: addressFormObject.phoneCode.country,
+            phone_number: addressFormObject.phoneNumber,
+            email: addressFormObject.email,
+            as_primary: addressFormObject.asPrimary
+        };
+
         try {
-            const data = {
-                user: localStorage.getItem("userId"),
-                first_name: firstName,
-                last_name: lastName,
-                address1: addressOne,
-                address2: addressTwo,
-                postal_code: postCode,
-                province: provinceId,
-                city: cityName,
-                phone_code: phoneCode.country,
-                phone_number: phone,
-                email: emailField,
-                as_primary: asPrimary
-            };
-
             let response;
-            if (address_id) {
-                response = await fetch(API_URL + `api/order/addresses/${address_id}/`, {
-                    method: "PUT",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                    },
-                    body: JSON.stringify(data),
-                    credentials: "include",
+            if (addressFormObject.id !== 0) {
+                response = await updateAddress({
+                    shippingAddress: data,
+                    shippingAddressId: addressFormObject.id,
+                    isAuthenticated: isAuthenticated,
                 });
-
-
             } else {
-                response = await fetch(API_URL + `api/order/addresses/`, {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                        'Authorization': `Token ${localStorage.getItem('token')}`,
-                    },
-                    body: JSON.stringify(data),
-                    credentials: "include",
+                response = await createAddress({
+                    data: data, isAuthenticated: isAuthenticated
                 });
             }
 
-            if (response.ok) {
+            if (response !== undefined) {
                 closeForm();
             } else {
-                throw new Error(response.statusText);
+                throw new Error("Something went wrong...");
             }
 
         } catch (e) {
-            setErrorMessage("Something went wrong: " + e.message);
+            dispatch(setError(e.message));
         }
     };
 
-    const handleFirstName = (e) => {
-        e.preventDefault();
-        setFirstName(e.target.value);
-    };
-    const handleLastName = (e) => {
-        e.preventDefault();
-        setLastName(e.target.value);
-    };
-    const handleAddress1 = (e) => {
-        e.preventDefault();
-        setAddress1(e.target.value);
-    };
-    const handleAddress2 = (e) => {
-        e.preventDefault();
-        setAddress2(e.target.value);
-    };
-    const handlePostCode = (e) => {
-        e.preventDefault();
-        setPostcode(e.target.value);
-    };
-    const handlePhone = (e) => {
-        e.preventDefault();
-        setPhone(e.target.value);
-    }
-    const handleEmail = (e) => {
-        e.preventDefault();
-        setEmailField(e.target.value);
-    }
-    const handleCountryIdChange = async e => {
-        e.preventDefault();
-        const dataCountryOption = e.target.options[e.target.selectedIndex];
-        setCountryId(dataCountryOption.getAttribute('data-country-id'));
-        setCountryName(dataCountryOption.value);
-        setProvinceName("");
-        setProvinceId("");
-        setCityName("");
+    const changeCountry = (e) => {
+        const selectedCountryId = parseInt(e.target.value);
+
+        const phoneCodesInternalTmp = phoneCodes.filter(phoneCode =>
+            phoneCode.country === selectedCountryId
+        );
+
+        const provincesInternalTmp = provinces.filter(province =>
+            province.country.id === selectedCountryId
+        );
+
+        dispatch(setPhoneCodesFiltered(phoneCodesInternalTmp));
+        dispatch(setProvincesFiltered(provincesInternalTmp));
+
+        dispatch(setProvince(provincesInternalTmp[0]));
+        dispatch(setPhoneCode({
+            country: phoneCodesInternalTmp[0].country,
+            phoneCode: phoneCodesInternalTmp[0].phone_code,
+        }));
     };
 
-    const handleProvinceChange = (e) => {
-        e.preventDefault();
-        const dataProvince = e.target.options[e.target.selectedIndex];
-        setProvinceId(dataProvince.getAttribute('data-province-id'));
-        setProvinceName(dataProvince.value);
+    const changeProvince = (e) => {
+        const province = provinces.filter(province =>
+            province.id === parseInt(e.target.value)
+        );
+
+        dispatch(setProvince(province[0]));
     };
 
-    const handleCityChange = (e) => {
-        e.preventDefault();
-        setCityName(e.target.value);
-    };
-
-    const closeForm = () => {
+    const closeForm = (e) => {
         dispatch(toggleAddressEditForm());
-        dispatch(changeAddress({
-            first_name: '',
-            last_name: '',
-            address1: '',
-            address2: '',
-            postal_code: '',
-            province_obj: {},
-            phone_code_obj: '',
-            phone_number: '',
-            email: '',
-            as_primary: false,
-            address_id: '',
-        }))
     };
 
-    useEffect(() => {
-        getCountries();
-        getCities();
-        getPhoneCode();
-    }, [countryId, provinceId, provinceName]);
 
     return (
         <div className="overlay edit-address-form-container">
+            <div style={{ zIndex: "-1", width: "100%", minHeight: "100vh"}} onClick={closeForm}></div>
             <form onSubmit={handleSubmit} className="edit-address-form">
                 <span className="edit-address-form-title">EDIT ADDRESS</span>
-                {errorMessage && <div className="errorMessage">{errorMessage}</div>}
+                {isError && <div className="errorMessage">{isError}</div>}
                 <div>
                     <label htmlFor="firstName">
                         <span className="label-text">firstname:</span>
-                        <input
-                            id="firstName"
-                            onChange={handleFirstName}
-                            value={firstName}
-                            type="text"
-                            required
-                        />
+                        <input id="firstName" type="text" value={addressFormObject.firstName}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                firstName: e.target.value
+                            }))} required />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="lastName">
                         <span className="label-text">lastname:</span>
-                        <input
-                            id="lastName"
-                            value={lastName}
-                            onChange={handleLastName}
-                            type="text"
-                            required
-                        />
+                        <input id="lastName" type="text" value={addressFormObject.lastName}
+                            onChange={e => dispatch({
+                                ...addressFormObject,
+                                lastName: e.target.value
+                            })} required />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="address1">
                         <span className="label-text">address 1:</span>
-                        <input
-                            id="address1"
-                            value={addressOne}
-                            onChange={handleAddress1}
-                            type="text"
-                            required
-                        />
+                        <input id="address1" type="text" value={addressFormObject.streetAddress}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                streetAddress: e.target.value
+                            }))} required />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="address2">
                         <span className="label-text">address 2:</span>
-                        <input
-                            id="address2"
-                            value={addressTwo}
-                            onChange={handleAddress2}
-                            type="text"
-                            required
-                        />
+                        <input id="address2" type="text" value={addressFormObject.apartment}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                apartment: e.target.value
+                            }))} required />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="postcode">
                         <span className="label-text">postcode:</span>
-                        <input
-                            id="postcode"
-                            value={postCode}
-                            onChange={handlePostCode}
-                            type="text"
-                            required
-                        />
+                        <input id="postcode" type="text" value={addressFormObject.postalCode}
+                            onChange={e => setAddressObject({
+                                ...addressFormObject,
+                                postalCode: e.target.value
+                            })} required />
                     </label>
                 </div>
                 <div>
@@ -281,8 +200,11 @@ const EditAddressForm = () => {
                         <span className="label-text">city:</span>
                         <input
                             id="city"
-                            value={cityName}
-                            onChange={handleCityChange}
+                            value={addressFormObject.city}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                city: e.target.value
+                            }))}
                             type="text"
                             required
                         />
@@ -291,20 +213,10 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="province">
                         <span className="label-text">province:</span>
-                        <select
-                            id="province"
-                            ref={nameInputRef}
-                            defaultValue={provinceName}
-                            onChange={handleProvinceChange}
-                            required
-                        >
-                            <option value="">---</option>
-                            {typeof provincesList.map === "function" && provincesList?.map((province) => (
-                                <option
-                                    key={province.id}
-                                    data-province-id={province.id}
-                                    value={province.name}
-                                >
+                        <select id="province" value={addressFormObject.province.id}
+                                onChange={changeProvince} required>
+                            {provincesFilteredList?.map((province) => (
+                                <option key={province.id} value={province.id}>
                                     {province.name}
                                 </option>
                             ))}
@@ -314,10 +226,10 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="country">
                         <span className="label-text">country:</span>
-                        <select id="country" defaultValue={countryName} onChange={handleCountryIdChange} required>
-                            <option value="">---</option>
-                            {countriesList?.map((country) => (
-                                <option key={country.id} data-country-id={country.id} value={country.name}>
+                        <select id="country" value={addressFormObject.province.country.id}
+                                onChange={changeCountry} required>
+                            {countries?.map((country) => (
+                                <option key={country.id} value={country.id}>
                                     {country.name}
                                 </option>
                             ))}
@@ -327,39 +239,38 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="phoneCode">
                         <span className="label-text">PHONE CODE:</span>
-                        <div id="phoneCode">{"" || "±" + phoneCode?.phone_code}</div>
+                        <div id="phoneCode">{"± " + addressFormObject.phoneCode.phoneCode}</div>
                     </label>
                 </div>
                 <div>
                     <label htmlFor="phone">
                         <span className="label-text">phone:</span>
-                        <input
-                            id="phone"
-                            value={phone}
-                            onChange={handlePhone}
-                            type="text"
-                            required
-                        />
+                        <input id="phone" type="text" value={addressFormObject.phoneNumber}
+                               onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                phoneNumber: e.target.value
+                            }))} required />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="email">
                         <span className="label-text">email:</span>
-                        <input
-                            id="email"
-                            value={emailField}
-                            onChange={handleEmail}
-                            type="email"
-                            required
-                        />
+                        <input id="email" type="email" value={addressFormObject.email}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                email: e.target.value
+                            }))} required />
                     </label>
                 </div>
                 <div>
                     <label id="last-as-primary" htmlFor="asPrimary">
                         <input
                             id="asPrimary"
-                            checked={asPrimary}
-                            onChange={e => setAsPrimary(e.target.checked)}
+                            checked={addressFormObject.asPrimary}
+                            onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                                asPrimary: e.target.checked
+                            }))}
                             type="checkbox"
                         />
                         <span className="label-text">as primary:</span>
@@ -367,7 +278,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <button onSubmit={handleSubmit}>submit</button>
-                    <img src={crossBtn} onClick={closeForm} height={20}/>
+                    <img src={crossBtn} onClick={closeForm} alt="alt-cross-btn" height={20}/>
                 </div>
             </form>
         </div>

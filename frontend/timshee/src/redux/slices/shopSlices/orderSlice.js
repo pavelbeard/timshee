@@ -6,6 +6,9 @@ const initialState = {
         order: undefined,
         orders: [],
     },
+    order: undefined,
+    orders: [],
+    orderId: undefined,
     orderStates: {
         isOrderCreated: undefined,
         isOrderUpdated: undefined,
@@ -16,11 +19,12 @@ const initialState = {
         {value: 2, step: "shipping"},
         {value: 3, step: "payment"},
     ],
-    step: JSON.parse(localStorage.getItem("step")),
+    step: undefined,
     shippingMethodData: {
         shippingMethods: [],
         shippingMethod: undefined,
     },
+    address: undefined,
     addresses: [],
     countries: [],
     provinces: [],
@@ -85,19 +89,19 @@ export const getProvinces = createAsyncThunk(
     }
 );
 
-export const getShippingAddress = createAsyncThunk(
+export const getShippingAddresses = createAsyncThunk(
     "order/getPrimaryShippingAddress",
     async ({isAuthenticated}, thunkAPI) => {
         let url, headers;
         if (isAuthenticated) {
-            url = `${API_URL}api/order/addresses/`;
+            url = `${API_URL}api/order/addresses/get_addresses_by_user/`;
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": `Token ${localStorage.getItem("token")}`,
                 "Accept": "application/json",
             };
         } else {
-            url = `${API_URL}api/order/anon-addresses/`;
+            url = `${API_URL}api/order/anon-addresses/get_addresses_by_session/`;
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
@@ -111,11 +115,13 @@ export const getShippingAddress = createAsyncThunk(
                 credentials: "include",
             });
 
-            if (response.status === 200) {
+            if (response.ok) {
                 return await response.json();
+            } else {
+                thunkAPI.rejectWithValue(response.statusText);
             }
         } catch (e) {
-            return thunkAPI.rejectWithValue(e)
+            thunkAPI.rejectWithValue(e);
         }
     }
 );
@@ -170,19 +176,14 @@ export const checkout = createAsyncThunk(
         try {
             const createOrderResult = await createOrder(totalPrice, items, isAuthenticated);
 
-            if ('order_number' in createOrderResult) {
-                localStorage.setItem("order", JSON.stringify(createOrderResult));
-                return {isOrderCreated: true, isOrderUpdated: undefined, isOrderPending: false, };
-            } else if ('pending' in createOrderResult) {
-                if (localStorage.getItem("order") === null) {
-                    localStorage.setItem("order", JSON.stringify(createOrderResult['data']));
-                }
-
-                const orderId = JSON.parse(localStorage.getItem("order"))["id"];
-                const result = await updateOrder({orderId, totalPrice, items, isAuthenticated});
-                localStorage.setItem("order", JSON.stringify(result));
-                return {isOrderCreated: false, isOrderUpdated: true, isOrderPending: false};
+            if (createOrderResult?.pending) {
+                const updateOrderResult = await updateOrder({
+                    orderId: createOrderResult.data.id, totalPrice, newItems: items, isAuthenticated
+                });
+                return updateOrderResult.id;
             }
+
+            return createOrderResult.data.id;
         } catch (e) {
             return thunkAPI.rejectWithValue(e);
         }
@@ -195,7 +196,7 @@ export const updateOrderShippingAddress = createAsyncThunk(
         try {
 
             let address;
-            if (shippingAddressId === undefined) {
+            if (shippingAddressId === undefined || shippingAddressId === "") {
                 address = await createAddress({data: shippingAddress, isAuthenticated});
             } else {
                 address = await updateAddress({shippingAddress, shippingAddressId, isAuthenticated});
@@ -210,7 +211,7 @@ export const updateOrderShippingAddress = createAsyncThunk(
                 orderId, isAuthenticated, addData: {shippingAddressId: address.id},
             });
 
-            localStorage.setItem("order", JSON.stringify(result));
+
         } catch (e) {
             thunkAPI.rejectWithValue(e);
         }
@@ -224,8 +225,6 @@ export const updateOrderShippingMethod = createAsyncThunk(
             const result = await updateOrder({
                 totalPrice, newItems, orderId, isAuthenticated, addData: {shippingMethodId: shippingMethodId}
             });
-
-            localStorage.setItem("order", JSON.stringify(result));
         } catch (e) {
             thunkAPI.rejectWithValue(e);
         }
@@ -249,13 +248,11 @@ export const updateOrderStatus = createAsyncThunk(
 
 export const getOrders = createAsyncThunk(
     "order/getOrders",
-    async ({orderId, isAuthenticated}, thunkAPI) => {
+    async ({isAuthenticated}, thunkAPI) => {
         try {
             let url = isAuthenticated
                 ? `${API_URL}api/order/orders/`
                 : `${API_URL}api/order/anon-orders/`
-
-            url += orderId !== undefined ? `${orderId}/` : "";
 
             const response = await fetch(url, {
                 method: "GET",
@@ -267,18 +264,9 @@ export const getOrders = createAsyncThunk(
             });
 
             if (response.status === 200) {
-                return orderId === undefined ? {
-                    order: undefined,
-                    orders: await response.json()
-                } : {
-                    order: await response.json(),
-                    orders: [],
-                }
+                return await response.json();
             } else {
-                return {
-                    order: undefined,
-                    orders: [],
-                };
+                return [];
             }
         } catch (e) {
             thunkAPI.rejectWithValue(e);
@@ -286,16 +274,45 @@ export const getOrders = createAsyncThunk(
     }
 );
 
+export const getOrderDetail = createAsyncThunk(
+    "order/getOrderDetail",
+    async ({orderId, isAuthenticated}, thunkAPI) => {
+        try {
+            const url = isAuthenticated
+                ? `${API_URL}api/order/orders/${orderId}/`
+                : `${API_URL}api/order/anon-orders/${orderId}/`
+
+            const headers = isAuthenticated ? {
+                "Content-Type": "application/json",
+                "Authorization": `Token ${localStorage.getItem("token")}`,
+                "Accept": "application/json",
+            } : {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            };
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers,
+                credentials: "include",
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (e) {
+            thunkAPI.rejectWithValue(e);
+        }
+    }
+);
+
+
+
 export const orderSlice = createSlice({
     name: "order",
     initialState,
     reducers: {
-        resetOrderStates: (state) => {
-            state.orderStates = {
-                isOrderCreated: undefined,
-                isOrderUpdated: undefined,
-                isOrderPending: undefined,
-            }
+        resetOrderId: (state) => {
+            state.orderId = undefined;
         },
         setStep(state, action) {
             localStorage.setItem("step", JSON.stringify(action.payload));
@@ -309,24 +326,21 @@ export const orderSlice = createSlice({
             })
             .addCase(checkout.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.orderStates = action.payload;
+                state.orderId = action.payload;
             })
             .addCase(checkout.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-                state.orderStates = {
-                    isOrderCreated: undefined,
-                    isOrderPending: undefined,
-                };
+                state.orderId = undefined;
             })
-            .addCase(getShippingAddress.pending, (state, action) => {
+            .addCase(getShippingAddresses.pending, (state, action) => {
                 state.isLoading = true;
             })
-            .addCase(getShippingAddress.fulfilled, (state, action) => {
+            .addCase(getShippingAddresses.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.addresses = action.payload;
             })
-            .addCase(getShippingAddress.rejected, (state, action) => {
+            .addCase(getShippingAddresses.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
                 state.addresses = [];
@@ -396,21 +410,42 @@ export const orderSlice = createSlice({
             })
             .addCase(getOrders.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.orderData = action.payload;
+                state.orders = action.payload;
             }).
             addCase(getOrders.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-                state.orderData = {
-                    order: undefined,
-                    orders: []
-                };
+                state.orders = []
             })
+            .addCase(getOrderDetail.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getOrderDetail.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.order = action.payload;
+            }).
+            addCase(getOrderDetail.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                state.order = undefined;
+            })
+            .addCase(updateOrderShippingMethod.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(updateOrderShippingMethod.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.order = action.payload;
+            }).
+            addCase(updateOrderShippingMethod.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                state.order = undefined;
+            });
     }
 });
 
 export const {
-    resetOrderStates,
+    resetOrderId,
     setStep,
 } = orderSlice.actions;
 export default orderSlice.reducer;

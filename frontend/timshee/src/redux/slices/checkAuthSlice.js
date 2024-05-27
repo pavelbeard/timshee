@@ -3,8 +3,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const initialState = {
-    token: localStorage.getItem("token") || null,
-    isValid: false,
+    isValid: localStorage.getItem("token") !== undefined,
     isLoading: false,
     error: null,
 }
@@ -14,21 +13,21 @@ export const logout = createAsyncThunk(
     async(arg, thunkAPI) => {
         try {
             const csrftoken = localStorage.getItem("csrftoken");
-            await fetch(API_URL + "api/stuff/logout/", {
+            const token = localStorage.getItem("token");
+            localStorage.removeItem("token");
+            const response = await fetch(API_URL + "api/stuff/logout/", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Token " + localStorage.getItem("token"),
+                    "Authorization": "Token " + token,
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrftoken,
                 },
                 credentials: "include",
             });
 
-            localStorage.removeItem("token");
-            localStorage.removeItem("userName");
-            localStorage.removeItem("userId");
+            if (response.ok) {
 
-            return false;
+            }
         } catch (e) {
             thunkAPI.rejectWithValue(e);
         }
@@ -39,27 +38,26 @@ export const checkAuthStatus = createAsyncThunk(
     "auth/checkAuthSlice",
     async (arg, thunkAPI) => {
         try {
-            const response = await fetch(API_URL + "api/stuff/check-auth/", {
-                headers: {
-                    'Authorization': `Token ${localStorage.getItem("token")}`,
-                },
-                credentials: "include",
-            });
+            const token = localStorage.getItem("token");
+            if (token === undefined || token === null) {
+                const response = await fetch(API_URL + "api/stuff/check-auth/", {
+                    headers: {
+                        'Authorization': `Token ${localStorage.getItem("token")}`,
+                    },
+                    credentials: "include",
+                });
 
-            if (response.ok) {
-                const json = await response.json();
-                if (json.authenticated) {
-                    localStorage.setItem("userId", json.user);
-                    localStorage.setItem("userName", json.user_name);
-                    return true;
-                } else {
-                    return false;
+                if (response.ok) {
+                    const json = await response.json();
+                    return json.authenticated;
+                } else if (response.status === 401) {
+                    return thunkAPI.rejectWithValue(response.statusText);
                 }
-            } else if (response.status === 401) {
-                return thunkAPI.rejectWithValue(response.statusText);
+            } else {
+                return true;
             }
         } catch (e) {
-
+            thunkAPI.rejectWithValue(e);
         }
     }
 );
@@ -92,8 +90,8 @@ const checkAuthSlice = createSlice({
             })
             .addCase(logout.rejected, (state, action) => {
                 state.error = action.payload;
-                state.isValid = false;
-                state.isLoading = false;
+                state.isValid = undefined;
+                state.isLoading = undefined;
             });
     }
 });

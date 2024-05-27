@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
 import {changeQuantity, deleteCartItems, getCollections} from "../../redux/slices/shopSlices/itemSlice";
@@ -7,11 +7,12 @@ import {useDispatch, useSelector} from "react-redux";
 import {updateOrderStatus} from "../../redux/slices/shopSlices/orderSlice";
 
 const OrderPaid = () => {
-    const orderNumber = JSON.parse(localStorage.getItem('order'))?.order_number;
-    const orderId = JSON.parse(localStorage.getItem('order'))?.id;
-
     const dispatch = useDispatch();
+    const params = useParams();
     const navigate = useNavigate();
+
+    const orderId = params.orderId;
+    const orderNumber = params.orderNumber;
 
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 

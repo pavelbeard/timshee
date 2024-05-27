@@ -1,22 +1,19 @@
-import os
 import uuid
 from decimal import Decimal
 
 from django.conf import settings
-from rest_framework import permissions, status
+from django.utils import timezone
+from order import models as order_models
+from order import serializers as order_serializers
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from yookassa import Configuration, Payment
 
-from order import models as order_models
-from store import models as store_models
-from cart import service
-from order import serializers as order_serializers
-
-print(settings.ACCOUNT_ID, settings.API_KEY)
-
 Configuration.configure(settings.ACCOUNT_ID, settings.API_KEY)
+
+from . import serializers, models
 
 
 # {
@@ -93,13 +90,46 @@ Configuration.configure(settings.ACCOUNT_ID, settings.API_KEY)
 #   }
 # }
 # Create your views here.
-class PaymentAPIView(APIView):
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = models.Payment.objects.all()
+    serializer_class = serializers.PaymentSerializer
     permission_classes = (permissions.AllowAny,)
-    allowed_methods = ('GET', 'POST', 'PUT', 'DELETE')
 
-    def post(self, request):
+    @action(detail=False, methods=['GET'])
+    def get_status(self, request, *args, **kwargs):
+        order_number = request.query_params.get('order_number', None)
+        if order_number:
+            payment = models.Payment.objects.filter(store_order_number=order_number).first()
+            dt = payment.created_at.isoformat()
+            filtered_objects = Payment.list(params={"created_at": dt, "limit": 1}).items[-1]
+
+            return Response({"status": filtered_objects.status}, status=status.HTTP_200_OK)
+        return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['GET'])
+    def get_only_succeeded_orders(self, request, *args, **kwargs):
+        qs = self.queryset.all()
+        params = {
+            "limit": 50,
+        }
+
+        filter_objects = (list(filter(
+            lambda x: x.id in [str(qs_object.payment_id) for qs_object in qs] and x.status == 'succeeded',
+            [payment_obj for payment_obj in Payment.list(params=params).items]
+        )))
+
+        qs.filter(payment_id__in=[fo.id for fo in filter_objects]).update(status='succeeded')
+
+        new_qs = qs.filter(status='succeeded')
+
+        data = self.get_serializer(new_qs, many=True).data
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
         data = request.data
         order_id = data.get('order_id')
+
         order = None
         if order_id and request.user.is_authenticated:
             order = order_models.Order.objects.filter(id=order_id)
@@ -163,7 +193,9 @@ class PaymentAPIView(APIView):
         # ]
 
         try:
-            res = Payment.create(
+            redirect_url = f"shop/{order_id}/checkout/order-check/{order_number}"
+            idempotency_key = str(uuid.uuid4())
+            payment = Payment.create(
                 {
                     "amount": {
                         "value": str(total_price),
@@ -171,7 +203,7 @@ class PaymentAPIView(APIView):
                     },
                     "confirmation": {
                         "type": "redirect",
-                        "return_url": settings.CLIENT_REDIRECT + f"shop/{order_number}/checkout/order-paid",
+                        "return_url": settings.CLIENT_REDIRECT + redirect_url,
                     },
                     "capture": True,
                     "description": f"Order number: {order_number}\n"
@@ -187,12 +219,36 @@ class PaymentAPIView(APIView):
                             "inn": "6321341814"
                         },
                         "items": items
-                    }
+                    },
                 }
+                , idempotency_key=idempotency_key
             )
 
-            return Response({"redirect_url": res.confirmation.confirmation_url},
-                            status=status.HTTP_201_CREATED)
+            if payment.status == 'pending':
+                qs = models.Payment.objects.filter(store_order_number=order_number)
+                if qs.exists():
+                    qs.update(
+                        payment_id=payment.id,
+                        created_at=payment.created_at,
+                        captured_at=payment.captured_at,
+                        status=payment.status,
+                    )
+                else:
+                    payment_object = models.Payment(
+                        payment_id=payment.id,
+                        status=payment.status,
+                        store_order_id=order_id,
+                        store_order_number=order_number,
+                        created_at=payment.created_at,
+                        captured_at=payment.captured_at,
+                    )
+                    payment_object.save()
 
+                confirmation_url = payment.confirmation.confirmation_url
+                return Response({"confirmation_url": confirmation_url, "success": True},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"detail": payment.status, "success": False}, )
         except Exception as e:
-            return Response({"detail": "something went wrong", "exception": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"detail": f"something went wrong: {e}", "success": False},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
