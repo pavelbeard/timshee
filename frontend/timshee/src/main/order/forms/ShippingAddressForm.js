@@ -5,11 +5,10 @@ import "./CheckoutForms.css";
 
 import backImg from "../../../media/static_images/back_to.svg"
 import {
-    getShippingAddresses,
     resetOrderId, updateOrderShippingAddress
 } from "../../../redux/slices/shopSlices/orderSlice";
 import {useDispatch, useSelector} from "react-redux";
-import {checkAuthStatus, logout} from "../../../redux/slices/checkAuthSlice";
+import {logout} from "../../../redux/slices/checkAuthSlice";
 import {getEmail} from "../../account/api";
 import {
     setAddressId,
@@ -17,7 +16,8 @@ import {
     setPhoneCodesFiltered, setProvince, setProvincesFiltered,
     setShippingAddress, setShippingAddresses, setUsernameEmail
 } from "./reducers/shippingAddressFormSlice";
-import {getShippingAddressAsTrue} from "./reducers/asyncThunks";
+import {getShippingAddressAsTrue, getShippingAddresses} from "./reducers/asyncThunks";
+import {toggleCart} from "../../../redux/slices/menuSlice";
 
 const ShippingAddressForm = ({ orderId, countries, phoneCodes, provinces, setCurrentStep }) => {
     const dispatch = useDispatch();
@@ -54,17 +54,17 @@ const ShippingAddressForm = ({ orderId, countries, phoneCodes, provinces, setCur
         e.preventDefault();
 
         const data = {
-            "first_name": addressObject.first_name,
+            "first_name": addressObject.firstName,
             "last_name": addressObject.lastName,
             "city": addressObject.city,
             "address1": addressObject.streetAddress,
             "address2": addressObject.apartment,
             "postal_code": addressObject.postalCode,
-            "phone_number": addressObject.phone,
+            "phone_number": addressObject.phoneNumber,
             "email": addressObject.email,
             "additional_data": "",
-            "province": addressObject.province,
-            "phone_code": addressObject.phoneCode
+            "province": addressObject.province.id,
+            "phone_code": addressObject.phoneCode.country
         }
 
         if (isAuthenticated) {
@@ -154,7 +154,6 @@ const ShippingAddressForm = ({ orderId, countries, phoneCodes, provinces, setCur
                         <span onClick={() => dispatch(logout())}>Logout</span>
                     </div>
                 ) : (
-
                     <div className="shipping-addeess-email">
                         <label htmlFor="email">
                             <span className="shipping-address-form-text">Email:</span>
@@ -174,9 +173,9 @@ const ShippingAddressForm = ({ orderId, countries, phoneCodes, provinces, setCur
                 <option value="">New address</option>
                 {shippingAddresses.map((address) => (
                     <option key={address.id} value={address.id}>
-                        {`${address.address1}, ${address.address2}, ${address.postal_code}, ${address.province.name}, ${
+                        {`${address.streetAddress}, ${address.apartment}, ${address.postalCode}, ${address.province.name}, ${
                             address.city
-                        }, ${address.province.country.name}, ${address.first_name} ${address.last_name}`}
+                        }, ${address.province.country.name}, ${address.firstName} ${address.lastName}`}
                     </option>
                 ))}
             </select>
@@ -276,7 +275,7 @@ const ShippingAddressForm = ({ orderId, countries, phoneCodes, provinces, setCur
                     <img src={backImg} alt="alt-back-to-cart" height={14}/>
                     <Link to="/cart" onClick={() => {
                         setCurrentStep("information");
-                        dispatch(resetOrderId())
+                        dispatch(toggleCart(false));
                     }}>Return to cart</Link>
                 </div>
                 <button type="submit" onSubmit={handleSubmit}>

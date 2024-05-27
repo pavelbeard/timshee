@@ -5,8 +5,9 @@ import "./ItemCard.css";
 import arrowLeft from "../../media/static_images/arrow-left.svg";
 import arrowRight from "../../media/static_images/arrow-right.svg";
 import {checkInStock, getItemDetail, setHasAdded, setItemData} from "../../redux/slices/shopSlices/itemSlice";
-import {addCartItem, resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
 import {useParams} from "react-router-dom";
+import {resetIsAdded} from "../cart/reducers/cartSlice";
+import {addCartItem} from "../cart/api/asyncThunks";
 
 const API_URL = process.env.REACT_APP_API_URL;
 

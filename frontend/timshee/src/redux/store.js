@@ -8,12 +8,12 @@ import editAddressSlice from "./slices/editAddressSlice";
 import filtersSlice from "./slices/shopSlices/filtersSlice";
 import itemSlice from "./slices/shopSlices/itemSlice";
 import orderSlice from "./slices/shopSlices/orderSlice";
-import cartSlice from "./slices/shopSlices/cartSlice";
 import paymentSlice from "./slices/shopSlices/paymentSlice";
 import shippingAddressFormSlice from "../main/order/forms/reducers/shippingAddressFormSlice";
 import checkoutSlice from "../main/order/api/checkoutSlice";
 import addressFormSlice from "../main/account/forms/reducers/addressFormSlice";
 import ordersSlice from "../main/account/forms/reducers/ordersSlice";
+import cartSlice from "../main/cart/reducers/cartSlice";
 
 export default configureStore({
     reducer: {

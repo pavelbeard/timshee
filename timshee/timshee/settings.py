@@ -202,9 +202,9 @@ else:
 CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'authentication',
-]
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#     'authentication',
+# ]
 
 # settings.py
 
@@ -252,4 +252,4 @@ SESSION_COOKIE_AGE = 60 * 60 * 24
 
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 API_KEY = os.getenv("SECRET_KEY")
-CLIENT_REDIRECT = "http://localhost:3000/"
+CLIENT_REDIRECT = os.getenv("CLIENT_REDIRECT", "http://localhost:3000/")

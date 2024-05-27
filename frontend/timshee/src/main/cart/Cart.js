@@ -6,9 +6,10 @@ import {toggleCart} from "../../redux/slices/menuSlice";
 import "../Main.css";
 import "./Cart.css";
 import close from "../../media/static_images/cruz.svg";
-import {getCartItems} from "../../redux/slices/shopSlices/cartSlice";
 import CartItems from "./CartItems";
 import {createOrder as apiCreateOrder} from "./api/index";
+import {getCartItems} from "./api/asyncThunks";
+import {setOrderId} from "../../redux/slices/shopSlices/orderSlice";
 
 const Cart = () => {
     window.document.title = "Cart | Timshee";
@@ -16,20 +17,20 @@ const Cart = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {hasDeleted, hasChanged} = useSelector(state => state.item);
-    const {cart} = useSelector(state => state.cart);
+    const {hasDeleted, hasChanged, cart} = useSelector(state => state.cart);
     const {isCartClicked} = useSelector(state => state.menu);
+    const {orderId} = useSelector(state => state.order);
 
-    // const {orderStates, orderId, steps} = useSelector(state => state.order);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = React.useState(null);
-    const [orderId, setOrderId] = React.useState(undefined);
+    // const [orderId, setOrderId] = React.useState(undefined);
+    const [orderCreated, setOrderCreated] = React.useState(false);
 
     useEffect(() => {
-        if (orderId !== undefined) {
+        if (orderCreated) {
             navigate(`/shop/${orderId}/checkout`);
         }
-    }, [orderId]);
+    }, [orderCreated]);
 
     const createOrder = async () => {
         const result = await apiCreateOrder({
@@ -41,13 +42,14 @@ const Cart = () => {
         });
 
         if ('id' in result) {
-            setOrderId(result.id);
+            dispatch(setOrderId(result.id));
+            setOrderCreated(true);
         }
     };
 
     useEffect(() => {
         dispatch(getCartItems({isAuthenticated}));
-    }, [isAuthenticated, isCartClicked, hasChanged, hasDeleted]);
+    }, [isAuthenticated, isCartClicked, hasChanged, hasDeleted, orderId]);
 
     const cartBody = () => {
         return (
@@ -59,7 +61,7 @@ const Cart = () => {
                 {typeof cart.cartItems !== "undefined" && cart.cartItems.length > 0
                     ? (
                         <>
-                            <CartItems data={cart.cartItems} dispatch={dispatch}/>
+                            <CartItems cart={cart} dispatch={dispatch}/>
                             <div className="cart-footer">
                                 <div></div>
                                 <div className="terms-and-conditions">

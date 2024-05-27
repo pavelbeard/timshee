@@ -105,7 +105,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return write_serializers.OrderSerializer
 
     def create(self, request, *args, **kwargs):
-        qs = self.queryset.filter(user=request.user, status="pending_for_pay")
+        qs = self.queryset.filter(user=request.user, status__in=["pending_for_pay", "created"])
         if len(qs) > 0:
             return Response({
                 "detail": "you need to pay for order first", "pending": True,
@@ -144,7 +144,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_orders_by_user(self, request, *args, **kwargs):
         user = self.request.user
         if user.is_authenticated:
-            qs = models.Order.objects.filter(user=user)
+            qs = models.Order.objects.filter(user=user).exclude(status="created")
 
             if qs.exists():
                 data = self.get_serializer(qs, many=True).data
@@ -231,7 +231,7 @@ class AnonymousOrderViewSet(viewsets.ModelViewSet):
         if not session_key:
             request.session.create()
 
-        qs = self.queryset.filter(session=session_key, status="pending_for_pay")
+        qs = self.queryset.filter(session=session_key, status__in=["pending_for_pay", "created"])
         if len(qs) > 0:
             return Response({
                 "detail": "you need to pay for order first", "pending": True,

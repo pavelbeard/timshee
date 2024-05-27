@@ -1,5 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {getShippingAddressAsTrue} from "./asyncThunks";
+import {getShippingAddressAsTrue, getShippingAddresses} from "./asyncThunks";
+
+
 
 const initialState = {
     // general values
@@ -11,6 +13,7 @@ const initialState = {
     // form objects
     addressId: 0,
     addressObject: {
+        id: 0,
         firstName: "",
         lastName: "",
         streetAddress: "",
@@ -36,6 +39,29 @@ const initialState = {
     shippingAddresses: [],
     provincesInternal: [],
     phoneCodesInternal: [],
+};
+
+const rewriteShippingAddressObject = (address) => {
+    const {
+        id, first_name: firstName, last_name: lastName,
+        address1: streetAddress, address2: apartment,
+        postal_code: postalCode, city, province,
+        phone_number: phoneNumber, phone_code: phoneCode,
+        email,
+    } = address;
+    return {
+        id,
+        firstName,
+        lastName,
+        streetAddress,
+        apartment,
+        postalCode,
+        city,
+        province,
+        phoneCode,
+        phoneNumber,
+        email,
+    };
 };
 
 export const shippingAddressFormSlice = createSlice({
@@ -67,27 +93,7 @@ export const shippingAddressFormSlice = createSlice({
             }
         },
         setAddressObject: (state, action) => {
-            const {
-                first_name: firstName, last_name: lastName,
-                address1: streetAddress, address2: apartment,
-                postal_code: postalCode, city, province,
-                phone_number: phoneNumber, phone_code: phoneCode,
-                email,
-            } = action.payload;
-            const prevState = {...state.addressFormObject};
-            state.addressFormObject = {
-                ...prevState,
-                firstName,
-                lastName,
-                streetAddress,
-                apartment,
-                postalCode,
-                city,
-                province,
-                phoneCode,
-                phoneNumber,
-                email,
-            };
+            state.addressObject = action.payload;
         },
         setShippingAddresses: (state, action) => {
             state.shippingAddresses = action.payload;
@@ -101,31 +107,24 @@ export const shippingAddressFormSlice = createSlice({
     },
     extraReducers: builder => {
         builder
+            .addCase(getShippingAddresses.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getShippingAddresses.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.shippingAddresses = action.payload.map(address => rewriteShippingAddressObject(address));
+            })
+            .addCase(getShippingAddresses.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+
             .addCase(getShippingAddressAsTrue.pending, (state, action) => {
                 state.isLoading = true;
             })
             .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const {
-                    first_name: firstName, last_name: lastName,
-                    address1: streetAddress, address2: apartment,
-                    postal_code: postalCode, city, province,
-                    phone_number: phoneNumber, phone_code: phoneCode,
-                    email,
-                } = action.payload;
-                state.addressObject = {
-                    ...state.addressObject,
-                    firstName,
-                    lastName,
-                    streetAddress,
-                    apartment,
-                    postalCode,
-                    city,
-                    province,
-                    phoneCode,
-                    phoneNumber,
-                    email,
-                };
+                state.addressObject = rewriteShippingAddressObject(action.payload);
             })
             .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
                 state.isLoading = false;

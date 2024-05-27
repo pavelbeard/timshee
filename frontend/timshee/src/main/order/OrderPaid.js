@@ -2,9 +2,9 @@ import React, {useEffect} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
-import {changeQuantity, deleteCartItems, getCollections} from "../../redux/slices/shopSlices/itemSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {updateOrderStatus} from "../../redux/slices/shopSlices/orderSlice";
+import {deleteCartItems} from "../cart/api/asyncThunks";
 
 const OrderPaid = () => {
     const dispatch = useDispatch();
@@ -14,7 +14,7 @@ const OrderPaid = () => {
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
 
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const isAuthenticated = useSelector(state => state.auth.isValid);
 
     useEffect(() => {
         if (orderId !== undefined) {

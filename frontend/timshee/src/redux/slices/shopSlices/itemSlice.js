@@ -91,99 +91,9 @@ export const getCollections = createAsyncThunk(
     }
 );
 
-export const changeQuantity = createAsyncThunk(
-    "items/changeQuantity",
-    async ({itemSrc, decreaseStock, isAuthenticated, orderId=0}, thunkAPI) => {
-        //
-        // FOR UPGRADE
-        const csrftoken = Cookies.get("csrftoken");
-        try {
-            const url = `${API_URL}api/cart/cart/`;
-            const headers = {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-                "Accept": "application/json",
-                // "Authorization": `Token ${localStorage.getItem("token")}`,
-            }
-            const body = {
-                "stock_id": itemSrc.stock.id,
-                "quantity": 1,
-                "increase": decreaseStock
-            }
 
-            const response = await fetch(url, {
-                method: "PUT",
-                headers,
-                body: JSON.stringify(body),
-                credentials: "include",
-            });
 
-            if (response.status === 200) {
-                // MODIFY THAT CODE
-                const json = await response.json();
-                return parseInt(json["quantity"]);
-            } else if (response.status === 204) {
-                if (orderId !== 0) {
-                    await deleteOrder({isAuthenticated, orderId})
-                }
-                return 0;
-            }
-        } catch (e) {
-            return thunkAPI.rejectWithValue(e);
-        }
-    }
-);
 
-export const deleteCartItems = createAsyncThunk(
-    "items/deleteCartItems",
-    async ({
-               isAuthenticated, hasOrdered = false, stockId=0, orderId=0
-           }, thunkAPI) => {
-        const csrftoken = Cookies.get("csrftoken");
-        const url = `${API_URL}api/cart/cart/`;
-
-        let body;
-        if (stockId === 0 && !hasOrdered) {
-            body = {
-                "clear": true
-            }
-        } else if (hasOrdered) {
-            body = {
-                "clear_by_has_ordered": true,
-            }
-        } else {
-            body = {
-                "stock_id": stockId,
-                "remove": true
-            };
-        }
-
-        try {
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify(body),
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                if (orderId !== 0) {
-                    await deleteOrder({isAuthenticated, orderId});
-                    localStorage.removeItem("order");
-                }
-                return true;
-            } else {
-                thunkAPI.rejectWithValue(false);
-            }
-        } catch (e) {
-            thunkAPI.rejectWithValue(false);
-        }
-    }
-);
 
 
 
@@ -200,30 +110,7 @@ export const itemSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(deleteCartItems.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(deleteCartItems.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.hasDeleted = action.payload;
-            })
-            .addCase(deleteCartItems.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.hasDeleted = false;
-            })
-            .addCase(changeQuantity.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(changeQuantity.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.hasChanged = action.payload;
-            })
-            .addCase(changeQuantity.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.hasChanged = 0;
-            })
+
             .addCase(getCollections.pending, (state) => {
                 state.isLoading = true;
             })

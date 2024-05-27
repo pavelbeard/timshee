@@ -26,6 +26,9 @@ const checkoutSlice = createSlice({
         setOrderedData: (state, action) => {
             state.orderedData = action.payload;
         },
+    },
+    extraReducers: builder =>  {
+
     }
 });
 

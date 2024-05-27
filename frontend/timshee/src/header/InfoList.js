@@ -8,7 +8,8 @@ import "./Navigation.css";
 import AccountBar from "./AccountBar";
 import {closeCart, toggleCart} from "../redux/slices/menuSlice";
 import {Link} from "react-router-dom";
-import {getCartItems, resetIsAdded} from "../redux/slices/shopSlices/cartSlice";
+import {getCartItems} from "../main/cart/api/asyncThunks";
+import {resetIsAdded} from "../main/cart/reducers/cartSlice";
 
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();

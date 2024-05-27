@@ -176,21 +176,4 @@ export const createOrder = async (totalPrice, items, isAuthenticated) => {
     return await response.json();
 }
 
-export const deleteOrder = async ({isAuthenticated, orderId}) => {
-    const url = `${API_URL}api/order/${
-        isAuthenticated ? "orders" : "anon-orders"
-    }/${orderId}/`;
 
-    const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        },
-        credentials: "include",
-    });
-
-    return response.ok;
-}

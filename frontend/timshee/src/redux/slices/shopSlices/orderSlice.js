@@ -8,7 +8,7 @@ const initialState = {
     },
     order: undefined,
     orders: [],
-    orderId: undefined,
+    orderId: 0,
     orderStates: {
         isOrderCreated: undefined,
         isOrderUpdated: undefined,
@@ -89,42 +89,7 @@ export const getProvinces = createAsyncThunk(
     }
 );
 
-export const getShippingAddresses = createAsyncThunk(
-    "order/getPrimaryShippingAddress",
-    async ({isAuthenticated}, thunkAPI) => {
-        let url, headers;
-        if (isAuthenticated) {
-            url = `${API_URL}api/order/addresses/get_addresses_by_user/`;
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": `Token ${localStorage.getItem("token")}`,
-                "Accept": "application/json",
-            };
-        } else {
-            url = `${API_URL}api/order/anon-addresses/get_addresses_by_session/`;
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            };
-        }
 
-        try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers,
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                return await response.json();
-            } else {
-                thunkAPI.rejectWithValue(response.statusText);
-            }
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
-        }
-    }
-);
 
 export const getShippingMethods = createAsyncThunk(
     "order/getShippingMethods",
@@ -225,8 +190,14 @@ export const updateOrderShippingMethod = createAsyncThunk(
             const result = await updateOrder({
                 totalPrice, newItems, orderId, isAuthenticated, addData: {shippingMethodId: shippingMethodId}
             });
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
+
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return  thunkAPI.rejectWithValue(error.message);
         }
     }
 );
@@ -311,6 +282,9 @@ export const orderSlice = createSlice({
     name: "order",
     initialState,
     reducers: {
+        setOrderId: (state, action) => {
+            state.orderId = action.payload;
+        },
         resetOrderId: (state) => {
             state.orderId = undefined;
         },
@@ -332,18 +306,6 @@ export const orderSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
                 state.orderId = undefined;
-            })
-            .addCase(getShippingAddresses.pending, (state, action) => {
-                state.isLoading = true;
-            })
-            .addCase(getShippingAddresses.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.addresses = action.payload;
-            })
-            .addCase(getShippingAddresses.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.addresses = [];
             })
             .addCase(getCountries.pending, (state, action) => {
                 state.isLoading = true;
@@ -445,6 +407,7 @@ export const orderSlice = createSlice({
 });
 
 export const {
+    setOrderId,
     resetOrderId,
     setStep,
 } = orderSlice.actions;

@@ -53,7 +53,7 @@ const orderDetailEqualizer = (order) => {
     return {
         id: order.id,
         shippingAddress: {
-            id: order.shipping_address.id,
+            id: order.shipping_address?.id || 0,
             firstName: order.shipping_address.first_name,
             lastName: order.shipping_address.last_name,
             streetAddress: order.shipping_address.address1,
@@ -61,16 +61,16 @@ const orderDetailEqualizer = (order) => {
             postalCode: order.shipping_address.postal_code,
             city: order.shipping_address.city,
             province: {
-                id: order.shipping_address.province.id,
-                name: order.shipping_address.province.name,
+                id: order.shipping_address?.province?.id || 0,
+                name: order.shipping_address?.province?.name || "",
                 country: {
-                    id: order.shipping_address.province.country.id,
-                    name: order.shipping_address.province.country.name,
+                    id: order.shipping_address?.province?.country.id || 0,
+                    name: order.shipping_address?.province?.country.name || "",
                 }
             },
             phoneCode: {
-                country: order.shipping_address.phone_code.country,
-                phoneCode: order.shipping_address.phone_code.phone_code
+                country: order.shipping_address?.phone_code?.country || 0,
+                phoneCode: order.shipping_address?.phone_code?.phone_code || ""
             },
             phoneNumber: order.shipping_address.phone_number,
             additionalData: order.shipping_address.additional_data,

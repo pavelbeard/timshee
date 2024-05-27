@@ -21,18 +21,6 @@ const ShippingMethodForm = ({ orderId, setCurrentStep, setShippingPrice, setOrde
     const {shippingMethodData, order: shippingMethodPreset} = useSelector(state => state.order);
     const isAuthenticated = useSelector((state) => state.auth.isValid);
 
-    
-
-
-
-
-
-
-
-
-
-
-
     useEffect(() => {
         dispatch(getShippingMethods());
     }, []);

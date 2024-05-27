@@ -1,12 +1,17 @@
 import {useSelector} from "react-redux";
-import {changeQuantity, deleteCartItems} from "../../redux/slices/shopSlices/itemSlice";
-import {getCartItems, resetIsAdded} from "../../redux/slices/shopSlices/cartSlice";
 import React, {useEffect} from "react";
+import {useParams} from "react-router-dom";
+import {changeQuantity, deleteCartItems, getCartItems} from "./api/asyncThunks";
+import {resetIsAdded} from "./reducers/cartSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const CartItems = ({data, dispatch}) => {
+const CartItems = ({cart, dispatch}) => {
     const isAuthenticated = useSelector(state => state.auth.isValid);
+    const params = useParams();
+
+    const {orderId} = useSelector(state => state.order);
+    const {hasChanged} = useSelector(state => state.cart);
 
     const findItem = (itemSrc) => {
         return JSON.parse(localStorage.getItem("items"))
@@ -14,14 +19,14 @@ const CartItems = ({data, dispatch}) => {
     };
 
     const changeQuantityComponent = (item, decreaseStock) => {
-        dispatch(changeQuantity({itemSrc: item, decreaseStock, isAuthenticated}));
+        dispatch(changeQuantity({itemSrc: item, decreaseStock, isAuthenticated, orderId}));
         dispatch(getCartItems({isAuthenticated}));
         dispatch(resetIsAdded());
     };
 
     // that one is deleting all items if itemId undefined or one item with an id
     const removeItems = ({stockId = 0}) => {
-        dispatch(deleteCartItems({isAuthenticated, stockId}));
+        dispatch(deleteCartItems({isAuthenticated, stockId, orderId}));
         dispatch(getCartItems({isAuthenticated}));
         dispatch(resetIsAdded());
     };
@@ -32,13 +37,12 @@ const CartItems = ({data, dispatch}) => {
     };
 
     useEffect(() => {
-
-    }, [data, isAuthenticated]);
+    }, [isAuthenticated, hasChanged]);
 
     return (
         <div className="cart-items">
             {
-                typeof data?.map === "function" && data.map((item, index) => {
+                cart?.cartItems.map((item, index) => {
                     return (
                         <div className="cart-item-container" key={index}>
                             <div className="cart-item-image">
@@ -75,7 +79,7 @@ const CartItems = ({data, dispatch}) => {
                 })
             }
             {
-                data?.length > 0 &&
+                cart?.cartItems.length > 0 &&
                 <div className="cart-item-remove" onClick={() => removeItems({})}>
                     Remove all
                 </div>

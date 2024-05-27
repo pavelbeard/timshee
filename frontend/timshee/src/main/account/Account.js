@@ -117,36 +117,24 @@ const Account = () => {
                                 ) : (
                                     <>
                                         <div>{order.orderNumber}</div>
-                                        <div>
-                                            <span>FOR:</span>
-                                            <span>{for_}</span>
-                                        </div>
-                                        <div>
-                                            <span>SHIP TO:</span>
-                                            <span className="ship-to">{shipTo}</span>
-                                        </div>
-                                        <div>
-                                            <span>PHONE NUMBER:</span>
-                                            <span>±{order.shippingAddress.phoneCode.phoneCode}</span>
-                                            <span> {order.shippingAddress.phoneNumber}</span>
-                                        </div>
-                                        <div><span>STATUS:</span><span>{order.status}</span></div>
                                         {
-                                            order.status === "completed" && (
+                                            order.status === "completed" ? (
                                                 <div>
                                                     <span>DELIVERED AT:</span>
                                                     <span>{new Date(deliveredAt).toDateString()}</span>
                                                 </div>
+                                            ) : (
+                                                <div><span>STATUS:</span><span>{order.status}</span></div>
+
                                             )
                                         }
                                         <div className="order-img-block">
-                                            {order.orderedItems.data.map((item, index) => (
-                                                <img style={{marginRight: "10px"}}
-                                                     src={`${API_URL}${item.stock.item.image}`} height={90}
-                                                     key={index} alt={`alt-img-${index}`}/>
-                                            ))}
+                                        {order.orderedItems.data.map((item, index) => (
+                                            <img style={{marginRight: "10px"}}
+                                                 src={`${API_URL}${item.stock.item.image}`} height={90}
+                                                 key={index} alt={`alt-img-${index}`}/>
+                                        ))}
                                         </div>
-
                                     </>
                                 )
                             }

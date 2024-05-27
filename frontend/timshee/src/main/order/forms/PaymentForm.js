@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {createPayment} from "../api";
+import {createPayment, updateOrder} from "../api";
 
 const PaymentForm = ({ orderId }) => {
     const isAuthenticated = useSelector(state => state.auth.isValid);
@@ -8,6 +8,7 @@ const PaymentForm = ({ orderId }) => {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [redirectUrl, setRedirectUrl] = useState();
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,11 +19,23 @@ const PaymentForm = ({ orderId }) => {
             "order_id": orderId,
         };
 
-        const result = await createPayment({
-            paymentData, setError, setIsLoading, isAuthenticated,
+        const updateOrderResult = await updateOrder({
+            orderId: orderId,
+            data: {
+                "status": "pending_for_pay"
+            },
+            isAuthenticated: isAuthenticated,
+            setError: setError,
+            setIsLoading: setIsLoading,
         });
 
-        setRedirectUrl(result['confirmation_url']);
+        if (updateOrderResult) {
+            const createPaymentResult = await createPayment({
+                paymentData, setError, setIsLoading, isAuthenticated,
+            });
+
+            setRedirectUrl(createPaymentResult['confirmation_url']);
+        }
     };
 
     useEffect(() => {

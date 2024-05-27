@@ -14,11 +14,12 @@ import "./Checkout.css";
 
 import logo from "../../media/static_images/img.png";
 import forwardImg from "../../media/static_images/forward_to.svg";
-import {Link, Navigate, useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import ShippingMethodForm from "./forms/ShippingMethodForm";
 import PaymentForm from "./forms/PaymentForm";
 import {getOrder} from "./api";
 import {setOrderedData, setTotalPrice} from "./api/checkoutSlice";
+import {toggleCart} from "../../redux/slices/menuSlice";
 
 
 const Checkout = () => {
@@ -75,12 +76,6 @@ const Checkout = () => {
             setCorrectShippingPrice();
         }
     }, [order, currentStep]);
-
-    useEffect(() => {
-        if (document.location.pathname === "/checkout") {
-            dispatch(resetOrderId());
-        }
-    }, [dispatch]);
 
     useEffect(() => {
         dispatch(getCountries());
@@ -143,8 +138,9 @@ const Checkout = () => {
                     {order !== undefined && <div className="checkout-nav">
                         <span>
                             <Link to={`/cart`} onClick={() => {
-                                handleStepChange("information")
-                                dispatch(resetOrderId());
+                                handleStepChange("information");
+                                dispatch(toggleCart(false));
+                                // dispatch(resetOrderId());
                             }}>
                                 Cart
                             </Link>
