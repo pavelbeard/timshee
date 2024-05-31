@@ -4,7 +4,8 @@ import {deleteOrder} from "./checkout";
 
 const initialState = {
     data: {},
-    inStock: false,
+    inStock: 0,
+    inStockStatus: 'idle',
     hasAdded: false,
     quantityOfCart: 0,
     items: [],
@@ -37,13 +38,13 @@ export const checkInStock = createAsyncThunk(
 
             if (response.ok) {
                 const json = await response.json();
-                const inStock = parseInt(json[0]?.in_stock || 0) !== 0;
+                const inStock = parseInt(json[0]?.in_stock);
                 return inStock;
             } else {
-                return response.statusText;
+                return thunkAPI.rejectWithValue("Something went wrong!");
             }
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
         }
     }
 );
@@ -91,12 +92,6 @@ export const getCollections = createAsyncThunk(
     }
 );
 
-
-
-
-
-
-
 export const itemSlice = createSlice({
     name: 'item',
     initialState,
@@ -123,18 +118,19 @@ export const itemSlice = createSlice({
                 state.error = action.payload;
                 state.collections = [];
             })
+
             .addCase(checkInStock.pending, (state, action) => {
-                state.isLoading = true;
+                state.inStockStatus = 'loading';
             })
             .addCase(checkInStock.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.inStockStatus = 'success';
                 state.inStock = action.payload;
             })
             .addCase(checkInStock.rejected, (state, action) => {
-                state.isLoading = false;
+                state.inStockStatus = 'error';
                 state.error = action.payload;
-                state.inStock = false;
             })
+
             .addCase(getItemDetail.pending, (state, action) => {
                 state.isLoading = true;
             })

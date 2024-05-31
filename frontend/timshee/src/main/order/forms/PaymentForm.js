@@ -1,9 +1,15 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {createPayment, updateOrder} from "../api";
+import AuthService from "../../api/authService";
+
+import "./CheckoutForms.css"
 
 const PaymentForm = ({ orderId }) => {
-    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const dispatch = useDispatch();
+
+    const {paymentId} = useSelector(state => state.checkout);
+    const isAuthenticated = AuthService.isAuthenticated();
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);

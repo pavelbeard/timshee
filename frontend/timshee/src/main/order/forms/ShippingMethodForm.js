@@ -1,68 +1,44 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
-    getOrderDetail,
-    getShippingMethodDetail,
-    getShippingMethods,
-    setStep,
-    updateOrderShippingMethod
-} from "../../../redux/slices/shopSlices/orderSlice";
+} from "../api/reducers/orderSlice";
 import backImg from "../../../media/static_images/back_to.svg";
 import {Link, useNavigate} from "react-router-dom";
 
 import "./CheckoutForms.css";
+import AuthService from "../../api/authService";
+import {getShippingMethodDetail, getShippingMethods, updateOrderShippingMethod} from "../api/asyncThunks";
 
-const ShippingMethodForm = ({ orderId, setCurrentStep, setShippingPrice, setOrderShippingMethod }) => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
+const ShippingMethodForm = ({
+    initialValue: shippingMethods,
+    orderId,
+    setCurrentStep,
+    setShippingPrice,
+    setOrderShippingMethod,
+    setShippingMethodExternal,
+    submit
+}) => {
     const [shippingMethod, setShippingMethod] = useState(0);
 
     const {shippingMethodData, order: shippingMethodPreset} = useSelector(state => state.order);
-    const isAuthenticated = useSelector((state) => state.auth.isValid);
+    const isAuthenticated = AuthService.isAuthenticated();
 
-    useEffect(() => {
-        dispatch(getShippingMethods());
-    }, []);
 
-    useEffect(() => {
-        if (shippingMethodPreset && shippingMethodPreset.shipping_method) {
-            setShippingMethod(shippingMethodPreset.shipping_method.id);
-            setShippingPrice(shippingMethodPreset.shipping_method.price);
-        }
-    }, [shippingMethodPreset, setShippingPrice, setOrderShippingMethod]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const selectedMethod = shippingMethodData.shippingMethods.find(
-            method => method.id === shippingMethod
-        );
-        dispatch(updateOrderShippingMethod({
-            orderId,
-            shippingMethodId: shippingMethod,
-            isAuthenticated
-        }));
-        dispatch(getShippingMethodDetail({
-            shippingMethodId: selectedMethod.id
-        }));
-        setShippingPrice(selectedMethod.price);
-        setOrderShippingMethod(selectedMethod);
-        setCurrentStep("payment");
-        navigate(`/shop/${orderId}/checkout/payment`);
-    };
-
-    if (shippingMethodData.shippingMethods.length > 0) {
+    if (shippingMethods.length > 0) {
         return(
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={submit}>
                 <span className="shipping-address">
                     <h3>Shipping method</h3>
                 </span>
-                {shippingMethodData.shippingMethods.map((method, index) => (
+                {shippingMethods.map((method, index) => (
                     <div className="shipping-method" key={index}>
                         <label htmlFor={`method-${method.id}`}>
                             <input required={shippingMethod === method.id}
-                                   type="radio" value={method.id} checked={shippingMethod === method.id}
+                                   type="radio"
+                                   value={method.id}
+                                   checked={shippingMethod === method.id}
                                    onChange={e => {
+                                       setShippingMethodExternal(parseInt(e.target.value))
                                        setShippingMethod(parseInt(e.target.value));
                                        setShippingPrice(method.price);
                                    }}/>
@@ -80,7 +56,7 @@ const ShippingMethodForm = ({ orderId, setCurrentStep, setShippingPrice, setOrde
                             Return to information
                         </Link>
                     </div>
-                    <button type="submit" onSubmit={handleSubmit}>
+                    <button type="submit" onSubmit={submit}>
                         Continue to payment
                     </button>
                 </div>

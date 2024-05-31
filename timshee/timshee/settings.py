@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 import re
+from datetime import timedelta
 from pathlib import Path
 
 from corsheaders.defaults import default_headers
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "change_me")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change_me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     # custom
     "rest_framework",
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     "corsheaders",
     'oauth2_provider',
     'social_django',
@@ -214,9 +216,10 @@ if not DEBUG:
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         # custom
         # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # django-oauth-toolkit >= 1.0.0
         # 'drf_social_oauth2.authentication.SocialAuthentication',
@@ -253,3 +256,20 @@ SESSION_COOKIE_AGE = 60 * 60 * 24
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 API_KEY = os.getenv("SECRET_KEY")
 CLIENT_REDIRECT = os.getenv("CLIENT_REDIRECT", "http://localhost:3000/")
+
+# JWT
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': os.getenv("DJANGO_SECRET_KEY", 'czrFjA4W3BaOfKpzo6eiSOiek42BWQN_RQ6fO-jL5yg'),
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ['JWT', 'Bearer'],
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ['rest_framework_simplejwt.tokens.AccessToken'],
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}

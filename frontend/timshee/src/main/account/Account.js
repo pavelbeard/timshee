@@ -2,16 +2,16 @@ import "./Account.css";
 import React, {useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {logout} from "../../redux/slices/checkAuthSlice";
 import {getEmail} from "./api";
 import {getLastOrder, getShippingAddressAsTrue} from "./forms/reducers/asyncThunks";
+import AuthService from "../api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Account = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {isValid} = useSelector(state => state.auth);
+    const isAuthenticated = AuthService.isAuthenticated();
     const {order} = useSelector(state => state.ordersPage);
     const {addressObject} = useSelector(state => state.addressForm);
     const [email, setEmail] = React.useState("");
@@ -21,8 +21,10 @@ const Account = () => {
     const [deliveredAt, setDeliveredAt] = React.useState("");
 
     useEffect(() => {
-        dispatch(getShippingAddressAsTrue({isAuthenticated: true}));
-        dispatch(getLastOrder());
+        if (isAuthenticated) {
+            dispatch(getShippingAddressAsTrue({isAuthenticated: true}));
+            dispatch(getLastOrder());
+        }
     }, []);
 
     useEffect(() => {
@@ -47,7 +49,7 @@ const Account = () => {
 
     useEffect(() => {
         const fetchEmail = async () => {
-            if (isValid) {
+            if (isAuthenticated) {
                 const emailInternal = await getEmail();
                 setEmail(emailInternal);
             }
@@ -56,7 +58,7 @@ const Account = () => {
         fetchEmail();
     }, []);
 
-    if (!isValid) {
+    if (!isAuthenticated) {
         return (
             <div className="account common">
                 Forbidden...
@@ -70,7 +72,7 @@ const Account = () => {
                 <span>Account:</span>
                 <span className="user-name">{email}</span>
                 <form onSubmit={() => {
-                    dispatch(logout());
+                    AuthService.logout();
                     navigate("/");
                 }}>
                     <button type="submit">Logout</button>
@@ -83,7 +85,7 @@ const Account = () => {
                         <div className="divider"></div>
                         <div className="info-block info-block-main">
                             {
-                                addressObject.firstName === "" ? (
+                                addressObject.firstName === "" || addressObject.firstName === undefined ? (
                                     <div>THERE AREN'T ANY ADDRESSES</div>
                                 ) : (
                                     <>

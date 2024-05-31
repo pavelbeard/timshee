@@ -33,15 +33,6 @@ class AddressFilter(django_filters.FilterSet):
         }
 
 
-class AnonymousAddressFilter(django_filters.FilterSet):
-    class Meta:
-        model = models.AnonymousAddress
-        fields = {
-            'session': ['exact'],
-            'is_last': ['exact'],
-        }
-
-
 class OrderFilter(django_filters.FilterSet):
     class Meta:
         model = models.Order
@@ -52,15 +43,6 @@ class OrderFilter(django_filters.FilterSet):
             "status": ["exact"],
         }
 
-
-class AnonymousOrderFilter(django_filters.FilterSet):
-    class Meta:
-        model = models.AnonymousOrder
-        fields = {
-            "id": ["exact"],
-            "order_number": ["exact"],
-            "status": ["exact"],
-        }
 
 
 class ShippingMethodFilter(django_filters.FilterSet):

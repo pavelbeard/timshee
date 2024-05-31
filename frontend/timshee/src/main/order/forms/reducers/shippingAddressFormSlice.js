@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {getShippingAddressAsTrue, getShippingAddresses} from "./asyncThunks";
+import {getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./asyncThunks";
 
 
 
@@ -9,9 +9,12 @@ const initialState = {
     errorMessage: "",
     // light objects
     usernameEmail: "",
-    shippingAddress: "",
+    usernameEmailStatus: 'idle',
+
+    shippingAddressString: "",
     // form objects
     addressId: 0,
+    addressObjectStatus: 'idle',
     addressObject: {
         id: 0,
         firstName: "",
@@ -37,6 +40,8 @@ const initialState = {
     },
     // heavy objects
     shippingAddresses: [],
+    shippingAddressesStatus: 'idle',
+    //
     provincesInternal: [],
     phoneCodesInternal: [],
 };
@@ -68,11 +73,8 @@ export const shippingAddressFormSlice = createSlice({
     name: "shippingAddressForm",
     initialState,
     reducers: {
-        setUsernameEmail: (state, action) => {
-            state.usernameEmail = action.payload;
-        },
         setShippingAddress: (state, action) => {
-            state.shippingAddress = action.payload;
+            state.shippingAddressString = action.payload;
         },
         setErrorMessage: (state, action) => {
             state.errorMessage = action.payload;
@@ -93,7 +95,8 @@ export const shippingAddressFormSlice = createSlice({
             }
         },
         setAddressObject: (state, action) => {
-            state.addressObject = action.payload;
+            const data = action.payload;
+            state.addressObject = {...state.addressObject, ...data};
         },
         setShippingAddresses: (state, action) => {
             state.shippingAddresses = action.payload;
@@ -108,34 +111,48 @@ export const shippingAddressFormSlice = createSlice({
     extraReducers: builder => {
         builder
             .addCase(getShippingAddresses.pending, (state, action) => {
-                state.isLoading = true;
+                state.shippingAddressesStatus = 'loading';
             })
             .addCase(getShippingAddresses.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.shippingAddresses = action.payload.map(address => rewriteShippingAddressObject(address));
+                state.shippingAddressesStatus = 'success';
+                if ('detail' in action.payload) {
+                    state.shippingAddresses = [];
+                } else {
+                    state.shippingAddresses = action.payload.map(address => rewriteShippingAddressObject(address));
+                }
             })
             .addCase(getShippingAddresses.rejected, (state, action) => {
-                state.isLoading = false;
+                state.shippingAddressesStatus = 'error';
                 state.error = action.payload;
             })
 
             .addCase(getShippingAddressAsTrue.pending, (state, action) => {
-                state.isLoading = true;
+                state.addressObjectStatus = 'idle';
             })
             .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.addressObjectStatus = 'success';
                 state.addressObject = rewriteShippingAddressObject(action.payload);
             })
             .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
-                state.isLoading = false;
+                state.addressObjectStatus = 'error';
                 state.errorMessage = action.payload;
-                state.addressObject = {}
-            });
+            })
+
+            .addCase(getUsernameEmail.pending, (state, action) => {
+                state.usernameEmailStatus = 'loading';
+            })
+            .addCase(getUsernameEmail.fulfilled, (state, action) => {
+                state.usernameEmailStatus = 'success';
+                state.usernameEmail = action.payload;
+            })
+            .addCase(getUsernameEmail.rejected, (state, action) => {
+                state.usernameEmailStatus = 'error';
+                state.error = action.payload;
+            })
     }
 });
 
 export const {
-    setUsernameEmail,
     setShippingAddress,
     setErrorMessage,
     setAddressId,

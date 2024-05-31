@@ -7,33 +7,6 @@ const initialState = {
     isLoading: false,
     error: null,
 }
-
-export const logout = createAsyncThunk(
-    "auth/logout",
-    async(arg, thunkAPI) => {
-        try {
-            const csrftoken = localStorage.getItem("csrftoken");
-            const token = localStorage.getItem("token");
-            localStorage.removeItem("token");
-            const response = await fetch(API_URL + "api/stuff/logout/", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Token " + token,
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                },
-                credentials: "include",
-            });
-
-            if (response.ok) {
-
-            }
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
-        }
-    }
-)
-
 export const checkAuthStatus = createAsyncThunk(
     "auth/checkAuthSlice",
     async (arg, thunkAPI) => {
@@ -81,18 +54,6 @@ const checkAuthSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            .addCase(logout.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(logout.fulfilled, (state, action) => {
-                state.isValid = action.payload;
-                state.isLoading = false;
-            })
-            .addCase(logout.rejected, (state, action) => {
-                state.error = action.payload;
-                state.isValid = undefined;
-                state.isLoading = undefined;
-            });
     }
 });
 

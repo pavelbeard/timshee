@@ -1,17 +1,16 @@
 import {useSelector} from "react-redux";
 import React, {useEffect} from "react";
 import {useParams} from "react-router-dom";
-import {changeQuantity, deleteCartItems, getCartItems} from "./api/asyncThunks";
-import {resetIsAdded} from "./reducers/cartSlice";
+import {changeQuantity, clearCart, deleteCartItems, getCartItems} from "./api/asyncThunks";
+import {resetAddCartItemStatus} from "./reducers/cartSlice";
+import AuthService from "../api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({cart, dispatch}) => {
-    const isAuthenticated = useSelector(state => state.auth.isValid);
-    const params = useParams();
+    const isAuthenticated = AuthService.isAuthenticated();
 
     const {orderId} = useSelector(state => state.order);
-    const {hasChanged} = useSelector(state => state.cart);
 
     const findItem = (itemSrc) => {
         return JSON.parse(localStorage.getItem("items"))
@@ -20,15 +19,17 @@ const CartItems = ({cart, dispatch}) => {
 
     const changeQuantityComponent = (item, decreaseStock) => {
         dispatch(changeQuantity({itemSrc: item, decreaseStock, isAuthenticated, orderId}));
-        dispatch(getCartItems({isAuthenticated}));
-        dispatch(resetIsAdded());
+        dispatch(resetAddCartItemStatus('idle'));
     };
 
     // that one is deleting all items if itemId undefined or one item with an id
     const removeItems = ({stockId = 0}) => {
-        dispatch(deleteCartItems({isAuthenticated, stockId, orderId}));
-        dispatch(getCartItems({isAuthenticated}));
-        dispatch(resetIsAdded());
+        if (stockId === 0) {
+            dispatch(clearCart({isAuthenticated, hasOrdered: false}))
+        } else {
+            dispatch(deleteCartItems({isAuthenticated, stockId, orderId}));
+        }
+        dispatch(resetAddCartItemStatus('idle'));
     };
 
     const setItemUrl = (item) => {
@@ -36,13 +37,10 @@ const CartItems = ({cart, dispatch}) => {
                         + `/${item.stock.item.name.replace(/ /g, "-").toLowerCase()}`;
     };
 
-    useEffect(() => {
-    }, [isAuthenticated, hasChanged]);
-
     return (
         <div className="cart-items">
             {
-                cart?.cartItems.map((item, index) => {
+                cart.cartItems.map((item, index) => {
                     return (
                         <div className="cart-item-container" key={index}>
                             <div className="cart-item-image">
@@ -79,7 +77,7 @@ const CartItems = ({cart, dispatch}) => {
                 })
             }
             {
-                cart?.cartItems.length > 0 &&
+                cart.cartItems.length > 0 &&
                 <div className="cart-item-remove" onClick={() => removeItems({})}>
                     Remove all
                 </div>

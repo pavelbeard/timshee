@@ -1,20 +1,40 @@
-import {setError, setIsLoading} from "./checkoutSlice";
+import {setError, setIsLoading} from "./reducers/checkoutSlice";
+import AuthService from "../../api/authService";
+import Cookies from "js-cookie";
 
 const API_URL = process.env.REACT_APP_API_URL;
-const csrftoken = localStorage.getItem("csrftoken");
+const csrftoken = Cookies.get("csrftoken");
+const token = AuthService.getCurrentUser();
+
+// ADDRESSES
+export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId, isAuthenticated}) => {
+    const url= `${API_URL}api/order/addresses/`;
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(shippingAddress),
+        credentials: "include",
+    });
+
+    return await response.json();
+};
 
 // ORDERS
 export const getOrder = async ({ orderId, isAuthenticated, dispatch }) => {
     try {
-        const url = isAuthenticated
-            ? `${API_URL}api/order/orders/${orderId}/`
-            : `${API_URL}api/order/anon-order/${orderId}/`;
-        const headers = isAuthenticated ? {
+        const url = `${API_URL}api/order/orders/${orderId}/`;
+        const headers = {
             "Content-Type": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-            "Accept": "application/json",
-        } : {
-            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token?.access}`,
             "Accept": "application/json",
         };
 
@@ -36,20 +56,13 @@ export const getOrder = async ({ orderId, isAuthenticated, dispatch }) => {
 
 export const updateOrder = async ({ orderId, data, isAuthenticated, setError, setIsLoading }) => {
     try {
-        const url = isAuthenticated
-            ? `${API_URL}api/order/orders/${orderId}/`
-            : `${API_URL}api/order/anon-orders/${orderId}/`;
-
-        const headers = isAuthenticated ? {
+        const url = `${API_URL}api/order/orders/${orderId}/`;
+        const headers = {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
             "Accept": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        } : {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-        }
+            "Authorization": `Bearer ${token?.access}`,
+        };
 
         const response = await fetch(url, {
             method: "PUT",
@@ -69,12 +82,10 @@ export const updateOrder = async ({ orderId, data, isAuthenticated, setError, se
 // PAYMENTS
 export const createPayment = async ({ paymentData, setError, setIsLoading, isAuthenticated }) => {
     try {
-        const csrftoken = localStorage.getItem('csrftoken');
-        const token = localStorage.getItem('token');
         const url = `${API_URL}api/payment/payment/`;
         const headers = isAuthenticated ? {
             "Content-Type": "application/json",
-            "Authorization": `Token ${token}`,
+            "Authorization": `Bearer ${token?.access}`,
             "X-CSRFToken": csrftoken,
             "Accept": "application/json",
         } : {
@@ -101,7 +112,7 @@ export const createPayment = async ({ paymentData, setError, setIsLoading, isAut
 
 export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading }) => {
     try {
-        const url = `${API_URL}api/payment/payment/get_status/?order_number=${orderNumber}`;
+        const url = `${API_URL}api/payment/payment/${orderNumber}/get_status/`;
         const response = await fetch(url, {
             method: "GET",
         });
@@ -115,4 +126,29 @@ export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading }
         setIsLoading(false);
     }
 }
+
+export const updatePaymentInfo = async ({ storeOrderNumber, data, setError, setIsLoading }) => {
+    try {
+        const url = `${API_URL}api/payment/payment/${storeOrderNumber}/`;
+        const headers = {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+            "Accept": "application/json",
+        }
+        const response = await fetch(url, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (error) {
+        setError("Have occurred an error while payment checking: ", error.message);
+    } finally {
+        setIsLoading(false);
+    }
+};
 

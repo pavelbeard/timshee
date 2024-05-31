@@ -4,15 +4,8 @@ import "./CheckoutItems.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const CheckoutItems = ({ items }) => {
-    const [checkoutItems, setCheckoutItems] = React.useState([]);
+const CheckoutItems = ({ cart }) => {
     const [imageSize, setImageSize] = React.useState(100);
-
-    useEffect(() => {
-        if (items?.length > 0) {
-            setCheckoutItems(items);
-        }
-    }, [items]);
 
     useEffect(() => {
         const mobileWidth = () => {
@@ -34,7 +27,7 @@ const CheckoutItems = ({ items }) => {
 
     return (
         <>
-            {checkoutItems.length > 0 && checkoutItems.map(item => (
+            {cart.cartItems.map(item => (
                 <div className="checkout-item-container" key={item.stock.id}>
                     <div className="checkout-item-image">
                         <img src={`${API_URL}${item.stock.item.image}`} alt={`alt-order-image-${

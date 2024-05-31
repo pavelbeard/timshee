@@ -51,43 +51,43 @@ const initialState = {
 
 const orderDetailEqualizer = (order) => {
     return {
-        id: order.id,
+        id: order?.id  || 0,
         shippingAddress: {
             id: order.shipping_address?.id || 0,
-            firstName: order.shipping_address.first_name,
-            lastName: order.shipping_address.last_name,
-            streetAddress: order.shipping_address.address1,
-            apartment: order.shipping_address.address2,
-            postalCode: order.shipping_address.postal_code,
-            city: order.shipping_address.city,
+            firstName: order?.shipping_address?.first_name || "",
+            lastName: order?.shipping_address?.last_name || "",
+            streetAddress: order?.shipping_address?.address1 || "",
+            apartment: order?.shipping_address?.address2 || "",
+            postalCode: order?.shipping_address?.postal_code || "",
+            city: order?.shipping_address?.city || "",
             province: {
-                id: order.shipping_address?.province?.id || 0,
-                name: order.shipping_address?.province?.name || "",
+                id: order?.shipping_address?.province?.id || 0,
+                name: order?.shipping_address?.province?.name || "",
                 country: {
-                    id: order.shipping_address?.province?.country.id || 0,
-                    name: order.shipping_address?.province?.country.name || "",
+                    id: order?.shipping_address?.province?.country.id || 0,
+                    name: order?.shipping_address?.province?.country.name || "",
                 }
             },
             phoneCode: {
-                country: order.shipping_address?.phone_code?.country || 0,
-                phoneCode: order.shipping_address?.phone_code?.phone_code || ""
+                country: order?.shipping_address?.phone_code?.country || 0,
+                phoneCode: order?.shipping_address?.phone_code?.phone_code || ""
             },
-            phoneNumber: order.shipping_address.phone_number,
-            additionalData: order.shipping_address.additional_data,
+            phoneNumber: order?.shipping_address?.phone_number || "",
+            additionalData: order?.shipping_address?.additional_data || "",
         },
         shippingMethod: {
-            id: order.shipping_method.id,
-            shippingName: order.shipping_method.shipping_name,
-            price: order.shipping_method.price,
+            id: order?.shipping_method?.id || 0,
+            shippingName: order?.shipping_method?.shipping_name || "",
+            price: order?.shipping_method?.price || 0.00,
         },
-        orderNumber: order.order_number,
+        orderNumber: order?.order_number,
         orderedItems: {
-            data: order.ordered_items.data,
-            totalPrice: order.ordered_items.total_price,
+            data: order?.ordered_items?.data || [],
+            totalPrice: order?.ordered_items?.total_price || "",
         },
-        status: order.status,
-        createdAt: order.created_at,
-        updatedAt: order.updated_at,
+        status: order?.status || "",
+        createdAt: order?.created_at || "",
+        updatedAt: order?.updated_at || "",
     }
 };
 

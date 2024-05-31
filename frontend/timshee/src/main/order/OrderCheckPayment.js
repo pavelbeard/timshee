@@ -4,7 +4,7 @@ import {Navigate, useNavigate, useParams} from "react-router-dom";
 import "./OrderStatus.css";
 import {changeQuantity, deleteCartItems, getCollections} from "../../redux/slices/shopSlices/itemSlice";
 import {useDispatch, useSelector} from "react-redux";
-import {updateOrderStatus} from "../../redux/slices/shopSlices/orderSlice";
+import {updateOrderStatus} from "./api/reducers/orderSlice";
 import OrderIsNotPaid from "./OrderIsNotPaid";
 import {checkPaymentStatus} from "./api";
 

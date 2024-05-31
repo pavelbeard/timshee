@@ -11,6 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt import views as jwt_views, tokens
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # Create your views here.
@@ -52,8 +54,11 @@ class RegisterAPIView(generics.GenericAPIView):
             last_name=last_name
         )
         user.save()
-        token, created = Token.objects.get_or_create(user=user)
-        return JsonResponse({'token': token.key}, status=status.HTTP_201_CREATED)
+        token = tokens.RefreshToken.for_user(user)
+        return JsonResponse({
+            "refresh": str(token),
+            "access": str(token.access_token),
+        }, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -69,7 +74,7 @@ class LoginAPIView(generics.GenericAPIView):
 
         if not isinstance(user, ValidationError):
             token, created = Token.objects.get_or_create(user=user)
-            return JsonResponse({'token': token.key}, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse({'token': token.key, "user": user.id}, safe=False, status=status.HTTP_200_OK)
         else:
             return JsonResponse({'error': 'Credentials are worst'},
                                 safe=False, status=status.HTTP_401_UNAUTHORIZED)
@@ -81,11 +86,11 @@ class LogoutAPIView(generics.GenericAPIView):
 
     def post(self, request):
         request.user.auth_token.delete()
-        return JsonResponse({'status': 'Logged out'}, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse({'status': 'logged out'}, safe=False, status=status.HTTP_200_OK)
 
 
 class CheckAuthenticatedAPIView(generics.GenericAPIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     allowed_methods = ["GET"]
 
@@ -108,12 +113,13 @@ class CheckAuthenticatedAPIView(generics.GenericAPIView):
 class EmailViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = order_serializers.UserSerializer
-    allowed_methods = ["GET"]
+    allowed_methods = ["GET", "get_email"]
+    authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=["GET"])
     def get_email(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            user = request.user
+        if self.request.user.is_authenticated:
+            user = self.request.user
             return Response({"email": user.email}, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_403_FORBIDDEN)

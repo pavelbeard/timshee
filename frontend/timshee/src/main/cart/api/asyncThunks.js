@@ -5,13 +5,14 @@ import {
     addCartItem as createCartItem,
     getCartItems as fetchCartItems,
     changeQuantityInCart as updateQuantityInCart,
+    clearCart as destroyCart,
 } from "../../api/asyncFetchers";
 
 export const addCartItem = createAsyncThunk(
     "cart/addCartItem",
     async ({data, isAuthenticated}, thunkAPI) => {
         try {
-            const result = await createCartItem({data});
+            const result = await createCartItem({data, isAuthenticated});
 
             if (result) {
                 return result;
@@ -26,8 +27,8 @@ export const addCartItem = createAsyncThunk(
 );
 
 export const getCartItems = createAsyncThunk(
-    "items/getCartItems",
-    async({isAuthenticated}, thunkAPI) => {
+    "cart/getCartItems",
+    async(arg, thunkAPI) => {
         try {
             const result = await fetchCartItems();
 
@@ -43,36 +44,47 @@ export const getCartItems = createAsyncThunk(
 );
 
 export const deleteCartItems = createAsyncThunk(
-    "items/deleteCartItems",
-    async ({
-               isAuthenticated,
-               hasOrdered = false,
-               stockId=0,
-               orderId=0
-           }, thunkAPI
-    ) => {
+    "cart/deleteCartItems",
+    async ({isAuthenticated, stockId=0,}, thunkAPI) => {
         try {
             const result = await destroyCartItems({
                 isAuthenticated: isAuthenticated,
-                hasOrdered: hasOrdered,
                 stockId: stockId,
-                orderId: orderId,
-            })
+            });
 
             if (result) {
+                console.log(result)
                 return result;
             }
             else {
+                console.log("ERROR")
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            console.log(error.message)
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const clearCart = createAsyncThunk(
+    "cart/clearCartItems",
+    async ({isAuthenticated, hasOrdered}, thunkAPI) => {
+        try {
+            const result = await destroyCart({isAuthenticated, hasOrdered});
+            if (result) {
+                return result;
+            } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (error) {
             return thunkAPI.rejectWithValue(error.message);
         }
     }
-);
+)
 
 export const changeQuantity = createAsyncThunk(
-    "items/changeQuantity",
+    "cart/changeQuantity",
     async ({itemSrc, decreaseStock, isAuthenticated, orderId=0}, thunkAPI) => {
         //
         // FOR UPGRADE
@@ -84,12 +96,14 @@ export const changeQuantity = createAsyncThunk(
                 orderId: orderId,
             });
 
-            if (result || result === 0) {
+            if (result) {
                 return result;
             } else {
+                console.log("ERROR")
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (error) {
+            console.log(error.message);
             return thunkAPI.rejectWithValue(error.message);
         }
     }

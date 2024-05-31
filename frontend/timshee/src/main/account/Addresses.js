@@ -2,37 +2,30 @@ import React, {useEffect, useState} from 'react';
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../redux/slices/menuSlice";
-import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
-import {deleteAddress} from "../../redux/slices/shopSlices/checkout";
 import {
     getShippingAddresses
 } from "./forms/reducers/asyncThunks";
 import {editAddress} from "./forms/reducers/addressFormSlice";
+import AuthService from "../api/authService";
+import {deleteAddress} from "../../redux/slices/editAddressSlice";
 
 const Addresses = () => {
     const dispatch = useDispatch();
 
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
-    const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {addresses, addressObject, isLoading} = useSelector(state => state.addressForm);
-
-    const [showAddressForm, setShowAddressForm] = useState(false);
+    const isAuthenticated = AuthService.isAuthenticated();
+    const {addresses, addressObject, shippingAddressesStatus} = useSelector(state => state.addressForm);
+    const {hasDeleted, deleteAddressStatus} = useSelector(state => state.editAddress);
 
     useEffect(() => {
         if (isAuthenticated) {
             dispatch(getShippingAddresses({isAuthenticated: true}));
         }
 
-    }, [addressObject.firstName, isEditAddressMenuClicked]);
-
-    useEffect(() => {
-        dispatch(checkAuthStatus());
-    }, []);
-
+    }, [addresses.length, addressObject.firstName, hasDeleted, isEditAddressMenuClicked, deleteAddressStatus]);
 
     const callEditAddressForm = (rawAddressObject) => {
         dispatch(toggleAddressEditForm());
-        // setShowAddressForm(true);
         dispatch(editAddress({
             id: rawAddressObject?.id,
             firstName: rawAddressObject?.first_name || "",
@@ -65,7 +58,7 @@ const Addresses = () => {
                 <Link to="/account/details">RETURN TO ACCOUNT</Link>
             </div>
             <div className="items-container">
-                {addresses.map((address, index) => {
+                {typeof addresses.map === "function" && addresses.map((address, index) => {
                     return (
                         <div className="item" key={index}>
                             {
@@ -91,7 +84,9 @@ const Addresses = () => {
                                 {/*<Modal show={showAddressForm} handleClose={setShowAddressForm}>*/}
                                 {/*    <EditAddressForm closeForm={setShowAddressForm} />*/}
                                 {/*</Modal>*/}
-                                <div onClick={() => dispatch(deleteAddress(address.id))}>
+                                <div onClick={() => dispatch(deleteAddress({
+                                    isAuthenticated: isAuthenticated, addressId: address.id
+                                }))}>
                                     Delete
                                 </div>
                             </div>

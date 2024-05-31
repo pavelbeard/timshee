@@ -2,9 +2,6 @@ import React, {useEffect} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
-import {changeQuantity, deleteCartItems, getCollections} from "../../redux/slices/shopSlices/itemSlice";
-import {useDispatch, useSelector} from "react-redux";
-import {updateOrderStatus} from "../../redux/slices/shopSlices/orderSlice";
 
 const OrderIsNotPaid = () => {
     const params = useParams();

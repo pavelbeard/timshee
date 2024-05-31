@@ -10,13 +10,12 @@ import {closeCart, toggleCart} from "../redux/slices/menuSlice";
 import {Link} from "react-router-dom";
 import {getCartItems} from "../main/cart/api/asyncThunks";
 import {resetIsAdded} from "../main/cart/reducers/cartSlice";
+import AuthService from "../main/api/authService";
 
 const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
-    const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {hasDeleted, quantityOfCart} = useSelector(state => state.item);
-    const {cart, isAdded} = useSelector(state => state.cart);
+    const {cart, getCartItemsStatus} = useSelector(state => state.cart);
 
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
 
@@ -38,8 +37,11 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
     };
 
     useEffect(() => {
-        dispatch(getCartItems({isAuthenticated}));
-    }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart, cart.totalQuantityInCart]);
+        if (getCartItemsStatus === "idle") {
+            dispatch(getCartItems());
+        }
+    }, [getCartItemsStatus, cart.cartItems.length]);
+    // }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart, cart.totalQuantityInCart]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>

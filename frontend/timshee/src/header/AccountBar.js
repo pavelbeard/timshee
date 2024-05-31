@@ -1,10 +1,10 @@
 import "./AccountBar.css";
 import React from "react";
 import {Link} from "react-router-dom";
-import {useSelector} from "react-redux";
+import AuthService from "../main/api/authService";
 
 const AccountBar = ({ showAccountBar, hideAccountBar }) => {
-    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const isAuthenticated = AuthService.isAuthenticated();
 
     if (isAuthenticated) {
         return (

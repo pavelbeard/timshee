@@ -66,29 +66,6 @@ class OrderSerializer(serializers.ModelSerializer):
         depth = 3
 
 
-class AnonymousAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnonymousAddress
-        exclude = ["session"]
-        depth = 2
-
-
-class AnonymousOrderSerializer(serializers.ModelSerializer):
-    shipping_address = serializers.SerializerMethodField()
-    shipping_method = serializers.SerializerMethodField()
-
-    def get_shipping_address(self, obj):
-        return strict_serializers.StrictAnonymousAddressSerializer(obj.shipping_address).data
-
-    def get_shipping_method(self, obj):
-        return ShippingMethodSerializer(obj.shipping_method).data
-
-    class Meta:
-        model = models.AnonymousOrder
-        exclude = ["session"]
-        depth = 2
-
-
 class ShippingMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ShippingMethod

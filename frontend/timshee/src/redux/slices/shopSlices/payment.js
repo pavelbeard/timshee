@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import AuthService from "../../../main/api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const csrftoken = Cookies.get('csrftoken');
@@ -12,7 +13,7 @@ export const createPayment = async ({isAuthenticated, orderId}) => {
     const headers = isAuthenticated ? {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
-        "Authorization": `Token ${localStorage.getItem("token")}`,
+        "Authorization": `Bearer ${token?.access}`,
         "Accept": "application/json",
     } : {
         "Content-Type": "application/json",

@@ -2,14 +2,17 @@ import uuid
 from decimal import Decimal
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
 from order import models as order_models
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from store import models as store_models
 from order import serializers as order_serializers
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from yookassa import Configuration, Payment
+from yookassa import Configuration, Payment, Refund
 
 Configuration.configure(settings.ACCOUNT_ID, settings.API_KEY)
 
@@ -94,10 +97,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
     queryset = models.Payment.objects.all()
     serializer_class = serializers.PaymentSerializer
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = [JWTAuthentication]
+    lookup_field = 'store_order_number'
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=True, methods=['GET'])
     def get_status(self, request, *args, **kwargs):
-        order_number = request.query_params.get('order_number', None)
+        order_number = self.kwargs.get('store_order_number', None)
         if order_number:
             payment = models.Payment.objects.filter(store_order_number=order_number).first()
             dt = payment.created_at.isoformat()
@@ -126,25 +131,114 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['GET'])
+    def refund_whole_order(self, request, *args, **kwargs):
+        order_id, order_number = kwargs.get('order_id', None), kwargs.get('store_order_number', None)
+        if order_number or order_id:
+            order = order_models.Order.objects.filter(
+                Q(id=order_id) | Q(order_number=order_number)
+            ).first()
+
+            if order and order.status == 'completed':
+                payment_data_from_backend = models.Payment.objects.filter(
+                    Q(store_order_id=order_id) | Q(store_order_number=order_number)
+                ).first()
+                payment_id, total_price = str(payment_data_from_backend.payment_id), order.ordered_items.get(
+                    'total_price')
+
+                refund = Refund.create({
+                    "amount": {
+                        "value": total_price,
+                        "currency": "RUB",
+                    },
+                    "payment_id": payment_id,
+                })
+
+                if refund.status == 'succeeded':
+                    order.status = 'refunded'
+                    order.save()
+                    payment_data_from_backend.status = 'refunded'
+                    payment_data_from_backend.save()
+
+                return Response({"detail": "order has been refunded", "status": refund.status},
+                                status=status.HTTP_200_OK)
+
+            return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['PUT'])
+    def get_refund_partial(self, request, *args, **kwargs):
+        stock_item_id = request.data.get('stock_item_id', None)
+        quantity = request.data.get('quantity', None)
+        order_id, order_number = kwargs.get('order_id', None), kwargs.get('store_order_number', None)
+        if order_number or order_id:
+            order = order_models.Order.objects.filter(
+                Q(id=order_id) | Q(order_number=order_number)
+            )
+
+            if order and order.first().status == 'completed':
+                stock_item = store_models.Stock.objects.filter(pk=stock_item_id).first()
+                stock_item.increase_stock(quantity=quantity)
+
+                payment_data_from_backend = models.Payment.objects.filter(
+                    Q(store_order_id=order_id) | Q(store_order_number=order_number)
+                ).first()
+
+                payment_id, stock_item_price = str(payment_data_from_backend.payment_id), stock_item.item.price
+
+                try:
+                    partial_refund = Refund.create({
+                        "amount": {
+                            "value": stock_item_price,
+                            "currency": "RUB",
+                        },
+                        "payment_id": payment_id,
+                    })
+
+                    if partial_refund.status == 'succeeded':
+                        ordered_items = order.first().ordered_items.get('data')
+                        transformed_items = list(
+                            map(
+                                lambda x:
+                                {**x, "refunded": False} if x['stock']['id'] == stock_item_id else x, ordered_items
+                            )
+                        )
+                        order.ordered_items['data'] = transformed_items
+
+                        if len(ordered_items) > 1:
+                            payment_data_from_backend.status = 'partial_refunded'
+                            order.status = 'partial_refunded'
+                            order.save()
+                            payment_data_from_backend.save()
+                        else:
+                            payment_data_from_backend.status = 'refunded'
+                            order.status = 'refunded'
+                            order.save()
+                            payment_data_from_backend.save()
+
+                        return Response(
+                            {"detail": "order has been refunded partially", "status": partial_refund.status},
+                            status=status.HTTP_200_OK)
+
+                    return Response({"detail": "we have problems with refund", "status": partial_refund.status},
+                                    status=status.HTTP_200_OK)
+                except Exception as e:
+                    return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
+
     def create(self, request, *args, **kwargs):
         data = request.data
         order_id = data.get('order_id')
-
-        order = None
-        if order_id and request.user.is_authenticated:
-            order = order_models.Order.objects.filter(id=order_id)
-        elif order_id and request.user.is_anonymous:
-            order = order_models.AnonymousOrder.objects.filter(id=order_id)
+        order = order_models.Order.objects.filter(id=order_id)
 
         if not order:
             return Response({
                 "detail": "order does not exist"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        if request.user.is_authenticated:
-            serialized_data = order_serializers.OrderSerializer(order.first()).data
-        else:
-            serialized_data = order_serializers.AnonymousOrderSerializer(order.first()).data
+        serialized_data = order_serializers.OrderSerializer(order.first()).data
 
         total_price = (Decimal(serialized_data.get('ordered_items').get('total_price'))
                        + Decimal(serialized_data.get('shipping_method').get('price')))
@@ -226,6 +320,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
             if payment.status == 'pending':
                 qs = models.Payment.objects.filter(store_order_number=order_number)
+                payment_object = None
                 if qs.exists():
                     qs.update(
                         payment_id=payment.id,
@@ -244,9 +339,14 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     )
                     payment_object.save()
 
+                payment_data_id_from_backend = qs.first().id or payment_object.id
                 confirmation_url = payment.confirmation.confirmation_url
-                return Response({"confirmation_url": confirmation_url, "success": True},
-                                status=status.HTTP_201_CREATED)
+                return Response({
+                    "confirmation_url": confirmation_url,
+                    "id": payment_data_id_from_backend,
+                    "success": True
+                },
+                    status=status.HTTP_201_CREATED)
             else:
                 return Response({"detail": payment.status, "success": False}, )
         except Exception as e:

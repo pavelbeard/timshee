@@ -1,26 +1,22 @@
 import Cookies from "js-cookie";
+import AuthService from "../../../main/api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const csrftoken = Cookies.get("csrftoken");
+const token = AuthService.getCurrentUser();
 
 export const createAddress = async ({data, isAuthenticated}) => {
-    let headers;
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Authorization": `Bearer ${token?.access}`,
+    };
+
     if (isAuthenticated) {
-        headers = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        };
-    } else {
-        headers = {
-            "X-CSRFToken": csrftoken,
-            "Content-Type": "application/json",
-        }
-        data['is_last'] = true;
+        headers["Authorization"] = `Bearer ${token?.access}`;
     }
-    const url = isAuthenticated
-        ? `${API_URL}api/order/addresses/`
-        : `${API_URL}api/order/anon-addresses/`;
+
+    const url = `${API_URL}api/order/addresses/`;
 
     const response = await fetch(url, {
         method: "POST",
@@ -35,24 +31,15 @@ export const createAddress = async ({data, isAuthenticated}) => {
 };
 
 export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthenticated}) => {
-    const url = isAuthenticated
-        ? `${API_URL}api/order/addresses/${shippingAddressId}/`
-        : `${API_URL}api/order/anon-addresses/${shippingAddressId}/`;
+    const url = `${API_URL}api/order/addresses/${shippingAddressId}/`;
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
 
-    let headers;
     if (isAuthenticated) {
-        headers = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        };
-    } else {
-        headers = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-        };
+        headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
     const response = await fetch(url, {
@@ -69,19 +56,25 @@ export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthe
     }
 };
 
-export const deleteAddress = async (addressId) => {
+export const deleteAddress = async ({isAuthenticated, addressId}) => {
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
     const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
         method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-            "Authorization": `Token ${localStorage.getItem("token")}`,
-        },
+        headers,
         credentials: "include",
     });
 
-    if (response.ok) {
-        return await response.json();
+    if (response.status === 204) {
+        return true;
     }
 };
 
@@ -108,26 +101,22 @@ export const updateOrder = async (
 
     if (addData) {
         if ('shippingAddressId' in addData) {
-        body["shipping_address"] = addData.shippingAddressId;
+            body["shipping_address"] = addData.shippingAddressId;
         }
         if ('shippingMethodId' in addData) {
             body["shipping_method"] = addData.shippingMethodId;
         }
     }
 
-    const url = isAuthenticated
-        ? `${API_URL}api/order/orders/${orderId}/`
-        : `${API_URL}api/order/anon-orders/${orderId}/`;
+    const url = `${API_URL}api/order/orders/${orderId}/`;
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
 
-    const headers = isAuthenticated ? {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-        "Accept": "application/json",
-        "Authorization": `Token ${localStorage.getItem("token")}`,
-    } : {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-        "Accept": "application/json",
+    if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
     const response = await fetch(url, {
@@ -156,19 +145,14 @@ export const createOrder = async (totalPrice, items, isAuthenticated) => {
         "status": "pending_for_pay",
     };
 
-    const url = [
-        API_URL,
-        isAuthenticated
-            ? "api/order/orders/"
-            : `api/order/anon-orders/`,
-    ].join("")
+    const url = "api/order/orders/";
     const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
             "Accept": "application/json",
-            "Authorization": `Token ${localStorage.getItem("token")}`,
+            "Authorization": `Bearer ${token?.access}`,
         },
         body: JSON.stringify(body),
         credentials: "include",

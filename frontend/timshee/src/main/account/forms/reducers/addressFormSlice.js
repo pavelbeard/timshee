@@ -40,10 +40,13 @@ const initialState = {
     // light values
     // heavy values
     addressObject,
+    addressDetailStatus: 'idle',
+    addressAsTrueStatus: 'idle',
     addressFormObject: {
         ...addressObject
     },
     addresses: [],
+    shippingAddressesStatus: 'idle',
     countries: [],
     provinces: [],
     phoneCodes: [],
@@ -81,6 +84,7 @@ const addressFormSlice = createSlice({
         },
         // edit form
         editAddress: (state, action) => {
+            console.log(action.payload);
             state.addressFormObject = {
                 ...state.addressFormObject,
                 id: action.payload.id,
@@ -101,22 +105,26 @@ const addressFormSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getShippingAddresses.pending, (state, action) => {
-                state.isLoading = true;
+                state.shippingAddressesStatus = 'loading';
             })
             .addCase(getShippingAddresses.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.addresses = action.payload;
+                state.shippingAddressesStatus = 'success';
+                if ('detail' in action.payload) {
+                    state.addresses = [];
+                } else {
+                    state.addresses = action.payload;
+                }
             })
             .addCase(getShippingAddresses.rejected, (state, action) => {
-                state.isLoading = false;
+                state.shippingAddressesStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getShippingAddressAsTrue.pending, (state, action) => {
-                state.isLoading = true;
+                state.addressAsTrueStatus = 'loading';
             })
             .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.addressAsTrueStatus = 'success';
                 const {
                     first_name: firstName, last_name: lastName,
                     address1: streetAddress, address2: apartment,
@@ -140,15 +148,15 @@ const addressFormSlice = createSlice({
                 };
             })
             .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
-                state.isLoading = false;
+                state.addressAsTrueStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getAddressDetail.pending, (state, action) => {
-                state.isLoading = true;
+                state.addressDetailStatus = 'loading';
             })
             .addCase(getAddressDetail.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.addressDetailStatus = 'success';
                 const {
                     first_name: firstName, last_name: lastName,
                     address1: streetAddress, address2: apartment,
@@ -172,7 +180,7 @@ const addressFormSlice = createSlice({
                 };
             })
             .addCase(getAddressDetail.rejected, (state, action) => {
-                state.isLoading = false;
+                state.addressDetailStatus = 'error';
                 state.isError = action.payload;
             })
 

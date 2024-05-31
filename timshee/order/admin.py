@@ -31,16 +31,6 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ["order_number"]
 
 
-@admin.register(models.AnonymousAddress)
-class AnonymousAddressAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(models.AnonymousOrder)
-class AnonymousOrderAdmin(admin.ModelAdmin):
-    readonly_fields = ["order_number"]
-
-
 @admin.register(models.ShippingMethod)
 class ShippingMethodAdmin(admin.ModelAdmin):
     pass

@@ -3,6 +3,7 @@ import {
     getShippingAddresses as fetchShippingAddresses,
     getShippingAddressAsTrue as fetchShippingAddressAsTrue,
 } from "../../../api/asyncFetchers";
+import {getEmail} from "../../../account/api";
 
 export const getShippingAddressAsTrue = createAsyncThunk(
     "shippingAddressForm/getShippingAddressAsTrue",
@@ -10,12 +11,13 @@ export const getShippingAddressAsTrue = createAsyncThunk(
         try {
             const result = await fetchShippingAddressAsTrue({isAuthenticated});
             if (result) {
-                return result
+                console.log(result);
+                return result;
             } else {
-                thunkAPI.rejectWithValue("Something went wrong...");
+                return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (e) {
-            thunkAPI.rejectWithValue(e);
+            return thunkAPI.rejectWithValue(e);
         }
     }
 );
@@ -28,10 +30,27 @@ export const getShippingAddresses = createAsyncThunk(
             if (result) {
                 return result;
             } else {
-                thunkAPI.rejectWithValue("Something went wrong...");
+                return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (error) {
-            thunkAPI.rejectWithValue(error.message);
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const getUsernameEmail = createAsyncThunk(
+    "shippingAddressForm/getUsernameEmail",
+    async (arg, thunkAPI) => {
+        try {
+            const result = await getEmail();
+
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
         }
     }
 );

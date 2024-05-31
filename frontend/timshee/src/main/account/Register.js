@@ -1,19 +1,18 @@
-import React from "react";
+import React, {useContext} from "react";
 import {useState} from "react";
 
-import Cookies from "js-cookie";
-import {checkAuthStatus} from "../../redux/slices/checkAuthSlice";
 import {useDispatch} from "react-redux";
 import {useNavigate} from "react-router-dom";
 
 import "./Register.css";
+import AuthContext from "../auth/AuthProvider";
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 const Register = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const csrftoken = Cookies.get("csrftoken");
+
+    const {register} = useContext(AuthContext);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -31,32 +30,10 @@ const Register = () => {
             return;
         }
 
-        try {
-            const response = await fetch(API_URL + "api/stuff/register/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                },
-                body: JSON.stringify({
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    password: password,
-                }),
-                credentials: "include",
-            })
+        const result = await register({firstName, lastName, email, password, setErrorMessage});
 
-            if (response.ok) {
-                const json = await response.json();
-                localStorage.setItem("token", json.token);
-                dispatch(checkAuthStatus());
-                navigate("/account/details")
-            }
-
-        } catch (error) {
-            setErrorMessage("Server's error...");
-            setTimeout(() => setErrorMessage(''), 2000);
+        if (result) {
+            navigate("/");
         }
     };
 

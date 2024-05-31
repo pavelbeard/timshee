@@ -15,7 +15,7 @@ export const menuSlice = createSlice({
             state.isAddressEditFormOpened = !state.isAddressEditFormOpened;
         },
         toggleCart: (state, action) => {
-            if (action.payload) {
+            if (action.payload === false) {
                 state.isCartClicked = false;
             } else {
                 state.isCartClicked = !state.isCartClicked;

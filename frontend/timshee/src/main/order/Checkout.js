@@ -1,12 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {
-    getCountries,
-    getOrderDetail,
-    getPhoneCodes,
-    getProvinces,
-    resetOrderId,
-} from "../../redux/slices/shopSlices/orderSlice";
 import CheckoutItems from "./CheckoutItems";
 import ShippingAddressForm from "./forms/ShippingAddressForm";
 
@@ -17,9 +10,18 @@ import forwardImg from "../../media/static_images/forward_to.svg";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import ShippingMethodForm from "./forms/ShippingMethodForm";
 import PaymentForm from "./forms/PaymentForm";
-import {getOrder} from "./api";
-import {setOrderedData, setTotalPrice} from "./api/checkoutSlice";
 import {toggleCart} from "../../redux/slices/menuSlice";
+import AuthService from "../api/authService";
+import {getCartItems} from "../cart/api/asyncThunks";
+import {getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./forms/reducers/asyncThunks";
+import {
+    createOrUpdateAddress,
+    getCountries,
+    getOrderDetail,
+    getPhoneCodes,
+    getProvinces, getShippingMethodDetail,
+    getShippingMethods, updateOrderShippingMethod
+} from "./api/asyncThunks";
 
 
 const Checkout = () => {
@@ -29,65 +31,82 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const {countries, phoneCodes, provinces,
-        orderData, order
+    const {
+        countries, phoneCodes, provinces, order, shippingMethods,
+        countriesStatus, phoneCodesStatus, provincesStatus, orderStatus, shippingMethodsStatus,
     } = useSelector(state => state.order);
-    const isAuthenticated = useSelector(state => state.auth.isValid);
-    const {isLoading, error, totalPrice, orderedData} = useSelector(state => state.checkout);
+    const {
+        addressObject, usernameEmail, shippingAddresses,
+        addressObjectStatus, usernameEmailStatus, shippingAddressesStatus
+    } = useSelector(state => state.shippingAddressForm);
+    const isAuthenticated = AuthService.isAuthenticated();
+    const {cart, getCartItemsStatus} = useSelector(state => state.cart);
 
+    // FOR ORDER SHIPPING FORM
     const [orderShippingAddress, setOrderShippingAddress] = React.useState();
+
+    // FOR OPEN PAYMENT FORM
     const [orderShippingMethod, setOrderShippingMethod] = React.useState();
+
+
+    const [shippingMethodExternal, setShippingMethodExternal] = React.useState(0);
     const [shippingPrice, setShippingPrice] = React.useState(0.00);
     const [currentStep, setCurrentStep] = React.useState(localStorage.getItem("currentStep") || "information");
 
+    // INIT
+    useEffect(() => {
+        if (countriesStatus === 'idle') {
+            dispatch(getCountries());
+        }
+        if (phoneCodesStatus === 'idle') {
+            dispatch(getPhoneCodes());
+        }
+        if (provincesStatus === 'idle') {
+            dispatch(getProvinces());
+        }
+        if (shippingAddressesStatus === 'idle') {
+            dispatch(getShippingAddresses({isAuthenticated}));
+        }
+        if (addressObjectStatus === 'idle') {
+            dispatch(getShippingAddressAsTrue({isAuthenticated}));
+        }
+
+        if (shippingMethodsStatus === 'idle') {
+            dispatch(getShippingMethods());
+        }
+
+        if (usernameEmailStatus === 'idle') {
+            dispatch(getUsernameEmail());
+        }
+
+        if (orderStatus === 'idle') {
+            dispatch(getOrderDetail({orderId: params.orderId, isAuthenticated}));
+        }
+
+    }, [
+        countriesStatus, phoneCodesStatus, provincesStatus,
+        shippingAddressesStatus, addressObjectStatus, usernameEmailStatus,
+    ]);
+
     // SET CHECKOUT ITEMS
     useEffect(() => {
-        const fetchOrder = async () => {
-            const result = await getOrder({
-                orderId: params.orderId,
-                isAuthenticated,
-                dispatch,
-            });
-
-            if (result) {
-                dispatch(setOrderedData(result.ordered_items.data));
-                dispatch(setTotalPrice(result.ordered_items.total_price));
-            }
-        };
-
-        fetchOrder();
-    }, []);
-
-    // SET SHIPPING ADDRESS DATA
-
-    const setCorrectShippingPrice = () => {
-        if (currentStep !== "information" && orderShippingMethod !== undefined) {
-            setShippingPrice(order.shipping_method.price);
+        if (getCartItemsStatus === 'idle') {
+            dispatch(getCartItems());
         }
-    };
+    }, [cart.cartItems.length, getCartItemsStatus]);
 
+    // OPEN FORMS
     useEffect(() => {
-    }, [order]);
-
-    useEffect(() => {
-        if (order) {
+        if (order && order.shipping_address !== undefined) {
             setOrderShippingAddress(order.shipping_address);
-            setOrderShippingMethod(order.shipping_method);
-            setCorrectShippingPrice();
         }
-    }, [order, currentStep]);
 
-    useEffect(() => {
-        dispatch(getCountries());
-        dispatch(getPhoneCodes());
-        dispatch(getProvinces());
-        dispatch(getOrderDetail({isAuthenticated, orderId: params.orderId}))
-    }, [dispatch, isAuthenticated, params.orderId]);
+        if (order && order.shipping_methods !== undefined) {
+            setOrderShippingMethod(order.shipping_method)
+        }
+    })
 
-    useEffect(() => {
-        localStorage.setItem("currentStep", currentStep);
-    }, [currentStep]);
-
+    // CHANGE STEP
     const handleStepChange = (nextStep) => {
         if (nextStep === "information") {
             setShippingPrice(0.00);
@@ -104,29 +123,67 @@ const Checkout = () => {
         setCurrentStep(nextStep);
     };
 
-    const checkoutItemsContainer = () => {
-        return (
-            <div className="checkout-items-container">
-                <div className="checkout-items">
-                    <CheckoutItems items={orderedData}/>
-                </div>
-                <div className="checkout-subtotal">
-                    <div className="checkout-fees">
-                        <span>Subtotal:</span>
-                        <span>{totalPrice}</span>
-                    </div>
-                    <div className="checkout-shipping">
-                        <span>Shipping:</span>
-                        <span>{parseFloat(shippingPrice) === 0.00 ? "Free" : shippingPrice}</span>
-                    </div>
-                </div>
-                <div className="checkout-total">
-                    <span>Total:</span>
-                    <span>{(totalPrice + parseFloat(shippingPrice)).toFixed(2)}</span>
-                </div>
-            </div>
-        )
+    // SET SHIPPING PRICE DATA
+    const setCorrectShippingPrice = () => {
+        if (currentStep !== "information" && orderShippingMethod !== undefined) {
+            setShippingPrice(order.shipping_method.price);
+        }
     };
+
+    // HANDLE STEPS
+    const handleSubmitShippingAddressForm = async e => {
+        e.preventDefault();
+
+        const data = {
+            "orderId": params.orderId,
+            "first_name": addressObject.firstName,
+            "last_name": addressObject.lastName,
+            "city": addressObject.city,
+            "address1": addressObject.streetAddress,
+            "address2": addressObject.apartment,
+            "postal_code": addressObject.postalCode,
+            // WEAK
+            "phone_number": addressObject.phoneNumber,
+            "email": addressObject.email,
+            "additional_data": "",
+            // WEAK
+            "province": addressObject.province.id,
+            "phone_code": addressObject.phoneCode.country,
+            "as_primary": true,
+        }
+
+        dispatch(createOrUpdateAddress({
+            shippingAddress: data,
+            shippingAddressId: addressObject.addressId,
+            isAuthenticated,
+        }));
+        navigate(`/shop/${params.orderId}/checkout/shipping`);
+        setCurrentStep("shipping");
+    };
+
+    const handleSubmitShippingMethodForm = async e => {
+        e.preventDefault();
+
+        const selectedMethod = shippingMethods.find(
+            method => method.id === shippingMethodExternal
+        );
+        dispatch(updateOrderShippingMethod({
+            orderId: params.orderId,
+            shippingMethodId: shippingMethodExternal,
+            isAuthenticated
+        }));
+        dispatch(getShippingMethodDetail({
+            shippingMethodId: selectedMethod.id
+        }));
+        setShippingPrice(selectedMethod.price);
+        setCurrentStep("payment");
+        navigate(`/shop/${params.orderId}/checkout/payment`);
+    };
+
+    // UPDATE STEPS
+    useEffect(() => {
+        localStorage.setItem("currentStep", currentStep);
+    }, [currentStep]);
 
     return (
         <div className="checkout-container">
@@ -135,12 +192,11 @@ const Checkout = () => {
                     <div className="checkout-logo">
                         <img src={logo} alt="alt-logo" height={40}/>
                     </div>
-                    {order !== undefined && <div className="checkout-nav">
+                    {cart.cartItems.length > 0 && <div className="checkout-nav">
                         <span>
                             <Link to={`/cart`} onClick={() => {
                                 handleStepChange("information");
                                 dispatch(toggleCart(false));
-                                // dispatch(resetOrderId());
                             }}>
                                 Cart
                             </Link>
@@ -177,15 +233,19 @@ const Checkout = () => {
                         </span>
                     </div>}
                 </div>
-                {order !== undefined && <div className="checkout-shipping-form">
+                {cart.cartItems.length > 0 && <div className="checkout-shipping-form">
                     {
                         currentStep === "information"
                         &&
                         <ShippingAddressForm
+                            initialValue={addressObject}
+                            shippingAddress={shippingAddresses}
+                            usernameEmail={usernameEmail}
                             orderId={params.orderId}
                             countries={countries}
                             phoneCodes={phoneCodes}
                             provinces={provinces}
+                            submit={handleSubmitShippingAddressForm}
                             setCurrentStep={handleStepChange}
                         />
                     }
@@ -193,10 +253,13 @@ const Checkout = () => {
                         currentStep === "shipping"
                         &&
                         <ShippingMethodForm
+                            initialValue={shippingMethods}
                             orderId={params.orderId}
-                            setCurrentStep={handleStepChange}
                             setShippingPrice={setShippingPrice}
                             setOrderShippingMethod={setOrderShippingMethod}
+                            setShippingMethodExternal={setShippingMethodExternal}
+                            submit={handleSubmitShippingMethodForm}
+                            setCurrentStep={handleStepChange}
                         />
                     }
                     {
@@ -206,19 +269,39 @@ const Checkout = () => {
                     }
                 </div>}
             </div>
-            {order !== undefined
-                ? checkoutItemsContainer()
-                :
-                <div style={{
-                    display: "flex",
-                    paddingTop: "4rem",
-                    justifyContent: "center",
-                    width: "45%",
-                }}>
-                    <span>
-                        <h3>LOADING...</h3>
-                    </span>
-                </div>
+            {
+                cart.cartItems.length > 0 ? (
+                    <div className="checkout-items-container">
+                        <div className="checkout-items">
+                            <CheckoutItems cart={cart}/>
+                        </div>
+                        <div className="checkout-subtotal">
+                            <div className="checkout-fees">
+                            <span>Subtotal:</span>
+                                <span>{cart.totalPrice}</span>
+                            </div>
+                            <div className="checkout-shipping">
+                                <span>Shipping:</span>
+                                <span>{parseFloat(shippingPrice) === 0.00 ? "Free" : shippingPrice}</span>
+                            </div>
+                        </div>
+                        <div className="checkout-total">
+                            <span>Total:</span>
+                            <span>{(parseFloat(cart.totalPrice) + parseFloat(shippingPrice)).toFixed(2)}</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{
+                        display: "flex",
+                        paddingTop: "4rem",
+                        justifyContent: "center",
+                        width: "45%",
+                    }}>
+                        <span>
+                            <h3>LOADING...</h3>
+                        </span>
+                    </div>
+                )
             }
         </div>
     )

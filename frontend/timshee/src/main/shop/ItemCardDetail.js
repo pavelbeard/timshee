@@ -6,8 +6,9 @@ import arrowLeft from "../../media/static_images/arrow-left.svg";
 import arrowRight from "../../media/static_images/arrow-right.svg";
 import {checkInStock, getItemDetail, setHasAdded, setItemData} from "../../redux/slices/shopSlices/itemSlice";
 import {useParams} from "react-router-dom";
-import {resetIsAdded} from "../cart/reducers/cartSlice";
-import {addCartItem} from "../cart/api/asyncThunks";
+import {resetAddCartItemStatus, resetIsAdded} from "../cart/reducers/cartSlice";
+import {addCartItem, getCartItems} from "../cart/api/asyncThunks";
+import AuthService from "../api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -37,8 +38,8 @@ const Carousel = ({ images, imageSize }) => {
 const ItemCardDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
-    const {isValid} = useSelector((state) => state.auth);
-    const {isAdded} = useSelector(state => state.cart);
+    const isAuthenticated = AuthService.isAuthenticated();
+    const {cart, getCartItemsStatus, addCartItemStatus} = useSelector(state => state.cart);
     const {inStock} = useSelector(state => state.item);
 
     const {itemDetail: item} = useSelector(state => state.item);
@@ -55,7 +56,7 @@ const ItemCardDetail = () => {
         dispatch(checkInStock({
             itemId: item.id, size: size, color: selectedColor
         }));
-        dispatch(resetIsAdded());
+        dispatch(resetAddCartItemStatus('idle'));
     };
 
     const changeColor = (e) => {
@@ -64,8 +65,14 @@ const ItemCardDetail = () => {
         dispatch(checkInStock({
             itemId: item.id, size: selectedSize, color: color
         }));
-        dispatch(resetIsAdded());
+        dispatch(resetAddCartItemStatus('idle'));
     };
+
+    useEffect(() => {
+        if (getCartItemsStatus === "idle") {
+            dispatch(getCartItems());
+        }
+    }, [getCartItemsStatus, cart.cartItems.length]);
 
     useEffect(() => {
         dispatch(getItemDetail({itemId: params.itemId}));
@@ -104,7 +111,7 @@ const ItemCardDetail = () => {
         window.addEventListener("resize", handleResize);
 
         return () => window.removeEventListener("resize", handleResize);
-    }, [inStock, isAdded]);
+    }, [inStock, addCartItemStatus]);
 
     const addToCart = async () => {
         const data = {
@@ -113,8 +120,9 @@ const ItemCardDetail = () => {
             "color_id": selectedColor,
             "quantity": 1
         };
-        dispatch(addCartItem({data, isAuthenticated: isValid}));
+        dispatch(addCartItem({data, isAuthenticated: isAuthenticated}));
     };
+
 
     if (item !== undefined) {
         return (
@@ -153,9 +161,9 @@ const ItemCardDetail = () => {
                             </div>
                         </div>
                         {
-                            !inStock
+                            inStock === 0
                                 ? <div className="add-to-cart out-of-stock">Out of stock</div>
-                                : isAdded
+                                : addCartItemStatus === "success"
                                     ?
                                     <div className="add-to-cart has-added">
                                         has added
@@ -169,8 +177,8 @@ const ItemCardDetail = () => {
                 </div>
             </div>
         )
-    } else {
-        return <div>Loading...</div>
+    } else if (getCartItemsStatus === "error") {
+        return <div>Error... We are doing all that depending by us.</div>;
     }
 };
 

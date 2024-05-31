@@ -33,16 +33,3 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = "__all__"
 
-
-class AnonymousAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnonymousAddress
-        fields = "__all__"
-
-
-class AnonymousOrderSerializer(serializers.ModelSerializer):
-    order_number = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = models.AnonymousOrder
-        fields = "__all__"

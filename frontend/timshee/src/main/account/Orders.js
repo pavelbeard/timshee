@@ -37,14 +37,19 @@ const Orders = () => {
                                         <span>{new Date(order.updatedAt).toDateString()}</span>
                                     </div>
                                 ) : (
-                                    <div><span>STATUS:</span><span>{order.status}</span></div>
+                                    <div><span>STATUS:</span><span>{order.status.replace(/_/, " ")}</span></div>
                                 )
                             }
                             <div className="order-img-block">
                                 {order.orderedItems.data.map((item, index) => (
-                                    <img style={{marginRight: "10px"}}
-                                         src={`${API_URL}${item.stock.item.image}`} height={90}
-                                         key={index} alt={`alt-img-${index}`}/>
+                                    <div key={index}>
+                                        <img style={{
+                                            marginRight: "10px",
+                                            filter: item.refunded ? "brightness(0.6)" : "none"
+                                        }}
+                                             src={`${API_URL}${item.stock.item.image}`} height={90}
+                                             alt={`alt-img-${index}`}/>
+                                    </div>
                                 ))}
                             </div>
                         </div>

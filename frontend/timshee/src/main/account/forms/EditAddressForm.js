@@ -22,17 +22,17 @@ import {
     setProvincesFiltered,
     editAddress as setAddressObject
 } from "./reducers/addressFormSlice";
+import AuthService from "../../api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const EditAddressForm = () => {
     const dispatch = useDispatch();
-
     const {
         addressFormObject, countries, provinces,
         phoneCodes, isError, provincesFilteredList
     } = useSelector(state => state.addressForm);
-    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const isAuthenticated = AuthService.isAuthenticated();
 
     // FETCH COUNTRIES, PROVINCES AND MORE
     useEffect(() => {
@@ -55,11 +55,15 @@ const EditAddressForm = () => {
             );
 
             const filteredPhoneCodes = phoneCodes.filter(phoneCode =>
-                phoneCode.country.id === countries[0].id
+                phoneCode.country === countries[0].id
             )
 
             dispatch(setProvincesFiltered(filteredProvinces));
             dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
+            dispatch(setPhoneCode({
+                phoneCode: filteredPhoneCodes[0].phone_code,
+                country: filteredPhoneCodes[0].country
+            }));
         }
     }, [countries]);
 
@@ -82,7 +86,8 @@ const EditAddressForm = () => {
 
         try {
             let response;
-            if (addressFormObject.id !== 0) {
+            console.log(addressFormObject);
+            if (addressFormObject.id !== undefined && addressFormObject.id !== 0) {
                 response = await updateAddress({
                     shippingAddress: data,
                     shippingAddressId: addressFormObject.id,
@@ -148,7 +153,10 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="firstName">
                         <span className="label-text">firstname:</span>
-                        <input id="firstName" type="text" value={addressFormObject.firstName}
+                        <input
+                            id="firstName"
+                            type="text"
+                            value={addressFormObject.firstName}
                             onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
                                 firstName: e.target.value
@@ -158,11 +166,14 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="lastName">
                         <span className="label-text">lastname:</span>
-                        <input id="lastName" type="text" value={addressFormObject.lastName}
-                            onChange={e => dispatch({
+                        <input
+                            id="lastName"
+                            type="text"
+                            value={addressFormObject.lastName}
+                            onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
                                 lastName: e.target.value
-                            })} required />
+                            }))} required />
                     </label>
                 </div>
                 <div>
@@ -188,11 +199,14 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="postcode">
                         <span className="label-text">postcode:</span>
-                        <input id="postcode" type="text" value={addressFormObject.postalCode}
-                            onChange={e => setAddressObject({
+                        <input
+                            id="postcode"
+                            type="text"
+                            value={addressFormObject.postalCode}
+                            onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
                                 postalCode: e.target.value
-                            })} required />
+                            }))} required />
                     </label>
                 </div>
                 <div>

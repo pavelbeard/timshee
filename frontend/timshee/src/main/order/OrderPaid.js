@@ -3,8 +3,10 @@ import {useNavigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
 import {useDispatch, useSelector} from "react-redux";
-import {updateOrderStatus} from "../../redux/slices/shopSlices/orderSlice";
-import {deleteCartItems} from "../cart/api/asyncThunks";
+import {clearCart, deleteCartItems} from "../cart/api/asyncThunks";
+import {updateOrderStatus, updatePaymentInfo} from "./api/asyncThunks";
+import {setError} from "./api/reducers/checkoutSlice";
+import AuthService from "../api/authService";
 
 const OrderPaid = () => {
     const dispatch = useDispatch();
@@ -14,19 +16,37 @@ const OrderPaid = () => {
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
 
-    const isAuthenticated = useSelector(state => state.auth.isValid);
+    const isAuthenticated = AuthService.isAuthenticated();
+    const {paymentId} = useSelector(state => state.checkout);
 
-    useEffect(() => {
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState("");
+
+    const updateInfo = () => {
         if (orderId !== undefined) {
+            dispatch(updatePaymentInfo({
+                storeOrderNumber: orderNumber,
+                data: {
+                    status: "succeeded"
+                },
+                setError: setError,
+                setIsLoading: setIsLoading,
+            }))
             dispatch(updateOrderStatus({
                 orderId: orderId,
                 isAuthenticated: isAuthenticated,
                 status: "processing",
             }));
-            dispatch(deleteCartItems({
+            dispatch(clearCart({
+                isAuthenticated: isAuthenticated,
                 hasOrdered: true
             }));
+            localStorage.setItem("currentStep", "information");
         }
+    };
+
+    useEffect(() => {
+        updateInfo();
     }, []);
 
     return(

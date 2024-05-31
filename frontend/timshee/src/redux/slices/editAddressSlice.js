@@ -1,16 +1,22 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {deleteAddress as extDeleteAddress}  from "./shopSlices/checkout";
+import AuthService from "../../main/api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
+const token = AuthService.getCurrentUser();
 
 export const deleteAddress = createAsyncThunk(
     "editAddress/deleteAddress",
     async ({isAuthenticated, addressId}, thunkAPI) => {
         try {
-            const response = await extDeleteAddress(addressId);
-            return response !== undefined
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
+            const result = await extDeleteAddress({isAuthenticated, addressId});
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return  thunkAPI.rejectWithValue(error.message);
         }
     }
 );
@@ -25,7 +31,7 @@ export const getAddressDetail = createAsyncThunk(
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "Authorization": `Token ${localStorage.getItem("token")}`,
+                    "Authorization": `Bearer ${token?.access}`,
                 }
             });
 
@@ -45,6 +51,7 @@ export const editAddressSlice = createSlice({
         hasDeleted: undefined,
         error: undefined,
         address: undefined,
+        deleteAddressStatus: 'idle',
         addressId: undefined,
     },
     reducers: {
@@ -58,17 +65,17 @@ export const editAddressSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(deleteAddress.pending, (state) => {
-                state.isLoading = true;
+                state.deleteAddressStatus = 'loading';
             })
             .addCase(deleteAddress.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.deleteAddressStatus = 'success';
                 state.hasDeleted = action.payload;
             })
             .addCase(deleteAddress.rejected, (state, action) => {
-                state.isLoading = undefined;
+                state.deleteAddressStatus = 'error';
                 state.error = action.payload;
-                state.hasDeleted = undefined;
             })
+
             .addCase(getAddressDetail.pending, (state) => {
                 state.isLoading = true;
             })
