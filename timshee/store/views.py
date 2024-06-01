@@ -38,12 +38,6 @@ class StockViewSet(viewsets.ModelViewSet):
         elif self.action in ["create", "update", "partial_update", "retrieve", "destroy"]:
             return write_serializers.StockSerializer
 
-    @action(detail=True, methods=['post'])
-    def put_in_cart(self, request, *args, **kwargs):
-
-        pass
-
-
 class StockImageViewSet(viewsets.ModelViewSet):
     queryset = models.CarouselImage.objects.all()
     serializer_class = serializers.CarouselImageSerializer

@@ -9,6 +9,7 @@ import {
     getOrders as fetchOrders,
     getLastOrder as fetchLastOrder,
     getOrderDetail as fetchOrderDetail,
+    refundOrder as requestRefundOrder,
 } from "../../../api/asyncFetchers";
 
 
@@ -31,17 +32,17 @@ export const getShippingAddresses = createAsyncThunk(
 
 export const getShippingAddressAsTrue = createAsyncThunk(
     "addressForm/getShippingLastAddress",
-    async ({isAuthenticated}, thunkAPI) => {
+    async ({isAuthenticated, token}, thunkAPI) => {
         try {
-            const result = await fetchShippingAddressAsTrue({isAuthenticated});
+            const result = await fetchShippingAddressAsTrue({isAuthenticated, token});
             if (result) {
                 console.log(result)
                 return result
             } else {
-                thunkAPI.rejectWithValue("Something went wrong...");
+               return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (e) {
-            thunkAPI.rejectWithValue(e);
+            return thunkAPI.rejectWithValue(e);
         }
     }
 );
@@ -113,13 +114,13 @@ export const getProvinces = createAsyncThunk(
 // FOR ORDERS PAGE
 export const getOrders = createAsyncThunk(
     "ordersPage/getOrders",
-    async (args, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await fetchOrders();
+            const result = await fetchOrders({token});
             if (result) {
                 return result;
             } else {
-                thunkAPI.rejectWithValue("Something went wrong...");
+                return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e);
@@ -129,32 +130,48 @@ export const getOrders = createAsyncThunk(
 
 export const getLastOrder = createAsyncThunk(
     "ordersPage/getLastOrder",
-    async (args, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await fetchLastOrder();
+            const result = await fetchLastOrder({token});
             if (result) {
                 return result;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }
-        } catch (e) {
-            return thunkAPI.rejectWithValue(e.message);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
         }
     }
 );
 
 export const getOrderDetail = createAsyncThunk(
     "ordersPage/getOrderDetail",
-    async ({orderId}, thunkAPI) => {
+    async ({orderId, token}, thunkAPI) => {
         try {
-            const result = await fetchOrderDetail({orderId});
+            const result = await fetchOrderDetail({orderId, token});
             if (result) {
                 return result;
             } else {
-                return  thunkAPI.rejectWithValue("Something went wrong...");
+                return thunkAPI.rejectWithValue("Something went wrong...");
             }
-        } catch (e) {
-            return thunkAPI.rejectWithValue(e);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
         }
     }
 );
+
+export const refundPartial = createAsyncThunk(
+    "ordersPage/refundPartial",
+    async ({orderNumber, data, token}, thunkAPI) => {
+        try {
+            const result = await requestRefundOrder({orderNumber, data, token});
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+)

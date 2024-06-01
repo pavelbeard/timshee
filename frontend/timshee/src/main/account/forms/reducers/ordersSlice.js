@@ -7,6 +7,7 @@ const initialState = {
     isLoading: false,
     isError: false,
     // heavy values
+    lastOrderStatus: 'idle',
     order: {
         id: 0,
         shippingAddress: {
@@ -46,7 +47,9 @@ const initialState = {
         createdAt: "",
         updatedAt: "",
     },
+    orderDetailStatus: 'idle',
     orders: [],
+    ordersStatus: 'idle',
 };
 
 const orderDetailEqualizer = (order) => {
@@ -100,38 +103,42 @@ const ordersSlice = createSlice({
     extraReducers: builder => {
         builder
             .addCase(getOrders.pending, (state, action) => {
-                state.isLoading = true;
+                state.ordersStatus = 'loading';
             })
             .addCase(getOrders.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.orders = action.payload.map(order => orderDetailEqualizer(order));
+                state.ordersStatus = 'success';
+                if ('detail' in action.payload) {
+                    state.orders = [];
+                } else {
+                    state.orders = action.payload.map(order => orderDetailEqualizer(order));
+                }
             })
             .addCase(getOrders.rejected, (state, action) => {
-                state.isLoading = false;
+                state.ordersStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getOrderDetail.pending, (state, action) => {
-                state.isLoading = true;
+                state.orderDetailStatus = 'loading';
             })
             .addCase(getOrderDetail.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.orderDetailStatus = 'success';
                 state.order = orderDetailEqualizer(action.payload);
             })
             .addCase(getOrderDetail.rejected, (state, action) => {
-                state.isLoading = false;
+                state.orderDetailStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getLastOrder.pending, (state, action) => {
-                state.isLoading = true;
+                state.lastOrderStatus = 'loading';
             })
             .addCase(getLastOrder.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.lastOrderStatus = 'success';
                 state.order = orderDetailEqualizer(action.payload);
             })
             .addCase(getLastOrder.rejected, (state, action) => {
-                state.isLoading = false;
+                state.lastOrderStatus = 'error';
                 state.isError = action.payload;
             })
     }

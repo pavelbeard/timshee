@@ -213,11 +213,14 @@ export const getOrderDetail = createAsyncThunk(
     async ({orderId, isAuthenticated}, thunkAPI) => {
         try {
             const url = `${API_URL}api/order/orders/${orderId}/`;
-            const headers = {
+            let headers = {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token?.access}`,
                 "Accept": "application/json",
             };
+
+            if (!isAuthenticated) {
+                headers["Authorization"] = `Bearer ${token?.access}`;
+            }
 
             const response = await fetch(url, {
                 method: "GET",
@@ -229,8 +232,8 @@ export const getOrderDetail = createAsyncThunk(
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }
-        } catch (e) {
-            return  thunkAPI.rejectWithValue(e);
+        } catch (error) {
+            return  thunkAPI.rejectWithValue(error.message);
         }
     }
 );

@@ -51,6 +51,8 @@ const login = async ({email, password, setErrorMessage}) => {
             localStorage.setItem("user", JSON.stringify(result));
             const decodedToken = jwtDecode(result.access);
             return {...result, user: decodedToken};
+        } else {
+            setErrorMessage("Worst credentials: incorrect password or login");
         }
     } catch (error) {
         setErrorMessage("Something went wrong... ", error.message);
@@ -72,7 +74,6 @@ const getCurrentUser = () => {
     return null;
 };
 
-const getCsrfToken = () => {}
 
 const isAuthenticated = () => {
     const result = localStorage.getItem("user") !== null;

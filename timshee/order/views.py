@@ -40,6 +40,7 @@ class AddressViewSet(viewsets.ModelViewSet):
     queryset = models.Address.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AddressFilter
+    permission_classes = (permissions.AllowAny,)
     authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
@@ -85,9 +86,9 @@ class AddressViewSet(viewsets.ModelViewSet):
         session_key = request.session.session_key
         qs = None
         if user.is_authenticated:
-            qs = models.Address.objects.filter(user=user)
+            qs = models.Address.objects.filter(user=user, as_primary=True)
         elif user.is_anonymous:
-            qs = models.Address.objects.filter(session_key=session_key)
+            qs = models.Address.objects.filter(session_key=session_key, as_primary=True)
 
         if qs.exists():
             data = self.get_serializer(qs.first(), many=False).data
@@ -101,6 +102,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = models.Order.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.OrderFilter
+    permission_classes = (permissions.AllowAny,)
     authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
@@ -108,6 +110,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             return serializers.OrderSerializer
         elif self.action in ["create", "update", "partial_update", "destroy"]:
             return write_serializers.OrderSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            request.data['user'] = request.user.id
+        request.data['session'] = request.session.session_key
+
+        return super().retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:

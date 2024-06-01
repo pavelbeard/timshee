@@ -27,6 +27,8 @@
     display: flex;
     align-items: center;
     height: 20px;
+    font-variant: all-petite-caps;
+    font-size: 24px;
 }
 
 .labels, .sort-by {

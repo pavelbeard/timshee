@@ -166,17 +166,19 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['PUT'])
-    def get_refund_partial(self, request, *args, **kwargs):
+    @action(detail=True, methods=['POST'])
+    def refund_partial(self, request, *args, **kwargs):
         stock_item_id = request.data.get('stock_item_id', None)
         quantity = request.data.get('quantity', None)
+        quantity_total = request.data.get('quantity_total', None)
+        reason = request.data.get('reason', None)
         order_id, order_number = kwargs.get('order_id', None), kwargs.get('store_order_number', None)
         if order_number or order_id:
             order = order_models.Order.objects.filter(
                 Q(id=order_id) | Q(order_number=order_number)
             )
 
-            if order and order.first().status == 'completed':
+            if order and order.first().status == 'processing' or 'completed':
                 stock_item = store_models.Stock.objects.filter(pk=stock_item_id).first()
                 stock_item.increase_stock(quantity=quantity)
 
@@ -197,10 +199,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
                     if partial_refund.status == 'succeeded':
                         ordered_items = order.first().ordered_items.get('data')
+                        refund_variant = True if quantity_total == quantity else quantity
                         transformed_items = list(
                             map(
                                 lambda x:
-                                {**x, "refunded": False} if x['stock']['id'] == stock_item_id else x, ordered_items
+                                {**x, "refunded": refund_variant} if x['stock']['id'] == stock_item_id else x, ordered_items
                             )
                         )
                         order.ordered_items['data'] = transformed_items
@@ -208,11 +211,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
                         if len(ordered_items) > 1:
                             payment_data_from_backend.status = 'partial_refunded'
                             order.status = 'partial_refunded'
+                            order.refund_reason = reason
                             order.save()
                             payment_data_from_backend.save()
                         else:
                             payment_data_from_backend.status = 'refunded'
                             order.status = 'refunded'
+                            order.refund_reason = reason
                             order.save()
                             payment_data_from_backend.save()
 

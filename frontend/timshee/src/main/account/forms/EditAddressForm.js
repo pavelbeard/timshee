@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../../redux/slices/menuSlice";
-import {changeAddressId, resetAddress} from "../../../redux/slices/editAddressSlice";
-import Cookies from "js-cookie";
-import "./EditAddressForm.css";
+import "./Forms.css";
 
 import "../../Main.css";
 import crossBtn from "../../../media/static_images/cruz.svg";

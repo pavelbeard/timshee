@@ -75,7 +75,7 @@ const Checkout = () => {
             dispatch(getShippingMethods());
         }
 
-        if (usernameEmailStatus === 'idle') {
+        if (usernameEmailStatus === 'idle' && isAuthenticated) {
             dispatch(getUsernameEmail());
         }
 

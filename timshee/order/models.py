@@ -77,9 +77,10 @@ class Order(models.Model):
         ('created', 'CREATED'),
         ('pending_for_pay', 'PENDING FOR PAY'),
         ('processing', 'PROCESSING'),
+        ('delivering', 'DELIVERING'),
         ('completed', 'COMPLETED'),
-        ('cancelled', 'CANCELLED'),
         ('partial_refunded', 'PARTIAL_REFUNDED'),
+        ('cancelled', 'CANCELLED'),
         ('refunded', 'REFUNDED'),
     )
 
@@ -90,6 +91,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
     shipping_method = models.ForeignKey("ShippingMethod", on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created')
+    refund_reason = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -28,13 +28,16 @@ export const getShippingAddresses = async ({ isAuthenticated }) => {
     }
 };
 
-export const getShippingAddressAsTrue = async({isAuthenticated}) => {
+export const getShippingAddressAsTrue = async({isAuthenticated, token}) => {
     const url = `${API_URL}api/order/addresses/get_address_as_primary/`;
 
     const headers = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token?.access}`,
         "Accept": "application/json",
+    }
+
+    if (isAuthenticated) {
+        headers["Authorization"] = `Bearer ${token?.access}`
     }
 
     const response = await fetch(url, {
@@ -45,6 +48,8 @@ export const getShippingAddressAsTrue = async({isAuthenticated}) => {
 
     if (response.ok) {
         return await response.json();
+    } else {
+        return false;
     }
 };
 
@@ -104,31 +109,18 @@ export const getProvinces = async () => {
 
 //FOR AUTHENTICATED USERS
 //"get_orders_by_user", "get_last_order_by_user"
-export const getOrders = async () => {
+export const getOrders = async ({token}) => {
     let url = `${API_URL}api/order/orders/get_orders_by_user/`;
 
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
-            "Accept": "application/json",
-        },
-        credentials: "include",
-    });
-
-    if (response.ok) {
-        return await response.json();
-    }
-};
-
-export const getLastOrder = async () => {
-    let url = `${API_URL}api/order/orders/get_last_order_by_user/`;
-    const headers = {
+    let headers = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token?.access}`,
         "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
     }
+
     const response = await fetch(url, {
         method: "GET",
         headers,
@@ -140,16 +132,46 @@ export const getLastOrder = async () => {
     }
 };
 
-export const getOrderDetail = async ({orderId}) => {
-    let url = `${API_URL}api/order/orders/${orderId}/`;
+export const getLastOrder = async ({token}) => {
+    let url = `${API_URL}api/order/orders/get_last_order_by_user/`;
+    let headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
 
     const response = await fetch(url, {
         method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
-            "Accept": "application/json",
-        },
+        headers,
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        console.log("reject")
+        return false;
+    }
+};
+
+export const getOrderDetail = async ({orderId, token}) => {
+    let url = `${API_URL}api/order/orders/${orderId}/`;
+
+    let headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers,
         credentials: "include",
     });
 
@@ -176,6 +198,10 @@ export const deleteOrder = async ({isAuthenticated, orderId}) => {
 
     return response.ok;
 };
+
+export const refundOrder = async ({orderNumber, data, token}) => {
+    const url = `${API_URL}api/payment/refund`;
+}
 
 // CART
 export const addCartItem = async ({ data, isAuthenticated }) => {
