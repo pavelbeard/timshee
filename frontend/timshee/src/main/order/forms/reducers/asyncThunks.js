@@ -7,9 +7,9 @@ import {getEmail} from "../../../account/api";
 
 export const getShippingAddressAsTrue = createAsyncThunk(
     "shippingAddressForm/getShippingAddressAsTrue",
-    async ({isAuthenticated}, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await fetchShippingAddressAsTrue({isAuthenticated});
+            const result = await fetchShippingAddressAsTrue({token});
             if (result) {
                 console.log(result);
                 return result;
@@ -24,10 +24,11 @@ export const getShippingAddressAsTrue = createAsyncThunk(
 
 export const getShippingAddresses = createAsyncThunk(
     "shippingAddressForm/getPrimaryShippingAddress",
-    async ({isAuthenticated}, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await fetchShippingAddresses({isAuthenticated});
+            const result = await fetchShippingAddresses({token});
             if (result) {
+                console.log(result)
                 return result;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
@@ -40,9 +41,9 @@ export const getShippingAddresses = createAsyncThunk(
 
 export const getUsernameEmail = createAsyncThunk(
     "shippingAddressForm/getUsernameEmail",
-    async (arg, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await getEmail();
+            const result = await getEmail({token});
 
             if (result) {
                 return result;

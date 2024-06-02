@@ -38,7 +38,7 @@ const Carousel = ({ images, imageSize }) => {
 const ItemCardDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
-    const isAuthenticated = AuthService.isAuthenticated();
+    const token = AuthService.getCurrentUser();
     const {cart, getCartItemsStatus, addCartItemStatus} = useSelector(state => state.cart);
     const {inStock} = useSelector(state => state.item);
 
@@ -120,7 +120,7 @@ const ItemCardDetail = () => {
             "color_id": selectedColor,
             "quantity": 1
         };
-        dispatch(addCartItem({data, isAuthenticated: isAuthenticated}));
+        dispatch(addCartItem({data, token}));
     };
 
 

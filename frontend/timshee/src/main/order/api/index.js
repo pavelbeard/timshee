@@ -7,23 +7,40 @@ const csrftoken = Cookies.get("csrftoken");
 const token = AuthService.getCurrentUser();
 
 // ADDRESSES
-export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId, isAuthenticated}) => {
-    const url= `${API_URL}api/order/addresses/`;
+export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId, token}) => {
+    let url= `${API_URL}api/order/addresses/`;
+
+    if (shippingAddressId !== 0 && shippingAddressId !== undefined) {
+        url += `${shippingAddressId}/`;
+    }
+
     let headers = {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
         "Accept": "application/json",
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
-    const response = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(shippingAddress),
-        credentials: "include",
-    });
+
+    let response;
+
+    if (shippingAddressId === 0 || shippingAddressId === undefined) {
+        response = await fetch(url, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(shippingAddress),
+            credentials: "include",
+        });
+    } else {
+        await fetch(url, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(shippingAddress),
+            credentials: "include",
+        });
+    }
 
     return await response.json();
 };

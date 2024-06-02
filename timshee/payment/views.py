@@ -1,8 +1,9 @@
+import functools
 import uuid
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum, F
 from django.utils import timezone
 from order import models as order_models
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -203,7 +204,8 @@ class PaymentViewSet(viewsets.ModelViewSet):
                         transformed_items = list(
                             map(
                                 lambda x:
-                                {**x, "refunded": refund_variant} if x['stock']['id'] == stock_item_id else x, ordered_items
+                                {**x, "refunded": refund_variant} if x['stock']['id'] == stock_item_id else x,
+                                ordered_items
                             )
                         )
                         order.ordered_items['data'] = transformed_items
@@ -236,29 +238,24 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
         order_id = data.get('order_id')
-        order = order_models.Order.objects.filter(id=order_id)
+        order = order_models.Order.objects.get(id=order_id)
 
         if not order:
             return Response({
                 "detail": "order does not exist"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serialized_data = order_serializers.OrderSerializer(order.first()).data
-
-        total_price = (Decimal(serialized_data.get('ordered_items').get('total_price'))
-                       + Decimal(serialized_data.get('shipping_method').get('price')))
-
-        order_number = serialized_data.get('order_number')
-        ordered_items = serialized_data.get('ordered_items')['data']
-
+        ordered_items = order.orderitem_set.all()
+        total_price = str(ordered_items.aggregate(total=Sum(F('quantity') * F('item__item__price')))['total'])
         items = []
 
-        for item in ordered_items:
+        for ordered_item in ordered_items:
             items.append({
-                "description": item["stock"]["item"]["name"],
-                "quantity": item["quantity"],
+                "description": ordered_item.item.item.name + "\n"
+                                + ordered_item.item.item.description,
+                "quantity": ordered_item.quantity,
                 "amount": {
-                    "value": str(Decimal(item["stock"]["item"]["price"])),
+                    "value": str(ordered_item.item.item.price),
                     "currency": "RUB"
                 },
                 # NEEDS INN RUSSIAN
@@ -292,7 +289,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         # ]
 
         try:
-            redirect_url = f"shop/{order_id}/checkout/order-check/{order_number}"
+            redirect_url = f"shop/{order_id}/checkout/order-check/{order.order_number}"
             idempotency_key = str(uuid.uuid4())
             payment = Payment.create(
                 {
@@ -305,10 +302,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
                         "return_url": settings.CLIENT_REDIRECT + redirect_url,
                     },
                     "capture": True,
-                    "description": f"Order number: {order_number}\n"
+                    "description": f"Order number: {order.order_number}\n"
                                    f"Timshee store",
                     "metadata": {
-                        'orderNumber': order_number
+                        'orderNumber': order.order_number
                     },
                     "receipt": {
                         "customer": {
@@ -324,7 +321,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
             )
 
             if payment.status == 'pending':
-                qs = models.Payment.objects.filter(store_order_number=order_number)
+                qs = models.Payment.objects.filter(store_order_number=order.order_number)
                 payment_object = None
                 if qs.exists():
                     qs.update(
@@ -338,7 +335,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                         payment_id=payment.id,
                         status=payment.status,
                         store_order_id=order_id,
-                        store_order_number=order_number,
+                        store_order_number=order.order_number,
                         created_at=payment.created_at,
                         captured_at=payment.captured_at,
                     )

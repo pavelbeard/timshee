@@ -3,7 +3,7 @@ import React, {useEffect} from "react";
 import {Link, redirect, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getEmail} from "./api";
-import {getLastOrder, getShippingAddressAsTrue} from "./forms/reducers/asyncThunks";
+import {getLastOrder, getAddressAsTrue} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
 import Loading from "../Loading";
 
@@ -12,7 +12,6 @@ const API_URL = process.env.REACT_APP_API_URL;
 const Account = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const isAuthenticated = AuthService.isAuthenticated();
     const user = AuthService.getCurrentUser();
     const {order, lastOrderStatus} = useSelector(state => state.ordersPage);
     const {addressObject, addressAsTrueStatus} = useSelector(state => state.addressForm);
@@ -23,12 +22,12 @@ const Account = () => {
     const [deliveredAt, setDeliveredAt] = React.useState("");
 
     useEffect(() => {
-        if (isAuthenticated && user.access && addressAsTrueStatus === 'idle') {
+        if (user?.access && addressAsTrueStatus === 'idle') {
             console.log("WORKING")
-            dispatch(getShippingAddressAsTrue({isAuthenticated: true, token: user}));
+            dispatch(getAddressAsTrue({token: user}));
         }
 
-        if (isAuthenticated && user.access && lastOrderStatus === 'idle') {
+        if (user?.access && lastOrderStatus === 'idle') {
             dispatch(getLastOrder({token: user}));
         }
     }, [addressAsTrueStatus, lastOrderStatus, order, addressObject]);
@@ -55,7 +54,7 @@ const Account = () => {
 
     useEffect(() => {
         const fetchEmail = async () => {
-            if (isAuthenticated && user.access) {
+            if (user?.access) {
                 const emailInternal = await getEmail({token: user});
                 setEmail(emailInternal);
             }
@@ -64,7 +63,7 @@ const Account = () => {
         fetchEmail();
     }, [email]);
 
-    if (!isAuthenticated) {
+    if (!user?.access) {
         return (
             <div className="account common">
                 Forbidden...

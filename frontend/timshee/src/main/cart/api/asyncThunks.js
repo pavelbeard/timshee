@@ -10,9 +10,9 @@ import {
 
 export const addCartItem = createAsyncThunk(
     "cart/addCartItem",
-    async ({data, isAuthenticated}, thunkAPI) => {
+    async ({data, token}, thunkAPI) => {
         try {
-            const result = await createCartItem({data, isAuthenticated});
+            const result = await createCartItem({data, token});
 
             if (result) {
                 return result;
@@ -43,35 +43,11 @@ export const getCartItems = createAsyncThunk(
     }
 );
 
-export const deleteCartItems = createAsyncThunk(
-    "cart/deleteCartItems",
-    async ({isAuthenticated, stockId=0,}, thunkAPI) => {
-        try {
-            const result = await destroyCartItems({
-                isAuthenticated: isAuthenticated,
-                stockId: stockId,
-            });
-
-            if (result) {
-                console.log(result)
-                return result;
-            }
-            else {
-                console.log("ERROR")
-                return thunkAPI.rejectWithValue("Something went wrong...");
-            }
-        } catch (error) {
-            console.log(error.message)
-            return thunkAPI.rejectWithValue(error.message);
-        }
-    }
-);
-
 export const clearCart = createAsyncThunk(
     "cart/clearCartItems",
-    async ({isAuthenticated, hasOrdered}, thunkAPI) => {
+    async ({token, hasOrdered}, thunkAPI) => {
         try {
-            const result = await destroyCart({isAuthenticated, hasOrdered});
+            const result = await destroyCart({token, hasOrdered});
             if (result) {
                 return result;
             } else {
@@ -85,15 +61,15 @@ export const clearCart = createAsyncThunk(
 
 export const changeQuantity = createAsyncThunk(
     "cart/changeQuantity",
-    async ({itemSrc, decreaseStock, isAuthenticated, orderId=0}, thunkAPI) => {
+    async ({itemSrc, increaseStock, token, quantity=1}, thunkAPI) => {
         //
         // FOR UPGRADE
         try {
             const result = await updateQuantityInCart({
                 itemSrc: itemSrc,
-                decreaseStock: decreaseStock,
-                isAuthenticated: isAuthenticated,
-                orderId: orderId,
+                increaseStock: increaseStock,
+                token: token,
+                quantity: quantity,
             });
 
             if (result) {

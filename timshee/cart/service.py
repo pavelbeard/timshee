@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 from django.conf import settings
@@ -6,6 +7,9 @@ from django.db.models import Q
 from store import models as store_models
 from order import models as order_models
 from store import serializers as store_serializers
+
+
+logger = logging.getLogger(__name__)
 
 
 class Cart:
@@ -33,76 +37,84 @@ class Cart:
 
         self.cart['order_id'] = {
             "id": order.id,
-            "number": order.order_number
+            "number": order.order_number,
         }
         self.cart['order'] = {}
         self.save()
-
-    def __update_ordered_items(self):
-        items = list(self.__iter__())
-        ordered_items = {
-            "data": items,
-            "total_price": self.get_total_price(),
-            "total_quantity": self.get_total_quantity(),
-        }
-
-        order_number = self.cart['order_id']["number"]
-        order = order_models.Order.objects.get(order_number=order_number)
-        order.ordered_items = ordered_items
-        order.save()
 
     def save(self):
         self.session.modified = True
 
     def add_item(self, item_id, color_id, size_id, quantity=1, override_quantity=False):
         quantity = int(quantity)
-        stock = store_models.Stock.objects.filter(
-            item__id=item_id,
-            color__id=color_id,
-            size__id=size_id,
-        ).first()
-
         self.__create_order()
 
-        stock_id = str(stock.id)
+        order_item, created = order_models.OrderItem.objects.get_or_create(
+            order_id=self.cart['order_id']['id'],
+            item_id=store_models.Stock.objects.get(
+                item__id=item_id,
+                color__id=color_id,
+                size__id=size_id,
+            ).id,
+            quantity=quantity,
+        )
+
+        stock_id = str(order_item.item.id)
 
         if stock_id not in self.cart['order']:
             self.cart['order'][stock_id] = {
                 'quantity': 0,
-                'price': str(stock.item.price),
+                'price': str(order_item.item.item.price),
             }
 
-        if stock.decrease_stock(quantity=quantity):
-            self.cart['order'][stock_id]['quantity'] += quantity
+        self.cart['order'][stock_id]['quantity'] += quantity
+        if created:
+            order_item.item.decrease_stock(quantity=quantity)
+        elif not created and order_item.item.decrease_stock(quantity=quantity):
+            order_item.quantity += quantity
+            order_item.save()
 
-        self.__update_ordered_items()
+        # order_obj = order_models.Order.objects.get(
+        #     pk=self.cart['order_id']['id']
+        # )
+        # order_obj.order_item.set((order_item.id,))
+        # order_obj.save()
+
         self.save()
-        return stock_id
+        return order_item.item.id
 
     def change_quantity(self, stock_id, quantity=1, increase=False, override_quantity=False):
         if not self.cart.get('order_id'):
             return
 
-        stock = store_models.Stock.objects.filter(pk=stock_id).first()
-        stock_id = str(stock.id)
-        quantity_in_cart = self.cart['order'][stock_id]['quantity']
+        order_item = order_models.OrderItem.objects.get(
+            order_id=self.cart['order_id']['id'],
+            item_id=stock_id,
+        )
+
+        stock_id = str(order_item.item.id)
+        quantity_in_cart = int(self.cart['order'][stock_id]['quantity'])
 
         if not increase:
-            if stock.decrease_stock(quantity=quantity):
+            if order_item.item.decrease_stock(quantity=quantity):
+                order_item.quantity += quantity
                 self.cart['order'][stock_id]['quantity'] += quantity
                 self.cart['order'][stock_id]['price'] = str(
-                    Decimal(stock.item.price) * self.cart['order'][stock_id]['quantity'])
+                    Decimal(order_item.item.item.price) * self.cart['order'][stock_id]['quantity'])
+
         else:
             if quantity_in_cart > 0:
-                stock.increase_stock(quantity=quantity)
+                order_item.item.increase_stock(quantity=quantity)
+                order_item.quantity -= quantity
                 self.cart['order'][stock_id]['quantity'] -= quantity
                 self.cart['order'][stock_id]['price'] = str(
-                    Decimal(stock.item.price) * self.cart['order'][stock_id]['quantity'])
+                    Decimal(order_item.item.item.price) * self.cart['order'][stock_id]['quantity'])
 
                 if self.cart['order'][stock_id]['quantity'] == 0:
                     del self.cart['order'][stock_id]
 
-        self.__update_ordered_items()
+        order_item.save()
+
         self.save()
 
     def remove_item(self, stock_id, has_ordered=False):
@@ -115,11 +127,15 @@ class Cart:
             del self.cart['order'][stock_id]
 
             if not has_ordered:
-                stock = store_models.Stock.objects.get(pk=stock_id)
-                stock.increase_stock(quantity=quantity)
-                stock.save()
+                order_item = order_models.OrderItem.objects.get(
+                    order_id=self.cart['order_id']['id'],
+                    item__id=stock_id,
+                )
+                order_item.item.increase_stock(quantity=quantity)
+                order_item.quantity -= quantity
+                order_item.save()
 
-            self.__update_ordered_items()
+            # self.__update_ordered_items(quantity, stock_id, decrease_stock=False)
             self.save()
 
     def __iter__(self):
@@ -127,11 +143,20 @@ class Cart:
             return
 
         stock_ids = self.cart['order'].keys()
-        stock_items = store_models.Stock.objects.filter(id__in=stock_ids)
+
+        # new logic
+        order_items = order_models.OrderItem.objects.filter(
+            order_id=self.cart['order_id']['id'],
+            item_id__in=stock_ids
+        )
         cart = self.cart.copy()
 
-        for stock in stock_items:
-            cart['order'][str(stock.id)]["stock"] = store_serializers.StockSerializer(stock).data
+        for order_item in order_items:
+            cart['order'][str(order_item.item.id)]["stock"] = store_serializers.StockSerializer(order_item.item).data
+            cart['order'][str(order_item.item.id)]["stock"] = {
+                **cart['order'][str(order_item.item.id)]["stock"],
+                "order_item_id": order_item.id
+            }
 
         for item in cart['order'].values():
             item['price'] = str(Decimal(item['price']))
@@ -143,12 +168,14 @@ class Cart:
             return
 
         stock_item_id = str(stock_item_id)
-        stock = store_models.Stock.objects.get(pk=stock_item_id)
-
+        order_item = order_models.OrderItem.objects.get(
+            order_id=self.cart['order_id']['id'],
+            item_id=stock_item_id
+        )
         cart_item = self.cart['order'].get(stock_item_id)
 
         if cart_item:
-            cart_item["stock"] = store_serializers.StockSerializer(stock).data
+            cart_item["stock"] = store_serializers.StockSerializer(order_item.item).data
             return self.cart['order'][stock_item_id]
 
         return {}
@@ -182,11 +209,18 @@ class Cart:
             return
 
         if not has_ordered:
-            for item in self.cart['order'].values():
-                quantity = int(item['quantity'])
-                stock = store_models.Stock.objects.get(pk=item['stock']['id'])
-                stock.increase_stock(quantity=quantity)
-                stock.save()
+            try:
+                for item in self.cart['order'].values():
+                    quantity = int(item['quantity'])
+                    order_item = order_models.OrderItem.objects.get(
+                        order_id=self.cart['order_id']['id'],
+                        item_id=item['stock']['id']
+                    )
+                    order_item.item.increase_stock(quantity=quantity)
+                    order_item.quantity -= quantity
+                    order_item.save()
+            except order_models.OrderItem.DoesNotExist as e:
+                logger.error(e)
 
         del self.cart['order']
         del self.cart['order_id']

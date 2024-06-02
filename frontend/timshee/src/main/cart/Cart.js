@@ -8,13 +8,14 @@ import "./Cart.css";
 import close from "../../media/static_images/cruz.svg";
 import CartItems from "./CartItems";
 import {getCartItems} from "./api/asyncThunks";
+import {resetDeleteCartItemsStatus} from "./reducers/cartSlice";
 
 const Cart = () => {
     window.document.title = "Cart | Timshee";
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {cart, getCartItemsStatus} = useSelector(state => state.cart);
+    const {cart, getCartItemsStatus, clearCartItemStatus, deleteCartItemsStatus} = useSelector(state => state.cart);
     const {isCartClicked} = useSelector(state => state.menu);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +32,7 @@ const Cart = () => {
         if (getCartItemsStatus === "idle") {
             dispatch(getCartItems());
         }
-    }, [getCartItemsStatus, cart.cartItems.length]);
+    }, [getCartItemsStatus, clearCartItemStatus, deleteCartItemsStatus, cart.cartItems.length]);
 
     const cartBody = () => {
         return (

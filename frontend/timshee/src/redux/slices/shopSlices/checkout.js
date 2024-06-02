@@ -5,14 +5,14 @@ const API_URL = process.env.REACT_APP_API_URL;
 const csrftoken = Cookies.get("csrftoken");
 const token = AuthService.getCurrentUser();
 
-export const createAddress = async ({data, isAuthenticated}) => {
+export const createAddress = async ({data, token}) => {
     let headers = {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
         "Authorization": `Bearer ${token?.access}`,
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
@@ -30,7 +30,7 @@ export const createAddress = async ({data, isAuthenticated}) => {
     }
 };
 
-export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthenticated}) => {
+export const updateAddress = async ({shippingAddress, shippingAddressId, token}) => {
     const url = `${API_URL}api/order/addresses/${shippingAddressId}/`;
     let headers = {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthe
         "Accept": "application/json",
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
@@ -56,30 +56,8 @@ export const updateAddress = async ({shippingAddress, shippingAddressId, isAuthe
     }
 };
 
-export const deleteAddress = async ({isAuthenticated, addressId}) => {
-    let headers = {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-        "Accept": "application/json",
-    };
-
-    if (isAuthenticated) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
-    }
-
-    const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
-        method: "DELETE",
-        headers,
-        credentials: "include",
-    });
-
-    if (response.status === 204) {
-        return true;
-    }
-};
-
 export const updateOrder = async (
-    {orderId, totalPrice, newItems, isAuthenticated, addData, status = "pending_for_pay"}
+    {orderId, totalPrice, newItems, token, addData, status = "pending_for_pay"}
 ) => {
     const body = {
         "status": status,
@@ -92,10 +70,15 @@ export const updateOrder = async (
             const stock = item.stock;
             return {...item, stock: {...stock, item: newItem}};
         }));
+        const orderItemIds = copyItems.map((item) => {
+            const {colors, sizes, order_item_id} = item.stock
+            return order_item_id;
+        });
 
         body["ordered_items"] = {
             "data": filteredItems,
             "total_price": totalPrice,
+            "order_item": orderItemIds,
         }
     }
 
@@ -115,7 +98,7 @@ export const updateOrder = async (
         "Accept": "application/json",
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
 

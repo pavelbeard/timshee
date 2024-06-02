@@ -1,11 +1,13 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, current} from "@reduxjs/toolkit";
 import {
+    createAddress, deleteAddress,
+    getAddressAsTrue,
     getAddressDetail,
+    getAddresses,
     getCountries,
     getPhoneCodes,
     getProvinces,
-    getShippingAddressAsTrue,
-    getShippingAddresses
+    updateAddress
 } from "./asyncThunks";
 
 let addressObject = {
@@ -37,11 +39,17 @@ const initialState = {
     // general values
     isLoading: false,
     isError: undefined,
+    hasCreated: 0,
+    hasUpdated: 0,
+    hasDeleted: 0,
     // light values
     // heavy values
     addressObject,
     addressDetailStatus: 'idle',
     addressAsTrueStatus: 'idle',
+    addressCreationStatus: 'idle',
+    addressUpdatingStatus: 'idle',
+    addressDeletingStatus: 'idle',
     addressFormObject: {
         ...addressObject
     },
@@ -104,10 +112,10 @@ const addressFormSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getShippingAddresses.pending, (state, action) => {
+            .addCase(getAddresses.pending, (state, action) => {
                 state.shippingAddressesStatus = 'loading';
             })
-            .addCase(getShippingAddresses.fulfilled, (state, action) => {
+            .addCase(getAddresses.fulfilled, (state, action) => {
                 state.shippingAddressesStatus = 'success';
                 if ('detail' in action.payload) {
                     state.addresses = [];
@@ -115,15 +123,15 @@ const addressFormSlice = createSlice({
                     state.addresses = action.payload;
                 }
             })
-            .addCase(getShippingAddresses.rejected, (state, action) => {
+            .addCase(getAddresses.rejected, (state, action) => {
                 state.shippingAddressesStatus = 'error';
                 state.isError = action.payload;
             })
 
-            .addCase(getShippingAddressAsTrue.pending, (state, action) => {
+            .addCase(getAddressAsTrue.pending, (state, action) => {
                 state.addressAsTrueStatus = 'loading';
             })
-            .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
+            .addCase(getAddressAsTrue.fulfilled, (state, action) => {
                 state.addressAsTrueStatus = 'success';
                 if ('detail' in action.payload) {
                     state.addressObject = addressObject;
@@ -151,7 +159,7 @@ const addressFormSlice = createSlice({
                     };
                 }
             })
-            .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
+            .addCase(getAddressAsTrue.rejected, (state, action) => {
                 state.addressAsTrueStatus = 'error';
                 state.isError = action.payload;
             })
@@ -186,6 +194,69 @@ const addressFormSlice = createSlice({
             .addCase(getAddressDetail.rejected, (state, action) => {
                 state.addressDetailStatus = 'error';
                 state.isError = action.payload;
+            })
+
+            .addCase(createAddress.pending, (state, action) => {
+                state.addressCreationStatus = 'loading';
+            })
+            .addCase(createAddress.fulfilled, (state, action) => {
+                state.addressCreationStatus = 'success';
+                const newAddress = action.payload
+                const addressesCopy = [...current(state).addresses];
+                const provincesCopy = [...current(state).provinces];
+                const phoneCodesCopy = [...current(state).phoneCodes];
+                newAddress['province'] = provincesCopy.find(p =>
+                    p.id === newAddress.province
+                );
+                newAddress['phone_code'] = phoneCodesCopy.find(pc =>
+                    pc.country === newAddress.phone_code
+                );
+                addressesCopy.push(newAddress);
+                state.addresses = addressesCopy;
+            })
+            .addCase(createAddress.rejected, (state, action) => {
+                state.addressCreationStatus = 'error';
+                state.isError = action.payload;
+            })
+
+            .addCase(updateAddress.pending, (state, action) => {
+                state.addressUpdatingStatus = 'loading';
+            })
+            .addCase(updateAddress.fulfilled, (state, action) => {
+                state.addressUpdatingStatus = 'success';
+                const newAddress = action.payload;
+                const addressesCopy = [...current(state).addresses];
+                const provincesCopy = [...current(state).provinces];
+                const phoneCodesCopy = [...current(state).phoneCodes];
+                newAddress['province'] = provincesCopy.find(p =>
+                    p.id === newAddress.province
+                );
+                newAddress['phone_code'] = phoneCodesCopy.find(pc =>
+                    pc.country === newAddress.phone_code
+                );
+                const newState = [...addressesCopy.filter(a =>
+                    a.id !== newAddress.id
+                ), newAddress];
+                state.addresses = newState.toSorted((a, b) => a.id - b.id);
+            })
+            .addCase(updateAddress.rejected, (state, action) => {
+                state.addressUpdatingStatus = 'error';
+                state.isError = action.payload;
+            })
+
+            .addCase(deleteAddress.pending, (state) => {
+                state.addressDeletingStatus = 'loading';
+            })
+            .addCase(deleteAddress.fulfilled, (state, action) => {
+                state.addressDeletingStatus = 'success';
+                const idForDelete = action.payload;
+                const addressesCopy = [...current(state).addresses];
+
+                state.addresses = addressesCopy.filter(a => a.id !== idForDelete);
+            })
+            .addCase(deleteAddress.rejected, (state, action) => {
+                state.addressDeletingStatus = 'error';
+                state.error = action.payload;
             })
 
             .addCase(getCountries.pending, (state, action) => {

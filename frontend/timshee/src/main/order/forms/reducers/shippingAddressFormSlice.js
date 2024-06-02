@@ -83,12 +83,14 @@ export const shippingAddressFormSlice = createSlice({
             state.addressId = action.payload;
         },
         setProvince: (state, action) => {
+            console.log(action.payload)
             state.addressObject = {
                 ...state.addressObject,
                 province: action.payload,
             };
         },
         setPhoneCode: (state, action) => {
+            const phoneCode = action.payload;
             state.addressObject = {
                 ...state.addressObject,
                 phoneCode: action.payload,
@@ -96,6 +98,7 @@ export const shippingAddressFormSlice = createSlice({
         },
         setAddressObject: (state, action) => {
             const data = action.payload;
+            console.log(action.payload)
             state.addressObject = {...state.addressObject, ...data};
         },
         setShippingAddresses: (state, action) => {

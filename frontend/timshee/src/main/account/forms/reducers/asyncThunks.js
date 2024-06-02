@@ -3,6 +3,9 @@ import {
     getShippingAddresses as fetchShippingAddresses,
     getShippingAddressAsTrue as fetchShippingAddressAsTrue,
     getAddressDetail as fetchAddressDetail,
+    createAddress as postAddress,
+    updateAddress as putAddress,
+    deleteAddress as extDeleteAddress,
     getPhoneCodes as fetchPhoneCodes,
     getCountries as fetchCountries,
     getProvinces as fetchProvinces,
@@ -14,11 +17,11 @@ import {
 
 
 // FOR ADDRESSES PAGE
-export const getShippingAddresses = createAsyncThunk(
+export const getAddresses = createAsyncThunk(
     "addressForm/getShippingAddresses",
-    async ({isAuthenticated}, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = fetchShippingAddresses({isAuthenticated});
+            const result = fetchShippingAddresses({token});
             if (result) {
                 return result
             } else {
@@ -30,11 +33,11 @@ export const getShippingAddresses = createAsyncThunk(
     }
 );
 
-export const getShippingAddressAsTrue = createAsyncThunk(
+export const getAddressAsTrue = createAsyncThunk(
     "addressForm/getShippingLastAddress",
-    async ({isAuthenticated, token}, thunkAPI) => {
+    async ({token}, thunkAPI) => {
         try {
-            const result = await fetchShippingAddressAsTrue({isAuthenticated, token});
+            const result = await fetchShippingAddressAsTrue({token});
             if (result) {
                 console.log(result)
                 return result
@@ -59,6 +62,53 @@ export const getAddressDetail = createAsyncThunk(
             }
         } catch (e) {
             thunkAPI.rejectWithValue(e);
+        }
+    }
+);
+
+export const createAddress = createAsyncThunk(
+    "addressForm/createAddress",
+    async ({token, data}, thunkAPI) => {
+        try {
+            const result = await postAddress({token, data});
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+export const updateAddress = createAsyncThunk(
+    "addressForm/updateAddress",
+    async ({token, addressId, data}, thunkAPI) => {
+        try {
+            const result = await putAddress({token, addressId, data});
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const deleteAddress = createAsyncThunk(
+    "editAddress/deleteAddress",
+    async ({token, addressId}, thunkAPI) => {
+        try {
+            const result = await extDeleteAddress({token, addressId});
+            if (result) {
+                return addressId;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return  thunkAPI.rejectWithValue(error.message);
         }
     }
 );

@@ -9,7 +9,6 @@ import {
     setAddressId,
     setAddressObject, setErrorMessage, setPhoneCode, setPhoneCodesFiltered,
     setProvince, setProvincesFiltered,
-    setShippingAddress
 } from "./reducers/shippingAddressFormSlice";
     import {toggleCart} from "../../../redux/slices/menuSlice";
 import AuthService from "../../api/authService";
@@ -31,7 +30,6 @@ const ShippingAddressForm = ({
     const {
         errorMessage,
         provincesInternal,
-        shippingAddressString
     } = useSelector(state => state.shippingAddressForm);
 
     const changeCountry = (e) => {
@@ -65,8 +63,7 @@ const ShippingAddressForm = ({
             const address = shippingAddresses.filter(address =>
                 address.id === parseInt(e.target.value)
             ).at(0);
-
-            dispatch(setShippingAddress(address.id))
+            console.log(address)
             dispatch(setAddressId(address.id));
             dispatch(setAddressObject(address));
         } catch (e) {
@@ -79,14 +76,26 @@ const ShippingAddressForm = ({
         dispatch(setAddressObject(data));
     }
 
+    // INIT
     useEffect(() => {
-        if (addressObject) {
+        if (addressObject.id !== undefined && addressObject.id !== 0) {
             const provincesTmp = provinces.filter(province =>
-                province.country.name === countries[0].name
+                province.country.name === addressObject.province.country.name
             );
 
             const phoneCodesTmp = phoneCodes.filter(phoneCode =>
-                phoneCode.country === countries[0].id
+                phoneCode.country === addressObject.province.country.id
+            );
+
+            dispatch(setPhoneCodesFiltered(phoneCodesTmp));
+            dispatch(setProvincesFiltered(provincesTmp));
+        } else if (addressObject.id === undefined) {
+            const provincesTmp = provinces.filter(province =>
+                province.country.name === provinces[0].country.name
+            );
+
+            const phoneCodesTmp = phoneCodes.filter(phoneCode =>
+                phoneCode.country === phoneCodes[0].country
             );
 
             dispatch(setPhoneCodesFiltered(phoneCodesTmp));
@@ -132,15 +141,20 @@ const ShippingAddressForm = ({
             <span className="shipping-address">
                 <h3>Shipping address</h3>
             </span>
-            <select id="shippingAddresses" value={shippingAddressString} onChange={changeAddress}>
+            <select id="shippingAddresses" value={addressObject.id} onChange={changeAddress}>
                 <option value="">New address</option>
-                {typeof shippingAddresses?.map === "function" && shippingAddresses.map((address) => (
-                    <option key={address.id} value={address.id}>
-                        {`${address.streetAddress}, ${address.apartment}, ${address.postalCode}, ${address.province.name}, ${
-                            address.city
-                        }, ${address.province.country.name}, ${address.firstName} ${address.lastName}`}
-                    </option>
-                ))}
+                {
+
+                    typeof shippingAddresses.map === "function" && shippingAddresses.map((address) => {
+                        return (
+                            <option key={address.id} value={address.id}>
+                                {`${address.streetAddress}, ${address.apartment}, ${address.postalCode}, ${address.province.name}, ${
+                                    address.city
+                                }, ${address.province.country.name}, ${address.firstName} ${address.lastName}`}
+                            </option>
+                        )
+                    })
+                }
             </select>
             <div className="shipping-address-country">
                 <label htmlFor="country">

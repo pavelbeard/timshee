@@ -9,7 +9,6 @@ const initialState = {
     hasDeleted: false,
     addCartItemStatus: 'idle',
     getCartItemsStatus: 'idle',
-    deleteCartItemsStatus: 'idle',
     clearCartItemStatus: 'idle',
     changeQuantityStatus: 'idle',
 
@@ -32,7 +31,7 @@ const cartSlice = createSlice({
         },
         resetAddCartItemStatus: (state, action) => {
             state.addCartItemStatus = action.payload;
-        }
+        },
     },
     extraReducers: builder => {
         builder
@@ -41,6 +40,7 @@ const cartSlice = createSlice({
             })
             .addCase(addCartItem.fulfilled, (state, action) => {
                 state.addCartItemStatus = 'success';
+                console.log(action.payload);
                 state.cart = {
                     cartItems: action.payload['data'],
                     totalQuantityInCart: action.payload['total_quantity'],
@@ -62,13 +62,6 @@ const cartSlice = createSlice({
                 };
             })
 
-            .addCase(deleteCartItems.pending, (state) => {
-                state.deleteCartItemsStatus = 'loading';
-            })
-            .addCase(deleteCartItems.fulfilled, (state, action) => {
-                state.deleteCartItemsStatus = 'success';
-            })
-
             .addCase(changeQuantity.pending, (state) => {
                 state.changeQuantityStatus = 'loading';
             })
@@ -83,7 +76,7 @@ const cartSlice = createSlice({
             })
 
             .addCase(clearCart.pending, (state, action) => {
-                state.getCartItemsStatus = 'loading';
+                state.clearCartItemStatus = 'loading';
             })
             .addCase(clearCart.fulfilled, (state) => {
                 state.clearCartItemStatus = 'success';
@@ -95,7 +88,7 @@ const cartSlice = createSlice({
                 };
             })
             .addCase(clearCart.rejected, (state, action) => {
-                state.deleteCartItemsStatus = 'error';
+                state.clearCartItemStatus = 'error';
             })
 
             .addMatcher(

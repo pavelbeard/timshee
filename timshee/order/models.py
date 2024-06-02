@@ -1,10 +1,11 @@
 import random
 import string
-import uuid
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from django.db import models, transaction
+from django.db import models
+
+from store import models as store_models
 
 
 # Create your models here.
@@ -88,6 +89,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     session_key = models.CharField(max_length=40, blank=True, null=True)
     ordered_items = models.JSONField(blank=True, null=True)
+    order_item = models.ManyToManyField(store_models.Stock, through="OrderItem")
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
     shipping_method = models.ForeignKey("ShippingMethod", on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created')
@@ -112,6 +114,26 @@ class Order(models.Model):
                                  f"{''.join(random.choice(string.ascii_uppercase) for _ in range(6))}")
 
         return super().save(*args, **kwargs)
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
+    item = models.ForeignKey(store_models.Stock, on_delete=models.CASCADE, blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"[Order: {self.order}] [Item: {self.item}] [Quantity: {self.quantity}]"
+    
+    def save(self, *args, **kwargs):
+        if self.quantity == 0:
+            self.delete()
+        else:
+            return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
+        unique_together = (("order", "item"),)
 
 
 class ShippingMethod(models.Model):

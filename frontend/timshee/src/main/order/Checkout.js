@@ -26,7 +26,7 @@ import {
 
 const Checkout = () => {
     window.document.title = 'Timshee | Checkout';
-
+    const token = AuthService.getCurrentUser();
     const params = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -35,11 +35,12 @@ const Checkout = () => {
         countries, phoneCodes, provinces, order, shippingMethods,
         countriesStatus, phoneCodesStatus, provincesStatus, orderStatus, shippingMethodsStatus,
     } = useSelector(state => state.order);
+
     const {
         addressObject, usernameEmail, shippingAddresses,
         addressObjectStatus, usernameEmailStatus, shippingAddressesStatus
     } = useSelector(state => state.shippingAddressForm);
-    const isAuthenticated = AuthService.isAuthenticated();
+
     const {cart, getCartItemsStatus} = useSelector(state => state.cart);
 
     // FOR ORDER SHIPPING FORM
@@ -65,22 +66,22 @@ const Checkout = () => {
             dispatch(getProvinces());
         }
         if (shippingAddressesStatus === 'idle') {
-            dispatch(getShippingAddresses({isAuthenticated}));
+            dispatch(getShippingAddresses({token}));
         }
         if (addressObjectStatus === 'idle') {
-            dispatch(getShippingAddressAsTrue({isAuthenticated}));
+            dispatch(getShippingAddressAsTrue({token}));
         }
 
         if (shippingMethodsStatus === 'idle') {
             dispatch(getShippingMethods());
         }
 
-        if (usernameEmailStatus === 'idle' && isAuthenticated) {
-            dispatch(getUsernameEmail());
+        if (usernameEmailStatus === 'idle' && token) {
+            dispatch(getUsernameEmail({token}));
         }
 
         if (orderStatus === 'idle') {
-            dispatch(getOrderDetail({orderId: params.orderId, isAuthenticated}));
+            dispatch(getOrderDetail({orderId: params.orderId, token}));
         }
 
     }, [
@@ -144,7 +145,7 @@ const Checkout = () => {
             "postal_code": addressObject.postalCode,
             // WEAK
             "phone_number": addressObject.phoneNumber,
-            "email": addressObject.email,
+            "email": addressObject.email || usernameEmail,
             "additional_data": "",
             // WEAK
             "province": addressObject.province.id,
@@ -154,8 +155,8 @@ const Checkout = () => {
 
         dispatch(createOrUpdateAddress({
             shippingAddress: data,
-            shippingAddressId: addressObject.addressId,
-            isAuthenticated,
+            shippingAddressId: addressObject.id,
+            token,
         }));
         navigate(`/shop/${params.orderId}/checkout/shipping`);
         setCurrentStep("shipping");
@@ -170,7 +171,7 @@ const Checkout = () => {
         dispatch(updateOrderShippingMethod({
             orderId: params.orderId,
             shippingMethodId: shippingMethodExternal,
-            isAuthenticated
+            token
         }));
         dispatch(getShippingMethodDetail({
             shippingMethodId: selectedMethod.id
@@ -239,7 +240,7 @@ const Checkout = () => {
                         &&
                         <ShippingAddressForm
                             initialValue={addressObject}
-                            shippingAddress={shippingAddresses}
+                            shippingAddresses={shippingAddresses}
                             usernameEmail={usernameEmail}
                             orderId={params.orderId}
                             countries={countries}

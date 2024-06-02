@@ -148,9 +148,9 @@ export const deleteOrder = createAsyncThunk(
 
 export const createOrUpdateAddress = createAsyncThunk(
     "checkout/createOrUpdateAddress",
-    async ({shippingAddress, shippingAddressId=0, isAuthenticated}, thunkAPI) => {
+    async ({shippingAddress, shippingAddressId=0, token}, thunkAPI) => {
         try {
-            const result = await postOrPutAddress({shippingAddress, shippingAddressId, isAuthenticated});
+            const result = await postOrPutAddress({shippingAddress, shippingAddressId, token});
 
             if (result) {
                 return result;
@@ -176,10 +176,10 @@ export const createOrUpdateShippingMethod = createAsyncThunk(
 
 export const updateOrderShippingMethod = createAsyncThunk(
     "order/updateOrderShippingMethod",
-    async ({totalPrice, newItems, orderId, shippingMethodId, isAuthenticated}, thunkAPI) => {
+    async ({totalPrice, newItems, orderId, shippingMethodId, token}, thunkAPI) => {
         try {
             const result = await updateOrder({
-                totalPrice, newItems, orderId, isAuthenticated, addData: {shippingMethodId: shippingMethodId}
+                totalPrice, newItems, orderId, token, addData: {shippingMethodId: shippingMethodId}
             });
 
             if (result) {
@@ -210,7 +210,7 @@ export const updateOrderStatus = createAsyncThunk(
 
 export const getOrderDetail = createAsyncThunk(
     "order/getOrderDetail",
-    async ({orderId, isAuthenticated}, thunkAPI) => {
+    async ({orderId, token}, thunkAPI) => {
         try {
             const url = `${API_URL}api/order/orders/${orderId}/`;
             let headers = {
@@ -218,7 +218,7 @@ export const getOrderDetail = createAsyncThunk(
                 "Accept": "application/json",
             };
 
-            if (!isAuthenticated) {
+            if (token?.access) {
                 headers["Authorization"] = `Bearer ${token?.access}`;
             }
 

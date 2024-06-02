@@ -5,12 +5,12 @@ import "./Forms.css";
 
 import "../../Main.css";
 import crossBtn from "../../../media/static_images/cruz.svg";
-import {createAddress, updateAddress} from "../../../redux/slices/shopSlices/checkout";
 import {
+    createAddress,
     getAddressDetail,
     getCountries,
     getPhoneCodes,
-    getProvinces
+    getProvinces, updateAddress
 } from "./reducers/asyncThunks";
 import {
     setError,
@@ -31,6 +31,7 @@ const EditAddressForm = () => {
         phoneCodes, isError, provincesFilteredList
     } = useSelector(state => state.addressForm);
     const isAuthenticated = AuthService.isAuthenticated();
+    const token = AuthService.getCurrentUser();
 
     // FETCH COUNTRIES, PROVINCES AND MORE
     useEffect(() => {
@@ -39,7 +40,7 @@ const EditAddressForm = () => {
         dispatch(getPhoneCodes());
     }, []);
 
-    //
+    // FETCH ADDRESS
     useEffect(() => {
         if (addressFormObject.id !== 0 && addressFormObject.id !== undefined) {
             dispatch(getAddressDetail({addressId: addressFormObject.id}));
@@ -47,7 +48,11 @@ const EditAddressForm = () => {
     }, []);
 
     useEffect(() => {
-        if (countries.length > 0 && provinces.length > 0 && phoneCodes.length > 0) {
+        if (addressFormObject.id === undefined &&
+            countries.length > 0 &&
+            provinces.length > 0 &&
+            phoneCodes.length > 0
+        ) {
             const filteredProvinces = provinces.filter(p =>
                 p.country.id === countries[0].id
             );
@@ -58,10 +63,41 @@ const EditAddressForm = () => {
 
             dispatch(setProvincesFiltered(filteredProvinces));
             dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
+
             dispatch(setPhoneCode({
                 phoneCode: filteredPhoneCodes[0].phone_code,
                 country: filteredPhoneCodes[0].country
             }));
+            dispatch(setProvince({
+                id: filteredProvinces[0].id,
+                name: filteredProvinces[0].name,
+                country: filteredProvinces[0].country
+            }))
+        } else if (
+            countries.length > 0 &&
+            provinces.length > 0 &&
+            phoneCodes.length > 0
+        ) {
+            const filteredProvinces = provinces.filter(p =>
+                p.country.id === addressFormObject.province.country.id
+            );
+
+            const filteredPhoneCodes = phoneCodes.filter(phoneCode =>
+                phoneCode.country === addressFormObject.phoneCode.country
+            );
+
+            dispatch(setProvincesFiltered(filteredProvinces));
+            dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
+
+            // dispatch(setPhoneCode({
+            //     phoneCode: filteredPhoneCodes[0].phone_code,
+            //     country: filteredPhoneCodes[0].country
+            // }));
+            // dispatch(setProvince({
+            //     id: filteredProvinces[0].id,
+            //     name: filteredProvinces[0].name,
+            //     country: filteredProvinces[0].country
+            // }))
         }
     }, [countries]);
 
@@ -82,30 +118,21 @@ const EditAddressForm = () => {
             as_primary: addressFormObject.asPrimary
         };
 
-        try {
-            let response;
-            console.log(addressFormObject);
-            if (addressFormObject.id !== undefined && addressFormObject.id !== 0) {
-                response = await updateAddress({
-                    shippingAddress: data,
-                    shippingAddressId: addressFormObject.id,
-                    isAuthenticated: isAuthenticated,
-                });
-            } else {
-                response = await createAddress({
-                    data: data, isAuthenticated: isAuthenticated
-                });
-            }
-
-            if (response !== undefined) {
-                closeForm();
-            } else {
-                throw new Error("Something went wrong...");
-            }
-
-        } catch (e) {
-            dispatch(setError(e.message));
+        if (addressFormObject.id !== undefined && addressFormObject.id !== 0)
+        {
+            dispatch(updateAddress({
+                token,
+                data,
+                addressId: addressFormObject.id,
+            }));
+        } else {
+            dispatch(createAddress({
+                token,
+                data,
+            }));
         }
+
+        dispatch(toggleAddressEditForm());
     };
 
     const changeCountry = (e) => {

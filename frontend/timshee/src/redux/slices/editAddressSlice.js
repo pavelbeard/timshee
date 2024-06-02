@@ -5,21 +5,7 @@ import AuthService from "../../main/api/authService";
 const API_URL = process.env.REACT_APP_API_URL;
 const token = AuthService.getCurrentUser();
 
-export const deleteAddress = createAsyncThunk(
-    "editAddress/deleteAddress",
-    async ({isAuthenticated, addressId}, thunkAPI) => {
-        try {
-            const result = await extDeleteAddress({isAuthenticated, addressId});
-            if (result) {
-                return result;
-            } else {
-                return thunkAPI.rejectWithValue("Something went wrong...");
-            }
-        } catch (error) {
-            return  thunkAPI.rejectWithValue(error.message);
-        }
-    }
-);
+
 
 export const getAddressDetail = createAsyncThunk(
     "editAddress/getAddressDetail",
@@ -48,7 +34,7 @@ export const editAddressSlice = createSlice({
     name: "editAddress",
     initialState: {
         isLoading: undefined,
-        hasDeleted: undefined,
+        hasDeleted: 0,
         error: undefined,
         address: undefined,
         deleteAddressStatus: 'idle',
@@ -64,17 +50,7 @@ export const editAddressSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(deleteAddress.pending, (state) => {
-                state.deleteAddressStatus = 'loading';
-            })
-            .addCase(deleteAddress.fulfilled, (state, action) => {
-                state.deleteAddressStatus = 'success';
-                state.hasDeleted = action.payload;
-            })
-            .addCase(deleteAddress.rejected, (state, action) => {
-                state.deleteAddressStatus = 'error';
-                state.error = action.payload;
-            })
+
 
             .addCase(getAddressDetail.pending, (state) => {
                 state.isLoading = true;

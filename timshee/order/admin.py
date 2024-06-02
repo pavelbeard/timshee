@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.db.models import Max
 
 from . import models
+from store import models as store_models
 
 
 # Register your models here.
@@ -28,7 +28,17 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ["order_number"]
+    readonly_fields = ["order_number", "order_item"]
+
+    class OrderItem(admin.TabularInline):
+        model = models.OrderItem
+
+    inlines = [OrderItem]
+
+
+@admin.register(models.OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(models.ShippingMethod)

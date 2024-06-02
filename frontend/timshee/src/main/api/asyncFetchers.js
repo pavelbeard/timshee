@@ -6,14 +6,14 @@ const csrftoken = Cookies.get("csrftoken");
 const token = AuthService.getCurrentUser();
 
 // FOR ADDRESSES AND CHECKOUT FORMS
-export const getShippingAddresses = async ({ isAuthenticated }) => {
+export const getShippingAddresses = async ({ token }) => {
     const url = `${API_URL}api/order/addresses/get_addresses_by_user/`;
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`
     }
 
@@ -28,7 +28,7 @@ export const getShippingAddresses = async ({ isAuthenticated }) => {
     }
 };
 
-export const getShippingAddressAsTrue = async({isAuthenticated, token}) => {
+export const getShippingAddressAsTrue = async({token}) => {
     const url = `${API_URL}api/order/addresses/get_address_as_primary/`;
 
     const headers = {
@@ -36,7 +36,7 @@ export const getShippingAddressAsTrue = async({isAuthenticated, token}) => {
         "Accept": "application/json",
     }
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`
     }
 
@@ -53,6 +53,73 @@ export const getShippingAddressAsTrue = async({isAuthenticated, token}) => {
     }
 };
 
+export const createAddress = async ({token, data}) => {
+    const url = `${API_URL}api/order/addresses/`;
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": csrftoken,
+    }
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`
+    }
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    }
+};
+
+export const updateAddress = async ({token, addressId, data}) => {
+    const url = `${API_URL}api/order/addresses/${addressId}/`;
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": csrftoken,
+    }
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`
+    }
+    const response = await fetch(url, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    }
+};
+
+export const deleteAddress = async ({token, addressId}) => {
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
+        method: "DELETE",
+        headers,
+        credentials: "include",
+    });
+
+    if (response.status === 204) {
+        return true;
+    }
+};
 
 // JUST GET ONLY ONE REGULAR ADDRESS
 export const getAddressDetail = async ({ addressId }) => {
@@ -180,7 +247,7 @@ export const getOrderDetail = async ({orderId, token}) => {
     }
 };
 
-export const deleteOrder = async ({isAuthenticated, orderId}) => {
+export const deleteOrder = async ({token, orderId}) => {
     const url = `${API_URL}api/order/orders/${orderId}/`;
 
     const headers = {
@@ -204,7 +271,18 @@ export const refundOrder = async ({orderNumber, data, token}) => {
 }
 
 // CART
-export const addCartItem = async ({ data, isAuthenticated }) => {
+export const getCartItems = async () => {
+    const url = `${API_URL}api/cart/cart/`;
+    const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+    });
+    if (response.ok) {
+        return await response.json();
+    }
+};
+
+export const addCartItem = async ({ data, token }) => {
     const url = `${API_URL}api/cart/cart/`;
 
     let headers = {
@@ -213,7 +291,7 @@ export const addCartItem = async ({ data, isAuthenticated }) => {
         "X-CSRFToken": csrftoken,
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
@@ -229,46 +307,7 @@ export const addCartItem = async ({ data, isAuthenticated }) => {
     }
 };
 
-export const getCartItems = async () => {
-    const url = `${API_URL}api/cart/cart/`;
-    const response = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-    });
-    if (response.ok) {
-        return await response.json();
-    }
-};
-
-export const deleteCartItems = async ({isAuthenticated, stockId = 0}) => {
-    const body = {
-        "stock_id": stockId,
-        "remove": true
-    };
-    let headers = {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-        "Accept": "application/json",
-    }
-
-    if (isAuthenticated) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
-    }
-
-    const url = `${API_URL}api/cart/cart/`;
-    const response = await fetch(url, {
-        method: "DELETE",
-        headers,
-        body: JSON.stringify(body),
-        credentials: "include",
-    });
-
-    if (response.status === 204) {
-        return true;
-    }
-};
-
-export const clearCart = async ({isAuthenticated, hasOrdered}) => {
+export const clearCart = async ({token, hasOrdered}) => {
     const url = `${API_URL}api/cart/cart/`;
     let headers = {
         "Content-Type": "application/json",
@@ -281,7 +320,7 @@ export const clearCart = async ({isAuthenticated, hasOrdered}) => {
         clear: true
     };
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
     const response = await fetch(url, {
@@ -296,7 +335,7 @@ export const clearCart = async ({isAuthenticated, hasOrdered}) => {
     }
 }
 
-export const changeQuantityInCart = async ({itemSrc, decreaseStock, isAuthenticated, orderId=0}) => {
+export const changeQuantityInCart = async ({itemSrc, increaseStock, token, quantity=1}) => {
     const url = `${API_URL}api/cart/cart/`;
     let headers = {
         "Content-Type": "application/json",
@@ -304,14 +343,14 @@ export const changeQuantityInCart = async ({itemSrc, decreaseStock, isAuthentica
         "Accept": "application/json",
     }
 
-    if (isAuthenticated) {
+    if (token?.access) {
         headers["Authorization"] = `Bearer ${token?.access}`;
     }
 
     const body = {
         "stock_id": itemSrc.stock.id,
-        "quantity": 1,
-        "increase": decreaseStock
+        "quantity": quantity,
+        "increase": increaseStock
     }
 
     const response = await fetch(url, {

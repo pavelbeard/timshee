@@ -3,26 +3,25 @@ import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleAddressEditForm} from "../../redux/slices/menuSlice";
 import {
-    getShippingAddresses
+    deleteAddress,
+    getAddresses
 } from "./forms/reducers/asyncThunks";
 import {editAddress} from "./forms/reducers/addressFormSlice";
 import AuthService from "../api/authService";
-import {deleteAddress} from "../../redux/slices/editAddressSlice";
 
 const Addresses = () => {
     const dispatch = useDispatch();
 
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
-    const isAuthenticated = AuthService.isAuthenticated();
-    const {addresses, addressObject, shippingAddressesStatus} = useSelector(state => state.addressForm);
-    const {hasDeleted, deleteAddressStatus} = useSelector(state => state.editAddress);
+    const token = AuthService.getCurrentUser();
+    const {addresses, shippingAddressesStatus} = useSelector(state => state.addressForm);
+    const {deleteAddressStatus} = useSelector(state => state.editAddress);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            dispatch(getShippingAddresses({isAuthenticated: true}));
+        if (token?.access && shippingAddressesStatus === 'idle') {
+            dispatch(getAddresses({token}));
         }
-
-    }, [addresses.length, addressObject.firstName, hasDeleted, isEditAddressMenuClicked, deleteAddressStatus]);
+    }, [shippingAddressesStatus, isEditAddressMenuClicked, deleteAddressStatus]);
 
     const callEditAddressForm = (rawAddressObject) => {
         dispatch(toggleAddressEditForm());
@@ -81,11 +80,8 @@ const Addresses = () => {
                                 <div onClick={() => callEditAddressForm(address)}>
                                     Edit
                                 </div>
-                                {/*<Modal show={showAddressForm} handleClose={setShowAddressForm}>*/}
-                                {/*    <EditAddressForm closeForm={setShowAddressForm} />*/}
-                                {/*</Modal>*/}
                                 <div onClick={() => dispatch(deleteAddress({
-                                    isAuthenticated: isAuthenticated, addressId: address.id
+                                    token, addressId: address.id
                                 }))}>
                                     Delete
                                 </div>

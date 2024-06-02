@@ -1,6 +1,5 @@
 import {useSelector} from "react-redux";
-import React, {useEffect} from "react";
-import {useParams} from "react-router-dom";
+import React from "react";
 import {changeQuantity, clearCart, deleteCartItems, getCartItems} from "./api/asyncThunks";
 import {resetAddCartItemStatus} from "./reducers/cartSlice";
 import AuthService from "../api/authService";
@@ -8,7 +7,7 @@ import AuthService from "../api/authService";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({cart, dispatch}) => {
-    const isAuthenticated = AuthService.isAuthenticated();
+    const token = AuthService.getCurrentUser();
 
     const {orderId} = useSelector(state => state.order);
 
@@ -17,17 +16,17 @@ const CartItems = ({cart, dispatch}) => {
             .filter(item => item.id === itemSrc.stock.item.id)[0];
     };
 
-    const changeQuantityComponent = (item, decreaseStock) => {
-        dispatch(changeQuantity({itemSrc: item, decreaseStock, isAuthenticated, orderId}));
+    const changeQuantityComponent = (item, increaseStock) => {
+        dispatch(changeQuantity({itemSrc: item, increaseStock, token, orderId}));
         dispatch(resetAddCartItemStatus('idle'));
     };
 
     // that one is deleting all items if itemId undefined or one item with an id
-    const removeItems = ({stockId = 0}) => {
+    const removeItems = ({item, stockId = 0}) => {
         if (stockId === 0) {
-            dispatch(clearCart({isAuthenticated, hasOrdered: false}))
+            dispatch(clearCart({token, hasOrdered: false}))
         } else {
-            dispatch(deleteCartItems({isAuthenticated, stockId, orderId}));
+            dispatch(changeQuantity({itemSrc: item, increaseStock: true, token, quantity: item.quantity}));
         }
         dispatch(resetAddCartItemStatus('idle'));
     };
@@ -63,12 +62,12 @@ const CartItems = ({cart, dispatch}) => {
                                 <div className="cart-item-quantity">
                                     <div className="change-quantity"
                                          onClick={() => changeQuantityComponent(item, true)}>-</div>
-                                    <div>{item['quantity']}</div>
+                                    <div>{item.quantity}</div>
                                     <div className="change-quantity"
                                          onClick={() => changeQuantityComponent(item, false)}>±</div>
                                     <div className="cart-item-remove"
                                          onClick={() => removeItems({
-                                             stockId: item.stock.id,
+                                             stockId: item.stock.id, item
                                          })}>Remove</div>
                                 </div>
                             </div>

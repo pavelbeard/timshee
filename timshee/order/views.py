@@ -1,5 +1,6 @@
 import copy
 
+from django.contrib.auth.models import AnonymousUser
 from django.forms import model_to_dict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from . import models, serializers, write_serializers, filters
+from order import models as order_models
 
 
 # Create your views here.
@@ -54,11 +56,16 @@ class AddressViewSet(viewsets.ModelViewSet):
             request.data['user'] = request.user.id
         request.data['session_key'] = request.session.session_key
 
+        if request.data.get('order_id'):
+            order = order_models.Order.objects.get(pk=request.data['order_id'])
+            order.shipping_address = self.queryset.get(pk=kwargs['pk'])
+            order.save()
+
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            request.data['user'] = request.user
+            request.data['user'] = request.user.id
         request.data['session_key'] = request.session.session_key
 
         return super().update(request, *args, **kwargs)
@@ -77,8 +84,10 @@ class AddressViewSet(viewsets.ModelViewSet):
             data = self.get_serializer(qs, many=True).data
             return Response(data, status=status.HTTP_200_OK)
 
-        return Response({"detail": f"addresses by {user.email} don't exist"},
-                        status=status.HTTP_200_OK)
+        return Response({
+            "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
+            }, status=status.HTTP_200_OK
+        )
 
     @action(detail=False, methods=["GET"])
     def get_address_as_primary(self, request, *args, **kwargs):
