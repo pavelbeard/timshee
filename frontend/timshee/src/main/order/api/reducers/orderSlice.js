@@ -7,7 +7,7 @@ import {
     getPhoneCodes,
     getProvinces,
     getShippingMethodDetail,
-    getShippingMethods, updateOrderShippingMethod
+    getShippingMethods, updateOrderShippingMethod, updateOrderStatus
 } from "../asyncThunks";
 
 const token = AuthService.getCurrentUser();
@@ -57,6 +57,9 @@ const initialState = {
     shippingMethods: [],
     shippingMethodsStatus: 'idle',
 
+    updateOrderShippingMethodStatus: 'idle',
+    updateOrderStatusStatus: 'idle',
+
     isLoading: false,
     error: null,
 }
@@ -78,66 +81,6 @@ export const orderSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getCountries.pending, (state, action) => {
-                state.countriesStatus = 'loading';
-            })
-            .addCase(getCountries.fulfilled, (state, action) => {
-                state.countriesStatus = 'success';
-                state.countries = action.payload;
-            })
-            .addCase(getCountries.rejected, (state, action) => {
-                state.countriesStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(getProvinces.pending, (state, action) => {
-                state.provincesStatus = 'loading';
-            })
-            .addCase(getProvinces.fulfilled, (state, action) => {
-                state.provincesStatus = 'success';
-                state.provinces = action.payload;
-            })
-            .addCase(getProvinces.rejected, (state, action) => {
-                state.provincesStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(getPhoneCodes.pending, (state, action) => {
-                state.phoneCodesStatus = 'loading';
-            })
-            .addCase(getPhoneCodes.fulfilled, (state, action) => {
-                state.phoneCodesStatus = 'success';
-                state.phoneCodes = action.payload;
-            })
-            .addCase(getPhoneCodes.rejected, (state, action) => {
-                state.phoneCodesStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(getShippingMethods.pending, (state, action) => {
-                state.shippingMethodsStatus = 'loading';
-            })
-            .addCase(getShippingMethods.fulfilled, (state, action) => {
-                state.shippingMethodsStatus = 'success';
-                state.shippingMethods = action.payload;
-            })
-            .addCase(getShippingMethods.rejected, (state, action) => {
-                state.shippingMethodsStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(getShippingMethodDetail.pending, (state, action) => {
-                state.shippingMethodStatus = 'loading';
-            })
-            .addCase(getShippingMethodDetail.fulfilled, (state, action) => {
-                state.shippingMethodStatus = 'success';
-                state.shippingMethod = action.payload;
-            })
-            .addCase(getShippingMethodDetail.rejected, (state, action) => {
-                state.shippingMethodStatus = 'error';
-                state.error = action.payload;
-            })
-
             .addCase(getOrderDetail.pending, (state, action) => {
                 state.orderStatus = 'loading';
             })
@@ -151,16 +94,26 @@ export const orderSlice = createSlice({
             })
 
             .addCase(updateOrderShippingMethod.pending, (state, action) => {
-                state.isLoading = true;
+                state.updateOrderShippingMethodStatus = 'loading';
             })
             .addCase(updateOrderShippingMethod.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.updateOrderShippingMethodStatus = 'success';
                 state.order = action.payload;
             })
             .addCase(updateOrderShippingMethod.rejected, (state, action) => {
-                state.isLoading = false;
+                state.updateOrderShippingMethodStatus = 'error';
                 state.error = action.payload;
-                state.order = undefined;
+            })
+
+            .addCase(updateOrderStatus.pending, (state, action) => {
+                state.updateOrderStatusStatus = 'loading';
+            })
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                state.updateOrderStatusStatus = 'success';
+            })
+            .addCase(updateOrderStatus.rejected, (state, action) => {
+                state.updateOrderStatusStatus = 'error';
+                state.error = action.payload;
             })
     }
 });

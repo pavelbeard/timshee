@@ -120,12 +120,13 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
     item = models.ForeignKey(store_models.Stock, on_delete=models.CASCADE, blank=True, null=True)
     quantity = models.PositiveIntegerField(default=0)
+    refund_reason = models.CharField(max_length=255, blank=True, null=True, choices=Order.STATUS_CHOICES)
 
     def __str__(self):
         return f"[Order: {self.order}] [Item: {self.item}] [Quantity: {self.quantity}]"
-    
+
     def save(self, *args, **kwargs):
-        if self.quantity == 0:
+        if self.quantity == 0 and self.order.status not in ["processing", "completed", "partial_refunded", "refunded"]:
             self.delete()
         else:
             return super().save(*args, **kwargs)
@@ -139,6 +140,7 @@ class OrderItem(models.Model):
 class ShippingMethod(models.Model):
     shipping_name = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
     #
 
     def __str__(self):

@@ -266,8 +266,37 @@ export const deleteOrder = async ({token, orderId}) => {
     return response.ok;
 };
 
-export const refundOrder = async ({orderNumber, data, token}) => {
-    const url = `${API_URL}api/payment/refund`;
+export const refundOrder = async ({orderNumber, data, token, refundWhole=false}) => {
+    let url = `${API_URL}api/payment/payment/${orderNumber}/`;
+
+    if (refundWhole) {
+        url += `refund_whole_order/`;
+    } else {
+        url += `refund_partial/`;
+    }
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": csrftoken,
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
+    }
 }
 
 // CART

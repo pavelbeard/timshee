@@ -16,7 +16,7 @@ const OrderPaid = () => {
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
 
-    const isAuthenticated = AuthService.isAuthenticated();
+    const token = AuthService.getCurrentUser();
     const {paymentId} = useSelector(state => state.checkout);
 
     const [isLoading, setIsLoading] = React.useState(false);
@@ -34,11 +34,11 @@ const OrderPaid = () => {
             }))
             dispatch(updateOrderStatus({
                 orderId: orderId,
-                isAuthenticated: isAuthenticated,
+                token,
                 status: "processing",
             }));
             dispatch(clearCart({
-                isAuthenticated: isAuthenticated,
+                token,
                 hasOrdered: true
             }));
             localStorage.setItem("currentStep", "information");

@@ -16,7 +16,7 @@ import {getCartItems} from "../cart/api/asyncThunks";
 import {getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./forms/reducers/asyncThunks";
 import {
     createOrUpdateAddress,
-    getCountries,
+    getCountries, getFilteredPhoneCodes, getFilteredProvinces,
     getOrderDetail,
     getPhoneCodes,
     getProvinces, getShippingMethodDetail,
@@ -31,17 +31,16 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const {order} = useSelector(state => state.order);
+
     const {
-        countries, phoneCodes, provinces, order, shippingMethods,
+        addressObject, usernameEmail, shippingAddresses, shippingMethods, countries, phoneCodes, provinces,
+        addressObjectStatus, usernameEmailStatus, shippingAddressesStatus,
         countriesStatus, phoneCodesStatus, provincesStatus, orderStatus, shippingMethodsStatus,
-    } = useSelector(state => state.order);
-
-    const {
-        addressObject, usernameEmail, shippingAddresses,
-        addressObjectStatus, usernameEmailStatus, shippingAddressesStatus
+        addressFormObject,
     } = useSelector(state => state.shippingAddressForm);
-
     const {cart, getCartItemsStatus} = useSelector(state => state.cart);
+    const {createOrUpdateAddressStatus} = useSelector(state => state.checkout);
 
     // FOR ORDER SHIPPING FORM
     const [orderShippingAddress, setOrderShippingAddress] = React.useState();
@@ -59,10 +58,10 @@ const Checkout = () => {
         if (countriesStatus === 'idle') {
             dispatch(getCountries());
         }
-        if (phoneCodesStatus === 'idle') {
+        if (phoneCodesStatus === 'idle' && addressFormObject === undefined) {
             dispatch(getPhoneCodes());
         }
-        if (provincesStatus === 'idle') {
+        if (provincesStatus === 'idle' && addressFormObject === undefined) {
             dispatch(getProvinces());
         }
         if (shippingAddressesStatus === 'idle') {
@@ -135,29 +134,47 @@ const Checkout = () => {
     const handleSubmitShippingAddressForm = async e => {
         e.preventDefault();
 
+        // const data = {
+        //     "order_id": params.orderId,
+        //     "first_name": addressObject.firstName,
+        //     "last_name": addressObject.lastName,
+        //     "city": addressObject.city,
+        //     "address1": addressObject.streetAddress,
+        //     "address2": addressObject.apartment,
+        //     "postal_code": addressObject.postalCode,
+        //     // WEAK
+        //     "phone_number": addressObject.phoneNumber,
+        //     "email": addressObject.email || usernameEmail,
+        //     "additional_data": "",
+        //     // WEAK
+        //     "province": addressObject.province.id,
+        //     "phone_code": addressObject.phoneCode.country,
+        //     "as_primary": true,
+        // }
         const data = {
-            "orderId": params.orderId,
-            "first_name": addressObject.firstName,
-            "last_name": addressObject.lastName,
-            "city": addressObject.city,
-            "address1": addressObject.streetAddress,
-            "address2": addressObject.apartment,
-            "postal_code": addressObject.postalCode,
+            "order_id": params.orderId,
+            "first_name": addressFormObject.first_name,
+            "last_name": addressFormObject.last_name,
+            "city": addressFormObject.city,
+            "address1": addressFormObject.address1,
+            "address2": addressFormObject.address2,
+            "postal_code": addressFormObject.postal_code,
             // WEAK
-            "phone_number": addressObject.phoneNumber,
-            "email": addressObject.email || usernameEmail,
+            "phone_number": addressFormObject.phone_number,
+            "email": addressFormObject.email || usernameEmail,
             "additional_data": "",
             // WEAK
-            "province": addressObject.province.id,
-            "phone_code": addressObject.phoneCode.country,
+            "province": addressFormObject.province.id,
+            "phone_code": addressFormObject.phone_code.country,
             "as_primary": true,
-        }
+        };
 
         dispatch(createOrUpdateAddress({
             shippingAddress: data,
-            shippingAddressId: addressObject.id,
+            shippingAddressId: addressFormObject.id,
             token,
         }));
+
         navigate(`/shop/${params.orderId}/checkout/shipping`);
         setCurrentStep("shipping");
     };
@@ -239,7 +256,7 @@ const Checkout = () => {
                         currentStep === "information"
                         &&
                         <ShippingAddressForm
-                            initialValue={addressObject}
+                            initialValue={addressFormObject}
                             shippingAddresses={shippingAddresses}
                             usernameEmail={usernameEmail}
                             orderId={params.orderId}

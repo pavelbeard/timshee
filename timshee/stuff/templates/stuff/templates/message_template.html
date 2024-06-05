@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'static/stuff/static/css/message-template.css' %}">
+</head>
+<style>
+    @font-face {
+        font-family: "Bebas Neue Cyrillic";
+        src: url('{{ static_url }}fonts/bebasneuecyrillic/BebasNeueCyrillic.ttf') format('truetype');
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        font-family: "Bebas Neue Cyrillic";
+    }
+
+    body {
+        height: 100vh;
+        width: 100%;
+    }
+
+    .message-title {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .message-container {
+        display: flex;
+        justify-content: center;
+    }
+</style>
+<body>
+    <header class="message-title">
+        <img src="{{ logo_url }}" alt="alt-title" height="50">
+    </header>
+    <div class="message-container">
+        <span>Thank you for purchase. Your order is {{ order }}</span>
+    </div>
+</body>
+</html>

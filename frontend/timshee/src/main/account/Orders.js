@@ -18,7 +18,6 @@ const Orders = () => {
     const {orders, ordersStatus} = useSelector(state => state.ordersPage);
 
     useEffect(() => {
-        console.log("Working")
         if (token?.access && ordersStatus === 'idle') {
             dispatch(getOrders({token}));
         }
@@ -34,31 +33,36 @@ const Orders = () => {
                     {
                         orders.map((order, index) => (
                             <div className="item" key={index}>
-                                <div className="info-block">{order.orderNumber}</div>
+                                <div className="info-block">{order?.order_number}</div>
                                 <div className="divider"></div>
                                 {
                                     order.status === "completed" ? (
                                         <div>
                                             <span>DELIVERED AT:</span>
-                                            <span>{new Date(order.updatedAt).toDateString()}</span>
+                                            <span>{new Date(order?.updated_at).toDateString()}</span>
                                         </div>
                                     ) : (
-                                        <div className="order-status-orders">
-                                            <span>STATUS:</span>
-                                            <span>{order.status.replace(/_/, " ")}</span>
-                                        </div>
+                                        <>
+                                            <div className="order-status-orders">
+                                                <span>STATUS:</span>
+                                                <span>{order.status.replace(/_/, " ")}</span>
+                                            </div>
+                                            <div className="order-status-orders">
+                                                <span>CREATED AT:</span>
+                                                <span>{new Date(order?.created_at).toDateString()}</span>
+                                            </div>
+                                        </>
                                     )
                                 }
                                 <div className="order-img-block order-img-block-principal">
-                                    {order.orderedItems.data.map((item, index) => (
+                                    {order.order_item.map((item, index) => (
                                         <div key={index}>
                                             <img style={{
                                                 marginRight: "10px",
-                                                filter: item.refunded === true ? "brightness(0.6)" : "none"
+                                                filter: item.refund_reason !== null ? "brightness(0.6)" : "none"
                                             }}
-                                                 src={`${API_URL}${item.stock.item.image}`} height={90}
+                                                 src={`${API_URL}${item.item.item.image}`} height={90}
                                                  alt={`alt-img-${index}`}/>
-                                            <div>Refunded: {item.refunded}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -68,7 +72,13 @@ const Orders = () => {
                                             ORDER DETAIL
                                         </div>
                                     </Link>
-                                    <div className="order-button">RETURN AN ORDER</div>
+                                    {
+                                        (order.status !== "refunded" && order.status !== "partial_refunded") && (
+                                            <Link to={`/orders/${order.id}/order-refund`}>
+                                                <div className="order-button">RETURN AN ORDER</div>
+                                            </Link>
+                                        )
+                                    }
                                 </div>
                             </div>
                         ))

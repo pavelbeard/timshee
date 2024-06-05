@@ -84,7 +84,9 @@ ROOT_URLCONF = 'timshee.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'stuff'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -167,6 +169,9 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # custom
+STATICFILES_DIRS = [
+    BASE_DIR / 'stuff',
+]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 if DEBUG:
@@ -273,3 +278,14 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ['rest_framework_simplejwt.tokens.AccessToken'],
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
+
+
+# MAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

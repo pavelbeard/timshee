@@ -12,7 +12,7 @@ const token = AuthService.getCurrentUser();
 
 // CHECKOUT INIT
 export const getPhoneCodes = createAsyncThunk(
-    "order/getPhoneCodes",
+    "shippingAddressForm/getPhoneCodes",
     async (args, thunkAPI) => {
         try {
             const url = `${API_URL}api/order/phone-codes/`;
@@ -29,8 +29,28 @@ export const getPhoneCodes = createAsyncThunk(
     }
 );
 
+export const getFilteredPhoneCodes = createAsyncThunk(
+    "shippingAddressForm/getFilteredPhoneCodes",
+    async ({countryId}, thunkAPI) => {
+        try {
+            const url = `${API_URL}api/order/phone-codes/?country__id=${countryId}`;
+            const response = await fetch(url, {
+                credentials: "include",
+            });
+
+            if (response.status === 200) {
+                return await response.json();
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message)
+        }
+    }
+);
+
 export const getCountries = createAsyncThunk(
-    "order/getCountries",
+    "shippingAddressForm/getCountries",
     async (args, thunkAPI) => {
         try {
             const url = `${API_URL}api/order/countries/`;
@@ -47,8 +67,28 @@ export const getCountries = createAsyncThunk(
     }
 );
 
+export const getFilteredProvinces = createAsyncThunk(
+    "shippingAddressForm/getFilteredProvinces",
+    async ({countryId}, thunkAPI) => {
+        try {
+            const url = `${API_URL}api/order/provinces/?country__id=${countryId}`;
+            const response = await fetch(url, {
+                credentials: "include",
+            });
+
+            if (response.status === 200) {
+                return  await response.json();
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message)
+        }
+    }
+);
+
 export const getProvinces = createAsyncThunk(
-    "order/getProvinces",
+    "shippingAddressForm/getProvinces",
     async (args, thunkAPI) => {
         try {
             const url = `${API_URL}api/order/provinces/`;
@@ -58,6 +98,8 @@ export const getProvinces = createAsyncThunk(
 
             if (response.status === 200) {
                 return  await response.json();
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e)
@@ -67,7 +109,7 @@ export const getProvinces = createAsyncThunk(
 
 
 export const getShippingMethods = createAsyncThunk(
-    "order/getShippingMethods",
+    "shippingAddressForm/getShippingMethods",
     async (arg, thunkAPI) => {
         let url = `${API_URL}api/order/shipping-methods/`;
 
@@ -87,7 +129,7 @@ export const getShippingMethods = createAsyncThunk(
 );
 
 export const getShippingMethodDetail = createAsyncThunk(
-    "order/getShippingMethodDetail",
+    "shippingAddressForm/getShippingMethodDetail",
     async ({shippingMethodId}, thunkAPI) => {
         if (shippingMethodId === 0) {
             return;
@@ -195,15 +237,20 @@ export const updateOrderShippingMethod = createAsyncThunk(
 
 export const updateOrderStatus = createAsyncThunk(
     "order/updateOrderStatus",
-    async ({orderId, isAuthenticated, status}, thunkAPI) => {
+    async ({orderId, token, status}, thunkAPI) => {
         try {
-            await updateOrder({
+            const result = await updateOrder({
                 orderId: orderId,
-                isAuthenticated: isAuthenticated,
+                token,
                 status: status
             });
-        } catch (e) {
-           return thunkAPI.rejectWithValue(e);
+            if (result) {
+                return true;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+           return thunkAPI.rejectWithValue(error.message);
         }
     }
 );

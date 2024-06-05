@@ -35,6 +35,9 @@ class Cart:
             session_key=self.request.session.session_key,
         )
 
+        if self.request.user.is_authenticated:
+            order.user = self.request.user
+
         self.cart['order_id'] = {
             "id": order.id,
             "number": order.order_number,

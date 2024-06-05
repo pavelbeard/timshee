@@ -4,6 +4,7 @@ from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from order import serializers as order_serializers
+from order import models as order_models
 from rest_framework import generics, status, permissions, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -13,6 +14,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt import views as jwt_views, tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from . import services
 
 
 # Create your views here.
@@ -42,6 +46,7 @@ class RegisterAPIView(generics.GenericAPIView):
         password = request.data.get('password')
         first_name = request.data.get('firstName')
         last_name = request.data.get('lastName')
+        session_key = request.session.session_key
 
         if User.objects.filter(email=email).exists():
             return JsonResponse({'detail': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
@@ -54,6 +59,9 @@ class RegisterAPIView(generics.GenericAPIView):
             last_name=last_name
         )
         user.save()
+
+        order_models.Order.objects.filter(session_key=session_key).update(user=user)
+
         token = tokens.RefreshToken.for_user(user)
         return JsonResponse({
             "refresh": str(token),
@@ -62,22 +70,15 @@ class RegisterAPIView(generics.GenericAPIView):
 
 
 @method_decorator(csrf_protect, name='dispatch')
-class LoginAPIView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = []
-    allowed_methods = ["post"]
+class LoginView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            session_key = request.session.session_key
+            user = User.objects.get(email=request.data['username'])
+            order_models.Order.objects.filter(session_key=session_key).update(user=user)
 
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        user = authenticate(username=email, password=password)
-
-        if not isinstance(user, ValidationError):
-            token, created = Token.objects.get_or_create(user=user)
-            return JsonResponse({'token': token.key, "user": user.id}, safe=False, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({'error': 'Credentials are worst'},
-                                safe=False, status=status.HTTP_401_UNAUTHORIZED)
+        return response
 
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -115,6 +116,7 @@ class EmailViewSet(viewsets.ModelViewSet):
     serializer_class = order_serializers.UserSerializer
     allowed_methods = ["GET", "get_email"]
     authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=["GET"])
     def get_email(self, request, *args, **kwargs):

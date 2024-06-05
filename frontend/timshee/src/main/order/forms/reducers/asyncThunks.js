@@ -11,7 +11,6 @@ export const getShippingAddressAsTrue = createAsyncThunk(
         try {
             const result = await fetchShippingAddressAsTrue({token});
             if (result) {
-                console.log(result);
                 return result;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
@@ -28,7 +27,6 @@ export const getShippingAddresses = createAsyncThunk(
         try {
             const result = await fetchShippingAddresses({token});
             if (result) {
-                console.log(result)
                 return result;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");

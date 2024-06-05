@@ -42,7 +42,11 @@ export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId,
         });
     }
 
-    return await response.json();
+    if (response.status === 201) {
+        return await response.json();
+    } else {
+        return false;
+    }
 };
 
 // ORDERS

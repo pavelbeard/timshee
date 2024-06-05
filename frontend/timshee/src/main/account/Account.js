@@ -33,21 +33,21 @@ const Account = () => {
     }, [addressAsTrueStatus, lastOrderStatus, order, addressObject]);
 
     useEffect(() => {
-        if (order.id !== 0) {
+        if (order !== undefined) {
             setShipTo(
                 [
-                    `${order.shippingAddress.province.country.name}, `,
-                    `${order.shippingAddress.postalCode}, `,
-                    `${order.shippingAddress.province.name}, `,
-                    `${order.shippingAddress.city}, `,
-                    `${order.shippingAddress.streetAddress}, `,
-                    `${order.shippingAddress.apartment} `
+                    `${order.shipping_address.province.country.name}, `,
+                    `${order.shipping_address.postal_code}, `,
+                    `${order.shipping_address.province.name}, `,
+                    `${order.shipping_address.city}, `,
+                    `${order.shipping_address.address1}, `,
+                    `${order.shipping_address.address2} `
                 ].join("")
             );
-            setFor(order.shippingAddress.firstName + " " + order.shippingAddress.lastName);
+            setFor(order.shipping_address.firstName + " " + order.shipping_address.last_name);
 
             if (order.status === "completed") {
-                setDeliveredAt(order.updatedAt)
+                setDeliveredAt(order.updated_at)
             }
         }
     }, [order]);
@@ -93,7 +93,7 @@ const Account = () => {
                             <div className="info-block info-block-main">
                                 {
                                     addressObject.firstName === "" || addressObject.firstName === undefined ? (
-                                        <div>THERE AREN'T ANY ADDRESSES</div>
+                                        <div>THERE AREN'T ANY PRIMARY ADDRESS</div>
                                     ) : (
                                         <>
                                             <div>{addressObject.firstName} {addressObject.lastName}</div>
@@ -103,7 +103,7 @@ const Account = () => {
                                             <div>{addressObject.city}</div>
                                             <div>{addressObject.province?.name}</div>
                                             <div>{addressObject.province?.country.name}</div>
-                                            <div>{addressObject.phoneNumber}</div>
+                                            <div>±{addressObject.phoneCode?.phone_code} {addressObject.phoneNumber}</div>
                                             <div>{addressObject.email}</div>
 
                                         </>
@@ -125,22 +125,45 @@ const Account = () => {
                                         <div>THERE AREN'T ANY ORDERS</div>
                                     ) : (
                                         <>
-                                            <div>{order.orderNumber}</div>
+                                            <div>{order.order_number}</div>
                                             {
                                                 order.status === "completed" ? (
                                                     <div>
                                                         <span>DELIVERED AT:</span>
                                                         <span>{new Date(deliveredAt).toDateString()}</span>
                                                     </div>
+                                                ) : order.status === "refunded" || order.status === "partial_refunded" ? (
+                                                    <>
+                                                        <div>
+                                                            <span>STATUS:</span>
+                                                            <span>{order.status}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span>REFUNDED AT:</span>
+                                                            <span>{new Date(order.updated_at).toDateString()}</span>
+                                                        </div>
+                                                    </>
                                                 ) : (
-                                                    <div><span>STATUS:</span><span>{order.status}</span></div>
-
+                                                    <>
+                                                        <div>
+                                                            <span>STATUS:</span>
+                                                            <span>{order.status}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span>CREATED AT:</span>
+                                                            <span>{new Date(order.created_at).toDateString()}</span>
+                                                        </div>
+                                                    </>
                                                 )
                                             }
-                                            <div className="order-img-block">
-                                            {order.orderedItems.data.map((item, index) => (
-                                                <img style={{marginRight: "10px"}}
-                                                     src={`${API_URL}${item.stock.item.image}`} height={90}
+                                            <div className="order-img-block order-img-block-principal">
+                                            {order.order_item.map((item, index) => (
+                                                <img style={{
+                                                    marginRight: "10px",
+                                                    filter: order.status === ("refunded" || "partial_refunded")
+                                                        ? "brightness(0.6)" : "none",
+                                                }}
+                                                     src={`${API_URL}${item.item.item.image}`} height={90}
                                                      key={index} alt={`alt-img-${index}`}/>
                                             ))}
                                             </div>

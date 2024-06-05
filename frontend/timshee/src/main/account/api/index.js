@@ -1,6 +1,6 @@
 import AuthService from "../../api/authService";
 
-const API_URL =process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 // const token = AuthService.getCurrentUser();
 
 export const getEmail = async ({token}) => {

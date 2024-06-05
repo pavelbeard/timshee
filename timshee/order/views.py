@@ -2,6 +2,7 @@ import copy
 
 from django.contrib.auth.models import AnonymousUser
 from django.forms import model_to_dict
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from . import models, serializers, write_serializers, filters
+
 from order import models as order_models
 
 
@@ -56,17 +58,29 @@ class AddressViewSet(viewsets.ModelViewSet):
             request.data['user'] = request.user.id
         request.data['session_key'] = request.session.session_key
 
+        serializer = self.get_serializer(data=request.data, many=False)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        instance = serializer.save()
+
         if request.data.get('order_id'):
             order = order_models.Order.objects.get(pk=request.data['order_id'])
-            order.shipping_address = self.queryset.get(pk=kwargs['pk'])
+            order.shipping_address = self.queryset.get(pk=instance.id)
             order.save()
 
-        return super().create(request, *args, **kwargs)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
         request.data['session_key'] = request.session.session_key
+
+        if request.data.get('order_id'):
+            order = order_models.Order.objects.get(pk=request.data['order_id'])
+            order.shipping_address = self.queryset.get(pk=kwargs.get('pk'))
+            order.save()
 
         return super().update(request, *args, **kwargs)
 
@@ -86,7 +100,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
         return Response({
             "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
-            }, status=status.HTTP_200_OK
+        }, status=status.HTTP_200_OK
         )
 
     @action(detail=False, methods=["GET"])
@@ -131,6 +145,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated:
             request.data["user"] = request.user.id
         request.data["session"] = request.session.session_key
+        request.data["updated_at"] = timezone.now()
+
+        if request.data.get('status'):
+            if request.data['status'] == "processing":
+                from stuff import services
+                services.send_email(request, kwargs['pk'], 'processing')
 
         return super().update(request, *args, **kwargs)
 
@@ -157,9 +177,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         session_key = request.session.session_key
         qs = None
         if user.is_authenticated:
-            qs = models.Order.objects.filter(user=user).exclude(status="created")
+            qs = models.Order.objects.filter(user=user).exclude(status="created").order_by('-created_at')
         elif user.is_anonymous:
-            qs = models.Order.objects.filter(session_key=session_key)
+            qs = models.Order.objects.filter(session_key=session_key).order_by('-created_at')
 
         if qs.exists():
             data = self.get_serializer(qs, many=True).data

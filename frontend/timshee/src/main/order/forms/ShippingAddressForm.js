@@ -6,15 +6,17 @@ import "./CheckoutForms.css";
 import backImg from "../../../media/static_images/back_to.svg"
 import {useDispatch, useSelector} from "react-redux";
 import {
+    resetAddressObject, setAddressFormObject,
     setAddressId,
     setAddressObject, setErrorMessage, setPhoneCode, setPhoneCodesFiltered,
     setProvince, setProvincesFiltered,
 } from "./reducers/shippingAddressFormSlice";
     import {toggleCart} from "../../../redux/slices/menuSlice";
 import AuthService from "../../api/authService";
+import {getFilteredPhoneCodes, getFilteredProvinces} from "../api/asyncThunks";
 
 const ShippingAddressForm = ({
-     initialValue: addressObject,
+     initialValue: addressFormObject,
      shippingAddresses,
      usernameEmail,
      orderId,
@@ -24,94 +26,50 @@ const ShippingAddressForm = ({
      setCurrentStep,
      submit
 }) => {
+    console.log(addressFormObject);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isAuthenticated = AuthService.isAuthenticated();
     const {
         errorMessage,
-        provincesInternal,
+        filteredProvinces,
+        filteredPhoneCodes,
     } = useSelector(state => state.shippingAddressForm);
+
+    useEffect(() => {
+        if (addressFormObject !== undefined) {
+            dispatch(getFilteredProvinces({countryId: addressFormObject.province.country.id}));
+            dispatch(getFilteredPhoneCodes({countryId: addressFormObject.phone_code.country}));
+        }
+    }, []);
 
     const changeCountry = (e) => {
         const selectedCountryId = parseInt(e.target.value);
-
-        const phoneCodesInternalTmp = phoneCodes.filter(phoneCode =>
-            phoneCode.country === selectedCountryId
-        );
-
-        const provincesInternalTmp = provinces.filter(province =>
-            province.country.id === selectedCountryId
-        );
-
-        dispatch(setPhoneCodesFiltered(phoneCodesInternalTmp));
-        dispatch(setProvincesFiltered(provincesInternalTmp));
-
-        dispatch(setProvince(provincesInternalTmp[0]));
-        dispatch(setPhoneCode(phoneCodesInternalTmp[0]));
+        dispatch(getFilteredProvinces({countryId: selectedCountryId}));
+        dispatch(getFilteredPhoneCodes({countryId: selectedCountryId}));
+        dispatch(setAddressFormObject({
+            ...addressFormObject,
+            province: provinces.find(province => province.country.id === selectedCountryId),
+        }))
     };
 
     const changeProvince = (e) => {
-        const province = provinces.filter(province =>
-            province.id === parseInt(e.target.value)
-        );
-
-        dispatch(setProvince(province[0]));
+        const province = filteredProvinces.find(province => province.id === parseInt(e.target.value));
+        dispatch(setAddressFormObject({...addressFormObject, province}));
     };
 
     const changeAddress = (e) => {
-        try {
-            const address = shippingAddresses.filter(address =>
-                address.id === parseInt(e.target.value)
-            ).at(0);
-            console.log(address)
-            dispatch(setAddressId(address.id));
-            dispatch(setAddressObject(address));
-        } catch (e) {
-            dispatch(setErrorMessage(e.message));
+        const address = shippingAddresses.find(address => address.id === parseInt(e.target.value));
+
+        if (address === undefined) {
+            dispatch(setAddressFormObject(undefined));
+        } else {
+            dispatch(getFilteredProvinces({countryId: address.province.country.id}));
+            dispatch(getFilteredPhoneCodes({countryId: address.phone_code.country}));
+            dispatch(setAddressFormObject(address));
         }
     };
-
-    const changeTheRest = data => {
-        console.log(data);
-        dispatch(setAddressObject(data));
-    }
-
-    // INIT
-    useEffect(() => {
-        if (addressObject.id !== undefined && addressObject.id !== 0) {
-            const provincesTmp = provinces.filter(province =>
-                province.country.name === addressObject.province.country.name
-            );
-
-            const phoneCodesTmp = phoneCodes.filter(phoneCode =>
-                phoneCode.country === addressObject.province.country.id
-            );
-
-            dispatch(setPhoneCodesFiltered(phoneCodesTmp));
-            dispatch(setProvincesFiltered(provincesTmp));
-        } else if (addressObject.id === undefined) {
-            const provincesTmp = provinces.filter(province =>
-                province.country.name === provinces[0].country.name
-            );
-
-            const phoneCodesTmp = phoneCodes.filter(phoneCode =>
-                phoneCode.country === phoneCodes[0].country
-            );
-
-            dispatch(setPhoneCodesFiltered(phoneCodesTmp));
-            dispatch(setProvincesFiltered(provincesTmp));
-
-            dispatch(setPhoneCode({
-                phoneCode: phoneCodesTmp[0].phone_code,
-                country: phoneCodesTmp[0].country
-            }));
-            dispatch(setProvince({
-                id: provincesTmp[0].id,
-                name: provincesTmp[0].name,
-                country: provincesTmp[0].country
-            }));
-        }
-    }, []);
 
     return(
         <form onSubmit={submit} className="shipping-address-form">
@@ -132,8 +90,13 @@ const ShippingAddressForm = ({
                     <div className="shipping-addeess-email">
                         <label htmlFor="email">
                             <span className="shipping-address-form-text">Email:</span>
-                            <input required id="email" type="email" value={addressObject?.email || ""}
-                                   onChange={e => changeTheRest({email: e.target.value})}/>
+                            {/*<input required id="email" type="email" value={addressObject?.email || ""}*/}
+                            <input required id="email" type="email" value={addressFormObject?.email || ""}
+                                   // onChange={e => changeTheRest({email: e.target.value})}/>
+                                   onChange={e => dispatch(setAddressFormObject({
+                                        ...addressFormObject,
+                                       email: e.target.value
+                                   }))}/>
                         </label>
                     </div>
                 )
@@ -141,16 +104,17 @@ const ShippingAddressForm = ({
             <span className="shipping-address">
                 <h3>Shipping address</h3>
             </span>
-            <select id="shippingAddresses" value={addressObject.id} onChange={changeAddress}>
+            <select id="shippingAddresses" value={addressFormObject?.id}
+                    onChange={changeAddress}>
                 <option value="">New address</option>
                 {
 
                     typeof shippingAddresses.map === "function" && shippingAddresses.map((address) => {
                         return (
                             <option key={address.id} value={address.id}>
-                                {`${address.streetAddress}, ${address.apartment}, ${address.postalCode}, ${address.province.name}, ${
+                                {`${address.address1}, ${address.address2}, ${address.postal_code}, ${address.province.name}, ${
                                     address.city
-                                }, ${address.province.country.name}, ${address.firstName} ${address.lastName}`}
+                                }, ${address.province.country.name}, ${address.first_name} ${address.last_name}`}
                             </option>
                         )
                     })
@@ -160,7 +124,8 @@ const ShippingAddressForm = ({
                 <label htmlFor="country">
                     <span className="shipping-address-form-text">Country/region</span>
                     <select required size="1" id="country"
-                            value={addressObject?.province?.country.id || 0}
+                            // value={addressObject?.province?.country.id || 0}
+                            value={addressFormObject?.province?.country.id || 0}
                             aria-placeholder="Country/region"
                             onChange={changeCountry}>
                         {countries.map((country) => (
@@ -172,46 +137,64 @@ const ShippingAddressForm = ({
             <div className="shipping-address-name">
                 <label htmlFor="firstName">
                     <span className="shipping-address-form-text">First name:</span>
-                    <input required id="firstName" type="text" value={addressObject?.firstName || ""}
-                           onChange={e => changeTheRest({firstName: e.target.value})}/>
+                    <input required id="firstName" type="text" value={addressFormObject?.first_name || ""}
+                           onChange={e => dispatch(setAddressObject({
+                               ...addressFormObject,
+                               first_name: e.target.value
+                           }))}/>
                 </label>
                 <label htmlFor="lastName">
                     <span className="shipping-address-form-text">Last name</span>
-                    <input required id="lastName" type="text" value={addressObject?.lastName || ""}
-                           onChange={e => changeTheRest({lastName: e.target.value})}/>
+                    <input required id="lastName" type="text" value={addressFormObject?.last_name || ""}
+                           onChange={e => dispatch(setAddressObject({
+                                ...addressFormObject,
+                               last_name: e.target.value
+                           }))}/>
                 </label>
             </div>
             <div className="shipping-address-address">
                 <label htmlFor="streetAddress">
                     <span className="shipping-address-form-text">Street and house number</span>
-                    <input required id="streetAddress" type="text" value={addressObject?.streetAddress || ""}
-                           onChange={e => changeTheRest({streetAddress: e.target.value})}/>
+                    <input required id="streetAddress" type="text" value={addressFormObject?.address1 || ""}
+                           onChange={e => dispatch(setAddressFormObject({
+                               ...addressFormObject,
+                               address1: e.target.value
+                           }))}/>
                 </label>
             </div>
             <div className="shipping-address-apartment">
                 <label htmlFor="apartment">
                     <span className="shipping-address-form-text">Apartment (optional)</span>
-                    <input id="apartment" type="text" value={addressObject?.apartment || ""}
-                           onChange={e => changeTheRest({apartment: e.target.value})}/>
+                    <input id="apartment" type="text" value={addressFormObject?.address2 || ""}
+                           onChange={e => dispatch(setAddressFormObject({
+                               ...addressFormObject,
+                               address2: e.target.value
+                           }))}/>
                 </label>
             </div>
             <div className="shipping-address-location">
                 <label htmlFor="postalCode">
                     <span className="shipping-address-form-text">Postal Code</span>
-                    <input required id="postalCode" type="text" value={addressObject?.postalCode || ""}
-                           onChange={e => changeTheRest({postalCode: e.target.value})}/>
+                    <input required id="postalCode" type="text" value={addressFormObject?.postal_code || ""}
+                           onChange={e => dispatch(setAddressFormObject({
+                               ...addressFormObject,
+                               postal_code: e.target.value
+                           }))}/>
                 </label>
                 <label htmlFor="city">
                     <span className="shipping-address-form-text">City</span>
-                    <input required id="city" type="text" value={addressObject?.city || ""}
-                           onChange={e => changeTheRest({city: e.target.value})}/>
+                    <input required id="city" type="text" value={addressFormObject?.city || ""}
+                           onChange={e => dispatch(setAddressFormObject({
+                               ...addressFormObject,
+                               city: e.target.value
+                           }))}/>
                 </label>
                 <label htmlFor="province">
                     <span className="shipping-address-form-text">Province/state</span>
                     <select required id="province"
-                            value={addressObject?.province?.id || 0}
+                            value={addressFormObject?.province?.id || 0}
                             onChange={changeProvince}>
-                        {provincesInternal.map((province) => (
+                        {filteredProvinces.map((province) => (
                             <option key={province.id} value={province.id}>{province.name}</option>
                         ))}
                     </select>
@@ -220,8 +203,13 @@ const ShippingAddressForm = ({
             <div className="shipping-address-phone">
                 <label htmlFor="phone">
                     <span className="shipping-address-form-text">Phone:</span>
-                    <input required id="phone" type="text" value={addressObject?.phoneNumber || ""}
-                           onChange={e => changeTheRest({phoneNumber: e.target.value})}/>
+                    {/*<input required id="phone" type="text" value={addressObject?.phoneNumber || ""}*/}
+                    <input required id="phone" type="text" value={addressFormObject?.phone_number || ""}
+                           // onChange={e => changeTheRest({phoneNumber: e.target.value})}/>
+                           onChange={e => dispatch(setAddressFormObject({
+                               ...addressFormObject,
+                               phone_number: e.target.value
+                           }))}/>
                 </label>
             </div>
             <div className="form-submit">

@@ -7,6 +7,8 @@ class Payment(models.Model):
     STATUS_CHOICES = (
         ("pending", "PENDING"),
         ("waiting_for_capture", "WAITING_FOR_CAPTURE"),
+        ("partial_refunded", "PARTIAL_REFUNDED"),
+        ("refunded", "REFUNDED"),
         ("succeeded", "SUCCEEDED"),
         ("canceled", "CANCELLED"),
     )

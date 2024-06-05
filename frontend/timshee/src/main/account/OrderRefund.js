@@ -12,6 +12,8 @@ import RefundForm from "./forms/RefundForm";
 const OrderRefund = () => {
     const dispatch = useDispatch();
     const params = useParams();
+    const stockItemId = params.stockItemId ? parseInt(params.stockItemId) : 0;
+    const stockItemQuantity = params.stockItemId ? parseInt(params.stockItemQuantity) : 0;
     const token = AuthService.getCurrentUser();
     const {order, orderDetailStatus} = useSelector(state => state.ordersPage);
 
@@ -24,9 +26,9 @@ const OrderRefund = () => {
     if (orderDetailStatus === 'success') {
         return (
             <div className="order-refund-container">
-                <RefundForm orderNumber={order.orderNumber}
-                            stockId={parseInt(params.stockItemId)}
-                            stockQuantity={parseInt(params.stockItemQuantity)} />
+                <RefundForm orderNumber={order.order_number}
+                            stockId={stockItemId}
+                            stockQuantity={stockItemQuantity} />
             </div>
         )
     } else if (orderDetailStatus === 'loading') {

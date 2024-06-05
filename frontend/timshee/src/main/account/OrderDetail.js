@@ -6,7 +6,6 @@ import Loading from "../Loading";
 import Error from "../Error";
 
 import "./Orders.css";
-import {OrderDetailContext} from "./OrderRefundContext";
 import AuthService from "../api/authService";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -20,59 +19,83 @@ const OrderDetail = () => {
     const shippingAddress = (address) => {
         return (
             <div>
-                <span>{`${address.province.country.name}, ${address.postalCode}, ${address.province.name}, ${address.city}`}</span>
+                <span>{`${address.province.country.name}, ${address.postal_code}, ${address.province.name}, ${address.city}`}</span>
                 <br/>
-                <span>{`${address.streetAddress}, ${address.apartment}`}</span>
+                <span>{`${address.address1}, ${address.address2}`}</span>
             </div>
         );
     };
 
     useEffect(() => {
-        if (orderDetailStatus === 'idle') {
-            dispatch(getOrderDetail({orderId: params.orderId, token}));
-        }
-
-    }, [orderDetailStatus]);
+        dispatch(getOrderDetail({orderId: params.orderId, token}));
+    }, []);
 
     if (orderDetailStatus === 'success') {
         return (
             <div className="order-detail-container">
-                <div className="order-detail-number">{order.orderNumber}</div>
-                <div className="order-detail-status">{order.status.replace(/_/, ' ')}</div>
-                <div className="order-detail-shipping-address">
-                    <span>TO:</span>
-                    {shippingAddress(order.shippingAddress)}
+                <div className="order-detail-number order-detail-info">
+                    <span>NUMBER:</span>
+                    <span>{order.order_number}</span>
                 </div>
-                <div className="order-img-block order-img-block-detail">
+                <div className="order-detail-status order-detail-info">
+                    <span>STATUS:</span>
+                    <span>{order.status.replace(/_/, ' ')}</span>
+                </div>
+                <div className="order-detail-shipping-address order-detail-info">
+                    <span>TO:</span>
+                    {shippingAddress(order.shipping_address)}
+                </div>
+                <div className="order-img-block order-img-block-detail ">
                     {
-                        order.orderedItems.data.map((item, index) => (
+                        order.order_item.map((item, index) => (
                             <div key={index}>
                                 <img height={180}
                                      style={{
-                                         marginRight: "10px",
-                                         filter: item.refunded ? "brightness(0.6)" : "none"
+                                         padding: "10px",
+                                         filter: item.refund_reason !== null ? "brightness(0.6)" : "none"
                                      }}
-                                     src={`${API_URL}${item.stock.item.image}`}
+                                     src={`${API_URL}${item.item.item.image}`}
                                      alt={`alt-image-${index}`}/>
-                                <div>
-                                    <span>{item.stock.item.name}</span>
-                                    <span>{item.stock.item.price}</span>
+                                <div className="order-detail-item-info">
+                                    <span>{item.item.item.name}</span>
+                                    <span>{item.item.item.price}</span>
                                 </div>
-                                <div>
-                                    <span>QUANTITY:</span>
-                                    <span>{item.quantity}</span>
+                                <div className="order-detail-item-info">
+                                    {
+                                        item.quantity > 1 && (
+                                            <>
+                                                <span>QUANTITY:</span>
+                                                <span>{item.quantity}</span>
+                                            </>
+                                        )
+                                    }
                                 </div>
-                                <div>
-                                    <Link to={`/orders/${order.id}/order-refund/${item.stock.id}/${item.quantity}`}>
-                                        REFUND ITEM
-                                    </Link>
+                                <div className="order-refund-item">
+                                    {
+                                        item.refund_reason === null ? (
+                                            <Link to={`/orders/${order.id}/order-refund/${item.item.id}/${item.quantity}`}>
+                                                REFUND ITEM
+                                            </Link>
+                                        ) : item.quantity > 0 && (
+                                            <p>FURTHER REFUND OF THIS ITEM IS AVAILABLE ONLY THROUGH A MAIL LETTER</p>
+                                        )
+                                    }
                                 </div>
                             </div>
 
                         ))
                     }
                 </div>
-    </div>
+                {
+                    token?.access && (
+                        <div className="order-buttons">
+                            <Link to="/account/details/orders">
+                                <div className="order-button">Return to orders page</div>
+                            </Link>
+                        </div>
+                    )
+                }
+        </div>
     )
     } else if (orderDetailStatus === 'loading') {
         return <Loading/>;

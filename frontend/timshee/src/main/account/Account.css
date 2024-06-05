@@ -81,6 +81,10 @@
     display: grid;
 }
 
+.order-img-block > img {
+    margin-right: 0.5rem;
+}
+
 .order-img-block-principal {
     grid-template-columns: 95px 95px 95px;
 }

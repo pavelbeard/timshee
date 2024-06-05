@@ -45,11 +45,23 @@ class AddressSerializer(serializers.ModelSerializer):
         depth = 2
 
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OrderItem
+        exclude = ("order", )
+        depth = 2
+
+
 class OrderSerializer(serializers.ModelSerializer):
     shipping_address = serializers.SerializerMethodField()
     shipping_method = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField(required=False)
     order_number = serializers.CharField(required=False)
+    order_item = serializers.SerializerMethodField()
+
+    def get_order_item(self, obj):
+        data = models.OrderItem.objects.filter(order_id=obj.id)
+        return OrderItemSerializer(data, many=True).data
 
     def get_shipping_address(self, obj):
         return strict_serializers.StrictAddressSerializer(obj.shipping_address).data
