@@ -14,7 +14,7 @@
     }
 
     .footer {
-        padding-left: 30px;
+        padding-left: 0;
     }
 
     .contact-list-1, .social-net-list {
@@ -23,5 +23,9 @@
 
     .contact-container {
         display: flex;
+    }
+
+    .nav.contact-container{
+        width: 100%;
     }
 }

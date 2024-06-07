@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {useEffect} from "react";
 
 import "./Logo.css";
-import pngLogo from '../media/static_images/img.png';
+import pngLogo from '../media/static_images/logo.png';
 
 
 const Logo = () => {

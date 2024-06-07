@@ -6,9 +6,7 @@ export const menuLvl1Slice = createSlice({
         isActive: false,
     },
     reducers: {
-        toggleMenuLvl1: (state) => {
-            state.isActive = !state.isActive;
-        }
+
     }
 })
 

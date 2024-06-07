@@ -14,6 +14,8 @@ import checkoutSlice from "../main/order/api/reducers/checkoutSlice";
 import addressFormSlice from "../main/account/forms/reducers/addressFormSlice";
 import ordersSlice from "../main/account/forms/reducers/ordersSlice";
 import cartSlice from "../main/cart/reducers/cartSlice";
+import appSlice from "./slices/appSlice";
+import shopSlice from "../main/shop/api/reducers/shopSlice";
 
 export default configureStore({
     reducer: {
@@ -24,7 +26,6 @@ export default configureStore({
         auth: checkAuthSlice,
         editAddress: editAddressSlice,
 
-        filters: filtersSlice,
         item: itemSlice,
         cart: cartSlice,
         order: orderSlice,
@@ -33,5 +34,7 @@ export default configureStore({
         addressForm: addressFormSlice,
         shippingAddressForm: shippingAddressFormSlice,
         ordersPage: ordersSlice,
+        app: appSlice,
+        shop: shopSlice,
     }
 });

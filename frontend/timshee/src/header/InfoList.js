@@ -6,7 +6,7 @@ import {useDispatch, useSelector} from "react-redux";
 import "./Info.css";
 import "./Navigation.css";
 import AccountBar from "./AccountBar";
-import {closeCart, toggleCart} from "../redux/slices/menuSlice";
+import {closeCart, toggleAccountBarIsTouched, toggleCart, toggleMenuLvl1} from "../redux/slices/menuSlice";
 import {Link} from "react-router-dom";
 import {getCartItems} from "../main/cart/api/asyncThunks";
 import {resetIsAdded} from "../main/cart/reducers/cartSlice";
@@ -16,6 +16,7 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
     const dispatch = useDispatch();
     const hideTimer = useRef(null);
     const {cart, getCartItemsStatus} = useSelector(state => state.cart);
+    const {isMenuLvl1Active, accountBarIsTouched} = useSelector(state => state.menu);
 
     const [isAccountBarVisible, setIsAccountBarVisible] = React.useState(false);
 
@@ -41,7 +42,6 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
             dispatch(getCartItems());
         }
     }, [getCartItemsStatus, cart.cartItems.length]);
-    // }, [isAuthenticated, isAdded, hasDeleted, quantityOfCart, cart.totalQuantityInCart]);
 
     return (
         <ul className={itIsPartOfSideMenu ? "nav-list nav-list-another" : "nav-list"}>
@@ -55,11 +55,23 @@ const InfoList = ({ itIsPartOfSideMenu }) => {
                 )
             }
             <li className="nav-item">Ship to</li>
-            <li className="nav-item" onMouseEnter={showAccountBar} onMouseLeave={hideAccountBar}>
-                Account
-                {
-                    isAccountBarVisible && <AccountBar showAccountBar={showAccountBar} hideAccountBar={hideAccountBar}/>
-                }
+            <li className="nav-item"
+                onMouseEnter={() =>{
+                    dispatch(toggleMenuLvl1());
+                    dispatch(toggleAccountBarIsTouched())
+                }}
+                onMouseLeave={() => {
+                    dispatch(toggleMenuLvl1());
+                    dispatch(toggleAccountBarIsTouched());
+                }}>
+                <div>
+                    <span>Account</span>
+                    {
+                        (isMenuLvl1Active && accountBarIsTouched) &&
+                        <AccountBar />
+                    }
+                </div>
+
             </li>
             <li className="nav-item" onClick={() => {
                 if(

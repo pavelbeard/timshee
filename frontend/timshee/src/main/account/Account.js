@@ -36,9 +36,9 @@ const Account = () => {
         if (order !== undefined) {
             setShipTo(
                 [
-                    `${order.shipping_address.province.country.name}, `,
+                    `${order.shipping_address?.province?.country?.name}, `,
                     `${order.shipping_address.postal_code}, `,
-                    `${order.shipping_address.province.name}, `,
+                    `${order.shipping_address?.province?.name}, `,
                     `${order.shipping_address.city}, `,
                     `${order.shipping_address.address1}, `,
                     `${order.shipping_address.address2} `

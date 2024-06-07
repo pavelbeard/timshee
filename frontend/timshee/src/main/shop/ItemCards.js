@@ -1,8 +1,6 @@
 import React from 'react';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import {setItemData} from "../../redux/slices/shopSlices/itemSlice";
 
 import "./Shop.css";
 import "./ItemCards.css";
@@ -40,10 +38,17 @@ const Sizes = ({ sizes, visibility }) => {
 
 const ItemCards = ({items}) => {
     const [imageSize, setImageSize] = useState("");
-    const [visibility, setVisibility] = useState(false);
+    const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
 
     const setItemUrl = (item) => {
-        return `/shop/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
+        const index = window.location.href.split('/').indexOf('g');
+        let vPath;
+        if (index > -1) {
+            vPath = "g";
+        } else {
+            vPath = "c";
+        }
+        return `/shop/collections/${vPath}/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
                     + `/${item.id}/${item.name.replace(/ /g, "-").toLowerCase()}`;
     };
 
@@ -71,8 +76,12 @@ const ItemCards = ({items}) => {
             {items?.map((item, index) => {
                 return (
                     <div key={index}
-                        onMouseEnter={() => setVisibility(true)}
-                        onMouseLeave={() => setVisibility(false)}
+                        onMouseEnter={() => {
+                            setSelectedItemIndex(index);
+                        }}
+                        onMouseLeave={() => {
+                            setSelectedItemIndex(-1)
+                        }}
                         className="item-card">
                             <Link to={(setItemUrl(item))}>
                                 <img src={item.image} alt="alt-item-image" height={imageSize}/>
@@ -82,8 +91,8 @@ const ItemCards = ({items}) => {
                                 <p>{item.price}</p>
                             </div>
                             <div className="item-data-hidden">
-                                <Colors colors={item.colors} visibility={visibility} />
-                                <Sizes sizes={item.sizes} visibility={visibility} />
+                                <Colors colors={item.colors} visibility={index === selectedItemIndex} />
+                                <Sizes sizes={item.sizes} visibility={index === selectedItemIndex} />
                             </div>
                     </div>
                 )

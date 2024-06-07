@@ -1,21 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import ItemCards from "./ItemCards";
 import {useDispatch, useSelector} from "react-redux";
-import {
-    resetCategoriesData,
-    resetColorsData, resetFilters,
-    resetSizeData, setCategoriesData,
-    setColorsData,
-    setSizeData, updateCategoriesData,
-    updateColorsData, updateFilters,
-    updateSizeData
-} from "../../redux/slices/shopSlices/filtersSlice";
 
 import "./Shop.css";
 
 import leftArrow from "../../media/static_images/arrow-left.svg";
 import rightArrow from "../../media/static_images/arrow-right.svg";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {getCategories, getColors, getItems, getSizes} from "./api/asyncThunks";
+import {
+    checkCategories,
+    checkColors,
+    checkSizes,
+    resetFilters,
+    uncheckCategories,
+    uncheckColors,
+    uncheckSizes, updateOrderBy
+} from "./api/reducers/shopSlice";
+import Loading from "../Loading";
+import Error from "../Error";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -65,144 +68,79 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPag
     return pages;
 };
 
-const Shop = ({collectionId, collectionName}) => {
+const Shop = () => {
     window.document.title = "Shop | Timshee";
+    const params = useParams();
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {sizesData, colorsData, categoriesData, sizes, colors, categories, filters}
-        = useSelector(state => state.filters);
+    const {
+        filters, genders, sortOrder,
+        sizesStatus, sizes,
+        colorsStatus, colors,
+        categoriesStatus, categories,
+        itemsStatus, items,
+        pagesCount, totalItemsCount,
+    } = useSelector(state => state.shop);
 
-    const [items, setItems] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
+    // a gender or collection
+    const vPath = Object.keys(params)[0] === 'gender' ? "g" : "c"
+
+
     const [activeFilter, setActiveFilter] = useState(null);
-
     const [orderBy, setOrderBy] = useState("");
-
     const [currentPage, setCurrentPage] = useState(1);
-    const [pagesCount, setPagesCount] = useState(0);
 
-    //next/prev page/curr page
-    const setCurrentPageLink = (page) => {
-        if (page === 0 || page === undefined) {
-            setCurrentPage(1);
-            navigate(`/shop/`);
-        } else {
-            setCurrentPage(page);
-            navigate(`/shop/page/${page}`);
+    useEffect(() => {
+        if (sizesStatus === 'idle') {
+            dispatch(getSizes());
         }
-    };
 
-    const prevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-            navigate(`/shop/page/${currentPage - 1}`);
+        if (colorsStatus === 'idle') {
+            dispatch(getColors());
         }
-    };
 
-    const nextPage = () => {
-        if (currentPage < pagesCount) {
-            setCurrentPage(currentPage + 1);
-            navigate(`/shop/page/${currentPage + 1}`);
+        if (categoriesStatus === 'idle') {
+            dispatch(getCategories());
         }
-    }
+    }, []);
 
-    // for update component
-    const getItems = async () => {
-        const filterSizes = sizes.length > 0 ? "&sizes__value="
-            + sizes.join('&sizes__value=') : "";
-        const filterColors = colors.length > 0 ? "&colors__name="
-            + colors.join('&colors__name=') : "";
-        const filterCategories = categories.length > 0 ? "&type__category__name="
-            + categories.join('&type__category__name=') : "";
-        const filterOrderBy = "&o=" + orderBy
-        const encodedURI = encodeURI(API_URL
-                + `api/store/items/?${currentPage === 1 ? "" : `page=${currentPage}`}`
-                + filterSizes
-                + filterColors
-                + filterCategories
-                + filterOrderBy
-        );
-
-        const response = await fetch(encodedURI);
-        const json = await response.json();
-        setPagesCount(Math.ceil(json.count / 9));
-        setItems(json.results);
-        setTotalItems(json.count);
-        // localStorage.setItem("items", JSON.stringify(json.results));
-    };
-
-    const getSizes = async () => {
-        const response = await fetch(API_URL + "api/store/sizes/");
-        const json = await response.json();
-
-        const newSizes = [];
-        json.forEach((item) => {
-            newSizes.push({id: item.id, value: item.value, checked: false});
-        })
-
-        if (sizes.length === 0) {
-            dispatch(setSizeData(newSizes));
+    useEffect(() => {
+        if (itemsStatus === 'idle' &&
+            sizesStatus === 'success' &&
+            colorsStatus === 'success' &&
+            categoriesStatus === 'success'
+        ) {
+            dispatch(getItems({
+                filters: {
+                    gender: Object.keys(params)[0] === 'gender'
+                        ? genders.find(g => g.value === params[Object.keys(params)[0]])?.gender
+                        : "",
+                    collection: Object.keys(params)[0] === 'collection'
+                        ? params[Object.keys(params)[0]]
+                        : "",
+                }
+            }));
         }
-    };
+    }, [sizesStatus, colorsStatus, categoriesStatus]);
 
-    const getColors = async () => {
-        const response = await fetch(API_URL + "api/store/colors/");
-        const json = await response.json();
-
-        const newColors = [];
-        json.forEach((item) => {
-            newColors.push({id: item.id, value: item.name, hex: item.hex, checked: false});
-        })
-
-        if (colors.length === 0) {
-            dispatch(setColorsData(newColors));
-        }
-    };
-
-    const getCategories = async () => {
-        const response = await fetch(API_URL + "api/store/categories/");
-        const json = await response.json();
-
-        const newCategories = [];
-        json.forEach((item) => {
-            newCategories.push({id: item.id, value: item.name, checked: false});
-        });
-
-        if (categories.length === 0) {
-            dispatch(setCategoriesData(newCategories));
-        }
-    };
-
-    const handleSizeChange = (e) => {
-        const {value, checked} = e.target;
-        const id = parseInt(e.target.getAttribute("data-checkbox-id"));
-        dispatch(updateFilters({value, checked}));
-        dispatch(updateSizeData({ id, value, checked }));
-        setCurrentPageLink();
-    };
-
-    const handleColorChange = (e) => {
-        const {value, checked} = e.target;
-        const id = parseInt(e.target.getAttribute("data-checkbox-id"));
-        dispatch(updateFilters({value, checked}));
-        dispatch(updateColorsData({id, value, checked}));
-        setCurrentPageLink();
-    };
-
-    const handleCategoryChange = (e) => {
-        const {value, checked} = e.target;
-        const id = parseInt(e.target.getAttribute("data-checkbox-id"));
-        dispatch(updateFilters({value, checked}));
-        dispatch(updateCategoriesData({id, value, checked}));
-        setCurrentPageLink();
-    };
-
-    const handleOrderByChange = (e) => {
-        e.preventDefault();
-        const {value} = e.target;
-        setOrderBy(value);
-    };
+    useEffect(() => {
+        dispatch(getItems({
+            filters: {
+                sizes: sizes.filter(s => s.checked).map(s => s.value),
+                colors: colors.filter(c => c.checked).map(c => c.value),
+                categories: categories.filter(c => c.checked).map(c => c.value),
+                orderBy: sortOrder.filter(so => filters.includes(so.name))[0]?.value,
+                gender: Object.keys(params)[0] === 'gender'
+                        ? genders.find(g => g.value === params[Object.keys(params)[0]])?.gender
+                        : "",
+                collection: Object.keys(params)[0] === 'collection'
+                    ? params[Object.keys(params)[0]]
+                    : "",
+            },
+            currentPage: currentPage,
+        }))
+    }, [filters, currentPage, params]);
 
     useEffect(() => {
         const navigationEntries = window.performance.getEntriesByType("navigation");
@@ -211,37 +149,49 @@ const Shop = ({collectionId, collectionName}) => {
         }
     }, []);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            await getItems();
-            await getSizes();
-            await getColors();
-            await getCategories();
+    //next/prev page/curr page
+    const setCurrentPageLink = (page) => {
+        if (page === 0 || page === undefined) {
+            setCurrentPage(1);
+            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}`);
+        } else {
+            setCurrentPage(page);
+            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${page}`);
         }
+    };
 
-        fetchData();
-    }, [sizes, colors, categories, filters, orderBy, currentPage]);
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${currentPage - 1}`);
+        }
+    };
+
+    const nextPage = () => {
+        if (currentPage < pagesCount) {
+            setCurrentPage(currentPage + 1);
+            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${currentPage + 1}`);
+        }
+    }
 
     const sizesBlock = () => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({sizesData.filter(item => item.checked).length})</span>
-                    <div className="reset" onClick={() => dispatch(resetSizeData())}>Reset</div>
+                    <span>Selected ({sizes.filter(size => size.checked).length})</span>
+                    <div className="reset" onClick={() => dispatch(uncheckSizes())}>Reset</div>
                 </div>
                 <div className="filters-list">
                 {
-                    typeof sizesData.map === "function" && sizesData?.map((item) => {
+                    typeof sizes.map === "function" && sizes?.map((size) => {
                         return (
-                            <label key={item.id}>
+                            <label key={size.id}>
                                 <input
                                     type="checkbox"
-                                    data-checkbox-id={item.id}
-                                    checked={item.checked}
-                                    value={item.value}
-                                    onChange={handleSizeChange}
-                                />
-                                <span>{item.value}</span>
+                                    checked={size.checked}
+                                    value={size.id}
+                                    onChange={e => dispatch(checkSizes(parseInt(e.target.value)))} />
+                                <span>{size.value}</span>
                             </label>
                         )
                     })
@@ -255,21 +205,19 @@ const Shop = ({collectionId, collectionName}) => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({colors.length})</span>
-                    <div className="reset" onClick={() => dispatch(resetColorsData())}>Reset</div>
+                    <span>Selected ({colors.filter(color => color.checked).length})</span>
+                    <div className="reset" onClick={() => dispatch(uncheckColors())}>Reset</div>
                 </div>
                 <div className="filters-list">
                 {
-                    typeof colorsData.map === "function" && colorsData.map((item) => {
+                    typeof colors.map === "function" && colors.map((item) => {
                         return (
                             <label key={item.id}>
                                 <input
                                     type="checkbox"
-                                    data-checkbox-id={item.id}
                                     checked={item.checked}
-                                    value={item.value}
-                                    onChange={handleColorChange}
-                                />
+                                    value={item.id}
+                                    onChange={e => dispatch(checkColors(parseInt(e.target.value)))} />
                                 <span>{item.value}</span>
                                 <div style={{
                                    backgroundColor: `${item.hex}`,
@@ -288,21 +236,19 @@ const Shop = ({collectionId, collectionName}) => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({categories.length})</span>
-                    <div className="reset" onClick={() => dispatch(resetCategoriesData())}>Reset</div>
+                    <span>Selected ({categories.filter(category => category.checked).length})</span>
+                    <div className="reset" onClick={() => dispatch(uncheckCategories())}>Reset</div>
                 </div>
                 <div className="filters-list">
                     {
-                    typeof categoriesData.map === "function" && categoriesData?.map((item) => {
+                    typeof categories.map === "function" && categories?.map((item) => {
                         return (
                             <label key={item.id}>
                                 <input
                                     type="checkbox"
-                                    data-checkbox-id={item.id}
                                     checked={item.checked}
-                                    value={item.value}
-                                    onChange={handleCategoryChange}
-                                />
+                                    value={item.id}
+                                    onChange={e => dispatch(checkCategories(parseInt(e.target.value)))} />
                                 <span>{item.value}</span>
                             </label>
                         )
@@ -318,9 +264,11 @@ const Shop = ({collectionId, collectionName}) => {
         setActiveFilter(activeFilter === filter ? null : filter);
     };
 
-    return items.length > 0 ? (
+    return (
         <div className="shop-container">
-            <div className="collection-name">{collectionName}</div>
+            <div className="collection-name">
+                {params[Object.keys(params)[0]] && params[Object.keys(params)[0]].replaceAll('-', ' ')}
+            </div>
             <div className="settings-container">
                 <div className="filters">
                     <label className="labels">Filter:</label>
@@ -333,14 +281,20 @@ const Shop = ({collectionId, collectionName}) => {
                 </div>
                 <div className="sort-by">
                     <label htmlFor="sort-by">Order By:
-                        <select name="sort-by" id="sort-by" defaultValue="" onChange={handleOrderByChange}>
-                            <option value="">---</option>
-                            <option value="price">ascending</option>
-                            <option value="-price">descending</option>
+                        <select name="sort-by" id="sort-by" value={orderBy}
+                                onChange={e => {
+                                    dispatch(updateOrderBy(e.target.value));
+                                    setOrderBy(e.target.value)
+                                }}>
+                            {
+                                sortOrder.map((order, index) => (
+                                    <option key={index} value={order.value}>{order.name}</option>
+                                ))
+                            }
                         </select>
                     </label>
                 </div>
-                <div className="items-count">{totalItems}</div>
+                <div className="items-count">{totalItemsCount}</div>
             </div>
             <div className="all-filters-container">
                 {
@@ -357,7 +311,9 @@ const Shop = ({collectionId, collectionName}) => {
                     }}>Reset</div>
                 }
             </div>
-            <ItemCards items={items}/>
+            {
+                items.length > 0 ? <ItemCards items={items}/> : <Loading />
+            }
             <div className="pagination">{
                 <Pagination
                     totalPages={pagesCount || 1}
@@ -368,10 +324,6 @@ const Shop = ({collectionId, collectionName}) => {
                 />
             }
             </div>
-        </div>
-    ) : (
-        <div className="shop-container loading">
-            <h3>LOADING...</h3>
         </div>
     )
 };

@@ -1,11 +1,11 @@
-import React from 'react';
-import {useEffect, useState} from "react";
+import React, {useState} from 'react';
+import {useEffect} from "react";
 
 import "./MainCollection.css"
 import {Link} from "react-router-dom";
 
 const MainCollection = ({ data }) => {
-    const [imageSize, setImageSize] = React.useState('');
+    const [imageSize, setImageSize] = useState('');
 
     useEffect(() => {
         const handleResize = () => {
@@ -31,7 +31,7 @@ const MainCollection = ({ data }) => {
             <img src={data?.collection_image} alt="collection-img" height={imageSize}/>
             <Link
                 className="link-to-main-collection"
-                to={`/collections/${data ? data.link : "alt"}`}
+                to={`/shop/collections/c/${data ? data.link : "alt"}`}
             >
                 {data ? data.name : "alt"}
             </Link>

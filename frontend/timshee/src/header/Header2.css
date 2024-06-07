@@ -1,0 +1,243 @@
+/*LVL1*/
+.header-container {
+    width: 100%;
+    background: #fff;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 50px;
+    font-variant: all-petite-caps;
+    font-size: 24px;
+    position: relative;
+}
+
+/*LOGO*/
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+/*MENU*/
+.nav {
+    display: flex;
+    justify-content: center;
+    width: 50rem;
+}
+
+.nav-left, .nav-right {
+    flex: 1
+}
+.nav-left {
+    padding-left: 3rem;
+}
+
+.nav-right {
+    padding-right: 3rem;
+}
+
+.nav-list-lvl0,
+.nav-list-lvl1,
+.nav-list-lvl2 {
+    position: relative;
+}
+
+.nav-list-lvl0 span,
+.nav-list-lvl1 span,
+.nav-list-lvl2 span {
+    display: inline-block;
+    position: relative;
+}
+
+
+.nav-item-lvl0  span::before,
+.nav-item-lvl1  span::before,
+.nav-item-lvl2  span::before {
+    position: absolute;
+    z-index: 15;
+    bottom: -2px;
+    content: "";
+    width: 0;
+    height: 1px;
+    margin: 0 auto;
+    background: #2b2727;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+    visibility: hidden;
+}
+
+.nav-item-lvl0 span:hover:before,
+.nav-item-lvl1 span:hover:before,
+.nav-item-lvl2 span:hover:before {
+    visibility: visible;
+    width: 100%;
+}
+
+/*LVL0*/
+.nav-list-lvl0 {
+    display: flex;
+    padding: 0;
+}
+
+.nav-item-lvl0 {
+    list-style-type: none;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+/*LVL1*/
+.nav-list-lvl1 {
+    display: none;
+    position: absolute;
+    background: #fff;
+    padding: 0;
+}
+
+.nav-item-lvl1 {
+    padding: 1.5rem 0.5rem 0.5rem 0;
+    white-space: nowrap;
+    list-style: none;
+}
+
+/*LINKS*/
+.nav-item-lvl1 > span > a {
+    text-decoration: none;
+    color: #000;
+    cursor: pointer;
+}
+
+/*LVL0 MENU HOVER*/
+.nav-item-lvl0:hover > ul {
+    display: flex;
+}
+
+/*LVL1 MENU HOVER*/
+.nav-item-lvl1:hover > ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+
+/*LVL2*/
+.nav-list-lvl2 {
+    display: none;
+    position: absolute;
+}
+.nav-item-lvl2 {
+    padding: 1.5rem 0.5rem 0.5rem 0;
+}
+
+/*BURGER MENU*/
+.nav-empty, .burger-menu {
+    width: 27px;
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.burger-menu div {
+    background: #000;
+    display: none;
+    width: 25px;
+    height: 3px;
+    margin: 4px 0;
+}
+
+/*FOR MOBILE*/
+@media only screen and (max-width: 768px) {
+    .header {
+        padding: 1.5rem 2rem;
+    }
+
+    .nav-left, .nav-right {
+        padding: 0;
+        display: none;
+    }
+
+    .nav-empty, .burger-menu {
+        display: flex;
+    }
+
+    .nav-burger-menu {
+        padding-top: 4.5rem;
+        position: absolute;
+        top: 75px;
+        left: 0;
+        right: 0;
+        z-index: 13;
+        background: #fff;
+    }
+
+    .header.show-nav .nav-left, .header.show-nav .nav-right {
+        display: flex;
+        flex-direction: column;
+        width: 120px;
+    }
+
+    /*DYNAMIC UNDERLINE*/
+    .nav-item-lvl0 > span:hover:before,
+    .nav-item-lvl1 > span:hover:before,
+    .nav-item-lvl2 > span:hover:before {
+        visibility: hidden;
+    }
+
+    /*LVL0 MENU HOVER*/
+    .nav-item-lvl0:hover > ul {
+        display: block;
+    }
+
+    /*LVL0*/
+    .nav-list-lvl0 {
+        position: static;
+        margin: 0;
+        padding-left: 1.5rem;
+        flex-direction: column;
+    }
+
+    .nav-item-lvl0 {
+        padding: 0.2rem;
+        margin: 5px 0;
+    }
+
+    /*LVL1 MENU HOVER*/
+    .nav-item-lvl1:hover > ul {
+        display: block;
+    }
+
+    /*LVL1*/
+    .nav-list-lvl1 {
+        position: static;
+    }
+
+    .nav-item-lvl1 {
+        padding: 0.2rem 0;
+    }
+
+    /*LVL2*/
+    .nav-item-lvl1:hover > ul {
+        position: static;
+        padding: 0;
+    }
+
+    .nav-list-lvl2 {
+        padding-left: 2rem;
+    }
+
+    .nav-item-lvl2:first-child {
+        border-top: 1px solid #2b2727;
+    }
+
+    .nav-item-lvl2 {
+        letter-spacing: 3px;
+        padding: 0.2rem 0;
+    }
+
+    .nav-item-lvl2 {
+        border-bottom: 1px solid #2b2727;
+    }
+
+}

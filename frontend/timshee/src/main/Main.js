@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 
 import Header from "../header/Header";
 import Content from "./Content";
@@ -8,7 +8,6 @@ import SideMenu from "../header/SideMenu";
 
 import "./Main.css";
 import SideSearch from "../header/SideSearch";
-import {checkAuthStatus} from "../redux/slices/checkAuthSlice";
 import EditAddressForm from "./account/forms/EditAddressForm";
 import Cart from "./cart/Cart";
 
@@ -16,7 +15,6 @@ import Cart from "./cart/Cart";
 const Main = () => {
     window.document.title = "Timshee";
 
-    const dispatch = useDispatch();
     const isSearchClicked = useSelector(state => state.search.isActive);
     const isSideMenuClicked = useSelector(state => state.menu.isActive);
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);

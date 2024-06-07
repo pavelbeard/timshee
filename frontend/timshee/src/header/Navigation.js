@@ -8,13 +8,8 @@ import "./Navigation.css";
 import burgerMenu from "../media/static_images/burger-menu.svg";
 
 const Navigation = () => {
-
     const dispatch = useDispatch();
     const [isWindowNotWide, setIsWindowNotWide] = React.useState(false);
-
-    const clickSideMenu = () => {
-        dispatch(toggleMenu());
-    }
 
     useEffect(() => {
         const showBurgerMenu = () => {
@@ -32,7 +27,7 @@ const Navigation = () => {
         <nav className="nav nav-left">
             {
                 isWindowNotWide ? (
-                    <img src={burgerMenu} alt="bg-menu" height={20} onClick={clickSideMenu}/>
+                    <img src={burgerMenu} alt="bg-menu" height={20} onClick={() => dispatch(toggleMenu())}/>
                 ) : (
                     <NavList styleMode={!isWindowNotWide}/>
                 )
