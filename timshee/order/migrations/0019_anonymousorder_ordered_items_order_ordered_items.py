@@ -10,11 +10,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='anonymousorder',
-            name='ordered_items',
-            field=models.JSONField(blank=True, null=True),
-        ),
+        # migrations.AddField(
+        #     model_name='anonymousorder',
+        #     name='ordered_items',
+        #     field=models.JSONField(blank=True, null=True),
+        # ),
         migrations.AddField(
             model_name='order',
             name='ordered_items',

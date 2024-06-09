@@ -31,7 +31,7 @@ const MainCollection = ({ data }) => {
             <img src={data?.collection_image} alt="collection-img" height={imageSize}/>
             <Link
                 className="link-to-main-collection"
-                to={`/shop/collections/c/${data ? data.link : "alt"}`}
+                to={`/shop/collections/${data ? data.link : "alt"}`}
             >
                 {data ? data.name : "alt"}
             </Link>

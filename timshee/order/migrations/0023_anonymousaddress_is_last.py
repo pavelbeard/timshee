@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('order', '0022_alter_anonymousaddress_session'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='anonymousaddress',
-            name='is_last',
-            field=models.BooleanField(default=False),
-        ),
-    ]
+    # operations = [
+    #     migrations.AddField(
+    #         model_name='anonymousaddress',
+    #         name='is_last',
+    #         field=models.BooleanField(default=False),
+    #     ),
+    # ]

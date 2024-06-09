@@ -10,18 +10,18 @@ class Migration(migrations.Migration):
         ('order', '0011_rename_interior_address_address1_and_more'),
     ]
 
-    operations = [
-        migrations.AlterModelOptions(
-            name='anonymousaddress',
-            options={'verbose_name': 'Anonymous address', 'verbose_name_plural': 'Anonymous addresses'},
-        ),
-        migrations.AlterModelOptions(
-            name='anonymousorder',
-            options={'verbose_name': 'Anonymous order', 'verbose_name_plural': 'Anonymous orders'},
-        ),
-        migrations.AlterField(
-            model_name='anonymousorder',
-            name='cart_items',
-            field=models.ManyToManyField(to='cart.anonymouscartitem'),
-        ),
-    ]
+    # operations = [
+    #     migrations.AlterModelOptions(
+    #         name='anonymousaddress',
+    #         options={'verbose_name': 'Anonymous address', 'verbose_name_plural': 'Anonymous addresses'},
+    #     ),
+    #     migrations.AlterModelOptions(
+    #         name='anonymousorder',
+    #         options={'verbose_name': 'Anonymous order', 'verbose_name_plural': 'Anonymous orders'},
+    #     ),
+    #     migrations.AlterField(
+    #         model_name='anonymousorder',
+    #         name='cart_items',
+    #         field=models.ManyToManyField(to='cart.anonymouscartitem'),
+    #     ),
+    # ]

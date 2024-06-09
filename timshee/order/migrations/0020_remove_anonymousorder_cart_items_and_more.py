@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='anonymousorder',
-            name='cart_items',
-        ),
+        # migrations.RemoveField(
+        #     model_name='anonymousorder',
+        #     name='cart_items',
+        # ),
         migrations.RemoveField(
             model_name='order',
             name='cart_items',

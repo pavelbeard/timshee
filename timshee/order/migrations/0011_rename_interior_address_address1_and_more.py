@@ -20,14 +20,14 @@ class Migration(migrations.Migration):
             old_name='street',
             new_name='address2',
         ),
-        migrations.RenameField(
-            model_name='anonymousaddress',
-            old_name='interior',
-            new_name='address1',
-        ),
-        migrations.RenameField(
-            model_name='anonymousaddress',
-            old_name='street',
-            new_name='address2',
-        ),
+        # migrations.RenameField(
+        #     model_name='anonymousaddress',
+        #     old_name='interior',
+        #     new_name='address1',
+        # ),
+        # migrations.RenameField(
+        #     model_name='anonymousaddress',
+        #     old_name='street',
+        #     new_name='address2',
+        # ),
     ]

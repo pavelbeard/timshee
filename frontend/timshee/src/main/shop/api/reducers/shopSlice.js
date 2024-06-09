@@ -1,5 +1,5 @@
 import {createSlice, current} from "@reduxjs/toolkit";
-import {getCategories, getColors, getItems, getSizes} from "../asyncThunks";
+import {getCategories, getColors, getItems, getSizes, getTypes} from "../asyncThunks";
 
 const initialState = {
     filters: [],
@@ -9,6 +9,8 @@ const initialState = {
     colorsStatus: 'idle',
     categories: [],
     categoriesStatus: 'idle',
+    types: [],
+    typesStatus: 'idle',
     items: [],
     itemsStatus: 'idle',
     pagesCount: 0,
@@ -96,6 +98,28 @@ const shopSlice = createSlice({
             const valuesToRemove = [...current(state).categories].map(i => i.value);
             state.filters = state.filters.filter(i => !valuesToRemove.includes(i));
         },
+        checkTypes: (state, action) => {
+            const filteredType = [...current(state).types].find(type =>
+                type.id === action.payload
+            );
+            const changedType = {...filteredType, checked: !filteredType.checked};
+
+            if (changedType.checked) {
+                state.filters.push(changedType.value);
+            } else {
+                const index = state.filters.findIndex(i => i === changedType.value);
+                state.filters.splice(index, 1);
+            }
+
+            const index = state.types.findIndex(i => i.id === changedType.id);
+            state.types[index] = changedType;
+        },
+        uncheckTypes: (state, action) => {
+            const typesCopy = [...current(state).types];
+            state.types = typesCopy.map(i => {return {...i, checked: false}});
+            const valuesToRemove = [...current(state).types].map(i => i.value);
+            state.filters = state.filters.filter(i => !valuesToRemove.includes(i));
+        },
         updateOrderBy: (state, action) => {
             const name = [...current(state).sortOrder].find(i => i.value === action.payload).name;
             const index = state.filters.findIndex(i => i === "descending" || i === "ascending");
@@ -111,7 +135,7 @@ const shopSlice = createSlice({
         resetFilters: (state, action) => {
             state.sizes = [...current(state).sizes].map(item => {return {...item, checked: false}});
             state.colors = [...current(state).colors].map(item => {return {...item, checked: false}});
-            state.categories = [...current(state).categories].map(item => {return {...item, checked: false}});
+            state.types = [...current(state).types].map(item => {return {...item, checked: false}});
             state.filters = [];
         }
     },
@@ -142,7 +166,7 @@ const shopSlice = createSlice({
             })
 
             .addCase(getCategories.pending, (state, action) => {
-                state.itemsStatus = 'loading';
+                state.categoriesStatus = 'loading';
             })
             .addCase(getCategories.fulfilled, (state, action) => {
                 state.categoriesStatus = 'success';
@@ -150,6 +174,18 @@ const shopSlice = createSlice({
             })
             .addCase(getCategories.rejected, (state, action) => {
                 state.categoriesStatus = 'error';
+                state.error = action.payload;
+            })
+
+            .addCase(getTypes.pending, (state, action) => {
+                state.typesStatus = 'loading';
+            })
+            .addCase(getTypes.fulfilled, (state, action) => {
+                state.typesStatus = 'success';
+                state.types = action.payload;
+            })
+            .addCase(getTypes.rejected, (state, action) => {
+                state.typesStatus = 'error';
                 state.error = action.payload;
             })
 
@@ -161,6 +197,25 @@ const shopSlice = createSlice({
                 state.items = action.payload.items;
                 state.pagesCount = action.payload.pagesCount;
                 state.totalItemsCount = action.payload.totalItemsCount;
+
+                state.sizes = [...current(state).sizes].map(i => {
+                    const totalSizes = action.payload.totalSizes.find(
+                        g => g.stock__size__value === i.value
+                    )?.total_sizes || 0;
+                    return {...i, total: totalSizes};
+                });
+                state.colors = [...current(state).colors].map(i => {
+                    const totalColors = action.payload.totalColors.find(
+                        g => g.stock__color__name === i.value
+                    )?.total_colors || 0;
+                    return {...i, total: totalColors};
+                });
+                state.types = [...current(state).types].map(i => {
+                    const totalTypes = action.payload.totalTypes.find(
+                        g => g.type__name === i.value
+                    )?.total_types || 0;
+                    return {...i, total: totalTypes};
+                });
             })
             .addCase(getItems.rejected, (state, action) => {
                 state.itemsStatus = 'error';
@@ -176,6 +231,8 @@ export const {
     uncheckColors,
     checkCategories,
     uncheckCategories,
+    checkTypes,
+    uncheckTypes,
     updateOrderBy,
     resetFilters,
 } = shopSlice.actions;

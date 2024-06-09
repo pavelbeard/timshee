@@ -10,16 +10,16 @@ class Migration(migrations.Migration):
         ('order', '0014_rename_city_province_address_province_and_more'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='anonymousaddress',
-            name='province',
-            field=models.ForeignKey(null=True, default=None, on_delete=django.db.models.deletion.CASCADE, to='order.province'),
-            preserve_default=False,
-        ),
-        migrations.AlterField(
-            model_name='anonymousaddress',
-            name='city',
-            field=models.CharField(max_length=50),
-        ),
-    ]
+    # operations = [
+    #     migrations.AddField(
+    #         model_name='anonymousaddress',
+    #         name='province',
+    #         field=models.ForeignKey(null=True, default=None, on_delete=django.db.models.deletion.CASCADE, to='order.province'),
+    #         preserve_default=False,
+    #     ),
+    #     migrations.AlterField(
+    #         model_name='anonymousaddress',
+    #         name='city',
+    #         field=models.CharField(max_length=50),
+    #     ),
+    # ]

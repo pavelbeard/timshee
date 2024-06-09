@@ -17,11 +17,11 @@ class Migration(migrations.Migration):
                 ('last_order_id', models.PositiveIntegerField(default=10000)),
             ],
         ),
-        migrations.AlterField(
-            model_name='anonymousorder',
-            name='order_number',
-            field=models.CharField(max_length=255, unique=True),
-        ),
+        # migrations.AlterField(
+        #     model_name='anonymousorder',
+        #     name='order_number',
+        #     field=models.CharField(max_length=255, unique=True),
+        # ),
         migrations.AlterField(
             model_name='order',
             name='order_number',

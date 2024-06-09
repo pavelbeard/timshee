@@ -10,11 +10,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='anonymousorder',
-            name='status',
-            field=models.CharField(choices=[('created', 'CREATED'), ('pending_for_pay', 'PENDING FOR PAY'), ('processing', 'PROCESSING'), ('completed', 'COMPLETED'), ('cancelled', 'CANCELLED'), ('refunded', 'REFUNDED')], default='created', max_length=20),
-        ),
+        # migrations.AlterField(
+        #     model_name='anonymousorder',
+        #     name='status',
+        #     field=models.CharField(choices=[('created', 'CREATED'), ('pending_for_pay', 'PENDING FOR PAY'), ('processing', 'PROCESSING'), ('completed', 'COMPLETED'), ('cancelled', 'CANCELLED'), ('refunded', 'REFUNDED')], default='created', max_length=20),
+        # ),
         migrations.AlterField(
             model_name='order',
             name='status',

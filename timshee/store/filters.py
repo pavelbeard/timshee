@@ -21,8 +21,10 @@ class ItemFilter(django_filters.FilterSet):
             'colors__name': ['in', 'exact', 'icontains', 'istartswith'],
             'collection__name': ['in', 'exact', 'icontains', 'istartswith'],
             'collection__link': ['in', 'exact', 'icontains', 'istartswith'],
-            'type__name': ['exact', 'icontains', 'istartswith'],
+            'type__name': ['in', 'exact', 'icontains', 'istartswith'],
+            'type__code': ['in', 'exact', 'icontains', 'istartswith'],
             'type__category__name': ['in', 'exact', 'icontains', 'istartswith'],
+            'type__category__code': ['in', 'exact', 'icontains', 'istartswith'],
             # 'stock__price': ['gte', 'lte', 'exact']
         }
 
@@ -42,7 +44,8 @@ class StockFilter(django_filters.FilterSet):
             'item__description': ['exact', 'icontains', 'istartswith'],
             'item__gender': ['exact'],
             'item__collection__name': ['exact', 'icontains', 'istartswith'],
-            'item__type__name': ['exact', 'icontains', 'istartswith'],
+            'item__type__name': ['in', 'exact', 'icontains', 'istartswith'],
+            'item__type__code': ['in', 'exact', 'icontains', 'istartswith'],
             'item__type__category__name': ['exact', 'icontains', 'istartswith'],
             'in_stock': ['gte', 'lte', 'gt', 'lt', 'exact'],
             'size__id': ['exact'],

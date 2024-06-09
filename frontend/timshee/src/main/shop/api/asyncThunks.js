@@ -13,8 +13,8 @@ export const getItems = createAsyncThunk(
             const filterColors = filters?.colors.length > 0
                 ? `&colors__name__in=${filters?.colors.join(',')}`
                 : "";
-            const filterCategories = filters?.categories.length > 0
-                ? `&type__category__name__in=${filters?.categories.join(',')}`
+            const filterCategory = filters?.category
+                ? `&type__category__name=${filters?.category}`
                 : "";
             const filterOrderBy = filters?.orderBy
                 ? `&o=${filters.orderBy}`
@@ -25,14 +25,18 @@ export const getItems = createAsyncThunk(
             const filterCollection = filters?.collection
                 ? `&collection__link=${filters.collection}`
                 : "";
+            const filterTypes = filters?.types
+                ? `&type__code__in=${filters.types.join(',')}`
+                : "";
             const encodedURI = encodeURI(API_URL
                 + `api/store/items/?${currentPage === 1 ? "" : `page=${currentPage}`}`
                 + filterSizes
                 + filterColors
-                + filterCategories
+                + filterCategory
                 + filterOrderBy
                 + filterGender
                 + filterCollection
+                + filterTypes
             );
 
             const response = await fetch(encodedURI, {
@@ -50,6 +54,9 @@ export const getItems = createAsyncThunk(
                     pagesCount: Math.ceil(json.count / 9),
                     items: json.results,
                     totalItemsCount: json.count,
+                    totalSizes: json.total_sizes,
+                    totalColors: json.total_colors,
+                    totalTypes: json.total_types
                 }
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...")
@@ -70,7 +77,11 @@ export const getSizes = createAsyncThunk(
                 const json = await response.json();
                 const newSizes = [];
                 json.forEach((item) => {
-                    newSizes.push({id: item.id, value: item.value, checked: false});
+                    newSizes.push({
+                        id: item.id,
+                        value: item.value,
+                        checked: false
+                    });
                 });
                 return newSizes;
             } else {
@@ -100,7 +111,11 @@ export const getColors = createAsyncThunk(
 
                 const newColors = [];
                 json.forEach((item) => {
-                    newColors.push({id: item.id, value: item.name, hex: item.hex, checked: false});
+                    newColors.push({
+                        id: item.id,
+                        value: item.name,
+                        hex: item.hex,
+                        checked: false});
                 })
 
                 return newColors;
@@ -131,10 +146,51 @@ export const getCategories = createAsyncThunk(
 
                 const newCategories = [];
                 json.forEach((item) => {
-                    newCategories.push({id: item.id, value: item.name, checked: false});
+                    newCategories.push({
+                        id: item.id,
+                        value: item.name,
+                        code: item.code,
+                        checked: false
+                    });
                 });
 
                 return newCategories;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...")
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const getTypes = createAsyncThunk(
+    "shop/getTypes",
+    async (arg, thunkAPI) => {
+        try {
+            const url = `${API_URL}api/store/types/`;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                credentials: "include",
+            });
+            if (response.ok) {
+                const json = await response.json();
+
+                const newTypes = [];
+                json.forEach((item) => {
+                    newTypes.push({
+                        id: item.id,
+                        value: item.name,
+                        code: item.code,
+                        checked: false
+                    });
+                });
+
+                return newTypes;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...")
             }

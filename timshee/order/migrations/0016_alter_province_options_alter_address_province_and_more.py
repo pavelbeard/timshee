@@ -21,14 +21,14 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='order.province'),
             preserve_default=False,
         ),
-        migrations.AlterField(
-            model_name='anonymousaddress',
-            name='province',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='order.province'),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
+        # migrations.AlterField(
+        #     model_name='anonymousaddress',
+        #     name='province',
+        #     field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='order.province'),
+        # ),
+        # migrations.AlterField(
+        #     model_name='order',
+        #     name='id',
+        #     field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+        # ),
     ]

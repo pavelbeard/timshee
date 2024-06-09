@@ -104,7 +104,10 @@
 }
 
 /*LINKS*/
-.nav-item-lvl1 > span > a {
+.nav-item-lvl0 > span > a,
+.nav-item-lvl1 > span > a,
+.nav-item-lvl2 > span > a,
+.nav-item-lvl3 > span > a {
     text-decoration: none;
     color: #000;
     cursor: pointer;
@@ -122,12 +125,29 @@
     padding: 0;
 }
 
+/*LVL2 MENU HOVER*/
+.nav-item-lvl2:hover > ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+
 /*LVL2*/
 .nav-list-lvl2 {
     display: none;
     position: absolute;
 }
 .nav-item-lvl2 {
+    padding: 1.5rem 0.5rem 0.5rem 0;
+}
+
+/*LVL3*/
+.nav-list-lvl3 {
+    display: none;
+    position: absolute;
+}
+
+.nav-item-lvl3 {
     padding: 1.5rem 0.5rem 0.5rem 0;
 }
 

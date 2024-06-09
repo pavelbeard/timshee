@@ -16,22 +16,22 @@ class Migration(migrations.Migration):
             field=models.CharField(default='n/a', max_length=50),
             preserve_default=False,
         ),
-        migrations.AddField(
-            model_name='address',
-            name='last_name',
-            field=models.CharField(default='n/a', max_length=50),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='anonymousaddress',
-            name='first_name',
-            field=models.CharField(default='n/a', max_length=50),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='anonymousaddress',
-            name='last_name',
-            field=models.CharField(default='n/a', max_length=50),
-            preserve_default=False,
-        ),
+        # migrations.AddField(
+        #     model_name='address',
+        #     name='last_name',
+        #     field=models.CharField(default='n/a', max_length=50),
+        #     preserve_default=False,
+        # ),
+        # migrations.AddField(
+        #     model_name='anonymousaddress',
+        #     name='first_name',
+        #     field=models.CharField(default='n/a', max_length=50),
+        #     preserve_default=False,
+        # ),
+        # migrations.AddField(
+        #     model_name='anonymousaddress',
+        #     name='last_name',
+        #     field=models.CharField(default='n/a', max_length=50),
+        #     preserve_default=False,
+        # ),
     ]

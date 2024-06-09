@@ -17,14 +17,14 @@ class Migration(migrations.Migration):
             name='set_as_primary',
             field=models.BooleanField(default=False),
         ),
-        migrations.AddField(
-            model_name='anonymousaddress',
-            name='session',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
-        ),
-        migrations.AddField(
-            model_name='anonymousorder',
-            name='session',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
-        ),
+        # migrations.AddField(
+        #     model_name='anonymousaddress',
+        #     name='session',
+        #     field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
+        # ),
+        # migrations.AddField(
+        #     model_name='anonymousorder',
+        #     name='session',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
+        # ),
     ]

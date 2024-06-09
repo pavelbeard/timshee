@@ -22,7 +22,7 @@
 }
 
 .cart-high {
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .cart-empty {
@@ -57,7 +57,7 @@
 }
 
 .cart-items {
-    height: 100%;
+    height: 100vh;
     overflow-y: auto;
 }
 
@@ -140,4 +140,15 @@
 
 .privacy {
     text-decoration: underline;
+}
+
+@media only screen and (max-width: 768px) {
+    .cart-item-container {
+        flex-direction: column;
+    }
+
+    .cart-item-props {
+        padding-left: 0;
+        padding-top: 0.5rem;
+    }
 }

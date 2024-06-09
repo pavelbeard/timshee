@@ -11,10 +11,10 @@ class Migration(migrations.Migration):
         ('sessions', '0001_initial'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='anonymousaddress',
-            name='session',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
-        ),
-    ]
+    # operations = [
+    #     migrations.AlterField(
+    #         model_name='anonymousaddress',
+    #         name='session',
+    #         field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
+    #     ),
+    # ]

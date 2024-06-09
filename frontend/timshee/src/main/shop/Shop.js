@@ -7,20 +7,18 @@ import "./Shop.css";
 import leftArrow from "../../media/static_images/arrow-left.svg";
 import rightArrow from "../../media/static_images/arrow-right.svg";
 import {useNavigate, useParams} from "react-router-dom";
-import {getCategories, getColors, getItems, getSizes} from "./api/asyncThunks";
+import {getCategories, getColors, getItems, getSizes, getTypes} from "./api/asyncThunks";
 import {
     checkCategories,
     checkColors,
-    checkSizes,
+    checkSizes, checkTypes,
     resetFilters,
     uncheckCategories,
     uncheckColors,
-    uncheckSizes, updateOrderBy
+    uncheckSizes, uncheckTypes, updateOrderBy
 } from "./api/reducers/shopSlice";
 import Loading from "../Loading";
 import Error from "../Error";
-
-const API_URL = process.env.REACT_APP_API_URL;
 
 const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPage }) => {
     const pages = [];
@@ -71,7 +69,6 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPag
 const Shop = () => {
     window.document.title = "Shop | Timshee";
     const params = useParams();
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {
@@ -79,13 +76,22 @@ const Shop = () => {
         sizesStatus, sizes,
         colorsStatus, colors,
         categoriesStatus, categories,
+        typesStatus, types,
         itemsStatus, items,
         pagesCount, totalItemsCount,
     } = useSelector(state => state.shop);
+    const {collections} = useSelector(state => state.app);
 
-    // a gender or collection
-    const vPath = Object.keys(params)[0] === 'gender' ? "g" : "c"
 
+    const path = () => {
+        const values = params.c.split('+');
+        const gender = genders.filter(g => values.includes(g.value)).at(0)?.gender || "";
+        const collection = collections.filter(c => values.includes(c.link)).at(0)?.link || "";
+        const category = categories.filter(c => values.includes(c.name)).at(0)?.code || "";
+        const type = types.filter(c => values.includes(c.code)).at(0)?.code || "";
+
+        return [gender, collection, category, type];
+    }
 
     const [activeFilter, setActiveFilter] = useState(null);
     const [orderBy, setOrderBy] = useState("");
@@ -103,43 +109,48 @@ const Shop = () => {
         if (categoriesStatus === 'idle') {
             dispatch(getCategories());
         }
+
+        if (typesStatus === 'idle') {
+            dispatch(getTypes());
+        }
     }, []);
 
     useEffect(() => {
         if (itemsStatus === 'idle' &&
             sizesStatus === 'success' &&
             colorsStatus === 'success' &&
+            typesStatus === 'success' &&
             categoriesStatus === 'success'
         ) {
+            const [gender, collection, category, type] = path();
             dispatch(getItems({
                 filters: {
-                    gender: Object.keys(params)[0] === 'gender'
-                        ? genders.find(g => g.value === params[Object.keys(params)[0]])?.gender
-                        : "",
-                    collection: Object.keys(params)[0] === 'collection'
-                        ? params[Object.keys(params)[0]]
-                        : "",
-                }
+                    gender: gender,
+                    collection: collection,
+                    category: category,
+                    types: [type],
+                },
+                currentPage: currentPage
             }));
+
         }
     }, [sizesStatus, colorsStatus, categoriesStatus]);
 
     useEffect(() => {
+        const [gender, collection, category] = path();
+        const f = {
+            sizes: sizes.filter(s => s.checked).map(s => s.value),
+            colors: colors.filter(c => c.checked).map(c => c.value),
+            category: category,
+            orderBy: sortOrder.filter(so => filters.includes(so.name))[0]?.value,
+            gender: gender,
+            collection: collection,
+            types: types.filter(t => t.checked).map(t => t.code),
+        };
         dispatch(getItems({
-            filters: {
-                sizes: sizes.filter(s => s.checked).map(s => s.value),
-                colors: colors.filter(c => c.checked).map(c => c.value),
-                categories: categories.filter(c => c.checked).map(c => c.value),
-                orderBy: sortOrder.filter(so => filters.includes(so.name))[0]?.value,
-                gender: Object.keys(params)[0] === 'gender'
-                        ? genders.find(g => g.value === params[Object.keys(params)[0]])?.gender
-                        : "",
-                collection: Object.keys(params)[0] === 'collection'
-                    ? params[Object.keys(params)[0]]
-                    : "",
-            },
+            filters: f,
             currentPage: currentPage,
-        }))
+        }));
     }, [filters, currentPage, params]);
 
     useEffect(() => {
@@ -153,24 +164,24 @@ const Shop = () => {
     const setCurrentPageLink = (page) => {
         if (page === 0 || page === undefined) {
             setCurrentPage(1);
-            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}`);
+            navigate(`/shop/collections/${params.c}`);
         } else {
             setCurrentPage(page);
-            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${page}`);
+            navigate(`/shop/collections/${params.c}/page/${page}`);
         }
     };
 
     const prevPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
-            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${currentPage - 1}`);
+            navigate(`/shop/collections/${params.c}/page/${currentPage - 1}`);
         }
     };
 
     const nextPage = () => {
         if (currentPage < pagesCount) {
             setCurrentPage(currentPage + 1);
-            navigate(`/shop/collections/${vPath}/${params[Object.keys(params)[0]]}/page/${currentPage + 1}`);
+            navigate(`/shop/collections/${params.c}/page/${currentPage + 1}`);
         }
     }
 
@@ -178,20 +189,21 @@ const Shop = () => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({sizes.filter(size => size.checked).length})</span>
+                    <span className="selected-1">Selected ({sizes.filter(size => size.checked).length})</span>
                     <div className="reset" onClick={() => dispatch(uncheckSizes())}>Reset</div>
                 </div>
-                <div className="filters-list">
+                <div className="filters-list" >
                 {
                     typeof sizes.map === "function" && sizes?.map((size) => {
                         return (
                             <label key={size.id}>
                                 <input
+                                    disabled={size.total === 0}
                                     type="checkbox"
                                     checked={size.checked}
                                     value={size.id}
-                                    onChange={e => dispatch(checkSizes(parseInt(e.target.value)))} />
-                                <span>{size.value}</span>
+                                    onChange={e => dispatch(checkSizes(parseInt(e.target.value)))}/>
+                                <span className="value-name">({size.total}) {size.value}</span>
                             </label>
                         )
                     })
@@ -205,22 +217,23 @@ const Shop = () => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({colors.filter(color => color.checked).length})</span>
+                    <span className="selected-1">Selected ({colors.filter(color => color.checked).length})</span>
                     <div className="reset" onClick={() => dispatch(uncheckColors())}>Reset</div>
                 </div>
                 <div className="filters-list">
                 {
-                    typeof colors.map === "function" && colors.map((item) => {
+                    typeof colors.map === "function" && colors.map((color) => {
                         return (
-                            <label key={item.id}>
+                            <label key={color.id}>
                                 <input
+                                    disabled={color.total === 0}
                                     type="checkbox"
-                                    checked={item.checked}
-                                    value={item.id}
+                                    checked={color.checked}
+                                    value={color.id}
                                     onChange={e => dispatch(checkColors(parseInt(e.target.value)))} />
-                                <span>{item.value}</span>
-                                <div style={{
-                                   backgroundColor: `${item.hex}`,
+                                <span className="value-name">({color.total}) {color.value}</span>
+                                <div className="value-name" style={{
+                                   backgroundColor: `${color.hex}`,
                                 }}>
                                 </div>
                             </label>
@@ -232,52 +245,65 @@ const Shop = () => {
         )
     };
 
-    const categoryBlock = () => {
+    const typeBlock = () => {
         return (
             <div className="filters-container">
                 <div className="filters-reset">
-                    <span>Selected ({categories.filter(category => category.checked).length})</span>
-                    <div className="reset" onClick={() => dispatch(uncheckCategories())}>Reset</div>
+                    <span className="selected-1">Selected ({types.filter(types => types.checked).length})</span>
+                    <div className="reset" onClick={() => dispatch(uncheckTypes())}>Reset</div>
                 </div>
                 <div className="filters-list">
                     {
-                    typeof categories.map === "function" && categories?.map((item) => {
+                    typeof types.map === "function" && types?.map((type) => {
                         return (
-                            <label key={item.id}>
+                            <label key={type.id}>
                                 <input
+                                    disabled={type.total === 0}
                                     type="checkbox"
-                                    checked={item.checked}
-                                    value={item.id}
-                                    onChange={e => dispatch(checkCategories(parseInt(e.target.value)))} />
-                                <span>{item.value}</span>
+                                    checked={type.checked}
+                                    value={type.id}
+                                    onChange={e => dispatch(checkTypes(parseInt(e.target.value)))}/>
+                                <span className="value-name">({type.total}) {type.value}</span>
                             </label>
                         )
-                    })
-                }
+                        })
+                    }
                 </div>
             </div>
         )
     };
 
     const turnFilters = (e) => {
-        const filter = e.target.getAttribute("data-filter");
-        setActiveFilter(activeFilter === filter ? null : filter);
+        const prohibitedFilters =
+            e.target.classList[0] === 'value-name' ||
+            e.target.classList[0] === 'selected-1' ||
+            e.target.classList[0] === 'filters-list' ||
+            e.target.classList[0] === 'filters-container' ||
+            e.target.classList[0] ==='filters-reset' ||
+            e.target.localName === 'input';
+        if (!prohibitedFilters) {
+            const filter = e.target.getAttribute("data-filter");
+            setActiveFilter(activeFilter === filter ? null : filter);
+        }
     };
 
     return (
-        <div className="shop-container">
+        <div className="shop-container" onClick={turnFilters}>
             <div className="collection-name">
-                {params[Object.keys(params)[0]] && params[Object.keys(params)[0]].replaceAll('-', ' ')}
+                {path().at(1)}
             </div>
             <div className="settings-container">
                 <div className="filters">
                     <label className="labels">Filter:</label>
-                    <span className="labels" data-filter="size" onClick={turnFilters}>Size:</span>
+                    <span className="labels" data-filter="size"
+                          onClick={turnFilters}>Size:</span>
                     {activeFilter === "size" && sizesBlock()}
-                    <span className="labels" data-filter="color" onClick={turnFilters}>Color:</span>
+                    <span className="labels" data-filter="color"
+                          onClick={turnFilters}>Color:</span>
                     {activeFilter === "color" && colorsBlock()}
-                    <span className="labels" data-filter="category" onClick={turnFilters}>Category:</span>
-                    {activeFilter === "category" && categoryBlock()}
+                    <span className="labels" data-filter="category"
+                          onClick={turnFilters}>Type:</span>
+                    {activeFilter === "category" && typeBlock()}
                 </div>
                 <div className="sort-by">
                     <label htmlFor="sort-by">Order By:

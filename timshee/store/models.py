@@ -65,6 +65,7 @@ class Collection(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Имя категории")
+    code = models.CharField(max_length=100, verbose_name="Код категории", blank=True, null=True)
     category_image = models.ImageField(
         upload_to="product_images/category_images/",
         verbose_name="Изображение категории",
@@ -81,6 +82,7 @@ class Category(models.Model):
 
 class Type(models.Model):
     name = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -157,7 +159,7 @@ class Item(models.Model):
     )
 
     def __str__(self):
-        return f"[Item: {self.name}] [Price: {self.price}] [Discount: {self.discount}] "
+        return f"[Item: {self.name}] [ID: {self.id}] [Price: {self.price}] [Discount: {self.discount}] "
 
     class Meta:
         verbose_name = "Item"

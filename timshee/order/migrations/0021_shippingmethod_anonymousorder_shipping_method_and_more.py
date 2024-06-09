@@ -23,11 +23,11 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Shipping methods',
             },
         ),
-        migrations.AddField(
-            model_name='anonymousorder',
-            name='shipping_method',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='order.shippingmethod'),
-        ),
+        # migrations.AddField(
+        #     model_name='anonymousorder',
+        #     name='shipping_method',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='order.shippingmethod'),
+        # ),
         migrations.AddField(
             model_name='order',
             name='shipping_method',

@@ -112,6 +112,14 @@ if DEBUG:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+        },
+        'secondary': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'test_timshee_db',
+            'USER': 'test_timshee',
+            'PASSWORD': 'admin@123',
+            'HOST': 'localhost',
+            'PORT': 5432,
         }
     }
 elif TESTING or not DEBUG:

@@ -12,6 +12,8 @@ const initialState = {
     csrftokenStatus: 'idle',
     collections: [],
     collectionsStatus: 'idle',
+    categories: [],
+    categoriesStatus: 'idle',
 };
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -34,6 +36,25 @@ export const getCollectionLinks = createAsyncThunk(
     async (arg, thunkAPI) => {
         try {
             const response = await fetch(API_URL + "api/store/collections/", {
+                credentials: "include",
+            });
+
+            if (response.status === 200) {
+                return await response.json();
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const getCategories = createAsyncThunk(
+    "app/getCategories",
+    async (arg, thunkAPI) => {
+        try {
+            const response = await fetch(API_URL + "api/store/categories/", {
                 credentials: "include",
             });
 
@@ -105,6 +126,17 @@ const appSlice = createSlice({
             .addCase(getCollectionLinks.rejected, (state, action) => {
                 state.collectionsStatus = 'error';
                 state.error = action.payload;
+            })
+
+            .addCase(getCategories.pending, (state, action) => {
+                state.categoriesStatus = 'loading';
+            })
+            .addCase(getCategories.fulfilled, (state, action) => {
+                state.categoriesStatus = 'success';
+                state.categories = action.payload;
+            })
+            .addCase(getCategories.rejected, (state, action) => {
+                state.categoriesStatus = 'error';
             })
     }
 });

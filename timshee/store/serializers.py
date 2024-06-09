@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import serializers
 from . import models, strict_serializers
 
@@ -59,6 +60,7 @@ class ItemSerializer(serializers.ModelSerializer):
     def get_carousel_images(self, obj):
         carousel_images = models.CarouselImage.objects.filter(item=obj.pk)
         return CarouselImageSerializer(carousel_images, many=True).data
+
 
     class Meta:
         model = models.Item

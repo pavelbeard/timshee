@@ -21,7 +21,7 @@ import OrderDetail from "./main/account/OrderDetail";
 import {AuthProvider} from "./main/auth/AuthProvider";
 import PrivateRoute from "./main/auth/PrivateRoute";
 import OrderRefund from "./main/account/OrderRefund";
-import {getCollectionLinks, getCsrfToken} from "./redux/slices/appSlice";
+import {getCategories, getCollectionLinks, getCsrfToken} from "./redux/slices/appSlice";
 import Loading from "./main/Loading";
 import Error from "./main/Error";
 
@@ -32,6 +32,7 @@ const MainComponent = () => {
     useEffect(() => {
         dispatch(getCsrfToken());
         dispatch(getCollectionLinks());
+        dispatch(getCategories());
     }, []);
 
     if (collectionsStatus === 'success') {
@@ -41,13 +42,9 @@ const MainComponent = () => {
                     <Routes>
                         <Route path="/" element={<Main/>} >
                             <Route path="/cart" element={<Cart/>}/>
-                                {/*<Route path="/shop/page/:page" element={<Shop/>}/>*/}
-                            <Route path="/shop/collections/g/:gender" element={<Shop/>}/>
-                            <Route path="/shop/collections/c/:collection" element={<Shop/>}/>
-                            <Route path="/shop/collections/g/:gender/page/:page" element={<Shop/>}/>
-                            <Route path="/shop/collections/c/:collection/page/:page" element={<Shop/>}/>
-                            <Route path="/shop/collections/g/:gender/:type/:itemId/:itemName" element={<ItemCardDetail/>}/>
-                            <Route path="/shop/collections/c/:collection/:type/:itemId/:itemName" element={<ItemCardDetail/>}/>
+                            <Route path="/shop/collections/:c" element={<Shop />}/>
+                            <Route path="/shop/collections/:c/page/:page" element={<Shop />}/>
+                            <Route path="/shop/collections/:c/:type/:itemId/:itemName" element={<Shop />}/>
                             <Route path="/account/login" element={<Login/>}/>
                             <Route path="/account/register" element={<Register/>}/>
                             <Route element={<PrivateRoute/>}>
