@@ -10,11 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.AddField(
-        #     model_name='anonymousorder',
-        #     name='order_number',
-        #     field=models.CharField(default='10000-AN', max_length=255, unique=True),
-        # ),
         migrations.AddField(
             model_name='order',
             name='order_number',

@@ -10,11 +10,3 @@ class Migration(migrations.Migration):
         ('order', '0021_shippingmethod_anonymousorder_shipping_method_and_more'),
         ('sessions', '0001_initial'),
     ]
-
-    # operations = [
-    #     migrations.AlterField(
-    #         model_name='anonymousaddress',
-    #         name='session',
-    #         field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='sessions.session'),
-    #     ),
-    # ]

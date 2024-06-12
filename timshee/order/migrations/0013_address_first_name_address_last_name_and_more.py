@@ -13,25 +13,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='address',
             name='first_name',
-            field=models.CharField(default='n/a', max_length=50),
+            field=models.CharField(blank=True, max_length=50),
             preserve_default=False,
         ),
-        # migrations.AddField(
-        #     model_name='address',
-        #     name='last_name',
-        #     field=models.CharField(default='n/a', max_length=50),
-        #     preserve_default=False,
-        # ),
-        # migrations.AddField(
-        #     model_name='anonymousaddress',
-        #     name='first_name',
-        #     field=models.CharField(default='n/a', max_length=50),
-        #     preserve_default=False,
-        # ),
-        # migrations.AddField(
-        #     model_name='anonymousaddress',
-        #     name='last_name',
-        #     field=models.CharField(default='n/a', max_length=50),
-        #     preserve_default=False,
-        # ),
+        migrations.AddField(
+            model_name='address',
+            name='last_name',
+            field=models.CharField(blank=True, max_length=50),
+            preserve_default=False,
+        ),
     ]

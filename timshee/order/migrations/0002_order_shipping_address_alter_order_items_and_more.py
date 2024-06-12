@@ -17,11 +17,6 @@ class Migration(migrations.Migration):
             name='shipping_address',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='order.address'),
         ),
-        # migrations.AlterField(
-        #     model_name='order',
-        #     name='items',
-        #     field=models.ManyToManyField(to='cart.cartitem'),
-        # ),
         migrations.DeleteModel(
             name='OrderItem',
         ),

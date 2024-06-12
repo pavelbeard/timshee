@@ -6,15 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('order', '0023_anonymousaddress_is_last'),
+        ('order', '0022_alter_anonymousaddress_session'),
     ]
 
     operations = [
-        # migrations.AlterField(
-        #     model_name='anonymousorder',
-        #     name='status',
-        #     field=models.CharField(choices=[('created', 'CREATED'), ('pending_for_pay', 'PENDING FOR PAY'), ('processing', 'PROCESSING'), ('completed', 'COMPLETED'), ('cancelled', 'CANCELLED'), ('refunded', 'REFUNDED')], default='created', max_length=20),
-        # ),
         migrations.AlterField(
             model_name='order',
             name='status',

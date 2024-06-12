@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('order', '0015_anonymousaddress_province_and_more'),
+        ('order', '0014_rename_city_province_address_province_and_more'),
     ]
 
     operations = [
@@ -21,14 +21,4 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='order.province'),
             preserve_default=False,
         ),
-        # migrations.AlterField(
-        #     model_name='anonymousaddress',
-        #     name='province',
-        #     field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='order.province'),
-        # ),
-        # migrations.AlterField(
-        #     model_name='order',
-        #     name='id',
-        #     field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        # ),
     ]

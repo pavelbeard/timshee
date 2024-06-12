@@ -13,23 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RemoveField(
-        #     model_name='anonymousorder',
-        #     name='shipping_address',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='anonymousorder',
-        #     name='session',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='anonymousorder',
-        #     name='shipping_method',
-        # ),
-        # migrations.AddField(
-        #     model_name='address',
-        #     name='session_key',
-        #     field=models.CharField(blank=True, max_length=40, null=True),
-        # ),
         migrations.AddField(
             model_name='order',
             name='session_key',
@@ -45,10 +28,4 @@ class Migration(migrations.Migration):
             name='user',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
-        # migrations.DeleteModel(
-        #     name='AnonymousAddress',
-        # ),
-        # migrations.DeleteModel(
-        #     name='AnonymousOrder',
-        # ),
     ]

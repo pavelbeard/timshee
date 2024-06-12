@@ -11,7 +11,7 @@ import ItemCardDetail from "./main/shop/ItemCardDetail";
 import NotFound from "./NotFound";
 import Cart from "./main/cart/Cart";
 import Checkout from "./main/order/Checkout";
-import TestComponent from "./test/TestComponent";
+// import TestComponent from "./test/TestComponent";
 import OrderPaid from "./main/order/OrderPaid";
 import Orders from "./main/account/Orders";
 import OrderIsNotPaid from "./main/order/OrderIsNotPaid";
@@ -28,11 +28,12 @@ import PrivacyInfo from "./main/PrivacyInfo";
 import Wishlist from "./main/account/Wishlist";
 import translateService from "./main/translate/TranslateService";
 import {TranslateProvider} from "./main/translate/TranslateProvider";
+import Nothing from "./main/Nothing";
+import StartPage from "./main/StartPage";
 
 const MainComponent = () => {
     const dispatch = useDispatch();
-    const language = translateService.language();
-    const {collections: collectionLinks, collectionsStatus} = useSelector(state => state.app);
+    const {collections: collectionLinks, categories, collectionsStatus} = useSelector(state => state.app);
 
     useEffect(() => {
         dispatch(getCsrfToken());
@@ -41,7 +42,7 @@ const MainComponent = () => {
         dispatch(getCountries());
     }, []);
 
-    if (collectionsStatus === 'success') {
+    if (collectionsStatus === 'success' && collectionLinks.length > 0 && categories.length > 0) {
         return (
             <TranslateProvider>
                 <AuthProvider>
@@ -83,7 +84,7 @@ const MainComponent = () => {
                             </Route>
                             <Route path="/shop/:orderId/checkout" element={<Checkout/>}/>
                             <Route path="/shop/:orderId/checkout/:step" element={<Checkout/>}/>
-                            <Route path="/test" element={<TestComponent/>}/>
+                            {/*<Route path="/test" element={<TestComponent/>}/>*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
                     </BrowserRouter>
@@ -91,9 +92,11 @@ const MainComponent = () => {
             </TranslateProvider>
         )
     } else if (collectionsStatus === 'loading') {
-        return <Loading/>;
+        return <Loading />;
     } else if (collectionsStatus === 'error') {
-        return <Error/>;
+        return <Error />;
+    } else {
+        return <StartPage />;
     }
 };
 

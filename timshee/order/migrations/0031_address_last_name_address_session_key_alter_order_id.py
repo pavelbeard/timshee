@@ -12,12 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='address',
-            name='last_name',
-            field=models.CharField(blank=True, max_length=50),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='address',
             name='session_key',
             field=models.CharField(blank=True, max_length=40, null=True),
         ),

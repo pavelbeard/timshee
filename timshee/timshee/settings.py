@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'drf_social_oauth2',
     'colorfield',
     'django_filters',
-    "debug_toolbar" if (DEBUG or TESTING)else "",
+    # "debug_toolbar" if (DEBUG or TESTING) else "",
     "parler",
     "parler_rest",
     # my
@@ -74,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
     # custom
     'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
     # my
     'stuff.middleware.LanguageMiddleware'
 ]

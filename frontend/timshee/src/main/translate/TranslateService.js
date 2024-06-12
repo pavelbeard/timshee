@@ -723,6 +723,11 @@ const stuff = {
         "en-US": "SERVER ERROR 500. WE ARE ALREADY SOLVING THIS PROBLEM",
         "en-UK": "SERVER ERROR 500. WE ARE ALREADY SOLVING THIS PROBLEM",
         "ru-RU": "ОШИБКА 500. Мы уже занимаемся это проблемой",
+    },
+    startPage: {
+        "en-US": "For start to work you need to add some data to DB: continents, countries, categories and collections",
+        "en-UK": "For start to work you need to add some data to DB: continents, countries, categories and collections",
+        "ru-RU": "Для начала работы нужно добавить некоторые данные в БД: континенты, страны, категории и коллекции"
     }
 };
 
