@@ -19,6 +19,8 @@ django-cors-headers==4.3.1
 django-debug-toolbar==4.3.0
 django-filter==24.1
 django-oauth-toolkit==2.3.0
+django-parler==2.3
+django-parler-rest==2.2
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 drf-social-oauth2==2.1.3

@@ -1,7 +1,7 @@
 /*ADDRESSES*/
 .common {
     min-height: 100vh;
-    padding: 30px 50px;
+    padding: 0 30px 50px 30px;
 }
 
 .account-authorized > div {
@@ -9,7 +9,7 @@
 }
 
 .first-block {
-    padding: 50px;
+    padding: 0 50px 50px 50px;
     display: flex;
     align-items: center;
 }
@@ -109,7 +109,6 @@
 /*}*/
 
 .go-to-list, .return-to-account, .add-address {
-    margin-top: 5rem;
 }
 
 .add-address {

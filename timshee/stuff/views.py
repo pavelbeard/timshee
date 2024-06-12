@@ -1,22 +1,20 @@
-from django.contrib.auth import get_user_model, authenticate, models
+from django.conf import settings
+from django.contrib.auth import get_user_model, models
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
+from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_protect
-from order import serializers as order_serializers
 from order import models as order_models
+from order import serializers as order_serializers
 from rest_framework import generics, status, permissions, viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt import views as jwt_views, tokens
+from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
-
-from . import services
 
 
 # Create your views here.
@@ -81,36 +79,6 @@ class LoginView(TokenObtainPairView):
         return response
 
 
-@method_decorator(csrf_protect, name='dispatch')
-class LogoutAPIView(generics.GenericAPIView):
-    allowed_methods = ["post"]
-
-    def post(self, request):
-        request.user.auth_token.delete()
-        return JsonResponse({'status': 'logged out'}, safe=False, status=status.HTTP_200_OK)
-
-
-class CheckAuthenticatedAPIView(generics.GenericAPIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    allowed_methods = ["GET"]
-
-    def handle_exception(self, exc):
-        if isinstance(exc, (NotAuthenticated, AuthenticationFailed)):
-            return JsonResponse(
-                {
-                    "authenticated": False, "error": "Not authenticated",
-                }
-                , status=status.HTTP_200_OK)
-        return super().handle_exception(exc)
-
-    def get(self, request):
-        user_id = request.user.id
-        return JsonResponse({'authenticated': True, 'user': user_id, 'user_name': request.user.email},
-                            safe=False,
-                            status=status.HTTP_200_OK)
-
-
 class EmailViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = order_serializers.UserSerializer
@@ -125,3 +93,28 @@ class EmailViewSet(viewsets.ModelViewSet):
             return Response({"email": user.email}, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+
+class ChangeLanguageAPIView(generics.GenericAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = []
+
+    def get(self, request):
+        if self.request.user.is_authenticated:
+            lang = self.request.user.userprofile.preferred_language
+        else:
+            lang = self.request.session.get(settings.LANGUAGE_COOKIE_NAME, "en-US")
+        return JsonResponse({"language": lang}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        language_code = self.request.data.get('language')
+        if language_code and language_code.split('-')[0] in dict(settings.LANGUAGES).keys():
+            self.request.session[settings.LANGUAGE_COOKIE_NAME] = language_code.split('-')[0]
+            activate(language_code.split('-')[0])
+
+            if request.user.is_authenticated:
+                user = self.request.user
+                user.userprofile.preferred_language = language_code.split('-')[0]
+                user.userprofile.save()
+
+        return JsonResponse({"language": language_code}, status=status.HTTP_200_OK)

@@ -120,7 +120,10 @@ export const getShippingMethods = createAsyncThunk(
             });
 
             if (response.status === 200) {
-                return await response.json();
+                const shippingMethods = await response.json();
+                return shippingMethods.map((method) => {
+                    return {...method, checked: false};
+                });
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e)
@@ -144,7 +147,8 @@ export const getShippingMethodDetail = createAsyncThunk(
             });
 
             if (response.status === 200) {
-                return await response.json();
+                const shippingMethodDetail = await response.json();
+                return {...shippingMethodDetail, checked: true};
             }
         } catch (e) {
             return thunkAPI.rejectWithValue(e)
@@ -171,23 +175,6 @@ export const updatePaymentInfo = createAsyncThunk(
     }
 );
 
-export const deleteOrder = createAsyncThunk(
-    "checkout/deleteOrder",
-    async ({orderId, isAuthenticated, setError, setIsLoading}, thunkAPI) => {
-        try {
-            const result = await destroyOrder({orderId, isAuthenticated});
-
-            if (result) {
-                return result;
-            } else {
-                return thunkAPI.rejectWithValue("Something went wrong...");
-            }
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.message);
-        }
-    }
-);
-
 export const createOrUpdateAddress = createAsyncThunk(
     "checkout/createOrUpdateAddress",
     async ({shippingAddress, shippingAddressId=0, token}, thunkAPI) => {
@@ -199,17 +186,6 @@ export const createOrUpdateAddress = createAsyncThunk(
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.message);
-        }
-    }
-);
-
-export const createOrUpdateShippingMethod = createAsyncThunk(
-    "checkout/createOrUpdateShippingMethod",
-    async ({isAuthenticated}, thunkAPI) => {
-        try {
-
         } catch (error) {
             return thunkAPI.rejectWithValue(error.message);
         }

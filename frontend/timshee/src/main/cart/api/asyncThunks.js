@@ -84,3 +84,6 @@ export const changeQuantity = createAsyncThunk(
         }
     }
 );
+
+export class deleteCartItems {
+}

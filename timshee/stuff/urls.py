@@ -12,7 +12,7 @@ urlpatterns = [
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('get-csrf-token/', views.GetCsrfToken.as_view(), name='csrf'),
     path('register/', views.RegisterAPIView.as_view(), name='register'),
-    path('check-auth/', views.CheckAuthenticatedAPIView.as_view(), name='check-auth'),
+    path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
 ]
 
 urlpatterns += router.urls

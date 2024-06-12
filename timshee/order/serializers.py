@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
+from parler_rest.fields import TranslatedFieldsField
+from parler_rest.serializers import TranslatableModelSerializer
 from rest_framework import serializers
 
 from . import models, strict_serializers
+from .models import Continent
 
 User = get_user_model()
 
@@ -12,7 +15,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', "last_name", 'email']
 
 
-class CountrySerializer(serializers.ModelSerializer):
+class ContinentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Continent
+        fields = '__all__'
+
+
+class CountrySerializer(TranslatableModelSerializer):
     class Meta:
         model = models.Country
         fields = "__all__"
@@ -48,7 +57,7 @@ class AddressSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderItem
-        exclude = ("order", )
+        exclude = ("order",)
         depth = 2
 
 

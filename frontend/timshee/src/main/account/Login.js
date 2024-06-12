@@ -1,15 +1,17 @@
 import Cookies from 'js-cookie';
 import React, {useContext} from 'react';
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 
 import "./Login.css";
 import AuthContext from "../auth/AuthProvider";
+import translateService from "../translate/TranslateService";
 
 
 const Login = () => {
     const navigate = useNavigate();
+    const language = translateService.language();
     const {login} = useContext(AuthContext);
 
     const [email, setEmail] = useState("");
@@ -23,7 +25,7 @@ const Login = () => {
         const result = await login({email, password, setErrorMessage});
 
         if (result) {
-            navigate("/");
+            navigate(`/`);
         }
     }
 
@@ -46,7 +48,7 @@ const Login = () => {
                     />
                 </label>
                 <label className="login-labels" htmlFor="password">
-                    <span className="label-text">password:</span>
+                    <span className="label-text">{translateService.authForms.password[language]}</span>
                     <input
                         id="password"
                         type="password"
@@ -56,7 +58,7 @@ const Login = () => {
                     />
                 </label>
                 <div className="login-button">
-                    <button type="submit">Login</button>
+                    <button type="submit">{translateService.authForms.login[language]}</button>
                 </div>
             </form>
         </div>

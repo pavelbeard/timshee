@@ -1,23 +1,13 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {createAddress, createOrder, updateAddress, updateOrder} from "../../../../redux/slices/shopSlices/checkout";
+import {createSlice, current} from "@reduxjs/toolkit";
 import AuthService from "../../../api/authService";
 import {
-    deleteOrder,
-    getCountries, getOrderDetail,
-    getPhoneCodes,
-    getProvinces,
-    getShippingMethodDetail,
-    getShippingMethods, updateOrderShippingMethod, updateOrderStatus
+    getOrderDetail,
+    updateOrderShippingMethod, updateOrderStatus
 } from "../asyncThunks";
 
 const token = AuthService.getCurrentUser();
 
 const initialState = {
-    orderData: {
-        order: undefined,
-        orders: [],
-    },
-    orderHasDeleted: false,
     // orderDetail
     order: undefined,
     orderStatus: 'idle',
@@ -77,44 +67,10 @@ export const orderSlice = createSlice({
         setStep(state, action) {
             localStorage.setItem("step", JSON.stringify(action.payload));
             state.step = action.payload;
-        }
+        },
     },
     extraReducers: (builder) => {
-        builder
-            .addCase(getOrderDetail.pending, (state, action) => {
-                state.orderStatus = 'loading';
-            })
-            .addCase(getOrderDetail.fulfilled, (state, action) => {
-                state.orderStatus = 'success';
-                state.order = action.payload;
-            })
-            .addCase(getOrderDetail.rejected, (state, action) => {
-                state.orderStatus = 'error';
-                state.error = action.payload;
-            })
 
-            .addCase(updateOrderShippingMethod.pending, (state, action) => {
-                state.updateOrderShippingMethodStatus = 'loading';
-            })
-            .addCase(updateOrderShippingMethod.fulfilled, (state, action) => {
-                state.updateOrderShippingMethodStatus = 'success';
-                state.order = action.payload;
-            })
-            .addCase(updateOrderShippingMethod.rejected, (state, action) => {
-                state.updateOrderShippingMethodStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(updateOrderStatus.pending, (state, action) => {
-                state.updateOrderStatusStatus = 'loading';
-            })
-            .addCase(updateOrderStatus.fulfilled, (state, action) => {
-                state.updateOrderStatusStatus = 'success';
-            })
-            .addCase(updateOrderStatus.rejected, (state, action) => {
-                state.updateOrderStatusStatus = 'error';
-                state.error = action.payload;
-            })
     }
 });
 

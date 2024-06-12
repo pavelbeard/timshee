@@ -138,6 +138,77 @@ export const getAddressDetail = async ({ addressId }) => {
     }
 };
 
+export const addToWishlist = async ({token, data}) => {
+    const url = `${API_URL}api/store/wishlist/`;
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": csrftoken,
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    })
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
+    }
+};
+
+export const getWishlist = async ({token}) => {
+    const url = `${API_URL}api/store/wishlist/get_wishlist_by_user/`;
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
+    }
+};
+
+export const deleteWishlistItem = async ({token, wishlistItemId}) => {
+    const url = `${API_URL}api/store/wishlist/${wishlistItemId}/`;
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": csrftoken,
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers,
+        credentials: "include",
+    });
+
+    return response.ok;
+};
+
 // GET LOCATION DATA
 export const getPhoneCodes = async () => {
     const url = `${API_URL}api/order/phone-codes/`;

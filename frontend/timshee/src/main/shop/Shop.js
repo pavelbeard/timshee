@@ -9,16 +9,16 @@ import rightArrow from "../../media/static_images/arrow-right.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {getCategories, getColors, getItems, getSizes, getTypes} from "./api/asyncThunks";
 import {
-    checkCategories,
     checkColors,
-    checkSizes, checkTypes,
+    checkSizes,
+    checkTypes,
     resetFilters,
-    uncheckCategories,
     uncheckColors,
     uncheckSizes, uncheckTypes, updateOrderBy
 } from "./api/reducers/shopSlice";
 import Loading from "../Loading";
-import Error from "../Error";
+import Nothing from "../Nothing";
+import t from "../translate/TranslateService";
 
 const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPage }) => {
     const pages = [];
@@ -69,29 +69,19 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPag
 const Shop = () => {
     window.document.title = "Shop | Timshee";
     const params = useParams();
+    const language = t.language();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {
         filters, genders, sortOrder,
         sizesStatus, sizes,
         colorsStatus, colors,
-        categoriesStatus, categories,
         typesStatus, types,
         itemsStatus, items,
         pagesCount, totalItemsCount,
     } = useSelector(state => state.shop);
-    const {collections} = useSelector(state => state.app);
+    const {collections, categories} = useSelector(state => state.app);
 
-
-    const path = () => {
-        const values = params.c.split('+');
-        const gender = genders.filter(g => values.includes(g.value)).at(0)?.gender || "";
-        const collection = collections.filter(c => values.includes(c.link)).at(0)?.link || "";
-        const category = categories.filter(c => values.includes(c.name)).at(0)?.code || "";
-        const type = types.filter(c => values.includes(c.code)).at(0)?.code || "";
-
-        return [gender, collection, category, type];
-    }
 
     const [activeFilter, setActiveFilter] = useState(null);
     const [orderBy, setOrderBy] = useState("");
@@ -106,10 +96,6 @@ const Shop = () => {
             dispatch(getColors());
         }
 
-        if (categoriesStatus === 'idle') {
-            dispatch(getCategories());
-        }
-
         if (typesStatus === 'idle') {
             dispatch(getTypes());
         }
@@ -119,8 +105,7 @@ const Shop = () => {
         if (itemsStatus === 'idle' &&
             sizesStatus === 'success' &&
             colorsStatus === 'success' &&
-            typesStatus === 'success' &&
-            categoriesStatus === 'success'
+            typesStatus === 'success' /*&&*/
         ) {
             const [gender, collection, category, type] = path();
             dispatch(getItems({
@@ -134,7 +119,17 @@ const Shop = () => {
             }));
 
         }
-    }, [sizesStatus, colorsStatus, categoriesStatus]);
+    }, [sizesStatus, colorsStatus]);
+
+    const path = () => {
+        const values = params.c.split('+');
+        const gender = genders.filter(g => values.includes(g.value)).at(0)?.gender || "";
+        const collection = collections.filter(c => values.includes(c.link)).at(0)?.link || "";
+        const category = categories.filter(c => values.includes(c.code)).at(0)?.code || "";
+        const type = types.filter(c => values.includes(c.code)).at(0)?.code || "";
+
+        return [gender, collection, category, type];
+    }
 
     useEffect(() => {
         const [gender, collection, category] = path();
@@ -290,23 +285,23 @@ const Shop = () => {
     return (
         <div className="shop-container" onClick={turnFilters}>
             <div className="collection-name">
-                {path().at(1)}
+                {path().at(1)?.replaceAll('-', ' ').replace(/(\d{4}) (\d{4})/, "$1/$2") || params.c.split('+')[0]}
             </div>
             <div className="settings-container">
                 <div className="filters">
-                    <label className="labels">Filter:</label>
+                    <label className="labels">{t.shop.filters[language]}</label>
                     <span className="labels" data-filter="size"
-                          onClick={turnFilters}>Size:</span>
+                          onClick={turnFilters}>{t.shop.size[language]}</span>
                     {activeFilter === "size" && sizesBlock()}
                     <span className="labels" data-filter="color"
-                          onClick={turnFilters}>Color:</span>
+                          onClick={turnFilters}>{t.shop.color[language]}</span>
                     {activeFilter === "color" && colorsBlock()}
                     <span className="labels" data-filter="category"
-                          onClick={turnFilters}>Type:</span>
+                          onClick={turnFilters}>{t.shop.type[language]}</span>
                     {activeFilter === "category" && typeBlock()}
                 </div>
                 <div className="sort-by">
-                    <label htmlFor="sort-by">Order By:
+                    <label htmlFor="sort-by">{t.shop.orderBy[language]}
                         <select name="sort-by" id="sort-by" value={orderBy}
                                 onChange={e => {
                                     dispatch(updateOrderBy(e.target.value));
@@ -314,7 +309,7 @@ const Shop = () => {
                                 }}>
                             {
                                 sortOrder.map((order, index) => (
-                                    <option key={index} value={order.value}>{order.name}</option>
+                                    <option key={index} value={order.value}>{t.shop.orderBy[order.name][language]}</option>
                                 ))
                             }
                         </select>
@@ -338,18 +333,26 @@ const Shop = () => {
                 }
             </div>
             {
-                items.length > 0 ? <ItemCards items={items}/> : <Loading />
+                itemsStatus === 'success' && items.length > 0
+                    ? <ItemCards items={items}/>
+                    : itemsStatus === 'loading' ? <Loading />
+                        : items.length === 0 && <Nothing />
             }
-            <div className="pagination">{
-                <Pagination
-                    totalPages={pagesCount || 1}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPageLink}
-                    prevPage={prevPage}
-                    nextPage={nextPage}
-                />
+            {
+                items.length > 0 && (
+                    <div className="pagination">
+                    {
+                        <Pagination
+                            totalPages={pagesCount || 1}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPageLink}
+                            prevPage={prevPage}
+                            nextPage={nextPage}
+                        />
+                    }
+                    </div>
+                )
             }
-            </div>
         </div>
     )
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import {useEffect} from "react";
 
 import "./Cards.css";
+import Loading from "./Loading";
+import {Link} from "react-router-dom";
 
 const Cards = ({ data }) => {
     const [imageSize, setImageSize] = React.useState('');
@@ -30,13 +32,15 @@ const Cards = ({ data }) => {
             <div className="empty-space"></div>
             <div className={data?.length <= 3 ? "item-cards item-cards-for-lte-3" : "item-cards"}>
                 {
-                    data ? data?.map((item, index) =>
+                    data ? data?.map((category, index) =>
                         <div className="card" key={index}>
-                            <img src={item?.category_image} alt={"alt" + index} height={imageSize}/>
-                            <p>{item.name}</p>
+                            <img src={category?.category_image} alt={"alt" + index} height={imageSize}/>
+                            <p>
+                                <Link to={`/shop/collections/${category.code}`}>{category.name}</Link>
+                            </p>
                         </div>
                     ) : (
-                        <p>Loading...</p>
+                        <Loading />
                     )
                 }
             </div>

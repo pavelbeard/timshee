@@ -6,12 +6,13 @@ import {getEmail} from "./api";
 import {getLastOrder, getAddressAsTrue} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
 import Loading from "../Loading";
+import translateService from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Account = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const language = translateService.language();
     const user = AuthService.getCurrentUser();
     const {order, lastOrderStatus} = useSelector(state => state.ordersPage);
     const {addressObject, addressAsTrueStatus} = useSelector(state => state.addressForm);
@@ -82,18 +83,20 @@ const Account = () => {
                         AuthService.logout();
                         redirect("/");
                     }}>
-                        <button type="submit">Logout</button>
+                        <button type="submit">
+                            {translateService.account.logout[language]}
+                        </button>
                     </form>
                 </div>
                 <div className="second-block">
                     <div className="blocks-container">
                         <div className="block-1">
-                            <div className="block-title">PRIMARY ADDRESS</div>
+                            <div className="block-title">{translateService.account.primaryAddress[language]}</div>
                             <div className="divider"></div>
                             <div className="info-block info-block-main">
                                 {
                                     addressObject.firstName === "" || addressObject.firstName === undefined ? (
-                                        <div>THERE AREN'T ANY PRIMARY ADDRESS</div>
+                                        <div>{translateService.account.noAddress[language]}</div>
                                     ) : (
                                         <>
                                             <div>{addressObject.firstName} {addressObject.lastName}</div>
@@ -111,47 +114,36 @@ const Account = () => {
                                 }
                             </div>
                         </div>
-                        <Link className="go-to-list" to="/account/details/addresses">
-                            Edit addresses
+                        <Link className="go-to-list" to={`/account/details/addresses`}>
+                            {translateService.account.editAddress[language]}
                         </Link>
                     </div>
                     <div className="blocks-container">
                         <div className="block-2">
-                            <div className="block-title">Orders</div>
+                            <div className="block-title">{translateService.account.orders[language]}</div>
                             <div className="divider"></div>
                             <div className="info-block info-block-main">
                                 {
-                                    order.id === 0 ? (
-                                        <div>THERE AREN'T ANY ORDERS</div>
+                                    order.id === 0 && order.status !== "created" ? (
+                                        <div>{translateService.account.noOrders[language]}</div>
                                     ) : (
                                         <>
                                             <div>{order.order_number}</div>
                                             {
                                                 order.status === "completed" ? (
                                                     <div>
-                                                        <span>DELIVERED AT:</span>
+                                                        <span>{translateService.account.deliveredAt[language]}</span>
                                                         <span>{new Date(deliveredAt).toDateString()}</span>
                                                     </div>
-                                                ) : order.status === "refunded" || order.status === "partial_refunded" ? (
+                                                ) : order.status === "refunded" || order.status === "partial_refunded" && (
                                                     <>
                                                         <div>
-                                                            <span>STATUS:</span>
+                                                            <span>{translateService.account.status[language]}</span>
                                                             <span>{order.status}</span>
                                                         </div>
                                                         <div>
-                                                            <span>REFUNDED AT:</span>
+                                                            <span>{translateService.account.refundedAt[language]}</span>
                                                             <span>{new Date(order.updated_at).toDateString()}</span>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <div>
-                                                            <span>STATUS:</span>
-                                                            <span>{order.status}</span>
-                                                        </div>
-                                                        <div>
-                                                            <span>CREATED AT:</span>
-                                                            <span>{new Date(order.created_at).toDateString()}</span>
                                                         </div>
                                                     </>
                                                 )
@@ -172,8 +164,8 @@ const Account = () => {
                                 }
                             </div>
                         </div>
-                        <Link className="go-to-list" to="/account/details/orders">
-                            See orders
+                        <Link className="go-to-list" to={`/account/details/orders`}>
+                            {translateService.account.seeOrders[language]}
                         </Link>
                     </div>
                 </div>

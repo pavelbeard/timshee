@@ -21,8 +21,7 @@ import {
     editAddress as setAddressObject
 } from "./reducers/addressFormSlice";
 import AuthService from "../../api/authService";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import t from "../../translate/TranslateService";
 
 const EditAddressForm = () => {
     const dispatch = useDispatch();
@@ -30,8 +29,8 @@ const EditAddressForm = () => {
         addressFormObject, countries, provinces,
         phoneCodes, isError, provincesFilteredList
     } = useSelector(state => state.addressForm);
-    const isAuthenticated = AuthService.isAuthenticated();
     const token = AuthService.getCurrentUser();
+    const language = t.language();
 
     // FETCH COUNTRIES, PROVINCES AND MORE
     useEffect(() => {
@@ -88,16 +87,6 @@ const EditAddressForm = () => {
 
             dispatch(setProvincesFiltered(filteredProvinces));
             dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
-
-            // dispatch(setPhoneCode({
-            //     phoneCode: filteredPhoneCodes[0].phone_code,
-            //     country: filteredPhoneCodes[0].country
-            // }));
-            // dispatch(setProvince({
-            //     id: filteredProvinces[0].id,
-            //     name: filteredProvinces[0].name,
-            //     country: filteredProvinces[0].country
-            // }))
         }
     }, [countries]);
 
@@ -173,11 +162,11 @@ const EditAddressForm = () => {
         <div className="overlay edit-address-form-container">
             <div style={{ zIndex: "-1", width: "100%", minHeight: "100vh"}} onClick={closeForm}></div>
             <form onSubmit={handleSubmit} className="edit-address-form">
-                <span className="edit-address-form-title">EDIT ADDRESS</span>
+                <span className="edit-address-form-title">{t.account.editAddress[language]}</span>
                 {isError && <div className="errorMessage">{isError}</div>}
                 <div>
                     <label htmlFor="firstName">
-                        <span className="label-text">firstname:</span>
+                        <span className="label-text">{t.forms.firstname[language]}</span>
                         <input
                             id="firstName"
                             type="text"
@@ -190,7 +179,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="lastName">
-                        <span className="label-text">lastname:</span>
+                        <span className="label-text">{t.forms.lastname[language]}</span>
                         <input
                             id="lastName"
                             type="text"
@@ -203,7 +192,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="address1">
-                        <span className="label-text">address 1:</span>
+                        <span className="label-text">{t.forms.streetAddress[language]}</span>
                         <input id="address1" type="text" value={addressFormObject.streetAddress}
                             onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
@@ -213,7 +202,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="address2">
-                        <span className="label-text">address 2:</span>
+                        <span className="label-text">{t.forms.apartment[language]}</span>
                         <input id="address2" type="text" value={addressFormObject.apartment}
                             onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
@@ -223,7 +212,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="postcode">
-                        <span className="label-text">postcode:</span>
+                        <span className="label-text">{t.forms.postalCode[language]}</span>
                         <input
                             id="postcode"
                             type="text"
@@ -236,7 +225,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="city">
-                        <span className="label-text">city:</span>
+                        <span className="label-text">{t.forms.city[language]}</span>
                         <input
                             id="city"
                             value={addressFormObject.city}
@@ -251,7 +240,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="province">
-                        <span className="label-text">province:</span>
+                        <span className="label-text">{t.forms.province[language]}</span>
                         <select id="province" value={addressFormObject.province.id}
                                 onChange={changeProvince} required>
                             {provincesFilteredList?.map((province) => (
@@ -264,7 +253,7 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="country">
-                        <span className="label-text">country:</span>
+                        <span className="label-text">{t.forms.country[language]}</span>
                         <select id="country" value={addressFormObject.province.country.id}
                                 onChange={changeCountry} required>
                             {countries?.map((country) => (
@@ -277,13 +266,13 @@ const EditAddressForm = () => {
                 </div>
                 <div>
                     <label htmlFor="phoneCode">
-                        <span className="label-text">PHONE CODE:</span>
+                        <span className="label-text">{t.forms.phoneCode[language]}</span>
                         <div id="phoneCode">{"± " + addressFormObject.phoneCode.phoneCode}</div>
                     </label>
                 </div>
                 <div>
                     <label htmlFor="phone">
-                        <span className="label-text">phone:</span>
+                        <span className="label-text">{t.forms.phoneNumber[language]}</span>
                         <input id="phone" type="text" value={addressFormObject.phoneNumber}
                                onChange={e => dispatch(setAddressObject({
                                 ...addressFormObject,
@@ -312,11 +301,11 @@ const EditAddressForm = () => {
                             }))}
                             type="checkbox"
                         />
-                        <span className="label-text">as primary:</span>
+                        <span className="label-text">{t.forms.asPrimary[language]}</span>
                     </label>
                 </div>
                 <div>
-                    <button onSubmit={handleSubmit}>submit</button>
+                    <button onSubmit={handleSubmit}>{t.forms.submit[language]}</button>
                     <img src={crossBtn} onClick={closeForm} alt="alt-cross-btn" height={20}/>
                 </div>
             </form>

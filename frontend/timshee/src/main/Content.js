@@ -18,7 +18,7 @@ const Content = () => {
             {
                 outlet || (
                     <>
-                        <MainCollection data={collections.slice(-1)[0]} />
+                        <MainCollection data={collections[0]} />
                         <Cards data={categories} />
                     </>
                 )

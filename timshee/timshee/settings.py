@@ -13,6 +13,7 @@ import os
 import re
 from datetime import timedelta
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 from corsheaders.defaults import default_headers
 
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
     'colorfield',
     'django_filters',
     "debug_toolbar" if (DEBUG or TESTING)else "",
+    "parler",
+    "parler_rest",
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -68,9 +71,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     # custom
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
+    # my
+    'stuff.middleware.LanguageMiddleware'
 ]
 
 if DEBUG or TESTING:
@@ -297,3 +303,34 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# LANGUAGE
+
+LANGUAGE_COOKIE_NAME = 'server_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 30
+
+LANGUAGES = (
+    ('en', _('English')),
+    ('fr', _('French')),
+    ('it', _('Italian')),
+    ('gr', _('Greek')),
+    ('de', _('Deutch')),
+    ('es', _('Spanish')),
+    ('ru', _('Russian')),
+)
+
+# PARLER
+
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'en',},
+        {'code': 'es',},
+        {'code': 'fr',},
+        {'code': 'it',},
+        {'code': 'ru',},
+    ),
+    'default': {
+        'fallbacks': ['en'],
+        'hide_untranslated': False,
+    }
+}

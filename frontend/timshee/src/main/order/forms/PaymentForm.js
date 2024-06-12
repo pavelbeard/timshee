@@ -3,10 +3,12 @@ import {useDispatch, useSelector} from "react-redux";
 import {createPayment, updateOrder} from "../api";
 import AuthService from "../../api/authService";
 
-import "./CheckoutForms.css"
+import "./CheckoutForms.css";
+
+import t from "../../translate/TranslateService";
 
 const PaymentForm = ({ orderId }) => {
-    const dispatch = useDispatch();
+    const language = t.language();
 
     const {paymentId} = useSelector(state => state.checkout);
     const isAuthenticated = AuthService.isAuthenticated();
@@ -53,7 +55,7 @@ const PaymentForm = ({ orderId }) => {
     return (
         <div className="payment-form-container">
             <form onSubmit={handleSubmit}>
-                <button className="payment-form-button" type="submit">Pay now</button>
+                <button className="payment-form-button" type="submit">{t.checkout.payment[language]}</button>
             </form>
         </div>
     )

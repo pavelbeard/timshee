@@ -118,10 +118,32 @@
     margin-bottom: 20px;
 }
 
+.terms-and-conditions > label {
+    display: flex;
+    font-variant: all-petite-caps;
+    font-size: 22px;
+    align-items: center;
+}
+
 
 .cart-checkout-parent {
     text-decoration: none;
     color: #000000;
+}
+
+.cart-checkout-disabled {
+    background: #e4e4e4;
+    color: #7a7a7a;
+    cursor: not-allowed;
+}
+
+.cart-checkout-enabled {
+    cursor: pointer;
+}
+
+.cart-checkout-enabled:hover {
+    background: #000;
+    color: #fff;
 }
 
 .cart-checkout {
@@ -130,16 +152,16 @@
     outline: 1px solid #000;
     letter-spacing: 3px;
     padding: 10px 20px;
-    cursor: pointer;
 }
 
-.cart-checkout:hover {
-    background: #000;
-    color: #fff;
-}
+
 
 .privacy {
     text-decoration: underline;
+}
+
+#privacy {
+    margin: 0 0.5rem 0 0;
 }
 
 @media only screen and (max-width: 768px) {

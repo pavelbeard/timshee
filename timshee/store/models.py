@@ -2,6 +2,7 @@ import re
 
 from colorfield import fields
 from auxiliaries.auxiliaries_methods import calculate_discount as calc_discount
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from django.db import models
@@ -34,7 +35,7 @@ class Color(models.Model):
     hex = fields.ColorField()
 
     def __str__(self):
-        return self.name
+        return f"[{self.name}]"
 
     class Meta:
         unique_together = (('name', 'hex'),)
@@ -56,7 +57,7 @@ class Collection(models.Model):
     )
 
     def __str__(self):
-        return str(self.name)
+        return f"[{self.name}]"
 
     class Meta:
         verbose_name = "Collection"
@@ -73,7 +74,7 @@ class Category(models.Model):
     )
 
     def __str__(self):
-        return str(self.name)
+        return f"[{self.name}]"
 
     class Meta:
         verbose_name = "Category"
@@ -86,7 +87,7 @@ class Type(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"[{self.name}]"
 
     class Meta:
         verbose_name = 'Type'
@@ -164,3 +165,17 @@ class Item(models.Model):
     class Meta:
         verbose_name = "Item"
         verbose_name_plural = "Items"
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    session_key = models.CharField(max_length=40, blank=True, null=True)
+    stock = models.ForeignKey("Stock", on_delete=models.CASCADE)
+    stock_link = models.CharField(max_length=250, blank=True, null=True)
+
+    def __str__(self):
+        return f"[Item: {self.stock}]"
+
+    class Meta:
+        verbose_name = "Wishlist"
+        verbose_name_plural = "Wishlist items"

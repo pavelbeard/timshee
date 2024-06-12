@@ -8,12 +8,14 @@ import {
 } from "./forms/reducers/asyncThunks";
 import {editAddress} from "./forms/reducers/addressFormSlice";
 import AuthService from "../api/authService";
+import translateService from "../translate/TranslateService";
 
 const Addresses = () => {
     const dispatch = useDispatch();
 
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
     const token = AuthService.getCurrentUser();
+    const language = translateService.language();
     const {addresses, shippingAddressesStatus} = useSelector(state => state.addressForm);
     const {deleteAddressStatus} = useSelector(state => state.editAddress);
 
@@ -54,7 +56,9 @@ const Addresses = () => {
     return (
         <>
             <div className="return-to-account">
-                <Link to="/account/details">RETURN TO ACCOUNT</Link>
+                <Link to="/account/details">{
+                    translateService.account.returnToAccount[language]
+                }</Link>
             </div>
             <div className="items-container">
                 {typeof addresses.map === "function" && addresses.map((address, index) => {
@@ -62,9 +66,9 @@ const Addresses = () => {
                         <div className="item" key={index}>
                             {
                                 address.as_primary ?
-                                    <div className="info-block">PRIMARY ADDRESS</div>
+                                    <div className="info-block">{translateService.account.primaryAddress[language]}</div>
                                     :
-                                    <div className="filler">ADDRESS {index + 1} </div>
+                                    <div className="filler">{translateService.account.address[language]} {index + 1} </div>
                             }
                             <div className="divider"></div>
                             <div>{address?.first_name} {address?.last_name}</div>
@@ -78,12 +82,12 @@ const Addresses = () => {
                             <div>{address.email}</div>
                             <div className="change-block">
                                 <div onClick={() => callEditAddressForm(address)}>
-                                    Edit
+                                    {translateService.account.edit[language]}
                                 </div>
                                 <div onClick={() => dispatch(deleteAddress({
                                     token, addressId: address.id
                                 }))}>
-                                    Delete
+                                    {translateService.account.delete[language]}
                                 </div>
                             </div>
                         </div>
@@ -91,7 +95,7 @@ const Addresses = () => {
                 })}
             </div>
             <div className="add-address" onClick={() => callEditAddressForm(undefined)}>
-                <p>Add address</p>
+                <p>{translateService.account.addAddress[language]}</p>
             </div>
         </>
     );

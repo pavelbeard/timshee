@@ -1,14 +1,18 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 
 import "./ItemCard.css";
 import arrowLeft from "../../media/static_images/arrow-left.svg";
 import arrowRight from "../../media/static_images/arrow-right.svg";
-import {checkInStock, getItemDetail, setHasAdded, setItemData} from "../../redux/slices/shopSlices/itemSlice";
+import {checkInStock, getItemDetail} from "../../redux/slices/shopSlices/itemSlice";
 import {useParams} from "react-router-dom";
-import {resetAddCartItemStatus, resetIsAdded} from "../cart/reducers/cartSlice";
+import {resetAddCartItemStatus} from "../cart/reducers/cartSlice";
 import {addCartItem, getCartItems} from "../cart/api/asyncThunks";
 import AuthService from "../api/authService";
+import {addToWishlist, deleteWishlistItem} from "../account/api/reducers/asyncThunks";
+import Error from "../Error";
+import {checkItemInWishList} from "../account/api/reducers/wishlistSlice";
+import translateService from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -39,8 +43,10 @@ const ItemCardDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
     const token = AuthService.getCurrentUser();
+    const language = translateService.language();
     const {cart, getCartItemsStatus, addCartItemStatus} = useSelector(state => state.cart);
     const {inStock} = useSelector(state => state.item);
+    const {wishlist, isItemInWishlist} = useSelector(state => state.wishlist);
 
     const {itemDetail: item} = useSelector(state => state.item);
 
@@ -57,6 +63,7 @@ const ItemCardDetail = () => {
             itemId: item.id, size: size, color: selectedColor
         }));
         dispatch(resetAddCartItemStatus('idle'));
+        dispatch(checkItemInWishList({itemId: item.id, size: size, color: selectedColor}));
     };
 
     const changeColor = (e) => {
@@ -66,6 +73,7 @@ const ItemCardDetail = () => {
             itemId: item.id, size: selectedSize, color: color
         }));
         dispatch(resetAddCartItemStatus('idle'));
+        dispatch(checkItemInWishList({itemId: item.id, size: selectedSize, color: color}));
     };
 
     useEffect(() => {
@@ -78,6 +86,9 @@ const ItemCardDetail = () => {
         dispatch(getItemDetail({itemId: params.itemId}));
     }, []);
 
+    useEffect(() => {
+
+    }, [])
 
     useEffect(() => {
         if (item !== undefined) {
@@ -89,6 +100,7 @@ const ItemCardDetail = () => {
                 }));
                 setSelectedSize(size);
                 setSelectedColor(color);
+                dispatch(checkItemInWishList({itemId: item.id, size: size, color: color}));
             }
         }
     }, [item]);
@@ -113,7 +125,7 @@ const ItemCardDetail = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, [inStock, addCartItemStatus]);
 
-    const addToCart = async () => {
+    const addToCart = () => {
         const data = {
             "item_id": item.id,
             "size_id": selectedSize,
@@ -121,6 +133,29 @@ const ItemCardDetail = () => {
             "quantity": 1
         };
         dispatch(addCartItem({data, token}));
+    };
+
+    const handleWishlist = () => {
+        const data = {
+            stock: {
+                item_id: params.itemId,
+                size_id: selectedSize,
+                color_id: selectedColor
+            },
+            stock_link: "/shop" + window.location.href.split("/shop")[1]
+        }
+
+        const item = wishlist.find(item =>
+            item.stock.item?.id === parseInt(params.itemId) &&
+            item.stock.size?.id === selectedSize &&
+            item.stock.color?.id === selectedColor
+        );
+
+        if (item) {
+            dispatch(deleteWishlistItem({token, wishlistItemId: item.id}));
+        } else {
+            dispatch(addToWishlist({token, data}));
+        }
     };
 
 
@@ -139,7 +174,7 @@ const ItemCardDetail = () => {
                         <div className="item-card-specs">
                             <div className="item-card-sizes">
                                 <label htmlFor="sizes">
-                                    <span>Sizes:</span>
+                                    <span>{translateService.itemCardDetail.sizes[language]}</span>
                                 </label>
                                 <select id="sizes" value={selectedSize} onChange={changeSize}>
                                     {item.sizes.map((size) => (
@@ -149,7 +184,7 @@ const ItemCardDetail = () => {
                             </div>
                             <div className="item-card-colors">
                                 <label htmlFor="colors">
-                                    <span>Colors:</span>
+                                    <span>{translateService.itemCardDetail.colors[language]}</span>
                                 </label>
                                 <select id="colors" value={selectedColor} onChange={changeColor}>
                                     {item.colors.map((color) => (
@@ -162,23 +197,31 @@ const ItemCardDetail = () => {
                         </div>
                         {
                             inStock === 0
-                                ? <div className="add-to-cart out-of-stock">Out of stock</div>
+                                ? <div className="add-button out-of-stock">{
+                                    translateService.itemCardDetail.outOfStock[language]
+                                }</div>
                                 : addCartItemStatus === "success"
                                     ?
-                                    <div className="add-to-cart has-added">
-                                        has added
-                                    </div>
+                                    <div className="add-button has-added">{
+                                        translateService.itemCardDetail.hasAdded[language]
+                                    }</div>
                                     :
-                                    <div className="add-to-cart add-to-cart.item-card" onClick={addToCart}>
-                                        Add to cart
+                                    <div className="add-button add-to-cart.item-card" onClick={addToCart}>
+                                        {translateService.itemCardDetail.addToCart[language]}
                                     </div>
                         }
+                        <div className="add-button add-to-wishlist" onClick={handleWishlist}>
+                            {isItemInWishlist
+                                ? translateService.itemCardDetail.removeFromWishlist[language]
+                                : translateService.itemCardDetail.addToWishlist[language]
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         )
     } else if (getCartItemsStatus === "error") {
-        return <div>Error... We are doing all that depending by us.</div>;
+        return <Error />;
     }
 };
 

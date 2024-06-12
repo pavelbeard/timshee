@@ -2,15 +2,16 @@ import React, {useContext} from "react";
 import {useState} from "react";
 
 import {useDispatch} from "react-redux";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
 import "./Register.css";
 import AuthContext from "../auth/AuthProvider";
+import translateService from "../translate/TranslateService";
 
 
 const Register = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const language = translateService.language();
 
     const {register} = useContext(AuthContext);
 
@@ -33,7 +34,7 @@ const Register = () => {
         const result = await register({firstName, lastName, email, password, setErrorMessage});
 
         if (result) {
-            navigate("/");
+            navigate(``);
         }
     };
 
@@ -46,7 +47,7 @@ const Register = () => {
                 </label>}
             <form className="register-form" onSubmit={handleSubmit}>
                 <label className="register-labels" htmlFor="firstName">
-                    <span className="label-text">firstname:</span>
+                    <span className="label-text">{translateService.authForms.firstname[language]}</span>
                     <input
                         id="firstName"
                         type="text"
@@ -56,7 +57,7 @@ const Register = () => {
                     />
                 </label>
                 <label className="register-labels" htmlFor="lastName">
-                    <span className="label-text">last name:</span>
+                    <span className="label-text">{translateService.authForms.lastname[language]}</span>
                     <input
                         id="lastName"
                         type="text"
@@ -76,7 +77,7 @@ const Register = () => {
                     />
                 </label>
                 <label className="register-labels" htmlFor="password">
-                    <span className="label-text">password:</span>
+                    <span className="label-text">{translateService.authForms.password[language]}</span>
                     <input
                         id="password"
                         type="password"
@@ -86,7 +87,7 @@ const Register = () => {
                     />
                 </label>
                 <label className="register-labels" htmlFor="confirmPassword">
-                    <span className="label-text">confirm password:</span>
+                    <span className="label-text">{translateService.authForms.passwordConfirm[language]}</span>
                     <input
                         id="confirmPassword"
                         type="password"
@@ -96,7 +97,7 @@ const Register = () => {
                     />
                 </label>
                 <div className="register-button">
-                    <button type="submit">Register</button>
+                    <button type="submit">{translateService.authForms.register[language]}</button>
                 </div>
             </form>
         </div>

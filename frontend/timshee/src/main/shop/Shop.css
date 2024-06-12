@@ -220,7 +220,7 @@ span.labels:hover::before {
     margin-right: 30px;
 }
 
-.add-to-cart {
+.add-button {
     display: flex;
     justify-content: flex-end;
     margin: 0 30px 0 30px;
@@ -319,7 +319,7 @@ span.labels:hover::before {
         margin-right: 0;
     }
 
-    .add-to-cart {
+    .add-button {
         margin: 0;
     }
 
@@ -386,7 +386,7 @@ span.labels:hover::before {
         margin-right: 0;
     }
 
-    .add-to-cart {
+    .add-button {
         margin: 0;
     }
 
@@ -419,7 +419,7 @@ span.labels:hover::before {
         margin-right: 0;
     }
 
-    .add-to-cart {
+    .add-button {
         margin: 0;
     }
 

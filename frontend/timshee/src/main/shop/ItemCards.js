@@ -1,9 +1,10 @@
 import React from 'react';
 import {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 
 import "./Shop.css";
 import "./ItemCards.css";
+import {useSelector} from "react-redux";
 
 const Colors = ( {colors, visibility}) => {
     return (
@@ -37,18 +38,20 @@ const Sizes = ({ sizes, visibility }) => {
 
 
 const ItemCards = ({items}) => {
+    const params = useParams();
     const [imageSize, setImageSize] = useState("");
     const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
+    const {genders} = useSelector(state => state.shop);
+    const {collections, categories} = useSelector(state => state.app);
 
     const setItemUrl = (item) => {
-        const index = window.location.href.split('/').indexOf('g');
-        let vPath;
-        if (index > -1) {
-            vPath = "g";
-        } else {
-            vPath = "c";
-        }
-        return `/shop/collections/${vPath}/${item.collection.link}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
+        const g = genders.find(i => i.gender === item.gender);
+        const gender = params.c.split('+').includes(g.value)
+            ? "" : `${g.value}+`;
+        const c = collections.find(i => i.link === item.collection.link);
+        const collection = params.c.split('+').includes(c.link)
+            ? "" : `${c.link}+`;
+        return `/shop/collections/${gender}${collection}${params.c}/${item.type.name.replace(/ /g, "-").toLowerCase()}`
                     + `/${item.id}/${item.name.replace(/ /g, "-").toLowerCase()}`;
     };
 

@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 from . import models, strict_serializers
+from order import strict_serializers as order_strict_serializers
 
 
 class CategoryNameSerializer(serializers.ModelSerializer):
@@ -61,7 +62,6 @@ class ItemSerializer(serializers.ModelSerializer):
         carousel_images = models.CarouselImage.objects.filter(item=obj.pk)
         return CarouselImageSerializer(carousel_images, many=True).data
 
-
     class Meta:
         model = models.Item
         fields = "__all__"
@@ -78,3 +78,13 @@ class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collection
         fields = "__all__"
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    stock = strict_serializers.StrictStockSerializer()
+    user = order_strict_serializers.StrictUserSerializer()
+
+    class Meta:
+        model = models.Wishlist
+        fields = "__all__"
+        depth = 2

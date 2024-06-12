@@ -7,6 +7,8 @@ import Error from "../Error";
 
 import "./Orders.css";
 import AuthService from "../api/authService";
+import t from "../translate/TranslateService";
+import {toCamelCase} from "../api/stuff";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -14,6 +16,7 @@ const OrderDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
     const token = AuthService.getCurrentUser();
+    const language = t.language();
     const {order, orderDetailStatus} = useSelector(state => state.ordersPage);
 
     const shippingAddress = (address) => {
@@ -34,15 +37,15 @@ const OrderDetail = () => {
         return (
             <div className="order-detail-container">
                 <div className="order-detail-number order-detail-info">
-                    <span>NUMBER:</span>
+                    <span>{t.account.orderNumber[language]}</span>
                     <span>{order.order_number}</span>
                 </div>
                 <div className="order-detail-status order-detail-info">
-                    <span>STATUS:</span>
-                    <span>{order.status.replace(/_/, ' ')}</span>
+                    <span>{t.account.status[language]}</span>
+                    <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
                 </div>
                 <div className="order-detail-shipping-address order-detail-info">
-                    <span>TO:</span>
+                    <span>{t.account.to[language]}</span>
                     {shippingAddress(order.shipping_address)}
                 </div>
                 <div className="order-img-block order-img-block-detail ">
@@ -64,7 +67,7 @@ const OrderDetail = () => {
                                     {
                                         item.quantity > 1 && (
                                             <>
-                                                <span>QUANTITY:</span>
+                                                <span>{t.account.quantity[language]}</span>
                                                 <span>{item.quantity}</span>
                                             </>
                                         )
@@ -74,10 +77,10 @@ const OrderDetail = () => {
                                     {
                                         item.refund_reason === null ? (
                                             <Link to={`/orders/${order.id}/order-refund/${item.item.id}/${item.quantity}`}>
-                                                REFUND ITEM
+                                                {t.account.returnItem[language]}
                                             </Link>
                                         ) : item.quantity > 0 && (
-                                            <p>FURTHER REFUND OF THIS ITEM IS AVAILABLE ONLY THROUGH A MAIL LETTER</p>
+                                            <p>{t.account.returnThroughMail[language]}</p>
                                         )
                                     }
                                 </div>
@@ -89,8 +92,8 @@ const OrderDetail = () => {
                 {
                     token?.access && (
                         <div className="order-buttons">
-                            <Link to="/account/details/orders">
-                                <div className="order-button">Return to orders page</div>
+                            <Link to={`/account/details/orders`}>
+                                <div className="order-button">{t.account.returnToOrders[language]}</div>
                             </Link>
                         </div>
                     )

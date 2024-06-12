@@ -1,7 +1,7 @@
 .item-card-container {
     display: flex;
     justify-content: space-evenly;
-    padding: 25px 90px;
+    padding: 0 90px 25px 90px;
 }
 
 .empty-space {
@@ -130,6 +130,16 @@
 .add-to-cart\.item-card:hover {
     background-color: #000000;
     color: #ffffff;
+}
+
+.add-to-wishlist {
+    display: flex;
+    justify-content: center;
+    width: 125px;
+    margin: 0;
+    padding: 14px;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 600px) {

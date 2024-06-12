@@ -1,45 +1,47 @@
-import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {
-} from "../api/reducers/orderSlice";
+import React, {useEffect} from "react";
 import backImg from "../../../media/static_images/back_to.svg";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import "./CheckoutForms.css";
-import AuthService from "../../api/authService";
-import {getShippingMethodDetail, getShippingMethods, updateOrderShippingMethod} from "../api/asyncThunks";
+import {setShippingMethod} from "./reducers/shippingAddressFormSlice";
+import {useDispatch, useSelector} from "react-redux";
+import t from "../../translate/TranslateService";
 
 const ShippingMethodForm = ({
     initialValue: shippingMethods,
     orderId,
     setCurrentStep,
     setShippingPrice,
-    setOrderShippingMethod,
     setShippingMethodExternal,
     submit
 }) => {
-    const [shippingMethod, setShippingMethod] = useState(0);
+    const dispatch = useDispatch();
+    const language = t.language();
+    const {order} = useSelector(state => state.shippingAddressForm);
 
-    const {shippingMethodData, order: shippingMethodPreset} = useSelector(state => state.order);
-    const isAuthenticated = AuthService.isAuthenticated();
-
+    useEffect(() => {
+        if (order && order.shipping_method) {
+            setShippingMethodExternal(order.shipping_method.id);
+            setShippingPrice(order.shipping_method.price);
+        }
+    }, [order]);
 
     if (shippingMethods.length > 0) {
         return(
             <form onSubmit={submit}>
                 <span className="shipping-address">
-                    <h3>Shipping method</h3>
+                    <h3>{t.checkout.shippingMethod[language]}</h3>
                 </span>
                 {shippingMethods.map((method, index) => (
                     <div className="shipping-method" key={index}>
                         <label htmlFor={`method-${method.id}`}>
-                            <input required={shippingMethod === method.id}
+                            <input required={method.checked}
                                    type="radio"
                                    value={method.id}
-                                   checked={shippingMethod === method.id}
+                                   checked={method.checked}
                                    onChange={e => {
-                                       setShippingMethodExternal(parseInt(e.target.value))
-                                       setShippingMethod(parseInt(e.target.value));
+                                       setShippingMethodExternal(parseInt(e.target.value));
+                                       dispatch(setShippingMethod(parseInt(e.target.value)));
                                        setShippingPrice(method.price);
                                    }}/>
                             <span>{method.shipping_name}</span>
@@ -51,13 +53,13 @@ const ShippingMethodForm = ({
                     <div>
                         <img src={backImg} alt="alt-back-to-info" height={14}/>
                         <Link to={`/shop/${orderId}/checkout`} onClick={
-                            () => setCurrentStep("information")
+                            () => setCurrentStep(1)
                         }>
-                            Return to information
+                            {t.checkout.toInformation[language]}
                         </Link>
                     </div>
                     <button type="submit" onSubmit={submit}>
-                        Continue to payment
+                        {t.checkout.toPayment[language]}
                     </button>
                 </div>
             </form>
@@ -65,7 +67,7 @@ const ShippingMethodForm = ({
     } else {
         return (
             <div>
-                LOADING...
+                {t.stuff.loading[language]}
             </div>
         )
     }

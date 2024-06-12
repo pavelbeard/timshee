@@ -7,3 +7,12 @@ class StrictItemSerializer(serializers.ModelSerializer):
         model = models.Item
         exclude = ["sizes", "colors"]
         depth = 2
+
+
+class StrictStockSerializer(serializers.ModelSerializer):
+    item = StrictItemSerializer()
+
+    class Meta:
+        model = models.Stock
+        fields = "__all__"
+        depth = 2

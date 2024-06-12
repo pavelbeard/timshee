@@ -9,6 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from cart import models as cart_models
 from rest_framework.response import Response
+from rest_framework_simplejwt import authentication
 
 from . import models, serializers, write_serializers, query_serializers, filters
 
@@ -75,15 +76,6 @@ class TypeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TypeSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    # def list(self, request, *args, **kwargs):
-    #     response = super().list(request, *args, **kwargs)
-    #     if response.status_code == status.HTTP_200_OK:
-    #         for type_ in self.queryset:
-    #             data_type_obj = list(filter(lambda obj: obj['id'] == type_.id, response.data))[0]
-    #             data_type_obj.update(type_.item_set.aggregate(total=Sum('stock__in_stock')))
-    #
-    #     return response
-
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all()
@@ -92,7 +84,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
-    queryset = models.Collection.objects.all()
+    queryset = models.Collection.objects.all().order_by('-id')
     serializer_class = serializers.CollectionSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
@@ -102,26 +94,49 @@ class SizeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SizeSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    # def list(self, request, *args, **kwargs):
-    #     response = super().list(request, *args, **kwargs)
-    #     if response.status_code == status.HTTP_200_OK:
-    #         for size in self.queryset:
-    #             data_size_obj = list(filter(lambda obj: obj['id'] == size.id, response.data))[0]
-    #             data_size_obj.update(size.stock_set.aggregate(total=Sum('in_stock')))
-    #
-    #     return response
-
 
 class ColorViewSet(viewsets.ModelViewSet):
     queryset = models.Color.objects.all()
     serializer_class = serializers.ColorSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    # def list(self, request, *args, **kwargs):
-    #     response = super().list(request, *args, **kwargs)
-    #     if response.status_code == status.HTTP_200_OK:
-    #         for color in self.queryset:
-    #             data_color_obj = list(filter(lambda obj: obj['id'] == color.id, response.data))[0]
-    #             data_color_obj.update(color.stock_set.aggregate(total=Sum('in_stock')))
-    #
-    #     return response
+
+class WishlistViewSet(viewsets.ModelViewSet):
+    queryset = models.Wishlist.objects.all()
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [authentication.JWTAuthentication]
+
+    def get_serializer_class(self):
+        if self.action in ['list']:
+            return serializers.WishlistSerializer
+        elif self.action in ["create", "retrieve", "update", "partial_update", "destroy"]:
+            return write_serializers.WishlistSerializer
+        
+    def create(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            request.data['user'] = request.user.id
+            
+        request.data['session_key'] = request.session.session_key
+        item_id, size_id, color_id = request.data['stock']['item_id'], \
+            request.data['stock']['size_id'], request.data['stock']['color_id']
+        stock_id = models.Stock.objects.get(
+            item_id=item_id, size_id=size_id, color_id=color_id
+        ).id
+        
+        request.data['stock'] = stock_id
+        return super().create(request, *args, *kwargs)
+
+    @action(detail=False, methods=['GET'])
+    def get_wishlist_by_user(self, request, *args, **kwargs):
+        user = None
+        session_key = None
+        if request.user.is_authenticated:
+            user = request.user.id
+        else:
+            session_key = request.session.session_key
+        qs = models.Wishlist.objects.filter(user=user, session_key=session_key)
+        data = serializers.WishlistSerializer(qs, many=True).data
+        return Response(data, status=status.HTTP_200_OK)
+
+        
+            

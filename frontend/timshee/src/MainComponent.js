@@ -21,64 +21,74 @@ import OrderDetail from "./main/account/OrderDetail";
 import {AuthProvider} from "./main/auth/AuthProvider";
 import PrivateRoute from "./main/auth/PrivateRoute";
 import OrderRefund from "./main/account/OrderRefund";
-import {getCategories, getCollectionLinks, getCsrfToken} from "./redux/slices/appSlice";
+import {getCategories, getCollectionLinks, getCountries, getCsrfToken} from "./redux/slices/appSlice";
 import Loading from "./main/Loading";
 import Error from "./main/Error";
+import PrivacyInfo from "./main/PrivacyInfo";
+import Wishlist from "./main/account/Wishlist";
+import translateService from "./main/translate/TranslateService";
+import {TranslateProvider} from "./main/translate/TranslateProvider";
 
 const MainComponent = () => {
     const dispatch = useDispatch();
+    const language = translateService.language();
     const {collections: collectionLinks, collectionsStatus} = useSelector(state => state.app);
 
     useEffect(() => {
         dispatch(getCsrfToken());
         dispatch(getCollectionLinks());
         dispatch(getCategories());
+        dispatch(getCountries());
     }, []);
 
     if (collectionsStatus === 'success') {
         return (
-            <AuthProvider>
-                <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<Main/>} >
-                            <Route path="/cart" element={<Cart/>}/>
-                            <Route path="/shop/collections/:c" element={<Shop />}/>
-                            <Route path="/shop/collections/:c/page/:page" element={<Shop />}/>
-                            <Route path="/shop/collections/:c/:type/:itemId/:itemName" element={<Shop />}/>
-                            <Route path="/account/login" element={<Login/>}/>
-                            <Route path="/account/register" element={<Register/>}/>
-                            <Route element={<PrivateRoute/>}>
-                                <Route path="/account/details" element={<Account/>}/>
-                                <Route path="/account/details/addresses" element={<Addresses/>}/>
-                                <Route path="/account/details/orders" element={<Orders/>}/>
+            <TranslateProvider>
+                <AuthProvider>
+                    <BrowserRouter>
+                        <Routes>
+                            <Route path="" element={<Main/>} >
+                                <Route path="/cart" element={<Cart/>}/>
+                                <Route path="/shop/collections/:c" element={<Shop />}/>
+                                <Route path="/shop/collections/:c/page/:page" element={<Shop />}/>
+                                <Route path="/shop/collections/:c/:type/:itemId/:itemName" element={<ItemCardDetail />}/>
+                                <Route path="/account/login" element={<Login/>}/>
+                                <Route path="/account/register" element={<Register/>}/>
+                                <Route element={<PrivateRoute/>}>
+                                    <Route path="/account/details" element={<Account/>}/>
+                                    <Route path="/account/details/addresses" element={<Addresses/>}/>
+                                    <Route path="/account/details/orders" element={<Orders/>}/>
+                                    <Route path="/account/details/wishlist" element={<Wishlist />}/>
+                                </Route>
+                                <Route path="/orders/:orderId/detail" element={<OrderDetail/>}/>
+                                <Route path="/orders/:orderId/order-refund" element={<OrderRefund/>}/>
+                                <Route path="/orders/:orderId/order-refund/:stockItemId/:stockItemQuantity" element={<OrderRefund/>}/>
+                                {
+                                    typeof collectionLinks.map === "function" && collectionLinks.map((item, index) => {
+                                        return (
+                                            <Route
+                                                path={`/collections/${item.link}`}
+                                                key={index}
+                                                element={<Shop collectionId={item.id} collectionName={item.name}/>}
+                                            />
+                                        )
+                                    })
+                                }
+                                <Route path="/shop/:orderId/checkout/order-check/:orderNumber"
+                                       element={<OrderCheckPayment/>}/>
+                                <Route path="/shop/:orderId/checkout/order-paid/:orderNumber" element={<OrderPaid/>}/>
+                                <Route path="/shop/:orderId/checkout/order-failed/:orderNumber"
+                                       element={<OrderIsNotPaid/>}/>
+                                <Route path="/privacy-information" element={<PrivacyInfo />} />
                             </Route>
-                            <Route path="/orders/:orderId/detail" element={<OrderDetail/>}/>
-                            <Route path="/orders/:orderId/order-refund" element={<OrderRefund/>}/>
-                            <Route path="/orders/:orderId/order-refund/:stockItemId/:stockItemQuantity" element={<OrderRefund/>}/>
-                            {
-                                typeof collectionLinks.map === "function" && collectionLinks.map((item, index) => {
-                                    return (
-                                        <Route
-                                            path={`/collections/${item.link}`}
-                                            key={index}
-                                            element={<Shop collectionId={item.id} collectionName={item.name}/>}
-                                        />
-                                    )
-                                })
-                            }
-                            <Route path="/shop/:orderId/checkout/order-check/:orderNumber"
-                                   element={<OrderCheckPayment/>}/>
-                            <Route path="/shop/:orderId/checkout/order-paid/:orderNumber" element={<OrderPaid/>}/>
-                            <Route path="/shop/:orderId/checkout/order-failed/:orderNumber"
-                                   element={<OrderIsNotPaid/>}/>
-                        </Route>
-                        <Route path="/shop/:orderId/checkout" element={<Checkout/>}/>
-                        <Route path="/shop/:orderId/checkout/:step" element={<Checkout/>}/>
-                        <Route path="/test" element={<TestComponent/>}/>
-                        <Route path="*" element={<NotFound/>}/>
-                    </Routes>
-                </BrowserRouter>
-            </AuthProvider>
+                            <Route path="/shop/:orderId/checkout" element={<Checkout/>}/>
+                            <Route path="/shop/:orderId/checkout/:step" element={<Checkout/>}/>
+                            <Route path="/test" element={<TestComponent/>}/>
+                            <Route path="*" element={<NotFound/>}/>
+                        </Routes>
+                    </BrowserRouter>
+                </AuthProvider>
+            </TranslateProvider>
         )
     } else if (collectionsStatus === 'loading') {
         return <Loading/>;

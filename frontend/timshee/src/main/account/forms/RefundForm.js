@@ -8,11 +8,12 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import back from "../../../media/static_images/back_to.svg"
 
 import "./Forms.css";
+import translateService from "../../translate/TranslateService";
 
 const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
     const dispatch = useDispatch();
     const params = useParams();
-    const navigate = useNavigate();
+    const language = translateService.language();
     const token = AuthService.getCurrentUser();
     const {orderRefundWholeStatus, orderRefundPartialStatus} = useSelector(state => state.ordersPage);
     const [reason, setReason] = React.useState({id: 0, reason: "It didn't like"});
@@ -40,13 +41,13 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
         orderRefundPartialStatus === 'success') {
         return (
             <div className="order-partial-refund-form order-refunded">
-                <h3>ORDER HAS BEEN REFUNDED</h3>
+                <h3>{translateService.refundForm.orderReturned[language]}</h3>
                 {
                     token?.access && (
                         <div className="order-buttons">
                             <Link to="/account/details/orders">
                                 <div className="order-button" onClick={() => dispatch(resetRefundStatus())}>
-                                    RETURN TO ORDERS
+                                    {translateService.account.returnToOrders[language]}
                                 </div>
                             </Link>
                         </div>
@@ -74,15 +75,15 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                                 <span style={{
                                     fontSize: "24px",
                                     fontVariant: "all-petite-caps",
-                                }}>BACK TO ORDER</span>
+                                }}>{translateService.refundForm.returnToOrder[language]}</span>
                             </div>
                         </Link>
                     </span>
-                    <span><h1>REFUND FORM</h1></span>
-                    <span><h3>WHY YOU WANT REFUND THIS ITEM?</h3></span>
+                    <span><h1>{translateService.refundForm.refundForm[language]}</h1></span>
+                    <span><h3>{translateService.refundForm.question[language]}</h3></span>
                     <div>
                         <label htmlFor="didnt-like">
-                            <span>It didn't like</span>
+                            <span>{translateService.refundForm.dontLike[language]}</span>
                             <input id="didnt-like" type="radio"
                                 required={0 === reason.id}
                                 checked={0 === reason.id}
@@ -92,7 +93,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="color-size-isnt-correct">
-                            <span>Item's color/size isn't correct</span>
+                            <span>{translateService.refundForm.dontCorrect[language]}</span>
                             <input id="color-size-isnt-correct" type="radio"
                                 required={1 === reason.id}
                                 checked={1 === reason.id}
@@ -102,7 +103,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="wrong-description">
-                            <span>Item doesn't match the description in the store</span>
+                            <span>{translateService.refundForm.wrongDescription[language]}</span>
                             <input id="wrong-description" type="radio"
                                 required={2 === reason.id}
                                 checked={2 === reason.id}
@@ -115,7 +116,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="appearance">
-                            <span>Dissatisfaction with appearance</span>
+                            <span>{translateService.refundForm.wrongAppearance[language]}</span>
                             <input id="appearance" type="radio"
                                 required={3 === reason.id}
                                 checked={3 === reason.id}
@@ -125,7 +126,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="long-shipping">
-                            <span>Shipping is very long</span>
+                            <span>{translateService.refundForm.longShipping[language]}</span>
                             <input id="long-shipping" type="radio"
                                 required={4 === reason.id}
                                 checked={4 === reason.id}
@@ -135,7 +136,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="order-errors">
-                            <span>Wrong item ordered</span>
+                            <span>{translateService.refundForm.wrongItemOrdered[language]}</span>
                             <input id="order-errors" type="radio"
                                 required={5 === reason.id}
                                 checked={5 === reason.id}
@@ -149,7 +150,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                                 <>
                                     <div>
                                         <label htmlFor="wrong-quantity">
-                                            <span>I ordered more items than I wanted</span>
+                                            <span>{translateService.refundForm.wrongQuantity[language]}</span>
                                             <input id="wrong-quantity" type="radio"
                                                    required={6 === reason.id}
                                                    checked={6 === reason.id}
@@ -164,7 +165,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                                         reason.id === 6 && (
                                             <div>
                                                 <label htmlFor="wrong-quantity-counter">
-                                                    <span>Quantity for refund:</span>
+                                                    <span>{translateService.refundForm.quantityForRefund[language]}</span>
                                                     <div>
                                                         <span>min: {quantity}</span>
                                                         <input id="wrong-quantity-counter" type="range"
@@ -189,7 +190,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                     </div>
                     <div>
                         <label htmlFor="other">
-                            <span>Other reasons</span>
+                            <span>{translateService.refundForm.otherReasons[language]}</span>
                             <textarea id="other"
                                       required={7 === reason.id}
                                       onClickCapture={() => setReason({id: 7, reason: ""})}
@@ -197,7 +198,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
                             />
                         </label>
                         <div className="order-partial-refund-item-button">
-                            <button onSubmit={handleSubmit}>REFUND ITEM</button>
+                            <button onSubmit={handleSubmit}>{translateService.refundForm.refundItem[language]}</button>
                         </div>
                     </div>
                 </form>

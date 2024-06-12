@@ -14,7 +14,7 @@ export const getItems = createAsyncThunk(
                 ? `&colors__name__in=${filters?.colors.join(',')}`
                 : "";
             const filterCategory = filters?.category
-                ? `&type__category__name=${filters?.category}`
+                ? `&type__category__code=${filters?.category}`
                 : "";
             const filterOrderBy = filters?.orderBy
                 ? `&o=${filters.orderBy}`

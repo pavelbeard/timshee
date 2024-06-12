@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {createOrUpdateAddress, deleteOrder, updatePaymentInfo} from "../asyncThunks";
+import {createOrUpdateAddress, updatePaymentInfo} from "../asyncThunks";
 
 const initialState = {
     // general values

@@ -7,7 +7,7 @@ from django.templatetags.static import static
 from order import models as order_models
 
 
-def send_email(request, order_id, msg_type):
+def send_email(request, order_id, msg_type, text):
     user = request.user
     order = order_models.Order.objects.get(pk=order_id)
     current_site = get_current_site(request)
@@ -33,7 +33,6 @@ def send_email(request, order_id, msg_type):
         logo_url = f"https://{current_site.domain}{static('static/stuff/static/img/img.png')}"
     context = {
         'message': message,
-        "order": order.order_number,
         "static_url": settings.STATIC_URL,
         "media_url": settings.MEDIA_URL,
         "logo_url": logo_url,

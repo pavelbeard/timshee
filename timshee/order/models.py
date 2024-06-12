@@ -4,21 +4,33 @@ import string
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.db import models
+from parler.models import TranslatableModel, TranslatedFields
+from django.utils.translation import gettext as _
 
 from store import models as store_models
 
 
 # Create your models here.
 
-class Country(models.Model):
+class Continent(models.Model):
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"[{self.name}]"
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, blank=True, null=True)
+    language = models.CharField(max_length=5, blank=True, null=True)
+    continent = models.ForeignKey(Continent, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = "Country"
         verbose_name_plural = "Countries"
 
     def __str__(self):
-        return self.name
+        # return f"[{self.safe_translation_getter('name', any_language=True)}]"
+        return f"[{self.name}]"
 
 
 class CountryPhoneCode(models.Model):
@@ -42,7 +54,7 @@ class Province(models.Model):
         verbose_name_plural = "Provinces"
 
     def __str__(self):
-        return f"{self.name}, {self.country.name}"
+        return f"[{self.name}, {self.country.name}]"
 
 
 class Address(models.Model):

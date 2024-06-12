@@ -1,10 +1,33 @@
 .footer {
     position: relative;
     z-index: 1;
-    padding: 20px 0 42px;
+    padding: 30px 50px;
     border-top: 1px solid #e4e4e4;
 }
 
+.footer-list {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px;
+}
+
+.footer-list > li {
+    margin-bottom: 10px;
+}
+
+.footer-list > li > a {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.footer > .nav > .nav-list {
+    align-items: start;
+}
+
+.contact-container {
+    justify-content: flex-start;
+}
 
 @media only screen and (max-width: 600px) {
     .footer {
@@ -17,8 +40,8 @@
         padding-left: 0;
     }
 
-    .contact-list-1, .social-net-list {
-        padding: 0;
+    .footer-list, .social-net-list {
+        padding: 0 0 0 1rem;
     }
 
     .contact-container {

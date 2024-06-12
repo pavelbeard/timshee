@@ -2,27 +2,32 @@ import Logo from "./Logo";
 import Navigation from "./Navigation";
 import Info from "./Info";
 
-// import "./Header.css";
 import "./Header2.css";
 import "../main/Main.css"
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 import logo from "../media/static_images/logo.png";
 import burger from "../media/static_images/burger-menu.svg";
 import {useDispatch, useSelector} from "react-redux";
 import {getCartItems} from "../main/cart/api/asyncThunks";
-import {closeCart, toggleCart, toggleMenu} from "../redux/slices/menuSlice";
+import {closeCart, toggleCart} from "../redux/slices/menuSlice";
 import {resetIsAdded} from "../main/cart/reducers/cartSlice";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import AuthService from "../main/api/authService";
+import {getWishlist} from "../main/account/api/reducers/asyncThunks";
+import t from "../main/translate/TranslateService";
+import TranslateContext from "../main/translate/TranslateProvider";
 
 const Header = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const token = AuthService.getCurrentUser();
-    const {collections, categories} = useSelector(state => state.app);
+    const language = t.language();
+    const {postLanguage} = useContext(TranslateContext);
+    const {collections, categories, countries, continents} = useSelector(state => state.app);
     const {cart, getCartItemsStatus} = useSelector(state => state.cart);
     const {genders} = useSelector(state => state.shop);
+    const {wishlist} = useSelector(state => state.wishlist);
     const [menuOpen, setMenuOpen] = useState(false);
 
     // RESIZE AND HIDE MENU
@@ -45,6 +50,10 @@ const Header = () => {
 
     }, [getCartItemsStatus, cart.cartItems.length]);
 
+    useEffect(() => {
+        dispatch(getWishlist({token}));
+    }, [])
+
     const handleCart = () => {
         if (
             document.location.pathname === "/checkout" ||
@@ -52,7 +61,7 @@ const Header = () => {
         ) {
             dispatch(closeCart());
         } else if (window.innerWidth <= 768) {
-            navigate("/cart");
+            navigate(`/cart`);
         } else {
             dispatch(toggleCart());
             dispatch(resetIsAdded());
@@ -69,8 +78,9 @@ const Header = () => {
         return <nav className="nav nav-left">
             <ul className="nav-list-lvl0">
                 <li className="nav-item-lvl0">
-                    <span>Shop</span>
+                    <span>{t.shop.shop[language]}</span>
                     <ul className="nav-list-lvl1">
+                        <div className="nav-background left-background"></div>
                         <li className="nav-item-lvl1">
                             <span>
                                 <Link to={`/shop/collections/${collections[0].link}`}>
@@ -78,37 +88,95 @@ const Header = () => {
                                 </Link>
                             </span>
                             <ul className="nav-list-lvl2">
-                                <li  className="nav-item-lvl2"
-                                onClick={() => setMenuOpen(false)}>
+                                <li className="nav-item-lvl2"
+                                    onClick={() => setMenuOpen(false)}>
                                     <span>
-                                        <Link to={`/shop/collections/${genders[0].value}+${collections[0].link}`}>women</Link>
+                                        <Link to={`/shop/collections/${genders[0].value}+${collections[0].link}`}>{
+                                            t.shop.women[language]
+                                        }</Link>
                                     </span>
                                     <ul className="nav-list-lvl3">
-                                        {categories.map((category, index) => (
-                                            <li className="nav-item-lvl3" key={index}>
-                                                <span>{category.name}</span>
-                                            </li>
-                                        ))}
+                                        {categories.map((category, index) => {
+                                            const linkTo = `/shop/collections/${genders[0].value}+${collections[0].link}`
+                                                + `+${category.code}`
+                                            return (
+                                                <li className="nav-item-lvl3" key={index}>
+                                                    <span>
+                                                        <Link to={linkTo}>{category.name}</Link>
+                                                    </span>
+                                                </li>
+                                            )
+                                        })}
                                     </ul>
                                 </li>
                                 <li className="nav-item-lvl2"
-                                onClick={() => setMenuOpen(false)}><span>
-                                    <Link to={`/shop/collections/${genders[1].value}+${collections[0].link}`}>men</Link>
-                                </span></li>
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span>
+                                        <Link
+                                            to={`/shop/collections/${genders[1].value}+${collections[0].link}`}>{
+                                            t.shop.men[language]
+                                        }</Link>
+                                    </span>
+                                    <ul className="nav-list-lvl3">
+                                        {categories.map((category, index) => {
+                                            const linkTo = `/shop/collections/${genders[1].value}+${collections[0].link}`
+                                                + `+${category.code}`
+                                            return (
+                                                <li className="nav-item-lvl3" key={index}>
+                                                <span>
+                                                    <Link to={linkTo}>{category.name}</Link>
+                                                </span>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li className="nav-item-lvl1"
-                        onClick={() => setMenuOpen(false)}><span>women</span></li>
+                            onClick={() => setMenuOpen(false)}>
+                            <span>
+                                <Link to={`/shop/collections/${genders[0].value}`}>{t.shop.women[language]}</Link>
+                            </span>
+                            <ul className="nav-list-lvl2">
+                                {collections.map((collection, index) => (
+                                    <li className="nav-item-lvl2" key={index}
+                                        onClick={() => setMenuOpen(false)}>
+                                        <span>
+                                            <Link to={`/shop/collections/${genders[0].value}+${collection.link}`}>
+                                                {collection.name}
+                                            </Link>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
                         <li className="nav-item-lvl1"
-                        onClick={() => setMenuOpen(false)}><span>men</span></li>
+                            onClick={() => setMenuOpen(false)}>
+                            <span>
+                                <Link to={`/shop/collections/${genders[1].value}`}>{t.shop.men[language]}</Link>
+                            </span>
+                            <ul className="nav-list-lvl2">
+                                {collections.map((collection, index) => (
+                                    <li className="nav-item-lvl2" key={index}
+                                        onClick={() => setMenuOpen(false)}>
+                                        <span>
+                                            <Link to={`/shop/collections/${genders[1].value}+${collection.link}`}>
+                                                {collection.name}
+                                            </Link>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
                     </ul>
                 </li>
                 <li className="nav-item-lvl0">
-                    <span>Collections</span>
+                <span>{t.shop.collections[language]}</span>
                     <ul className="nav-list-lvl1">
                         {collections.map((collection, index) => (
                             <li className="nav-item-lvl1" key={index}
-                            onClick={() => setMenuOpen(false)}>
+                                onClick={() => setMenuOpen(false)}>
                                 <span>
                                     <Link to={`/shop/collections/${collection.link}`}>
                                         {collection.name}
@@ -119,9 +187,9 @@ const Header = () => {
                     </ul>
                 </li>
                 <li className="nav-item-lvl0"
-                onClick={() => setMenuOpen(false)}><span>The house</span></li>
+                onClick={() => setMenuOpen(false)}><span>{t.shop.house[language]}</span></li>
                 <li className="nav-item-lvl0"
-                onClick={() => setMenuOpen(false)}><span>About</span></li>
+                onClick={() => setMenuOpen(false)}><span>{t.shop.about[language]}</span></li>
             </ul>
         </nav>
     };
@@ -130,40 +198,81 @@ const Header = () => {
         return <nav className="nav nav-right">
             <ul className="nav-list-lvl0">
                 <li className="nav-item-lvl0">
-                    <span>Ship to</span>
+                    <span>{t.shop.changeLanguage[language]}</span>
+                    <ul className="nav-list-lvl1">
+                        {continents.map((continent, index) => (
+                            <li className="nav-item-lvl1" key={index}>
+                            <div className="nav-background right-background"></div>
+                                <span>
+                                    {continent.name}
+                                </span>
+                                <ul className="nav-list-lvl2">
+                                    {countries.map((country, index) => {
+                                        if (country.continent.id !== continent.id) {
+                                            return <div key={index + 10}></div>
+                                        }
+                                        return (
+                                            <li className="nav-item-lvl2" key={index + 10}
+                                                onClick={() => {
+                                                    setMenuOpen(false);
+                                                    postLanguage(country.language);
+                                                }}>
+                                                <span>
+                                                    {country.name}
+                                                </span>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </li>
+                        ))}
+                    </ul>
                 </li>
                 <li className="nav-item-lvl0">
-                    <span>Account</span>
+                    <span>{t.shop.account[language]}</span>
                     {
                         token?.access ? (
                             <ul className="nav-list-lvl1">
+                                <div className="nav-background right-background"></div>
                                 <li className="nav-item-lvl1"
-                                onClick={() => setMenuOpen(false)}>
-                                    <span><Link to="/account/details">Details</Link></span></li>
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span><Link to={`/account/details`}>{t.shop.details[language]}</Link></span></li>
                                 <li className="nav-item-lvl1"
-                                onClick={() => setMenuOpen(false)}>
-                                    <span><Link to="/account/details/addresses">Address book</Link></span></li>
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span><Link to={`/account/details/addresses`}>{t.shop.addressBook[language]}</Link></span>
+                                </li>
                                 <li className="nav-item-lvl1"
-                                onClick={() => setMenuOpen(false)}>
-                                    <span><Link to="/account/details/orders">Orders</Link></span></li>
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span><Link to={`/account/details/orders`}>{t.shop.orders[language]}</Link></span>
+                                </li>
                                 <li className="nav-item-lvl1"
-                                onClick={() => setMenuOpen(false)}>
-                                    <span>WishList</span></li>
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span>
+                                        <Link to={`/account/details/wishlist`}>
+                                            <span>{t.shop.wishlist[language]} <span>({wishlist.length})</span></span>
+                                        </Link>
+                                    </span></li>
                             </ul>
                         ) : (
                             <ul className="nav-list-lvl1">
+                                <div className="nav-background right-background"></div>
                                 <li className="nav-item-lvl1">
-                                    <span><Link to="/account/login"
-                                    onClick={() => setMenuOpen(false)}>Login</Link></span></li>
+                                    <span><Link to={`/account/login`}
+                                                onClick={() => setMenuOpen(false)}>{t.authForms.login[language]}</Link></span>
+                                </li>
                                 <li className="nav-item-lvl1">
-                                    <span><Link to="/account/register"
-                                    onClick={() => setMenuOpen(false)}>Register</Link></span></li>
+                                    <span><Link to={`/account/register`}
+                                                onClick={() => setMenuOpen(false)}>{t.authForms.register[language]}</Link></span>
+                                </li>
                             </ul>
                         )
                     }
                 </li>
-                <li className="nav-item-lvl0" onClick={handleCart}>
-                    <span>Cart ({cart.totalQuantityInCart || 0})</span>
+                <li className="nav-item-lvl0" onClick={() => {
+                    setMenuOpen(false);
+                    handleCart();
+                }}>
+                    <span>{t.shop.cart[language]} <span>({cart.totalQuantityInCart || 0})</span> </span>
                 </li>
             </ul>
         </nav>
@@ -177,7 +286,7 @@ const Header = () => {
 
     const logoCenter = () => {
         return <div className="logo">
-            <Link to="/">
+            <Link to={``}>
                 <img src={logo} alt="alt-logo" height={35}/>
             </Link>
         </div>

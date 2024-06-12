@@ -137,14 +137,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
-        request.data['session'] = request.session.session_key
+        request.data['session_key'] = request.session.session_key
 
         return super().retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data["user"] = request.user.id
-        request.data["session"] = request.session.session_key
+        request.data["session_key"] = request.session.session_key
         request.data["updated_at"] = timezone.now()
 
         if request.data.get('status'):

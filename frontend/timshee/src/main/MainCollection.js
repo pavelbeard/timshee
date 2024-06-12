@@ -16,7 +16,7 @@ const MainCollection = ({ data }) => {
             } else if (width >= 768 && width < 1200) {
                 setImageSize("300");
             } else {
-                setImageSize("400");
+                setImageSize("512");
             }
         }
 

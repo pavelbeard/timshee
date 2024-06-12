@@ -5,10 +5,13 @@ import {
 } from "../../main/api/asyncFetchers";
 import {checkAuthStatus} from "./checkAuthSlice";
 import error from "../../main/Error";
+import {uniqueData} from "../../main/api/stuff";
 
 const initialState = {
     countriesLengthStatus: 'idle',
     countriesLength: 0,
+    countries: [],
+    continents: [],
     csrftokenStatus: 'idle',
     collections: [],
     collectionsStatus: 'idle',
@@ -99,6 +102,11 @@ const appSlice = createSlice({
             .addCase(getCountries.fulfilled, (state, action) => {
                 state.countriesLengthStatus = 'success';
                 state.countriesLength = action.payload.length;
+                state.countries = action.payload;
+                const continents = uniqueData(action.payload.map(c => c.continent), "name");
+                if (continents.length > 0) {
+                    state.continents = [...continents];
+                }
             })
             .addCase(getCountries.rejected, (state, action) => {
                 state.countriesLengthStatus = 'error';

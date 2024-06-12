@@ -22,36 +22,32 @@ import {
     getProvinces, getShippingMethodDetail,
     getShippingMethods, updateOrderShippingMethod
 } from "./api/asyncThunks";
+import t from "../translate/TranslateService";
+import {isClickableInput} from "@testing-library/user-event/dist/utils";
 
 
 const Checkout = () => {
     window.document.title = 'Timshee | Checkout';
     const token = AuthService.getCurrentUser();
+    const language = t.language();
     const params = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const {order} = useSelector(state => state.order);
-
     const {
-        addressObject, usernameEmail, shippingAddresses, shippingMethods, countries, phoneCodes, provinces,
+        usernameEmail, shippingAddresses, shippingMethods, countries, phoneCodes, provinces,
         addressObjectStatus, usernameEmailStatus, shippingAddressesStatus,
         countriesStatus, phoneCodesStatus, provincesStatus, orderStatus, shippingMethodsStatus,
-        addressFormObject,
+        addressFormObject, order
     } = useSelector(state => state.shippingAddressForm);
     const {cart, getCartItemsStatus} = useSelector(state => state.cart);
-    const {createOrUpdateAddressStatus} = useSelector(state => state.checkout);
-
-    // FOR ORDER SHIPPING FORM
-    const [orderShippingAddress, setOrderShippingAddress] = React.useState();
-
-    // FOR OPEN PAYMENT FORM
-    const [orderShippingMethod, setOrderShippingMethod] = React.useState();
-
 
     const [shippingMethodExternal, setShippingMethodExternal] = React.useState(0);
     const [shippingPrice, setShippingPrice] = React.useState(0.00);
-    const [currentStep, setCurrentStep] = React.useState(localStorage.getItem("currentStep") || "information");
+    const [currentStep, setCurrentStep] = React.useState(
+        parseInt(localStorage.getItem("currentStep"))|| 1
+    );
+    const [shippingAddressString, setShippingAddressString] = React.useState("");
 
     // INIT
     useEffect(() => {
@@ -95,28 +91,31 @@ const Checkout = () => {
         }
     }, [cart.cartItems.length, getCartItemsStatus]);
 
-    // OPEN FORMS
     useEffect(() => {
-        if (order && order.shipping_address !== undefined) {
-            setOrderShippingAddress(order.shipping_address);
+        if (addressFormObject) {
+            setShippingAddressString(
+                `${addressFormObject?.address1}, ` +
+                `${addressFormObject?.address2}, ` +
+                `${addressFormObject?.postal_code}, ` +
+                `${addressFormObject?.province?.name}, ` +
+                `${addressFormObject?.city}, ` +
+                `${addressFormObject?.province?.country?.name}, ` +
+                `${addressFormObject?.first_name} ${addressFormObject?.last_name}`
+            )
         }
-
-        if (order && order.shipping_methods !== undefined) {
-            setOrderShippingMethod(order.shipping_method)
-        }
-    })
+    }, [addressFormObject])
 
     // CHANGE STEP
     const handleStepChange = (nextStep) => {
-        if (nextStep === "information") {
+        if (nextStep === 1) {
             setShippingPrice(0.00);
         }
 
-        if (nextStep === "shipping" && orderShippingAddress === undefined) {
+        if (nextStep === 2 && order.shipping_address === undefined) {
             return;
         }
 
-        if (nextStep === "payment" && orderShippingMethod === undefined) {
+        if (nextStep === 3 && order.shipping_method === undefined) {
             return;
         }
 
@@ -124,33 +123,10 @@ const Checkout = () => {
     };
 
     // SET SHIPPING PRICE DATA
-    const setCorrectShippingPrice = () => {
-        if (currentStep !== "information" && orderShippingMethod !== undefined) {
-            setShippingPrice(order.shipping_method.price);
-        }
-    };
 
     // HANDLE STEPS
     const handleSubmitShippingAddressForm = async e => {
         e.preventDefault();
-
-        // const data = {
-        //     "order_id": params.orderId,
-        //     "first_name": addressObject.firstName,
-        //     "last_name": addressObject.lastName,
-        //     "city": addressObject.city,
-        //     "address1": addressObject.streetAddress,
-        //     "address2": addressObject.apartment,
-        //     "postal_code": addressObject.postalCode,
-        //     // WEAK
-        //     "phone_number": addressObject.phoneNumber,
-        //     "email": addressObject.email || usernameEmail,
-        //     "additional_data": "",
-        //     // WEAK
-        //     "province": addressObject.province.id,
-        //     "phone_code": addressObject.phoneCode.country,
-        //     "as_primary": true,
-        // }
         const data = {
             "order_id": params.orderId,
             "first_name": addressFormObject.first_name,
@@ -159,11 +135,9 @@ const Checkout = () => {
             "address1": addressFormObject.address1,
             "address2": addressFormObject.address2,
             "postal_code": addressFormObject.postal_code,
-            // WEAK
             "phone_number": addressFormObject.phone_number,
             "email": addressFormObject.email || usernameEmail,
             "additional_data": "",
-            // WEAK
             "province": addressFormObject.province.id,
             "phone_code": addressFormObject.phone_code.country,
             "as_primary": true,
@@ -176,7 +150,7 @@ const Checkout = () => {
         }));
 
         navigate(`/shop/${params.orderId}/checkout/shipping`);
-        setCurrentStep("shipping");
+        setCurrentStep(2);
     };
 
     const handleSubmitShippingMethodForm = async e => {
@@ -194,7 +168,7 @@ const Checkout = () => {
             shippingMethodId: selectedMethod.id
         }));
         setShippingPrice(selectedMethod.price);
-        setCurrentStep("payment");
+        setCurrentStep(3);
         navigate(`/shop/${params.orderId}/checkout/payment`);
     };
 
@@ -213,77 +187,129 @@ const Checkout = () => {
                     {cart.cartItems.length > 0 && <div className="checkout-nav">
                         <span>
                             <Link to={`/cart`} onClick={() => {
-                                handleStepChange("information");
+                                handleStepChange(1);
                                 dispatch(toggleCart(false));
                             }}>
-                                Cart
+                                {t.checkout.cart[language]}
                             </Link>
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-1" height={10}/>
-                        <span className={currentStep === "information" ? "span-color-black" : "span-color-gray"}
+                        <span className="span-color-black"
                               onClick={() => {
-                                  handleStepChange("information");
+                                  handleStepChange(1);
                                   setShippingPrice(0.00);
                                   navigate(`/shop/${params.orderId}/checkout/information`);
                               }}>
-                            Information
+                            {t.checkout.information[language]}
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-2" height={10}/>
                         <span
-                            className={currentStep === "shipping" && orderShippingAddress ? "span-color-black" : "span-color-gray"}
+                            className={currentStep > 1 ? "span-color-black" : "span-color-gray"}
                             onClick={() => {
-                                if (orderShippingAddress !== undefined) {
-                                    handleStepChange("shipping");
+                                if (order && order.shipping_address !== undefined) {
+                                    handleStepChange(2);
                                     navigate(`/shop/${params.orderId}/checkout/shipping`);
                                 }
                             }}>
-                            Shipping
+                            {t.checkout.shipping[language]}
                         </span>
                         <img src={forwardImg} alt="alt-forward-to-3" height={10}/>
-                        <span className={currentStep === "payment" ? "span-color-black" : "span-color-gray"}
+                        <span className={currentStep > 2 ? "span-color-black" : "span-color-gray"}
                               onClick={() => {
-                                  if (orderShippingMethod !== undefined) {
-                                      handleStepChange("payment");
+                                  if (order && order.shipping_method !== undefined) {
+                                      handleStepChange(3);
                                       navigate(`/shop/${params.orderId}/checkout/payment`);
                                   }
                               }}>
-                            Payment
+                            {t.checkout.payment[language]}
                         </span>
                     </div>}
                 </div>
                 {cart.cartItems.length > 0 && <div className="checkout-shipping-form">
                     {
-                        currentStep === "information"
+                        currentStep === 1
                         &&
-                        <ShippingAddressForm
-                            initialValue={addressFormObject}
-                            shippingAddresses={shippingAddresses}
-                            usernameEmail={usernameEmail}
-                            orderId={params.orderId}
-                            countries={countries}
-                            phoneCodes={phoneCodes}
-                            provinces={provinces}
-                            submit={handleSubmitShippingAddressForm}
-                            setCurrentStep={handleStepChange}
-                        />
+                        <>
+                            <ShippingAddressForm
+                                initialValue={addressFormObject}
+                                shippingAddresses={shippingAddresses}
+                                usernameEmail={usernameEmail}
+                                orderId={params.orderId}
+                                countries={countries}
+                                phoneCodes={phoneCodes}
+                                provinces={provinces}
+                                submit={handleSubmitShippingAddressForm}
+                                setCurrentStep={handleStepChange}
+                                shippingAddressString={shippingAddressString}
+                                setShippingAddressString={setShippingAddressString}
+                            />
+                        </>
                     }
                     {
-                        currentStep === "shipping"
+                        currentStep === 2
                         &&
-                        <ShippingMethodForm
-                            initialValue={shippingMethods}
-                            orderId={params.orderId}
-                            setShippingPrice={setShippingPrice}
-                            setOrderShippingMethod={setOrderShippingMethod}
-                            setShippingMethodExternal={setShippingMethodExternal}
-                            submit={handleSubmitShippingMethodForm}
-                            setCurrentStep={handleStepChange}
-                        />
+                        <>
+                            <div className="order-info">
+                                <h3>{t.checkout.shippingInfo[language]}</h3>
+                                {
+                                    token?.access ? (
+                                        <div>
+                                            <span>EMAIL:</span>
+                                            <span>{usernameEmail}</span>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <span>EMAIL:</span>
+                                            <span>{order?.shipping_address?.email}</span>
+                                        </div>
+                                    )
+                                }
+                                <div>
+                                    <span>{t.checkout.shippingAddress[language]}</span>
+                                    <span>{shippingAddressString}</span>
+                                </div>
+                            </div>
+                            <ShippingMethodForm
+                                initialValue={shippingMethods}
+                                orderId={params.orderId}
+                                setShippingPrice={setShippingPrice}
+                                setShippingMethodExternal={setShippingMethodExternal}
+                                submit={handleSubmitShippingMethodForm}
+                                setCurrentStep={handleStepChange}
+                            />
+                        </>
+
                     }
                     {
-                        currentStep === "payment"
+                        currentStep === 3
                         &&
-                        <PaymentForm orderId={params.orderId}/>
+                        <>
+                            <div className="order-info">
+                                <h3>{t.checkout.shippingInfo[language]}</h3>
+                                {
+                                    token?.access ? (
+                                        <div>
+                                            <span>EMAIL:</span>
+                                            <span>{usernameEmail}</span>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <span>EMAIL:</span>
+                                            <span>{order?.shipping_address?.email}</span>
+                                        </div>
+                                    )
+                                }
+                                <div>
+                                    <span>{t.checkout.shippingAddress[language]}</span>
+                                    <span>{shippingAddressString}</span>
+                                </div>
+                                <div>
+                                    <span>{t.checkout.shippingMethod[language]}</span>
+                                    <span>{order?.shipping_method?.shipping_name}</span>
+                                </div>
+                            </div>
+                            <PaymentForm orderId={params.orderId}/>
+                        </>
                     }
                 </div>}
             </div>
@@ -295,16 +321,16 @@ const Checkout = () => {
                         </div>
                         <div className="checkout-subtotal">
                             <div className="checkout-fees">
-                            <span>Subtotal:</span>
+                            <span>{t.checkout.subtotal[language]}</span>
                                 <span>{cart.totalPrice}</span>
                             </div>
                             <div className="checkout-shipping">
-                                <span>Shipping:</span>
+                                <span>{t.checkout.shippingMethod[language]}:</span>
                                 <span>{parseFloat(shippingPrice) === 0.00 ? "Free" : shippingPrice}</span>
                             </div>
                         </div>
                         <div className="checkout-total">
-                            <span>Total:</span>
+                            <span>{t.checkout.total[language]}</span>
                             <span>{(parseFloat(cart.totalPrice) + parseFloat(shippingPrice)).toFixed(2)}</span>
                         </div>
                     </div>
@@ -316,7 +342,7 @@ const Checkout = () => {
                         width: "45%",
                     }}>
                         <span>
-                            <h3>LOADING...</h3>
+                            <h3>{t.stuff.loading[language]}</h3>
                         </span>
                     </div>
                 )

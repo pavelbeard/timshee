@@ -32,6 +32,7 @@
     .message-container {
         display: flex;
         justify-content: center;
+        padding: 1rem;
     }
 </style>
 <body>
@@ -39,7 +40,7 @@
         <img src="{{ logo_url }}" alt="alt-title" height="50">
     </header>
     <div class="message-container">
-        <span>Thank you for purchase. Your order is {{ order }}</span>
+        <span>{{ message }}</span>
     </div>
 </body>
 </html>

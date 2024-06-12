@@ -6,6 +6,11 @@ from store import models as store_models
 
 # Register your models here.
 
+@admin.register(models.Continent)
+class ContinentAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(models.Country)
 class CountryAdmin(admin.ModelAdmin):
     pass

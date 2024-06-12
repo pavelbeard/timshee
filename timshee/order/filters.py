@@ -18,6 +18,7 @@ class ProvinceFilter(django_filters.FilterSet):
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'country__name': ['exact', 'icontains', 'istartswith'],
+            # 'country__translations__name': ['exact', 'icontains', 'istartswith'],
             'country__id': ['exact'],
         }
 
@@ -28,6 +29,7 @@ class AddressFilter(django_filters.FilterSet):
         fields = {
             'user__id': ['exact'],
             'province__country__name': ['exact', 'icontains', 'istartswith'],
+            # 'province__country__translations__name': ['exact', 'icontains', 'istartswith'],
             'province__country__id': ['exact'],
             'as_primary': ['exact'],
         }
@@ -42,7 +44,6 @@ class OrderFilter(django_filters.FilterSet):
             "order_number": ["exact"],
             "status": ["exact"],
         }
-
 
 
 class ShippingMethodFilter(django_filters.FilterSet):

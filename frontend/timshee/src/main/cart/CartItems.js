@@ -3,11 +3,13 @@ import React from "react";
 import {changeQuantity, clearCart, deleteCartItems, getCartItems} from "./api/asyncThunks";
 import {resetAddCartItemStatus} from "./reducers/cartSlice";
 import AuthService from "../api/authService";
+import translateService from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({cart, dispatch}) => {
     const token = AuthService.getCurrentUser();
+    const language = translateService.language();
 
     const {orderId} = useSelector(state => state.order);
 
@@ -32,7 +34,7 @@ const CartItems = ({cart, dispatch}) => {
     };
 
     const setItemUrl = (item) => {
-        return `/shop/${item.stock.item.collection.link}/${item.stock.item.type.name.replace(/ /g, "-").toLowerCase()}`
+        return `/shop/collections/${item.stock.item.collection.link}/${item.stock.item.type.name.replace(/ /g, "-").toLowerCase()}`
                         + `/${item.stock.item.name.replace(/ /g, "-").toLowerCase()}`;
     };
 
@@ -68,7 +70,7 @@ const CartItems = ({cart, dispatch}) => {
                                     <div className="cart-item-remove"
                                          onClick={() => removeItems({
                                              stockId: item.stock.id, item
-                                         })}>Remove</div>
+                                         })}>{translateService.cart.remove[language]}</div>
                                 </div>
                             </div>
                         </div>
@@ -78,7 +80,7 @@ const CartItems = ({cart, dispatch}) => {
             {
                 cart.cartItems.length > 0 &&
                 <div className="cart-item-remove" onClick={() => removeItems({})}>
-                    Remove all
+                    {translateService.cart.removeAll[language]}
                 </div>
             }
         </div>
