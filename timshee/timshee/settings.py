@@ -223,10 +223,6 @@ else:
 CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ALLOW_HEADERS = list(default_headers) + [
-#     'authentication',
-# ]
-
 # settings.py
 
 if not DEBUG:

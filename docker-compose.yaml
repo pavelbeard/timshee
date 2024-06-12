@@ -24,9 +24,9 @@ services:
     depends_on:
       - postgresql
 
-  nginx:
+  frontend:
     build:
-      context: nginx/
+      context: frontend/
       dockerfile: prod.Dockerfile
     restart: always
     ports:
