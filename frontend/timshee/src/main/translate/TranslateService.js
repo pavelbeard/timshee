@@ -733,6 +733,11 @@ const stuff = {
         "en-US": "Payment options:",
         "en-UK": "Payment options:",
         "ru-RU": "Способы оплаты:"
+    },
+    emailExists: {
+        "en-US": "email already exists...",
+        "en-UK": "email already exists...",
+        "ru-RU": "Указанный email уже существует..."
     }
 };
 
@@ -796,6 +801,16 @@ const forms = {
         "en-US": "Submit",
         "en-UK": "Submit",
         "ru-RU": "Отправить"
+    },
+    newEmail: {
+        "en-US": "New Email:",
+        "en-UK": "New Email:",
+        "ru-RU": "Новый email:",
+    },
+    changeEmail: {
+        "en-US": "Change Email:",
+        "en-UK": "Change Email:",
+        "ru-RU": "Сменить email:",
     }
 }
 

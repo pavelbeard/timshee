@@ -35,10 +35,14 @@ const Wishlist = () => {
                     {wishlist.map((w, index) => (
                         <div className="wishlist-item" key={index}>
                             <div className="img-container">
-                                <img src={`${API_URL}${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`} height={256}/>
+                                <Link to={`${w.stock_link}`}>
+                                    <img src={`${API_URL}${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`}
+                                         height={256}/>
+
+                                </Link>
                             </div>
                             <div className="wishlist-item-info">
-                                <div className="wishlist-item-name-price">
+                            <div className="wishlist-item-name-price">
                                     <span>{w.stock?.item?.name}</span>
                                     <span>{w.stock?.item?.price}</span>
                                 </div>

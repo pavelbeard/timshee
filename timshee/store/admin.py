@@ -55,4 +55,9 @@ class CollectionAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(models.Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    pass
+
+
 auth_admin.UserAdmin.raw_id_fields = ["groups"]

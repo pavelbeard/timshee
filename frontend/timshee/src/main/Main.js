@@ -10,6 +10,7 @@ import "./Main.css";
 import SideSearch from "../header/SideSearch";
 import EditAddressForm from "./account/forms/EditAddressForm";
 import Cart from "./cart/Cart";
+import ChangeEmailForm from "./account/forms/ChangeEmailForm";
 
 
 const Main = () => {
@@ -17,18 +18,19 @@ const Main = () => {
 
     const isSearchClicked = useSelector(state => state.search.isActive);
     const isSideMenuClicked = useSelector(state => state.menu.isActive);
+    const {isChangeEmailClicked} = useSelector(state => state.menu);
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
     const isCartClicked = useSelector(state => state.menu.isCartClicked);
 
     useEffect(() => {
-        if (isSearchClicked || isSideMenuClicked || isCartClicked || isEditAddressMenuClicked) {
+        if (isSearchClicked || isSideMenuClicked || isCartClicked || isEditAddressMenuClicked || isChangeEmailClicked) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";
         }
 
         return () => document.body.style.overflow = "auto";
-    }, [isSearchClicked, isSideMenuClicked, isEditAddressMenuClicked, isCartClicked]);
+    }, [isSearchClicked, isSideMenuClicked, isEditAddressMenuClicked, isCartClicked, isChangeEmailClicked]);
 
     return (
         <div className="main">
@@ -38,6 +40,7 @@ const Main = () => {
             <Footer />
             {isSideMenuClicked && <SideMenu />}
             {isEditAddressMenuClicked && <EditAddressForm />}
+            {isChangeEmailClicked && <ChangeEmailForm />}
             {isCartClicked && <Cart />}
         </div>
     )

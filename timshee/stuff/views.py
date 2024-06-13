@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model, models
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
@@ -92,6 +93,20 @@ class EmailViewSet(viewsets.ModelViewSet):
             user = self.request.user
             return Response({"email": user.email}, status=status.HTTP_200_OK)
 
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @action(detail=False, methods=["PUT"])
+    def change_email(self, request):
+        if self.request.user.is_authenticated:
+            user = self.request.user
+            try:
+                user.email = request.data['email'].strip()
+                user.username = request.data['email'].strip()
+                user.save()
+
+                return Response({"detail": "email has been changed"}, status=status.HTTP_200_OK)
+            except IntegrityError:
+                return Response({"detail": "email already exists"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 

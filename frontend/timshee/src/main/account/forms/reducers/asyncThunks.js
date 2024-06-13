@@ -13,6 +13,7 @@ import {
     getLastOrder as fetchLastOrder,
     getOrderDetail as fetchOrderDetail,
     refundOrder as requestRefundOrder,
+    changeEmail as putEmail,
 } from "../../../api/asyncFetchers";
 
 
@@ -233,6 +234,23 @@ export const refundPartial = createAsyncThunk(
             const result = await requestRefundOrder({orderNumber, data, token});
             if (result) {
                 return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const changeEmail = createAsyncThunk(
+    "account/postNewEmail",
+    async ({token, data}, thunkAPI) => {
+        try {
+            const result = await putEmail({token, data});
+
+            if (result) {
+                return data.email;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }

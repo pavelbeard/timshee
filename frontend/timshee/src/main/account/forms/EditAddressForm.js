@@ -159,10 +159,10 @@ const EditAddressForm = () => {
 
 
     return (
-        <div className="overlay edit-address-form-container">
+        <div className="overlay form-container">
             <div style={{ zIndex: "-1", width: "100%", minHeight: "100vh"}} onClick={closeForm}></div>
-            <form onSubmit={handleSubmit} className="edit-address-form">
-                <span className="edit-address-form-title">{t.account.editAddress[language]}</span>
+            <form onSubmit={handleSubmit} className="forms-form height-650">
+                <span className="form-title">{t.account.editAddress[language]}</span>
                 {isError && <div className="errorMessage">{isError}</div>}
                 <div>
                     <label htmlFor="firstName">

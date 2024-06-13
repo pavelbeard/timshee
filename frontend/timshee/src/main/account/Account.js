@@ -3,10 +3,11 @@ import React, {useEffect} from "react";
 import {Link, redirect, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getEmail} from "./api";
-import {getLastOrder, getAddressAsTrue} from "./forms/reducers/asyncThunks";
+import {getLastOrder, getAddressAsTrue, getAddresses} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
 import Loading from "../Loading";
 import t from "../translate/TranslateService";
+import {toggleChangeEmail} from "../../redux/slices/menuSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -15,7 +16,8 @@ const Account = () => {
     const language = t.language();
     const user = AuthService.getCurrentUser();
     const {order, lastOrderStatus} = useSelector(state => state.ordersPage);
-    const {addressObject, addressAsTrueStatus} = useSelector(state => state.addressForm);
+    const {changedEmail} = useSelector(state => state.account);
+    const {addressObject, addresses, shippingAddressesStatus: addressesStatus} = useSelector(state => state.addressForm);
     const [email, setEmail] = React.useState("");
 
     const [shipTo, setShipTo] = React.useState("");
@@ -23,15 +25,14 @@ const Account = () => {
     const [deliveredAt, setDeliveredAt] = React.useState("");
 
     useEffect(() => {
-        if (user?.access && addressAsTrueStatus === 'idle') {
-            console.log("WORKING")
-            dispatch(getAddressAsTrue({token: user}));
+        if (user?.access && addressesStatus === 'idle') {
+            dispatch(getAddresses({token: user}))
         }
 
         if (user?.access && lastOrderStatus === 'idle') {
             dispatch(getLastOrder({token: user}));
         }
-    }, [addressAsTrueStatus, lastOrderStatus, order, addressObject]);
+    }, [addressesStatus, lastOrderStatus, order, addressObject]);
 
     useEffect(() => {
         if (order !== undefined && order.shipping_address !== undefined) {
@@ -62,7 +63,7 @@ const Account = () => {
         };
 
         fetchEmail();
-    }, [email]);
+    }, [email, changedEmail]);
 
     if (!user?.access) {
         return (
@@ -72,13 +73,15 @@ const Account = () => {
         )
     }
 
-    if (addressAsTrueStatus === 'success' && lastOrderStatus === 'success')
+    if (addressesStatus === 'success' && lastOrderStatus === 'success')
     {
+        const primaryAddress = addresses.find(a => a.as_primary);
+        const lastOrder = null;
         return (
             <div className="account common account-authorized">
                 <div className="first-block">
                     <span>Account:</span>
-                    <span className="user-name">{email}</span>
+                    <span className="user-name" onClick={() => dispatch(toggleChangeEmail())}>{email}</span>
                     <form onSubmit={() => {
                         AuthService.logout();
                         redirect("/");
@@ -95,22 +98,21 @@ const Account = () => {
                             <div className="divider"></div>
                             <div className="info-block info-block-main">
                                 {
-                                    addressObject !== undefined
-                                    && (addressObject.firstName === "" || addressObject.firstName === undefined) ? (
-                                        <div>{t.account.noAddress[language]}</div>
-                                    ) : (
+                                    primaryAddress ? (
                                         <>
-                                            <div>{addressObject?.firstName} {addressObject?.lastName}</div>
-                                            <div>{addressObject?.streetAddress}</div>
-                                            <div>{addressObject?.apartment}</div>
-                                            <div>{addressObject?.postalCode}</div>
-                                            <div>{addressObject?.city}</div>
-                                            <div>{addressObject?.province?.name}</div>
-                                            <div>{addressObject?.province?.country.name}</div>
-                                            <div>±{addressObject?.phoneCode?.phone_code} {addressObject?.phoneNumber}</div>
-                                            <div>{addressObject?.email}</div>
+                                            <div>{primaryAddress?.first_name} {primaryAddress?.last_name}</div>
+                                            <div>{primaryAddress?.address1}</div>
+                                            <div>{primaryAddress?.address2}</div>
+                                            <div>{primaryAddress?.postal_code}</div>
+                                            <div>{primaryAddress?.city}</div>
+                                            <div>{primaryAddress?.province?.name}</div>
+                                            <div>{primaryAddress?.province?.country.name}</div>
+                                            <div>±{primaryAddress?.phone_code?.phone_code} {primaryAddress?.phone_number}</div>
+                                            <div>{primaryAddress?.email}</div>
 
                                         </>
+                                    ) : (
+                                        <div>{t.account.noAddress[language]}</div>
                                     )
                                 }
                             </div>
@@ -139,7 +141,7 @@ const Account = () => {
                                                         <span>{t.account.deliveredAt[language]}</span>
                                                         <span>{new Date(deliveredAt).toDateString()}</span>
                                                     </div>
-                                                ) : order.status === "refunded" || order.status === "partial_refunded" && (
+                                                ) : (order.status === "refunded" || order.status === "partial_refunded") && (
                                                     <>
                                                         <div>
                                                             <span>{t.account.status[language]}</span>
@@ -153,10 +155,11 @@ const Account = () => {
                                                 )
                                             }
                                             <div className="order-img-block order-img-block-principal">
-                                            {typeof order?.order_item === "function" && order.order_item.map((item, index) => (
+                                            {Array.isArray(order?.order_item) && order.order_item.map((item, index) => (
                                                 <img style={{
                                                     marginRight: "10px",
-                                                    filter: order.status === ("refunded" || "partial_refunded")
+                                                    filter: order.status === "refunded" ||
+                                                            order.status === "partial_refunded"
                                                         ? "brightness(0.6)" : "none",
                                                 }}
                                                      src={`${API_URL}${item.item.item.image}`} height={90}

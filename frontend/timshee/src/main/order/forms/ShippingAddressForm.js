@@ -36,23 +36,6 @@ const ShippingAddressForm = ({
         filteredPhoneCodes,
     } = useSelector(state => state.shippingAddressForm);
 
-    useEffect(() => {
-        if (addressFormObject !== undefined) {
-
-            if (addressFormObject?.province?.country?.id) {
-                dispatch(getFilteredProvinces({countryId: addressFormObject.province.country.id}));
-            } else {
-                dispatch(getFilteredProvinces({countryId: provinces[0].country.id}));
-            }
-
-            if (addressFormObject.phone_code?.country) {
-                dispatch(getFilteredPhoneCodes({countryId: addressFormObject.phone_code.country}));
-            } else {
-                dispatch(getFilteredProvinces({countryId: phoneCodes[0].country}));
-            }
-        }
-    }, [addressFormObject]);
-
     const changeCountry = (e) => {
         const selectedCountryId = parseInt(e.target.value);
         dispatch(getFilteredProvinces({countryId: selectedCountryId}));

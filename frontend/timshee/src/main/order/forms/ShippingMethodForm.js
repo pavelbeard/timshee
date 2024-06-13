@@ -21,8 +21,8 @@ const ShippingMethodForm = ({
 
     useEffect(() => {
         if (order && order.shipping_method) {
-            setShippingMethodExternal(order.shipping_method.id);
-            setShippingPrice(order.shipping_method.price);
+            setShippingMethodExternal(order?.shipping_method?.id);
+            setShippingPrice(order?.shipping_method?.price || 0.00);
         }
     }, [order]);
 

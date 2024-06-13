@@ -138,6 +138,7 @@ export const getAddressDetail = async ({ addressId }) => {
     }
 };
 
+// WISHLIST
 export const addToWishlist = async ({token, data}) => {
     const url = `${API_URL}api/store/wishlist/`;
     const headers = {
@@ -461,5 +462,32 @@ export const changeQuantityInCart = async ({itemSrc, increaseStock, token, quant
     });
     if (response.ok) {
         return await response.json();
+    }
+};
+
+// STUFF
+export const changeEmail = async ({token, data}) => {
+    const url = `${API_URL}api/stuff/email/change_email/`;
+    let headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
     }
 };

@@ -1,5 +1,5 @@
 import {createSlice, current} from "@reduxjs/toolkit";
-import {createOrUpdateAddress, getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./asyncThunks";
+import {createOrUpdateAddress, getShippingAddresses, getUsernameEmail} from "./asyncThunks";
 import {
     getCountries, getFilteredPhoneCodes, getFilteredProvinces, getOrderDetail,
     getPhoneCodes,
@@ -59,34 +59,11 @@ export const shippingAddressFormSlice = createSlice({
     name: "shippingAddressForm",
     initialState,
     reducers: {
-        setShippingAddress: (state, action) => {
-            state.shippingAddressString = action.payload;
-        },
         setErrorMessage: (state, action) => {
             state.errorMessage = action.payload;
         },
-        setAddressId: (state, action) => {
-            state.addressId = action.payload;
-        },
         setAddressFormObject: (state, action) => {
             state.addressFormObject = action.payload;
-        },
-        setAddressObject: (state, action) => {
-            const data = action.payload;
-            if (data.province || data.phone_code) {
-                const provincesCopy = [...current(state).provinces];
-                const phoneCodesCopy = [...current(state).phoneCodes];
-                state.provincesInternal = provincesCopy.filter(p =>
-                    p.country.id === data.province.country.id
-                );
-                state.phoneCodesInternal = phoneCodesCopy.filter(p =>
-                    p.country === data.phone_code.country
-                );
-            }
-            state.addressFormObjectObject = {...state.addressFormObject, data};
-        },
-        setShippingAddresses: (state, action) => {
-            state.shippingAddresses = action.payload;
         },
         setProvincesFiltered: (state, action) => {
             state.provincesInternal = action.payload;
@@ -198,27 +175,20 @@ export const shippingAddressFormSlice = createSlice({
                 state.shippingAddressesStatus = 'success';
                 if (!Array.isArray(action.payload)) {
                     state.shippingAddresses = [];
+                    const provincesCopy = [...current(state).provinces];
+                    const phoneCodesCopy = [...current(state).phoneCodes];
+                    state.addressFormObject = {
+                        province: provincesCopy[0],
+                        phone_code: phoneCodesCopy[0],
+                    };
                 } else {
                     state.shippingAddresses = action.payload;
+                    state.addressFormObject = action.payload.find(a => a.as_primary);
                 }
             })
             .addCase(getShippingAddresses.rejected, (state, action) => {
                 state.shippingAddressesStatus = 'error';
                 state.error = action.payload;
-            })
-
-            .addCase(getShippingAddressAsTrue.pending, (state, action) => {
-                state.addressObjectStatus = 'idle';
-            })
-            .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
-                state.addressObjectStatus = 'success';
-                if (action.payload?.detail === undefined) {
-                    state.addressFormObject = action.payload;
-                }
-            })
-            .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
-                state.addressObjectStatus = 'error';
-                state.errorMessage = action.payload;
             })
 
             .addCase(getUsernameEmail.pending, (state, action) => {
@@ -316,17 +286,7 @@ export const shippingAddressFormSlice = createSlice({
 });
 
 export const {
-    setShippingAddress,
-    setErrorMessage,
-    setAddressId,
-    setAddressObject,
     setAddressFormObject,
-    resetAddressObject,
-    setShippingAddresses,
-    setProvincesFiltered,
-    setPhoneCodesFiltered,
-    setProvince,
-    setPhoneCode,
     setShippingMethod,
 } = shippingAddressFormSlice.actions;
 export default shippingAddressFormSlice.reducer;

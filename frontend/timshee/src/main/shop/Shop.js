@@ -291,14 +291,19 @@ const Shop = () => {
                 <div className="filters">
                     <label className="labels">{t.shop.filters[language]}</label>
                     <span className="labels" data-filter="size"
-                          onClick={turnFilters}>{t.shop.size[language]}</span>
-                    {activeFilter === "size" && sizesBlock()}
+                          onClick={turnFilters}>{t.shop.size[language]}
+                        {activeFilter === "size" && sizesBlock()}
+
+                    </span>
                     <span className="labels" data-filter="color"
-                          onClick={turnFilters}>{t.shop.color[language]}</span>
-                    {activeFilter === "color" && colorsBlock()}
+                          onClick={turnFilters}>{t.shop.color[language]}
+                        {activeFilter === "color" && colorsBlock()}
+                    </span>
                     <span className="labels" data-filter="category"
-                          onClick={turnFilters}>{t.shop.type[language]}</span>
-                    {activeFilter === "category" && typeBlock()}
+                          onClick={turnFilters}>{t.shop.type[language]}
+                        {activeFilter === "category" && typeBlock()}
+                    </span>
+
                 </div>
                 <div className="sort-by">
                     <label htmlFor="sort-by">{t.shop.orderBy[language]}

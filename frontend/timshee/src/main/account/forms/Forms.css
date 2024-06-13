@@ -1,33 +1,45 @@
-.edit-address-form-container {
+.form-container {
     display: flex;
     align-items: center;
     justify-content: center;
     position: fixed;
 }
 
-.edit-address-form-title {
+.form-title {
     margin-bottom: 20px;
     letter-spacing: 3px;
 }
 
-.edit-address-form {
+.error-field {
+    margin-bottom: 5px;
+    padding: 1rem;
+}
+
+.forms-form {
     position: absolute;
     padding: 30px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: 450px;
-    height: 650px;
     background: #fff;
     z-index: 1;
 }
 
-.edit-address-form > div {
+.height-200 {
+    height: 200px;
+}
+
+.height-650 {
+    height: 650px;
+}
+
+.forms-form > div {
     width: 100%;
     margin-bottom: 10px;
 }
 
-.edit-address-form > div > label {
+.forms-form > div > label {
     display: flex;
     flex-direction: column;
 }
@@ -46,24 +58,24 @@
     margin-left: 30px;
 }
 
-.edit-address-form > div > label > input,
-.edit-address-form > div > label > select {
+.forms-form > div > label > input,
+.forms-form > div > label > select {
     outline: none;
     border: none;
     border-bottom: 1px solid #e4e4e4;
 }
 
-.edit-address-form > div:last-child {
+.forms-form > div:last-child {
     display: flex;
     justify-content: space-between;
     margin-bottom: 0;
 }
 
-.edit-address-form > div:last-child > * {
+.forms-form > div:last-child > * {
     margin-top: 15px;
 }
 
-.edit-address-form > div:last-child > button {
+.forms-form > div:last-child > button {
     height: 40px;
     width: 120px;
     background: #fff;
@@ -74,20 +86,19 @@
     cursor: pointer;
 }
 
-.edit-address-form > div:last-child > button:hover {
+.forms-form > div:last-child > button:hover {
     background: #000;
     color: #fff;
 }
 
-.edit-address-form > div:last-child > img {
+.forms-form > div:last-child > img {
     padding-top: 15px;
     cursor: pointer;
 }
 
 @media only screen and (max-width: 600px) {
-    .edit-address-form {
+    .forms-form {
         width: 250px;
-        height: 600px;
     }
 }
 
@@ -95,10 +106,9 @@
     .overlay {
         overflow-y: auto;
     }
-    .edit-address-form {
+    .forms-form {
         top: 10px;
         width: 450px;
-        height: 600px;
     }
 }
 

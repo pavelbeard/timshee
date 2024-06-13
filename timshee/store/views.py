@@ -1,4 +1,6 @@
 import json
+import logging
+import sys
 
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Q
@@ -15,6 +17,12 @@ from . import models, serializers, write_serializers, query_serializers, filters
 
 User = get_user_model()
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -107,24 +115,38 @@ class WishlistViewSet(viewsets.ModelViewSet):
     authentication_classes = [authentication.JWTAuthentication]
 
     def get_serializer_class(self):
-        if self.action in ['list']:
+        if self.action in ['list', 'get_wishlist_by_user', 'create']:
             return serializers.WishlistSerializer
-        elif self.action in ["create", "retrieve", "update", "partial_update", "destroy"]:
+        elif self.action in ["retrieve", "update", "partial_update", "destroy"]:
             return write_serializers.WishlistSerializer
-        
+
     def create(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            request.data['user'] = request.user.id
-            
-        request.data['session_key'] = request.session.session_key
-        item_id, size_id, color_id = request.data['stock']['item_id'], \
-            request.data['stock']['size_id'], request.data['stock']['color_id']
-        stock_id = models.Stock.objects.get(
-            item_id=item_id, size_id=size_id, color_id=color_id
-        ).id
-        
-        request.data['stock'] = stock_id
-        return super().create(request, *args, *kwargs)
+        try:
+            if request.user.is_authenticated:
+                request.data['user'] = request.user.id
+
+            request.data['session_key'] = request.session.session_key
+            item_id, size_id, color_id = request.data['stock']['item_id'], \
+                request.data['stock']['size_id'], request.data['stock']['color_id']
+            stock = models.Stock.objects.get(
+                item_id=item_id, size_id=size_id, color_id=color_id
+            )
+
+            request.data['stock'] = stock.id
+
+            instance = models.Wishlist.objects.create(
+                user=request.user,
+                session_key=request.session.session_key,
+                stock=stock,
+                stock_link=request.data['stock_link']
+            )
+
+            data = self.get_serializer(instance, many=False).data
+
+            return Response(data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'])
     def get_wishlist_by_user(self, request, *args, **kwargs):
@@ -138,5 +160,5 @@ class WishlistViewSet(viewsets.ModelViewSet):
         data = serializers.WishlistSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)
 
-        
-            
+
+

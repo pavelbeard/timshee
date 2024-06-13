@@ -117,8 +117,7 @@ span.labels:hover::before {
 
 .filters-container {
     position: absolute;
-    top: 300px;
-    left: 160px;
+    top: 30px;
     display: flex;
     flex-direction: column;
     background: white;
@@ -328,6 +327,10 @@ span.labels:hover::before {
     }
 
     /*filters*/
+
+    .filters-container {
+        width: 280px;
+    }
 
     .filters, .settings-container {
         display: flex;

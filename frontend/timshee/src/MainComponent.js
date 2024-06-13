@@ -30,6 +30,7 @@ import {TranslateProvider} from "./main/translate/TranslateProvider";
 import StartPage from "./main/StartPage";
 import {getPhoneCodes, getProvinces} from "./main/account/forms/reducers/asyncThunks";
 import {getShippingMethods} from "./main/order/api/asyncThunks";
+import ChangeEmailForm from "./main/account/forms/ChangeEmailForm";
 
 const MainComponent = () => {
     const dispatch = useDispatch();

@@ -15,7 +15,6 @@ import AuthService from "../api/authService";
 import {getCartItems} from "../cart/api/asyncThunks";
 import {
     createOrUpdateAddress,
-    getShippingAddressAsTrue,
     getShippingAddresses,
     getUsernameEmail
 } from "./forms/reducers/asyncThunks";
@@ -26,7 +25,6 @@ import {
     getShippingMethods, updateOrderShippingMethod
 } from "./api/asyncThunks";
 import t from "../translate/TranslateService";
-import {isClickableInput} from "@testing-library/user-event/dist/utils";
 
 
 const Checkout = () => {
@@ -65,9 +63,6 @@ const Checkout = () => {
         }
         if (shippingAddressesStatus === 'idle') {
             dispatch(getShippingAddresses({token}));
-        }
-        if (addressObjectStatus === 'idle') {
-            dispatch(getShippingAddressAsTrue({token}));
         }
 
         if (shippingMethodsStatus === 'idle') {
@@ -126,8 +121,6 @@ const Checkout = () => {
     };
 
     // SET SHIPPING PRICE DATA
-    console.log(shippingAddresses);
-
 
     // HANDLE STEPS
     const handleSubmitShippingAddressForm = async e => {
@@ -335,7 +328,7 @@ const Checkout = () => {
                                                 ? "Free"
                                                 : parseFloat(shippingPrice || order.shipping_method.price)}</span>
                                         ) : (
-                                            <span>{shippingPrice}</span>
+                                            <span>{parseFloat(shippingPrice).toFixed(2)}</span>
                                         )
                                 }
 

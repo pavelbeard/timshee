@@ -17,6 +17,7 @@ import cartSlice from "../main/cart/reducers/cartSlice";
 import appSlice from "./slices/appSlice";
 import shopSlice from "../main/shop/api/reducers/shopSlice";
 import wishlistSlice from "../main/account/api/reducers/wishlistSlice";
+import accountSlice from "../main/account/forms/reducers/accountSlice";
 
 export default configureStore({
     reducer: {
@@ -38,5 +39,6 @@ export default configureStore({
         app: appSlice,
         shop: shopSlice,
         wishlist: wishlistSlice,
+        account: accountSlice,
     }
 });

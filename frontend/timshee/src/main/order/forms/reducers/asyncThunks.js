@@ -23,22 +23,6 @@ export const createOrUpdateAddress = createAsyncThunk(
     }
 );
 
-export const getShippingAddressAsTrue = createAsyncThunk(
-    "shippingAddressForm/getShippingAddressAsTrue",
-    async ({token}, thunkAPI) => {
-        try {
-            const result = await fetchShippingAddressAsTrue({token});
-            if (result) {
-                return result;
-            } else {
-                return thunkAPI.rejectWithValue("Something went wrong...");
-            }
-        } catch (e) {
-            return thunkAPI.rejectWithValue(e);
-        }
-    }
-);
-
 export const getShippingAddresses = createAsyncThunk(
     "shippingAddressForm/getPrimaryShippingAddress",
     async ({token}, thunkAPI) => {

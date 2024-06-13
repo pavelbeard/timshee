@@ -6,6 +6,7 @@ export const menuSlice = createSlice({
         isActive: false,
         isMenuLvl1Active: false,
         isMenuLvl2Active: false,
+        isChangeEmailClicked: false,
         shopIsTouched: false,
         collectionsIsTouched: false,
         accountBarIsTouched: false,
@@ -34,6 +35,10 @@ export const menuSlice = createSlice({
         toggleAddressEditForm: (state) => {
             state.isAddressEditFormOpened = !state.isAddressEditFormOpened;
         },
+        toggleChangeEmail: (state) => {
+            state.isChangeEmailClicked = !state.isChangeEmailClicked;
+        },
+
         toggleCart: (state, action) => {
             if (action.payload === false) {
                 state.isCartClicked = false;
@@ -55,6 +60,7 @@ export const {
     toggleCollectionsIsTouched,
     toggleAccountBarIsTouched,
     toggleAddressEditForm,
+    toggleChangeEmail,
     toggleCart,
     closeCart,
 } = menuSlice.actions;

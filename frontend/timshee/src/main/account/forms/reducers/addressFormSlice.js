@@ -128,42 +128,6 @@ const addressFormSlice = createSlice({
                 state.isError = action.payload;
             })
 
-            .addCase(getAddressAsTrue.pending, (state, action) => {
-                state.addressAsTrueStatus = 'loading';
-            })
-            .addCase(getAddressAsTrue.fulfilled, (state, action) => {
-                state.addressAsTrueStatus = 'success';
-                if (action.payload?.detail === undefined) {
-                    state.addressObject = addressObject;
-                } else {
-                    const {
-                        first_name: firstName, last_name: lastName,
-                        address1: streetAddress, address2: apartment,
-                        postal_code: postalCode, city, province,
-                        phone_number: phoneNumber, phone_code: phoneCode,
-                        email, as_primary: asPrimary
-                    } = action.payload;
-                    state.addressObject = {
-                        ...state.addressObject,
-                        firstName,
-                        lastName,
-                        streetAddress,
-                        apartment,
-                        postalCode,
-                        city,
-                        province,
-                        phoneCode,
-                        phoneNumber,
-                        email,
-                        asPrimary,
-                    };
-                }
-            })
-            .addCase(getAddressAsTrue.rejected, (state, action) => {
-                state.addressAsTrueStatus = 'error';
-                state.isError = action.payload;
-            })
-
             .addCase(getAddressDetail.pending, (state, action) => {
                 state.addressDetailStatus = 'loading';
             })
