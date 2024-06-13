@@ -37,3 +37,13 @@
     background: #000;
     color: #fff;
 }
+
+@media only screen and (min-width: 600px) {
+    .register-form-container {
+        padding-top: 3rem;
+    }
+
+    .register-form {
+        width: 300px;
+    }
+}
