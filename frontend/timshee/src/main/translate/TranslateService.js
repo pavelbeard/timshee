@@ -636,7 +636,7 @@ const authForms = {
     register: {
         "en-US": "Register",
         "en-UK": "Register",
-        "ru-RU": "Зарегистрироваться",
+        "ru-RU": "Создать аккаунт",
     },
 };
 
