@@ -54,7 +54,7 @@ const OrderPaid = () => {
             <div className="order-paid">
                 <h1>{translateService.orderPaid[language].split('.')[0]} {orderNumber} {translateService.orderPaid[language].split('.')[1]}</h1>
             </div>
-            <div className="back-to-main" onClick={() => navigate(``)}>BACK TO MAIN</div>
+            <div className="back-to-main" onClick={() => navigate(`/`)}>BACK TO MAIN</div>
         </div>
 
     )

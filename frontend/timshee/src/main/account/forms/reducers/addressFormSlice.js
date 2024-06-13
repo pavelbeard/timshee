@@ -117,7 +117,7 @@ const addressFormSlice = createSlice({
             })
             .addCase(getAddresses.fulfilled, (state, action) => {
                 state.shippingAddressesStatus = 'success';
-                if ('detail' in action.payload) {
+                if (!Array.isArray(action.payload)) {
                     state.addresses = [];
                 } else {
                     state.addresses = action.payload;
@@ -133,7 +133,7 @@ const addressFormSlice = createSlice({
             })
             .addCase(getAddressAsTrue.fulfilled, (state, action) => {
                 state.addressAsTrueStatus = 'success';
-                if ('detail' in action.payload) {
+                if (action.payload?.detail === undefined) {
                     state.addressObject = addressObject;
                 } else {
                     const {

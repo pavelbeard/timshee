@@ -26,23 +26,34 @@ import Loading from "./main/Loading";
 import Error from "./main/Error";
 import PrivacyInfo from "./main/PrivacyInfo";
 import Wishlist from "./main/account/Wishlist";
-import translateService from "./main/translate/TranslateService";
 import {TranslateProvider} from "./main/translate/TranslateProvider";
-import Nothing from "./main/Nothing";
 import StartPage from "./main/StartPage";
+import {getPhoneCodes, getProvinces} from "./main/account/forms/reducers/asyncThunks";
+import {getShippingMethods} from "./main/order/api/asyncThunks";
 
 const MainComponent = () => {
     const dispatch = useDispatch();
     const {collections: collectionLinks, categories, collectionsStatus} = useSelector(state => state.app);
+    const {provinces, phoneCodes} = useSelector(state => state.addressForm);
+    const {shippingMethods} = useSelector(state => state.shippingAddressForm);
 
     useEffect(() => {
         dispatch(getCsrfToken());
         dispatch(getCollectionLinks());
         dispatch(getCategories());
         dispatch(getCountries());
+        dispatch(getProvinces());
+        dispatch(getPhoneCodes());
+        dispatch(getShippingMethods());
     }, []);
 
-    if (collectionsStatus === 'success' && collectionLinks.length > 0 && categories.length > 0) {
+    if (collectionsStatus === 'success'
+        && collectionLinks.length > 0
+        && categories.length > 0
+        && provinces.length > 0
+        && phoneCodes.length > 0
+        && shippingMethods.length > 0
+    ) {
         return (
             <TranslateProvider>
                 <AuthProvider>

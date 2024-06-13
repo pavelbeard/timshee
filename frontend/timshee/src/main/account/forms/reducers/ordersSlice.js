@@ -48,7 +48,9 @@ const ordersSlice = createSlice({
             })
             .addCase(getOrderDetail.fulfilled, (state, action) => {
                 state.orderDetailStatus = 'success';
-                state.order = action.payload;
+                if (action.payload?.detail === undefined) {
+                    state.order = action.payload;
+                }
             })
             .addCase(getOrderDetail.rejected, (state, action) => {
                 state.orderDetailStatus = 'error';

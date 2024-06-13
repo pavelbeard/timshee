@@ -34,7 +34,7 @@ export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId,
             credentials: "include",
         });
     } else {
-        await fetch(url, {
+        response = await fetch(url, {
             method: "PUT",
             headers,
             body: JSON.stringify(shippingAddress),
@@ -42,7 +42,7 @@ export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId,
         });
     }
 
-    if (response.status === 201) {
+    if (response.ok) {
         return await response.json();
     } else {
         return false;
@@ -75,15 +75,18 @@ export const getOrder = async ({ orderId, isAuthenticated, dispatch }) => {
     }
 };
 
-export const updateOrder = async ({ orderId, data, isAuthenticated, setError, setIsLoading }) => {
+export const updateOrder = async ({ orderId, data, token, setError, setIsLoading }) => {
     try {
         const url = `${API_URL}api/order/orders/${orderId}/`;
         const headers = {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
             "Accept": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
         };
+
+        if (token?.access) {
+            headers["Authorization"] = `Bearer ${token?.access}`;
+        }
 
         const response = await fetch(url, {
             method: "PUT",
@@ -101,19 +104,19 @@ export const updateOrder = async ({ orderId, data, isAuthenticated, setError, se
 };
 
 // PAYMENTS
-export const createPayment = async ({ paymentData, setError, setIsLoading, isAuthenticated }) => {
+export const createPayment = async ({ paymentData, setError, setIsLoading, token }) => {
     try {
         const url = `${API_URL}api/payment/payment/`;
-        const headers = isAuthenticated ? {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
-            "X-CSRFToken": csrftoken,
-            "Accept": "application/json",
-        } : {
+
+        const headers = {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
             "Accept": "application/json",
-        };
+        }
+
+        if (token?.access) {
+            headers["Authorization"] = `Bearer ${token?.access}`;
+        }
 
         const response = await fetch(url, {
             method: 'POST',
@@ -131,8 +134,17 @@ export const createPayment = async ({ paymentData, setError, setIsLoading, isAut
     }
 };
 
-export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading }) => {
+export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading, token }) => {
     try {
+        const headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        };
+
+        if (token?.access) {
+            headers["Authorization"] = `Bearer ${token?.access}`;
+        }
+
         const url = `${API_URL}api/payment/payment/${orderNumber}/get_status/`;
         const response = await fetch(url, {
             method: "GET",

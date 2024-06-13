@@ -10,8 +10,7 @@ import t from "../../translate/TranslateService";
 const PaymentForm = ({ orderId }) => {
     const language = t.language();
 
-    const {paymentId} = useSelector(state => state.checkout);
-    const isAuthenticated = AuthService.isAuthenticated();
+    const token = AuthService.getCurrentUser();
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,14 +31,14 @@ const PaymentForm = ({ orderId }) => {
             data: {
                 "status": "pending_for_pay"
             },
-            isAuthenticated: isAuthenticated,
+            isAuthenticated: token,
             setError: setError,
             setIsLoading: setIsLoading,
         });
 
         if (updateOrderResult) {
             const createPaymentResult = await createPayment({
-                paymentData, setError, setIsLoading, isAuthenticated,
+                paymentData, setError, setIsLoading, token,
             });
 
             setRedirectUrl(createPaymentResult['confirmation_url']);

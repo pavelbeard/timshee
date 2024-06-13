@@ -621,7 +621,7 @@ const authForms = {
     passwordConfirm: {
         "en-US": "Password confirm:",
         "en-UK": "Password confirm:",
-        "ru-Ru": "Подтверждение пароля",
+        "ru-RU": "Подтверждение пароля",
     },
     register: {
         "en-US": "Register",
@@ -725,9 +725,14 @@ const stuff = {
         "ru-RU": "ОШИБКА 500. Мы уже занимаемся это проблемой",
     },
     startPage: {
-        "en-US": "For start to work you need to add some data to DB: continents, countries, categories and collections",
-        "en-UK": "For start to work you need to add some data to DB: continents, countries, categories and collections",
-        "ru-RU": "Для начала работы нужно добавить некоторые данные в БД: континенты, страны, категории и коллекции"
+        "en-US": "For start to work you need to add some data to DB: continents, countries, phone codes, provinces, categories and collections",
+        "en-UK": "For start to work you need to add some data to DB: continents, countries, phone codes , provinces, categories and collections",
+        "ru-RU": "Для начала работы нужно добавить некоторые данные в БД: континенты, страны, коды телефонов стран, регионы, категории и коллекции"
+    },
+    paymentOptions: {
+        "en-US": "Payment options:",
+        "en-UK": "Payment options:",
+        "ru-RU": "Способы оплаты:"
     }
 };
 

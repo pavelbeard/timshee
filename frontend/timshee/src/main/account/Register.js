@@ -34,7 +34,7 @@ const Register = () => {
         const result = await register({firstName, lastName, email, password, setErrorMessage});
 
         if (result) {
-            navigate(``);
+            navigate(`/`);
         }
     };
 

@@ -6,10 +6,7 @@ import "./CheckoutForms.css";
 import backImg from "../../../media/static_images/back_to.svg"
 import {useDispatch, useSelector} from "react-redux";
 import {
-    resetAddressObject, setAddressFormObject,
-    setAddressId,
-    setAddressObject, setErrorMessage, setPhoneCode, setPhoneCodesFiltered,
-    setProvince, setProvincesFiltered,
+    setAddressFormObject,
 } from "./reducers/shippingAddressFormSlice";
     import {toggleCart} from "../../../redux/slices/menuSlice";
 import AuthService from "../../api/authService";
@@ -41,8 +38,18 @@ const ShippingAddressForm = ({
 
     useEffect(() => {
         if (addressFormObject !== undefined) {
-            dispatch(getFilteredProvinces({countryId: addressFormObject.province.country.id}));
-            dispatch(getFilteredPhoneCodes({countryId: addressFormObject.phone_code.country}));
+
+            if (addressFormObject?.province?.country?.id) {
+                dispatch(getFilteredProvinces({countryId: addressFormObject.province.country.id}));
+            } else {
+                dispatch(getFilteredProvinces({countryId: provinces[0].country.id}));
+            }
+
+            if (addressFormObject.phone_code?.country) {
+                dispatch(getFilteredPhoneCodes({countryId: addressFormObject.phone_code.country}));
+            } else {
+                dispatch(getFilteredProvinces({countryId: phoneCodes[0].country}));
+            }
         }
     }, [addressFormObject]);
 
@@ -55,6 +62,7 @@ const ShippingAddressForm = ({
             province: provinces.find(province => province.country.id === selectedCountryId),
         }))
     };
+
 
     const changeProvince = (e) => {
         const province = filteredProvinces.find(province => province.id === parseInt(e.target.value));

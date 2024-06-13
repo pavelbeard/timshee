@@ -11,8 +11,7 @@ timshee/test.*
 timshee/media
 nginx/test*
 nginx/server*
-timshee/db.sqlite3
-timshee/db.sqlite3.bkp
+*db.sqlite3
 
 .idea
 *test

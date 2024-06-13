@@ -10,6 +10,8 @@ import {Link} from "react-router-dom";
 import "./Wishlist.css";
 import translateService from "../translate/TranslateService";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Wishlist = () => {
     const dispatch = useDispatch();
     const token = AuthService.getCurrentUser();
@@ -33,7 +35,7 @@ const Wishlist = () => {
                     {wishlist.map((w, index) => (
                         <div className="wishlist-item" key={index}>
                             <div className="img-container">
-                                <img src={`${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`} height={256}/>
+                                <img src={`${API_URL}${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`} height={256}/>
                             </div>
                             <div className="wishlist-item-info">
                                 <div className="wishlist-item-name-price">

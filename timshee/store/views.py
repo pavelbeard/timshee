@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -134,7 +134,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
             user = request.user.id
         else:
             session_key = request.session.session_key
-        qs = models.Wishlist.objects.filter(user=user, session_key=session_key)
+        qs = models.Wishlist.objects.filter(Q(user=user) | Q(session_key=session_key))
         data = serializers.WishlistSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)
 

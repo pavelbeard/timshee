@@ -1,5 +1,5 @@
 import {createSlice, current} from "@reduxjs/toolkit";
-import {getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./asyncThunks";
+import {createOrUpdateAddress, getShippingAddressAsTrue, getShippingAddresses, getUsernameEmail} from "./asyncThunks";
 import {
     getCountries, getFilteredPhoneCodes, getFilteredProvinces, getOrderDetail,
     getPhoneCodes,
@@ -23,29 +23,6 @@ const initialState = {
     addressId: 0,
     addressObjectStatus: 'idle',
     addressFormObject: undefined,
-    addressObject: {
-        id: 0,
-        firstName: "",
-        lastName: "",
-        streetAddress: "",
-        apartment: "",
-        postalCode: "",
-        city: "",
-        province: {
-            id: 0,
-            name: "",
-            country: {
-                id: 0,
-                name: ""
-            }
-        },
-        phoneCode: {
-            country: 0,
-            phoneCode: "",
-        },
-        phone: "",
-        email: "",
-    },
     // heavy objects
     shippingAddresses: [],
     shippingAddressesStatus: 'idle',
@@ -91,18 +68,6 @@ export const shippingAddressFormSlice = createSlice({
         setAddressId: (state, action) => {
             state.addressId = action.payload;
         },
-        setProvince: (state, action) => {
-            state.addressObject = {
-                ...state.addressObject,
-                province: action.payload,
-            };
-        },
-        setPhoneCode: (state, action) => {
-            state.addressObject = {
-                ...state.addressObject,
-                phoneCode: action.payload,
-            }
-        },
         setAddressFormObject: (state, action) => {
             state.addressFormObject = action.payload;
         },
@@ -119,17 +84,6 @@ export const shippingAddressFormSlice = createSlice({
                 );
             }
             state.addressFormObjectObject = {...state.addressFormObject, data};
-        },
-        resetAddressObject: (state, action) => {
-            const resetState = {
-                ...initialState.addressObject,
-                phoneCode: {
-                    phoneCode: [...current(state).phoneCodes][0].phone_code,
-                    country: [...current(state).phoneCodes][0].country,
-                },
-                province: [...current(state).provinces][0],
-            }
-            state.addressObject = resetState;
         },
         setShippingAddresses: (state, action) => {
             state.shippingAddresses = action.payload;
@@ -180,6 +134,9 @@ export const shippingAddressFormSlice = createSlice({
             .addCase(getProvinces.fulfilled, (state, action) => {
                 state.provincesStatus = 'success';
                 state.provinces = action.payload;
+                state.filteredProvinces = action.payload.filter(p =>
+                    p?.country?.id === [...current(state).countries][0]?.id
+                );
             })
             .addCase(getProvinces.rejected, (state, action) => {
                 state.provincesStatus = 'error';
@@ -239,7 +196,7 @@ export const shippingAddressFormSlice = createSlice({
             })
             .addCase(getShippingAddresses.fulfilled, (state, action) => {
                 state.shippingAddressesStatus = 'success';
-                if ('detail' in action.payload) {
+                if (!Array.isArray(action.payload)) {
                     state.shippingAddresses = [];
                 } else {
                     state.shippingAddresses = action.payload;
@@ -255,7 +212,9 @@ export const shippingAddressFormSlice = createSlice({
             })
             .addCase(getShippingAddressAsTrue.fulfilled, (state, action) => {
                 state.addressObjectStatus = 'success';
-                state.addressFormObject = action.payload;
+                if (action.payload?.detail === undefined) {
+                    state.addressFormObject = action.payload;
+                }
             })
             .addCase(getShippingAddressAsTrue.rejected, (state, action) => {
                 state.addressObjectStatus = 'error';
@@ -279,7 +238,12 @@ export const shippingAddressFormSlice = createSlice({
             })
             .addCase(getOrderDetail.fulfilled, (state, action) => {
                 state.orderStatus = 'success';
-                if (action.payload.shipping_method !== undefined) {
+
+                if (action.payload?.shipping_address?.id !== undefined) {
+                    state.addressFormObject = action.payload.shipping_address;
+                }
+
+                if (action.payload?.shipping_method?.name !== "") {
                     const shippingMethodsCopy = [...current(state).shippingMethods];
                     state.shippingMethods = shippingMethodsCopy.map(m =>
                         m.id === action.payload.shipping_method.id
@@ -299,7 +263,21 @@ export const shippingAddressFormSlice = createSlice({
             })
             .addCase(updateOrderShippingMethod.fulfilled, (state, action) => {
                 state.updateOrderShippingMethodStatus = 'success';
-                state.order = action.payload;
+
+                if (action.payload?.shipping_address !== undefined &&
+                    action.payload?.shipping_method !== undefined) {
+                    const order = action.payload;
+                    const newOrder = {
+                        ...order,
+                        shipping_address: [...current(state).shippingAddresses].find(a =>
+                            a.id === order.shipping_address
+                        ),
+                        shipping_method: [...current(state).shippingMethods].find(sm =>
+                            sm.id === order.shipping_method
+                        )
+                    }
+                    state.order = newOrder;
+                }
             })
             .addCase(updateOrderShippingMethod.rejected, (state, action) => {
                 state.updateOrderShippingMethodStatus = 'error';
@@ -314,6 +292,24 @@ export const shippingAddressFormSlice = createSlice({
             })
             .addCase(updateOrderStatus.rejected, (state, action) => {
                 state.updateOrderStatusStatus = 'error';
+                state.error = action.payload;
+            })
+
+            .addCase(createOrUpdateAddress.pending, (state, action) => {
+                state.createOrUpdateAddressStatus = 'loading';
+            })
+            .addCase(createOrUpdateAddress.fulfilled, (state, action) => {
+                state.createOrUpdateAddressStatus = 'success';
+                const address = action.payload;
+                const newAddress = {
+                    ...address,
+                    province: [...current(state).provinces].find(p => p.id === address.province),
+                    phone_code: [...current(state).phoneCodes].find(p => p.country === address.phone_code),
+                }
+                state.order.shipping_address = newAddress;
+            })
+            .addCase(createOrUpdateAddress.rejected, (state, action) => {
+                state.createOrUpdateAddressStatus = 'error';
                 state.error = action.payload;
             })
     }

@@ -1,4 +1,6 @@
 import functools
+import logging
+import sys
 import uuid
 from decimal import Decimal
 
@@ -19,6 +21,13 @@ Configuration.configure(settings.ACCOUNT_ID, settings.API_KEY)
 
 from . import serializers, models
 from stuff import services
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
 
 # {
@@ -104,146 +113,171 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def get_status(self, request, *args, **kwargs):
-        order_number = self.kwargs.get('store_order_number', None)
-        if order_number:
-            payment = models.Payment.objects.filter(store_order_number=order_number).first()
-            dt = payment.created_at.isoformat()
-            filtered_objects = Payment.list(params={"created_at": dt, "limit": 1}).items[-1]
+        try:
+            order_number = self.kwargs.get('store_order_number', None)
+            if order_number:
+                payment = models.Payment.objects.filter(store_order_number=order_number).first()
+                dt = payment.created_at.isoformat()
+                filtered_objects = Payment.list(params={"created_at": dt, "limit": 1}).items[-1]
 
-            return Response({"status": filtered_objects.status}, status=status.HTTP_200_OK)
-        return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"status": filtered_objects.status}, status=status.HTTP_200_OK)
+            return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'])
     def get_only_succeeded_orders(self, request, *args, **kwargs):
-        qs = self.queryset.all()
-        params = {
-            "limit": 50,
-        }
+        try:
+            qs = self.queryset.all()
+            params = {
+                "limit": 50,
+            }
 
-        filter_objects = (list(filter(
-            lambda x: x.id in [str(qs_object.payment_id) for qs_object in qs] and x.status == 'succeeded',
-            [payment_obj for payment_obj in Payment.list(params=params).items]
-        )))
+            filter_objects = (list(filter(
+                lambda x: x.id in [str(qs_object.payment_id) for qs_object in qs] and x.status == 'succeeded',
+                [payment_obj for payment_obj in Payment.list(params=params).items]
+            )))
 
-        qs.filter(payment_id__in=[fo.id for fo in filter_objects]).update(status='succeeded')
+            qs.filter(payment_id__in=[fo.id for fo in filter_objects]).update(status='succeeded')
 
-        new_qs = qs.filter(status='succeeded')
+            new_qs = qs.filter(status='succeeded')
 
-        data = self.get_serializer(new_qs, many=True).data
+            data = self.get_serializer(new_qs, many=True).data
 
-        return Response(data, status=status.HTTP_200_OK)
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['POST'])
     def refund_whole_order(self, request, *args, **kwargs):
-        order_id, order_number, reason = (kwargs.get('order_id', None), kwargs.get('store_order_number', None),
-                                          request.data.get('reason', None))
-        if order_number or order_id:
-            order = order_models.Order.objects.filter(
-                Q(id=order_id) | Q(order_number=order_number)
-            ).first()
-
-            if order and order.status == 'processing' or 'completed':
-                payment_data_from_backend = models.Payment.objects.filter(
-                    Q(store_order_id=order_id) | Q(store_order_number=order_number)
-                ).first()
-                payment_id = str(payment_data_from_backend.payment_id)
-                total_price = str(order.orderitem_set.aggregate(total=Sum(
-                    F('quantity') * F('item__item__price')) + F('order__shipping_method__price')
-                )['total'])
-
-                refund = Refund.create({
-                    "amount": {
-                        "value": total_price,
-                        "currency": "RUB",
-                    },
-                    "payment_id": payment_id,
-                })
-
-                if refund.status == 'succeeded':
-                    order.status = 'refunded'
-                    order.updated_at = timezone.now()
-                    order.refund_reason = reason
-
-                    for order_item in order.orderitem_set.all():
-                        quantity = order_item.quantity
-                        order_item.item.increase_stock(quantity=quantity)
-                        order_item.refund_reason = 'refunded'
-                        order_item.quantity = 0
-                        order_item.save()
-
-                    order.save()
-                    payment_data_from_backend.status = 'refunded'
-                    payment_data_from_backend.save()
-
-                    data = order_serializers.OrderSerializer(order).data
-
-                    # services.send_email(request, order_id, 'refunded')
-                    return Response(data, status=status.HTTP_200_OK)
-                else:
-                    return Response({"detail": "order didn't refund"}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['POST'])
-    def refund_partial(self, request, *args, **kwargs):
-        stock_item_id = request.data.get('stock_item_id', None)
-        quantity = request.data.get('quantity', None)
-        quantity_total = request.data.get('quantity_total', None)
-        reason = request.data.get('reason', None)
-        order_id, order_number = kwargs.get('order_id', None), kwargs.get('store_order_number', None)
-        if order_number or order_id:
-            order = order_models.Order.objects.get(
-                Q(id=order_id) | Q(order_number=order_number)
-            )
-
-            if order and order.status == 'processing' or 'completed':
-                order_item = order.orderitem_set.get(item_id=stock_item_id)
-                order_item.item.increase_stock(quantity=quantity)
-                order_item.quantity -= quantity
-
-                payment_data_from_backend = models.Payment.objects.filter(
-                    Q(store_order_id=order_id) | Q(store_order_number=order_number)
+        try:
+            order_id, order_number, reason = (kwargs.get('order_id', None), kwargs.get('store_order_number', None),
+                                              request.data.get('reason', None))
+            if order_number or order_id:
+                order = order_models.Order.objects.filter(
+                    Q(id=order_id) | Q(order_number=order_number)
                 ).first()
 
-                payment_id, stock_item_price = str(payment_data_from_backend.payment_id), order_item.item.item.price
+                if order and order.status == 'processing' or 'completed':
+                    payment_data_from_backend = models.Payment.objects.filter(
+                        Q(store_order_id=order_id) | Q(store_order_number=order_number)
+                    ).first()
+                    payment_id = str(payment_data_from_backend.payment_id)
 
-                try:
-                    partial_refund = Refund.create({
+                    # weak
+                    items_total_price = order.orderitem_set.aggregate(total=Sum(F('quantity') * F('item__item__price')))[
+                        'total']
+                    shipping_price = order.orderitem_set.values('order__shipping_method__price').distinct()
+
+                    if shipping_price:
+                        shipping_price = shipping_price[0]['order__shipping_method__price']
+                    else:
+                        shipping_price = 0
+
+                    total_price = items_total_price + shipping_price if items_total_price else shipping_price
+
+                    refund = Refund.create({
                         "amount": {
-                            "value": stock_item_price,
+                            "value": total_price,
                             "currency": "RUB",
                         },
                         "payment_id": payment_id,
                     })
 
-                    if partial_refund.status == 'succeeded':
-                        if quantity_total > 1:
-                            payment_data_from_backend.status = 'partial_refunded'
-                            order.status = 'partial_refunded'
-                            order.refund_reason = reason
-                            order_item.refund_reason = 'partial_refunded'
-                        else:
-                            payment_data_from_backend.status = 'refunded'
-                            order.status = 'refunded'
-                            order.refund_reason = reason
-                            order_item.refund_reason = 'refunded'
-
+                    if refund.status == 'succeeded':
+                        order.status = 'refunded'
                         order.updated_at = timezone.now()
-                        payment_data_from_backend.save()
-                        order_item.save()
+                        order.refund_reason = reason
+
+                        for order_item in order.orderitem_set.all():
+                            quantity = order_item.quantity
+                            order_item.item.increase_stock(quantity=quantity)
+                            order_item.refund_reason = 'refunded'
+                            order_item.quantity = 0
+                            order_item.save()
+
                         order.save()
+                        payment_data_from_backend.status = 'refunded'
+                        payment_data_from_backend.save()
 
                         data = order_serializers.OrderSerializer(order).data
 
+                        # services.send_email(request, order_id, 'refunded')
                         return Response(data, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"detail": "order didn't refund"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                    return Response({"detail": "we have problems with refund", "status": partial_refund.status},
-                                    status=status.HTTP_200_OK)
-                except Exception as e:
-                    return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    @action(detail=True, methods=['POST'])
+    def refund_partial(self, request, *args, **kwargs):
+        try:
+            stock_item_id = request.data.get('stock_item_id', None)
+            quantity = request.data.get('quantity', None)
+            quantity_total = request.data.get('quantity_total', None)
+            reason = request.data.get('reason', None)
+            order_id, order_number = kwargs.get('order_id', None), kwargs.get('store_order_number', None)
+            if order_number or order_id:
+                order = order_models.Order.objects.get(
+                    Q(id=order_id) | Q(order_number=order_number)
+                )
 
-            return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
+                if order and order.status == 'processing' or 'completed':
+                    order_item = order.orderitem_set.get(item_id=stock_item_id)
+                    order_item.item.increase_stock(quantity=quantity)
+                    order_item.quantity -= quantity
+
+                    payment_data_from_backend = models.Payment.objects.filter(
+                        Q(store_order_id=order_id) | Q(store_order_number=order_number)
+                    ).first()
+
+                    payment_id, stock_item_price = str(payment_data_from_backend.payment_id), order_item.item.item.price
+
+                    try:
+                        partial_refund = Refund.create({
+                            "amount": {
+                                "value": stock_item_price,
+                                "currency": "RUB",
+                            },
+                            "payment_id": payment_id,
+                        })
+
+                        if partial_refund.status == 'succeeded':
+                            if quantity_total > 1:
+                                payment_data_from_backend.status = 'partial_refunded'
+                                order.status = 'partial_refunded'
+                                order.refund_reason = reason
+                                order_item.refund_reason = 'partial_refunded'
+                            else:
+                                payment_data_from_backend.status = 'refunded'
+                                order.status = 'refunded'
+                                order.refund_reason = reason
+                                order_item.refund_reason = 'refunded'
+
+                            order.updated_at = timezone.now()
+                            payment_data_from_backend.save()
+                            order_item.save()
+                            order.save()
+
+                            data = order_serializers.OrderSerializer(order).data
+
+                            return Response(data, status=status.HTTP_200_OK)
+
+                        return Response({"detail": "we have problems with refund", "status": partial_refund.status},
+                                        status=status.HTTP_200_OK)
+                    except Exception as e:
+                        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                return Response({"detail": "order not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "no data"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -256,9 +290,17 @@ class PaymentViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
 
         ordered_items = order.orderitem_set.all()
-        total_price = str(ordered_items.aggregate(total=Sum(
-            F('quantity') * F('item__item__price')) + F('order__shipping_method__price')
-                                                  )['total'])
+
+        # weak
+        items_total_price = ordered_items.aggregate(total=Sum(F('quantity') * F('item__item__price')))['total']
+        shipping_price = ordered_items.values('order__shipping_method__price').distinct()
+
+        if shipping_price:
+            shipping_price = shipping_price[0]['order__shipping_method__price']
+        else:
+            shipping_price = 0
+
+        total_price = items_total_price + shipping_price if items_total_price else shipping_price
         items = []
 
         for ordered_item in ordered_items:
@@ -364,5 +406,5 @@ class PaymentViewSet(viewsets.ModelViewSet):
             else:
                 return Response({"detail": payment.status, "success": False}, )
         except Exception as e:
-            return Response({"detail": f"something went wrong: {e}", "success": False},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

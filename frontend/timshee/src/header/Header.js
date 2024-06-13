@@ -30,10 +30,14 @@ const Header = () => {
     const {wishlist} = useSelector(state => state.wishlist);
     const [menuOpen, setMenuOpen] = useState(false);
 
+    const [lvl1open, setLvl1open] = useState(false);
+    const [lvl2open, setLvl2open] = useState(false);
+    const [lvl3open, setLvl3open] = useState(false);
+
     // RESIZE AND HIDE MENU
     useEffect(() => {
         const hideBurgerMenu = () => {
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 934) {
                 setMenuOpen(false);
             }
         }
@@ -79,15 +83,20 @@ const Header = () => {
             <ul className="nav-list-lvl0">
                 <li className="nav-item-lvl0">
                     <span>{t.shop.shop[language]}</span>
-                    <ul className="nav-list-lvl1">
-                        <div className="nav-background left-background"></div>
+                    <ul className="nav-list-lvl1"
+                        onMouseEnter={() => setLvl1open(true)}
+                        onMouseLeave={() => setLvl1open(false)}
+                    >
                         <li className="nav-item-lvl1">
                             <span>
                                 <Link to={`/shop/collections/${collections[0].link}`}>
                                     {collections[0].name}
                                 </Link>
                             </span>
-                            <ul className="nav-list-lvl2">
+                            <ul className="nav-list-lvl2"
+                                onMouseEnter={() => setLvl2open(true)}
+                                onMouseLeave={() => setLvl2open(false)}
+                            >
                                 <li className="nav-item-lvl2"
                                     onClick={() => setMenuOpen(false)}>
                                     <span>
@@ -95,7 +104,10 @@ const Header = () => {
                                             t.shop.women[language]
                                         }</Link>
                                     </span>
-                                    <ul className="nav-list-lvl3">
+                                    <ul className="nav-list-lvl3"
+                                        onMouseEnter={() => setLvl3open(true)}
+                                        onMouseLeave={() => setLvl3open(false)}
+                                    >
                                         {categories.map((category, index) => {
                                             const linkTo = `/shop/collections/${genders[0].value}+${collections[0].link}`
                                                 + `+${category.code}`
@@ -110,14 +122,20 @@ const Header = () => {
                                     </ul>
                                 </li>
                                 <li className="nav-item-lvl2"
-                                    onClick={() => setMenuOpen(false)}>
+                                    onMouseEnter={() => setLvl2open(true)}
+                                    onMouseLeave={() => setLvl2open(false)}
+                                    onClick={() => setMenuOpen(false)}
+                                >
                                     <span>
                                         <Link
                                             to={`/shop/collections/${genders[1].value}+${collections[0].link}`}>{
                                             t.shop.men[language]
                                         }</Link>
                                     </span>
-                                    <ul className="nav-list-lvl3">
+                                    <ul className="nav-list-lvl3"
+                                        onMouseEnter={() => setLvl3open(true)}
+                                        onMouseLeave={() => setLvl3open(false)}
+                                    >
                                         {categories.map((category, index) => {
                                             const linkTo = `/shop/collections/${genders[1].value}+${collections[0].link}`
                                                 + `+${category.code}`
@@ -156,7 +174,10 @@ const Header = () => {
                             <span>
                                 <Link to={`/shop/collections/${genders[1].value}`}>{t.shop.men[language]}</Link>
                             </span>
-                            <ul className="nav-list-lvl2">
+                            <ul className="nav-list-lvl2"
+                                onMouseEnter={() => setLvl2open(true)}
+                                onMouseLeave={() => setLvl2open(false)}
+                            >
                                 {collections.map((collection, index) => (
                                     <li className="nav-item-lvl2" key={index}
                                         onClick={() => setMenuOpen(false)}>
@@ -173,7 +194,10 @@ const Header = () => {
                 </li>
                 <li className="nav-item-lvl0">
                 <span>{t.shop.collections[language]}</span>
-                    <ul className="nav-list-lvl1">
+                    <ul className="nav-list-lvl1"
+                        onMouseEnter={() => setLvl1open(true)}
+                        onMouseLeave={() => setLvl1open(false)}
+                    >
                         {collections.map((collection, index) => (
                             <li className="nav-item-lvl1" key={index}
                                 onClick={() => setMenuOpen(false)}>
@@ -199,14 +223,19 @@ const Header = () => {
             <ul className="nav-list-lvl0">
                 <li className="nav-item-lvl0">
                     <span>{t.shop.changeLanguage[language]}</span>
-                    <ul className="nav-list-lvl1">
+                    <ul className="nav-list-lvl1"
+                        onMouseEnter={() => setLvl1open(true)}
+                        onMouseLeave={() => setLvl1open(false)}
+                    >
                         {continents.map((continent, index) => (
                             <li className="nav-item-lvl1" key={index}>
-                            <div className="nav-background right-background"></div>
                                 <span>
                                     {continent.name}
                                 </span>
-                                <ul className="nav-list-lvl2">
+                                <ul className="nav-list-lvl2"
+                                    onMouseEnter={() => setLvl2open(true)}
+                                    onMouseLeave={() => setLvl2open(false)}
+                                >
                                     {countries.map((country, index) => {
                                         if (country.continent.id !== continent.id) {
                                             return <div key={index + 10}></div>
@@ -232,8 +261,10 @@ const Header = () => {
                     <span>{t.shop.account[language]}</span>
                     {
                         token?.access ? (
-                            <ul className="nav-list-lvl1">
-                                <div className="nav-background right-background"></div>
+                            <ul className="nav-list-lvl1"
+                                onMouseEnter={() => setLvl1open(true)}
+                                onMouseLeave={() => setLvl1open(false)}
+                            >
                                 <li className="nav-item-lvl1"
                                     onClick={() => setMenuOpen(false)}>
                                     <span><Link to={`/account/details`}>{t.shop.details[language]}</Link></span></li>
@@ -254,8 +285,10 @@ const Header = () => {
                                     </span></li>
                             </ul>
                         ) : (
-                            <ul className="nav-list-lvl1">
-                                <div className="nav-background right-background"></div>
+                            <ul className="nav-list-lvl1"
+                                onMouseEnter={() => setLvl1open(true)}
+                                onMouseLeave={() => setLvl1open(false)}
+                            >
                                 <li className="nav-item-lvl1">
                                     <span><Link to={`/account/login`}
                                                 onClick={() => setMenuOpen(false)}>{t.authForms.login[language]}</Link></span>
@@ -301,18 +334,29 @@ const Header = () => {
         )
     }
 
+    const navBackground = () => (
+        <div className={`nav-background 
+        ${lvl1open && "height-50"} 
+        ${lvl2open && "height-100"} 
+        ${lvl3open && "height-150"}`
+        }></div>
+    )
+
 
     return (
-        <div className="header-container">
-            <header className={`header ${menuOpen ? "show-nav" : ""}`}>
-                {burgerMenuButton()}
-                {menuOpen && burgerMenu()}
-                {!menuOpen && navLeft()}
-                {logoCenter()}
-                {!menuOpen && navRight()}
-                {navRightEmpty()}
-            </header>
-        </div>
+        <>
+            <div className="header-container">
+                <header className={`header ${menuOpen ? "show-nav" : ""}`}>
+                    {burgerMenuButton()}
+                    {menuOpen && burgerMenu()}
+                    {!menuOpen && navLeft()}
+                    {logoCenter()}
+                    {!menuOpen && navRight()}
+                    {navRightEmpty()}
+                </header>
+            </div>
+            {navBackground()}
+        </>
     );
 }
 

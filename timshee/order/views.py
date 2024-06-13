@@ -1,4 +1,5 @@
 import copy
+import logging
 
 from django.contrib.auth.models import AnonymousUser
 from django.forms import model_to_dict
@@ -13,6 +14,7 @@ from . import models, serializers, write_serializers, filters
 
 from order import models as order_models
 
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -86,39 +88,49 @@ class AddressViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["GET"])
     def get_addresses_by_user(self, request):
-        user = self.request.user
-        session_key = request.session.session_key
-        qs = None
-        if user.is_authenticated:
-            qs = models.Address.objects.filter(user=user)
-        elif user.is_anonymous:
-            qs = models.Address.objects.filter(session_key=session_key)
+        try:
+            user = self.request.user
+            session_key = request.session.session_key
+            qs = None
+            if user.is_authenticated:
+                qs = models.Address.objects.filter(user=user)
+            elif user.is_anonymous:
+                qs = models.Address.objects.filter(session_key=session_key)
 
-        if qs.exists():
-            data = self.get_serializer(qs, many=True).data
-            return Response(data, status=status.HTTP_200_OK)
+            if qs.exists():
+                data = self.get_serializer(qs, many=True).data
+                return Response(data, status=status.HTTP_200_OK)
 
-        return Response({
-            "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
-        }, status=status.HTTP_200_OK
-        )
+            return Response({
+                "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
+                }, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.exception(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["GET"])
     def get_address_as_primary(self, request, *args, **kwargs):
-        user = self.request.user
-        session_key = request.session.session_key
-        qs = None
-        if user.is_authenticated:
-            qs = models.Address.objects.filter(user=user, as_primary=True)
-        elif user.is_anonymous:
-            qs = models.Address.objects.filter(session_key=session_key, as_primary=True)
+        try:
+            user = self.request.user
+            session_key = request.session.session_key
+            qs = None
+            if user.is_authenticated:
+                qs = models.Address.objects.filter(user=user, as_primary=True)
+            elif user.is_anonymous:
+                qs = models.Address.objects.filter(session_key=session_key, as_primary=True)
 
-        if qs.exists():
-            data = self.get_serializer(qs.first(), many=False).data
-            return Response(data, status=status.HTTP_200_OK)
+            if qs.exists():
+                data = self.get_serializer(qs.first(), many=False).data
+                return Response(data, status=status.HTTP_200_OK)
 
-        return Response({"detail": f"primary address by {user.email} doesn't exist"},
-                        status=status.HTTP_200_OK)
+            return Response({"detail": f"primary address by {
+                session_key if isinstance(user, AnonymousUser) else user.email
+            } doesn't exist"},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -150,42 +162,54 @@ class OrderViewSet(viewsets.ModelViewSet):
         if request.data.get('status'):
             if request.data['status'] == "processing":
                 from stuff import services
-                services.send_email(request, kwargs['pk'], 'processing')
+                services.send_email(request, kwargs['pk'], 'processing', "")
 
         return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=["GET"])
     def get_last_order_by_user(self, request, *args, **kwargs):
-        user = self.request.user
-        session_key = request.session.session_key
-        qs = None
-        if user.is_authenticated:
-            qs = models.Order.objects.filter(user=user)
-        elif user.is_anonymous:
-            qs = models.Order.objects.filter(session_key=session_key)
+        try:
+            user = self.request.user
+            session_key = request.session.session_key
+            qs = None
+            if user.is_authenticated:
+                qs = models.Order.objects.filter(user=user)
+            elif user.is_anonymous:
+                qs = models.Order.objects.filter(session_key=session_key)
 
-        if qs.exists():
-            data = self.get_serializer(qs.last(), many=False).data
-            return Response(data, status=status.HTTP_200_OK)
+            if qs.exists():
+                data = self.get_serializer(qs.last(), many=False).data
+                return Response(data, status=status.HTTP_200_OK)
 
-        return Response({"detail": f"last order by {user.email} doesn't exist"},
-                        status=status.HTTP_200_OK)
+            return Response({"detail": f"last order by {
+                session_key if isinstance(user, AnonymousUser) else user.email
+            } doesn't exist"},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["GET"])
     def get_orders_by_user(self, request, *args, **kwargs):
-        user = self.request.user
-        session_key = request.session.session_key
-        qs = None
-        if user.is_authenticated:
-            qs = models.Order.objects.filter(user=user).exclude(status="created").order_by('-created_at')
-        elif user.is_anonymous:
-            qs = models.Order.objects.filter(session_key=session_key).order_by('-created_at')
+        try:
+            user = self.request.user
+            session_key = request.session.session_key
+            qs = None
+            if user.is_authenticated:
+                qs = models.Order.objects.filter(user=user).exclude(status="created").order_by('-created_at')
+            elif user.is_anonymous:
+                qs = models.Order.objects.filter(session_key=session_key).order_by('-created_at')
 
-        if qs.exists():
-            data = self.get_serializer(qs, many=True).data
-            return Response(data, status=status.HTTP_200_OK)
+            if qs.exists():
+                data = self.get_serializer(qs, many=True).data
+                return Response(data, status=status.HTTP_200_OK)
 
-        return Response({"detail": f"orders by {user.email} don't exist"}, status=status.HTTP_200_OK)
+            return Response({"detail": f"orders by {
+                session_key if isinstance(user, AnonymousUser) else user.email
+            } don't exist"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(msg=f"{e.args}", exc_info=e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ShippingMethodViewSet(viewsets.ModelViewSet):

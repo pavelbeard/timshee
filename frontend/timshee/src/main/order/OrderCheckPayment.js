@@ -1,16 +1,14 @@
 import React, {useEffect} from 'react';
-import {Navigate, useNavigate, useParams} from "react-router-dom";
+import {Navigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
-import {changeQuantity, deleteCartItems, getCollections} from "../../redux/slices/shopSlices/itemSlice";
-import {useDispatch, useSelector} from "react-redux";
-import {updateOrderStatus} from "./api/reducers/orderSlice";
-import OrderIsNotPaid from "./OrderIsNotPaid";
 import {checkPaymentStatus} from "./api";
+import AuthService from "../api/authService";
+import Error from "../Error";
 
 const OrderCheckPayment = () => {
     const params = useParams();
-    const navigate = useNavigate();
+    const token = AuthService.getCurrentUser();
 
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
@@ -24,16 +22,21 @@ const OrderCheckPayment = () => {
         const fetchStatus = async () => {
             if (orderNumber !== undefined) {
                 const result = await checkPaymentStatus({
-                    orderNumber, setError, setIsLoading
+                    orderNumber, setError, setIsLoading, token
                 });
-                setStatus(result['status']);
+
+                if (result) {
+                    setStatus(result['status']);
+                } else {
+                    setStatus(undefined);
+                }
             }
         };
 
         fetchStatus();
     }, []);
 
-    if (status === "" || status === undefined) {
+    if (status === "") {
         return(
             <div className="order-status">
                 <div className="order-paid">
@@ -49,6 +52,10 @@ const OrderCheckPayment = () => {
 
     if (status === "succeeded") {
         return <Navigate to={`/shop/${orderId}/checkout/order-paid/${orderNumber}`} />
+    }
+
+    if (status === undefined) {
+        return <Error />
     }
 };
 

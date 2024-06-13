@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY ./timshee/package*.json ./
 
+RUN npm install --save-dev @babel/plugin-proposal-private-property-in-object
 RUN npm install
 
 COPY ./timshee .

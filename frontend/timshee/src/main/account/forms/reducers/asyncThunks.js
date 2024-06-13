@@ -21,7 +21,7 @@ export const getAddresses = createAsyncThunk(
     "addressForm/getShippingAddresses",
     async ({token}, thunkAPI) => {
         try {
-            const result = fetchShippingAddresses({token});
+            const result = await fetchShippingAddresses({token});
             if (result) {
                 return result
             } else {
