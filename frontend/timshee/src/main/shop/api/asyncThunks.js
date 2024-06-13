@@ -97,7 +97,7 @@ export const getColors = createAsyncThunk(
     "shop/getColors",
     async (args, thunkAPI) => {
         try {
-            const url = `${API_URL}/api/store/colors/`;
+            const url = `${API_URL}api/store/colors/`;
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
