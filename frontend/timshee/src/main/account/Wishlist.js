@@ -8,14 +8,14 @@ import Nothing from "../Nothing";
 import {Link} from "react-router-dom";
 
 import "./Wishlist.css";
-import translateService from "../translate/TranslateService";
+import t from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Wishlist = () => {
     const dispatch = useDispatch();
     const token = AuthService.getCurrentUser();
-    const language = translateService.language();
+    const language = t.language();
     const {wishlist, wishlistStatus, getWishlistStatus} = useSelector(
         state => state.wishlist
     );
@@ -31,40 +31,48 @@ const Wishlist = () => {
     if (getWishlistStatus === 'success') {
         if (wishlist.length > 0) {
             return (
-                <div className="wishlist-container">
-                    {wishlist.map((w, index) => (
-                        <div className="wishlist-item" key={index}>
-                            <div className="img-container">
-                                <Link to={`${w.stock_link}`}>
-                                    <img src={`${API_URL}${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`}
-                                         height={256}/>
+                <>
+                    {
+                        !(token?.access) && (<span style={{
+                            paddingLeft: "3.3rem",
+                        }}>{t.wishlist.saveWL[language]}</span>)
+                    }
+                    <div className="wishlist-container">
+                        {wishlist.map((w, index) => (
+                            <div className="wishlist-item" key={index}>
+                                <div className="img-container">
+                                    <Link to={`${w.stock_link}`}>
+                                        <img src={`${API_URL}${w.stock?.item?.image}`} alt={`alt-wishlist-${index}`}
+                                             height={256}/>
 
-                                </Link>
-                            </div>
-                            <div className="wishlist-item-info">
-                            <div className="wishlist-item-name-price">
-                                    <span>{w.stock?.item?.name}</span>
-                                    <span>{w.stock?.item?.price}</span>
+                                    </Link>
                                 </div>
-                                <span>{w.stock?.size?.value}</span>
-                                <div className="wishlist-item-color">
-                                    <span>{w.stock?.color?.name}</span>
-                                    <span style={{ background: `${w.stock?.color?.hex}`}}></span>
+                                <div className="wishlist-item-info">
+                                    <div className="wishlist-item-name-price">
+                                        <span>{w.stock?.item?.name}</span>
+                                        <span>{w.stock?.item?.price}</span>
+                                    </div>
+                                    <span>{w.stock?.size?.value}</span>
+                                    <div className="wishlist-item-color">
+                                        <span>{w.stock?.color?.name}</span>
+                                        <span style={{background: `${w.stock?.color?.hex}`}}></span>
+                                    </div>
+                                </div>
+                                <div className="remove-from-wishlist"
+                                     onClick={() => removeItem({wishlistItemId: w.id})}>
+                                    <span>{t.itemCardDetail.removeFromWishlist[language]}</span>
                                 </div>
                             </div>
-                            <div className="remove-from-wishlist" onClick={() => removeItem({wishlistItemId: w.id})}>
-                                <span>{translateService.itemCardDetail.removeFromWishlist[language]}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                </>
             )
         } else {
             return (
                 <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
                     <Nothing />
                     <div className="return-to-account">
-                        <Link to="/">{translateService.wishlist.addItemsToWL[language]}</Link>
+                        <Link to="/">{t.wishlist.addItemsToWL[language]}</Link>
                     </div>
                 </div>
             )

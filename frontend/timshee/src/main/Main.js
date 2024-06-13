@@ -4,10 +4,8 @@ import {useSelector} from "react-redux";
 import Header from "../header/Header";
 import Content from "./Content";
 import Footer from "../footer/Footer";
-import SideMenu from "../header/SideMenu";
 
 import "./Main.css";
-import SideSearch from "../header/SideSearch";
 import EditAddressForm from "./account/forms/EditAddressForm";
 import Cart from "./cart/Cart";
 import ChangeEmailForm from "./account/forms/ChangeEmailForm";
@@ -35,10 +33,8 @@ const Main = () => {
     return (
         <div className="main">
             <Header />
-            {isSearchClicked && <SideSearch />}
             <Content />
             <Footer />
-            {isSideMenuClicked && <SideMenu />}
             {isEditAddressMenuClicked && <EditAddressForm />}
             {isChangeEmailClicked && <ChangeEmailForm />}
             {isCartClicked && <Cart />}

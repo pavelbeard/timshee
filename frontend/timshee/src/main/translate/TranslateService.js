@@ -166,6 +166,11 @@ const account = {
         "en-UK": "Created At:",
         "ru-RU": "Создано:",
     },
+    updatedAt: {
+        "en-US": "Updated At:",
+        "en-UK": "Updated At:",
+        "ru-RU": "Обновлено:",
+    },
     orderDetail: {
         "en-US": "Order Detail",
         "en-UK": "Order Detail",
@@ -287,6 +292,11 @@ const wishlist = {
         "en-UK": "Add items to wishlist",
         "ru-RU": "Добавьте вещи в избранное",
     },
+    saveWL: {
+        "en-US": "For save that wishlist, please login",
+        "en-UK": "For save that wishlist, please login",
+        "ru-RU": "Для сохранения списка избранных нужно войти в аккаунт",
+    }
 };
 
 const shop = {

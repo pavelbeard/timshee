@@ -1,9 +1,9 @@
 import "./Account.css";
 import React, {useEffect} from "react";
-import {Link, redirect, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getEmail} from "./api";
-import {getLastOrder, getAddressAsTrue, getAddresses} from "./forms/reducers/asyncThunks";
+import {getLastOrder, getAddresses} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
 import Loading from "../Loading";
 import t from "../translate/TranslateService";
@@ -13,6 +13,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const Account = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const language = t.language();
     const user = AuthService.getCurrentUser();
     const {order, lastOrderStatus} = useSelector(state => state.ordersPage);
@@ -84,7 +85,7 @@ const Account = () => {
                     <span className="user-name" onClick={() => dispatch(toggleChangeEmail())}>{email}</span>
                     <form onSubmit={() => {
                         AuthService.logout();
-                        redirect("/");
+                        navigate("/");
                     }}>
                         <button type="submit">
                             {t.account.logout[language]}
@@ -141,7 +142,7 @@ const Account = () => {
                                                         <span>{t.account.deliveredAt[language]}</span>
                                                         <span>{new Date(deliveredAt).toDateString()}</span>
                                                     </div>
-                                                ) : (order.status === "refunded" || order.status === "partial_refunded") && (
+                                                ) : (order.status === "refunded" || order.status === "partial_refunded") ? (
                                                     <>
                                                         <div>
                                                             <span>{t.account.status[language]}</span>
@@ -149,6 +150,17 @@ const Account = () => {
                                                         </div>
                                                         <div>
                                                             <span>{t.account.refundedAt[language]}</span>
+                                                            <span>{new Date(order.updated_at).toDateString()}</span>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div>
+                                                            <span>{t.account.status[language]}</span>
+                                                            <span>{order.status}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span>{t.account.updatedAt[language]}</span>
                                                             <span>{new Date(order.updated_at).toDateString()}</span>
                                                         </div>
                                                     </>

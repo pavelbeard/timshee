@@ -1,7 +1,3 @@
-import Logo from "./Logo";
-import Navigation from "./Navigation";
-import Info from "./Info";
-
 import "./Header2.css";
 import "../main/Main.css"
 import React, {useContext, useEffect, useState} from "react";
@@ -282,7 +278,8 @@ const Header = () => {
                                         <Link to={`/account/details/wishlist`}>
                                             <span>{t.shop.wishlist[language]} <span>({wishlist.length})</span></span>
                                         </Link>
-                                    </span></li>
+                                    </span>
+                                </li>
                             </ul>
                         ) : (
                             <ul className="nav-list-lvl1"
@@ -296,6 +293,14 @@ const Header = () => {
                                 <li className="nav-item-lvl1">
                                     <span><Link to={`/account/register`}
                                                 onClick={() => setMenuOpen(false)}>{t.authForms.register[language]}</Link></span>
+                                </li>
+                                <li className="nav-item-lvl1"
+                                    onClick={() => setMenuOpen(false)}>
+                                    <span>
+                                        <Link to={`/account/details/wishlist`}>
+                                            <span>{t.shop.wishlist[language]} <span>({wishlist.length})</span></span>
+                                        </Link>
+                                    </span>
                                 </li>
                             </ul>
                         )

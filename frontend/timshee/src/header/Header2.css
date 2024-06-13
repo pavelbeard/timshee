@@ -27,11 +27,11 @@
 /*MENU*/
 .nav {
     display: flex;
-    justify-content: center;
     width: 50rem;
 }
 
 .nav-left, .nav-right {
+    justify-content: center;
     flex: 1
 }
 .nav-left {
@@ -55,6 +55,7 @@
     z-index: 17;
     background: #fff;
     width: 100vw;
+    border-bottom: 1px solid #e4e4e4;
 }
 
 .height-50 {
@@ -69,17 +70,10 @@
     height: 150px;
 }
 
-.nav-background.left-background {
-    left: -75%;
-}
-.nav-background.right-background {
-    right: 0;
-}
-
 .nav-list-lvl0 span,
 .nav-list-lvl1 span,
 .nav-list-lvl2 span {
-    z-index: 18;
+    z-index: 20;
     display: inline-block;
     position: relative;
 }
@@ -140,7 +134,7 @@
 .nav-item-lvl1 > span > a,
 .nav-item-lvl2 > span > a,
 .nav-item-lvl3 > span > a {
-    z-index: 18;
+    z-index: 20;
     text-decoration: none;
     color: #000;
     cursor: pointer;
@@ -216,7 +210,7 @@
     }
 
     .nav-burger-menu {
-        padding-top: 4.5rem;
+        padding-bottom: 1.5rem;
         position: absolute;
         top: 75px;
         left: 0;

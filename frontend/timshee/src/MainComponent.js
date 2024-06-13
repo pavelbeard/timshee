@@ -71,8 +71,8 @@ const MainComponent = () => {
                                     <Route path="/account/details" element={<Account/>}/>
                                     <Route path="/account/details/addresses" element={<Addresses/>}/>
                                     <Route path="/account/details/orders" element={<Orders/>}/>
-                                    <Route path="/account/details/wishlist" element={<Wishlist />}/>
                                 </Route>
+                                <Route path="/account/details/wishlist" element={<Wishlist />}/>
                                 <Route path="/orders/:orderId/detail" element={<OrderDetail/>}/>
                                 <Route path="/orders/:orderId/order-refund" element={<OrderRefund/>}/>
                                 <Route path="/orders/:orderId/order-refund/:stockItemId/:stockItemQuantity" element={<OrderRefund/>}/>

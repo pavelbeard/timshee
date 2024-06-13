@@ -180,6 +180,7 @@
     margin: 10px;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 /*ORDERS*/

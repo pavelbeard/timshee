@@ -39,7 +39,7 @@ const Login = () => {
                     </label>}
                 <label className="login-labels" htmlFor="email">
                     <span className="label-text">email:</span>
-                    <input
+                    <input style={{ paddingLeft: "1rem"}}
                         id="email"
                         type="email"
                         value={email}
@@ -49,7 +49,7 @@ const Login = () => {
                 </label>
                 <label className="login-labels" htmlFor="password">
                     <span className="label-text">{translateService.authForms.password[language]}</span>
-                    <input
+                    <input style={{ paddingLeft: "1rem"}}
                         id="password"
                         type="password"
                         value={password}

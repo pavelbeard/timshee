@@ -3,6 +3,7 @@ import logging
 import sys
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import Sum, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
@@ -135,11 +136,14 @@ class WishlistViewSet(viewsets.ModelViewSet):
             request.data['stock'] = stock.id
 
             instance = models.Wishlist.objects.create(
-                user=request.user,
                 session_key=request.session.session_key,
                 stock=stock,
                 stock_link=request.data['stock_link']
             )
+
+            if not isinstance(request.user, AnonymousUser):
+                instance.user = request.user
+                instance.save()
 
             data = self.get_serializer(instance, many=False).data
 

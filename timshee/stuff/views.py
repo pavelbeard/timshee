@@ -7,11 +7,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_protect
 from order import models as order_models
+from store import models as store_models
 from order import serializers as order_serializers
 from rest_framework import generics, status, permissions, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -60,12 +59,16 @@ class RegisterAPIView(generics.GenericAPIView):
         user.save()
 
         order_models.Order.objects.filter(session_key=session_key).update(user=user)
+        store_models.Wishlist.objects.filter(session_key=session_key).update(user=user)
 
         token = tokens.RefreshToken.for_user(user)
-        return JsonResponse({
+        response = JsonResponse({
             "refresh": str(token),
             "access": str(token.access_token),
         }, status=status.HTTP_201_CREATED)
+        response.set_cookie('refresh', str(token), httponly=True)
+
+        return response
 
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -76,6 +79,9 @@ class LoginView(TokenObtainPairView):
             session_key = request.session.session_key
             user = User.objects.get(email=request.data['username'])
             order_models.Order.objects.filter(session_key=session_key).update(user=user)
+            store_models.Wishlist.objects.filter(session_key=session_key).update(user=user)
+            token = tokens.RefreshToken.for_user(user)
+            response.set_cookie('refresh', str(token), httponly=True)
 
         return response
 
