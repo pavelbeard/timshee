@@ -49,6 +49,9 @@
     position: relative;
 }
 
+.nav-background {
+    visibility: visible;
+}
 
 .nav-background {
     position: absolute;
@@ -195,6 +198,10 @@
 
 /*FOR MOBILE*/
 @media only screen and (max-width: 768px) {
+    .nav-background {
+        visibility: hidden;
+    }
+
     .header {
         padding: 1.5rem 2rem;
     }
@@ -289,5 +296,106 @@
         z-index: 20;
         border-bottom: 1px solid #2b2727;
     }
+}
 
+
+@media only screen and (min-width: 768px) and (max-width: 935px) {
+    .nav-background {
+        visibility: hidden;
+    }
+
+    .header {
+        padding: 1.5rem 2rem;
+    }
+
+    .nav-left, .nav-right {
+        padding: 0;
+        display: none;
+    }
+
+    .nav-empty, .burger-menu {
+        display: flex;
+    }
+
+    .nav-burger-menu {
+        padding-bottom: 1.5rem;
+        position: absolute;
+        top: 75px;
+        left: 0;
+        right: 0;
+        z-index: 13;
+        background: #fff;
+    }
+
+    .header.show-nav .nav-left, .header.show-nav .nav-right {
+        display: flex;
+        flex-direction: column;
+        width: 120px;
+    }
+
+    /*DYNAMIC UNDERLINE*/
+    .nav-item-lvl0 > span:hover:before,
+    .nav-item-lvl1 > span:hover:before,
+    .nav-item-lvl2 > span:hover:before {
+        visibility: hidden;
+    }
+
+    /*LVL0 MENU HOVER*/
+    .nav-item-lvl0:hover > ul {
+        display: block;
+    }
+
+    /*LVL0*/
+    .nav-list-lvl0 {
+        position: static;
+        margin: 0;
+        padding-left: 1.5rem;
+        flex-direction: column;
+    }
+
+    .nav-item-lvl0 {
+        padding: 0.2rem;
+        margin: 5px 0;
+    }
+
+    /*LVL1 MENU HOVER*/
+    .nav-item-lvl1:hover > ul {
+        display: block;
+    }
+
+    /*LVL1*/
+    .nav-list-lvl1 {
+        position: static;
+    }
+
+    .nav-item-lvl1 {
+        padding: 0.2rem 0;
+    }
+
+    /*LVL2*/
+    .nav-item-lvl1:hover > ul {
+        position: static;
+        padding: 0;
+    }
+
+    .nav-list-lvl2 {
+        padding-left: 2rem;
+    }
+
+    .nav-item-lvl2:first-child {
+        position: relative;
+        z-index: 20;
+        border-top: 1px solid #2b2727;
+    }
+
+    .nav-item-lvl2 {
+        letter-spacing: 3px;
+        padding: 0.2rem 0;
+    }
+
+    .nav-item-lvl2 {
+        position: relative;
+        z-index: 20;
+        border-bottom: 1px solid #2b2727;
+    }
 }

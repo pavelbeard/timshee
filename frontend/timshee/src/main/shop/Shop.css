@@ -21,6 +21,8 @@
 
 .settings-container {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .filters, .sort-by, .items-count {
@@ -446,8 +448,12 @@ span.labels:hover::before {
         width: 35vw;
     }
 
+    .sort-by > label {
+        display: flex;
+    }
+
     .sort-by {
-        width: 25vw;
+        width: 26vw;
         padding: 20px 24px;
     }
 }
