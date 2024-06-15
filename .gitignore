@@ -12,7 +12,7 @@ timshee/media
 nginx/test*
 nginx/server*
 db.sqlite3*
-
+sensible-flies
 .idea
 *test
 *development*

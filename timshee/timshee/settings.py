@@ -47,9 +47,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     "corsheaders",
-    'oauth2_provider',
-    'social_django',
-    'drf_social_oauth2',
+    # 'oauth2_provider',
+    # 'social_django',
+    # 'drf_social_oauth2',
     'colorfield',
     'django_filters',
     # "debug_toolbar" if (DEBUG or TESTING) else "",
@@ -249,20 +249,20 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'drf_social_oauth2.backends.DjangoOAuth2',
+    # 'drf_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'stuff.authentication.EmailAuthenticationBackend',
     # custom
-    'social_core.backends.google.GoogleOAuth2',
+    # 'social_core.backends.google.GoogleOAuth2',
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile',
-]
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+#
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+#     'https://www.googleapis.com/auth/userinfo.email',
+#     'https://www.googleapis.com/auth/userinfo.profile',
+# ]
 
 CART_SESSION_ID = "cart"
 
@@ -330,3 +330,10 @@ PARLER_LANGUAGES = {
         'hide_untranslated': False,
     }
 }
+
+# FIXTURES
+
+FIXTURE_DIRS = (
+    BASE_DIR / 'stuff',
+    BASE_DIR / 'store',
+)

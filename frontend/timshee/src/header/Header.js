@@ -77,29 +77,28 @@ const Header = () => {
     const navLeft = () => {
         return <nav className="nav nav-left">
             <ul className="nav-list-lvl0">
-                <li className="nav-item-lvl0">
+                <li className="nav-item-lvl0" >
                     <span>{t.shop.shop[language]}</span>
                     <ul className="nav-list-lvl1"
                         onMouseEnter={() => setLvl1open(true)}
                         onMouseLeave={() => setLvl1open(false)}
                     >
                         <li className="nav-item-lvl1">
-                            <span>
-                                <Link to={`/shop/collections/${collections[0].link}`}>
-                                    {collections[0].name}
-                                </Link>
-                            </span>
+                            <span>{collections[0].name}</span>
                             <ul className="nav-list-lvl2"
                                 onMouseEnter={() => setLvl2open(true)}
                                 onMouseLeave={() => setLvl2open(false)}
                             >
-                                <li className="nav-item-lvl2"
-                                    onClick={() => setMenuOpen(false)}>
-                                    <span>
-                                        <Link to={`/shop/collections/${genders[0].value}+${collections[0].link}`}>{
-                                            t.shop.women[language]
-                                        }</Link>
-                                    </span>
+                                <li className="nav-item-lvl2">
+                                    {
+                                        !menuOpen ? (
+                                            <span>
+                                                <Link to={`/shop/collections/${genders[0].value}+${collections[0].link}`}>{t.shop.women[language]}</Link>
+                                            </span>
+                                        ) : (
+                                            <span>{t.shop.women[language]}</span>
+                                        )
+                                    }
                                     <ul className="nav-list-lvl3"
                                         onMouseEnter={() => setLvl3open(true)}
                                         onMouseLeave={() => setLvl3open(false)}
@@ -108,7 +107,8 @@ const Header = () => {
                                             const linkTo = `/shop/collections/${genders[0].value}+${collections[0].link}`
                                                 + `+${category.code}`
                                             return (
-                                                <li className="nav-item-lvl3" key={index}>
+                                                <li className="nav-item-lvl3" key={index}
+                                                onClick={() => setMenuOpen(false)}>
                                                     <span>
                                                         <Link to={linkTo}>{category.name}</Link>
                                                     </span>
@@ -120,14 +120,16 @@ const Header = () => {
                                 <li className="nav-item-lvl2"
                                     onMouseEnter={() => setLvl2open(true)}
                                     onMouseLeave={() => setLvl2open(false)}
-                                    onClick={() => setMenuOpen(false)}
                                 >
-                                    <span>
-                                        <Link
-                                            to={`/shop/collections/${genders[1].value}+${collections[0].link}`}>{
-                                            t.shop.men[language]
-                                        }</Link>
-                                    </span>
+                                    {
+                                        !menuOpen ? (
+                                            <span>
+                                                <Link to={`/shop/collections/${genders[1].value}+${collections[0].link}`}>{t.shop.men[language]}</Link>
+                                            </span>
+                                        ) : (
+                                            <span>{t.shop.men[language]}</span>
+                                        )
+                                    }
                                     <ul className="nav-list-lvl3"
                                         onMouseEnter={() => setLvl3open(true)}
                                         onMouseLeave={() => setLvl3open(false)}
@@ -136,7 +138,8 @@ const Header = () => {
                                             const linkTo = `/shop/collections/${genders[1].value}+${collections[0].link}`
                                                 + `+${category.code}`
                                             return (
-                                                <li className="nav-item-lvl3" key={index}>
+                                                <li className="nav-item-lvl3" key={index}
+                                                onClick={() => setMenuOpen(false)}>
                                                 <span>
                                                     <Link to={linkTo}>{category.name}</Link>
                                                 </span>
@@ -153,12 +156,12 @@ const Header = () => {
                                 <Link to={`/shop/collections/${genders[0].value}`}>{t.shop.women[language]}</Link>
                             </span>
                             <ul className="nav-list-lvl2">
-                                {collections.map((collection, index) => (
+                                {categories.map((category, index) => (
                                     <li className="nav-item-lvl2" key={index}
                                         onClick={() => setMenuOpen(false)}>
                                         <span>
-                                            <Link to={`/shop/collections/${genders[0].value}+${collection.link}`}>
-                                                {collection.name}
+                                            <Link to={`/shop/collections/${genders[0].value}+${category.code}`}>
+                                                {category.name}
                                             </Link>
                                         </span>
                                     </li>
@@ -174,12 +177,12 @@ const Header = () => {
                                 onMouseEnter={() => setLvl2open(true)}
                                 onMouseLeave={() => setLvl2open(false)}
                             >
-                                {collections.map((collection, index) => (
+                                {categories.map((category, index) => (
                                     <li className="nav-item-lvl2" key={index}
                                         onClick={() => setMenuOpen(false)}>
                                         <span>
-                                            <Link to={`/shop/collections/${genders[1].value}+${collection.link}`}>
-                                                {collection.name}
+                                            <Link to={`/shop/collections/${genders[1].value}+${category.code}`}>
+                                                {category.name}
                                             </Link>
                                         </span>
                                     </li>
@@ -341,8 +344,8 @@ const Header = () => {
 
     const navBackground = () => (
         <div className={`nav-background 
-        ${lvl1open && "height-50"} 
-        ${lvl2open && "height-100"} 
+        ${lvl1open && "height-100"} 
+        ${lvl2open && "height-125"} 
         ${lvl3open && "height-150"}`
         }></div>
     )

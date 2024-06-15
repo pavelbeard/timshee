@@ -60,12 +60,12 @@
     width: 100vw;
 }
 
-.height-50 {
-    height: 50px;
-}
-
 .height-100 {
     height: 100px;
+}
+
+.height-125 {
+    height: 125px;
 }
 
 .height-150 {
@@ -140,6 +140,15 @@
     text-decoration: none;
     color: #000;
     cursor: pointer;
+}
+
+/*VISIBILITY*/
+.nav-link {
+    visibility: visible;
+}
+
+.nav-hidden {
+    visibility: hidden;
 }
 
 /*LVL0 MENU HOVER*/
@@ -296,6 +305,16 @@
         z-index: 20;
         border-bottom: 1px solid #2b2727;
     }
+
+    /*LVL3*/
+    .nav-list-lvl3 {
+        position: relative;
+    }
+
+    .nav-item-lvl3 {
+        padding: 0.2rem 0;
+        letter-spacing: 1px;
+    }
 }
 
 
@@ -397,5 +416,15 @@
         position: relative;
         z-index: 20;
         border-bottom: 1px solid #2b2727;
+    }
+
+    /*LVL3*/
+    .nav-list-lvl3 {
+        position: relative;
+    }
+
+    .nav-item-lvl3 {
+        padding: 0.2rem 0;
+        letter-spacing: 1px;
     }
 }

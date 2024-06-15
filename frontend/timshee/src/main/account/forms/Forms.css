@@ -100,6 +100,11 @@
     .forms-form {
         width: 250px;
     }
+
+    .height-450 {
+        height: 450px;
+        overflow-y: auto;
+    }
 }
 
 @media (orientation: landscape) {

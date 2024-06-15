@@ -30,7 +30,7 @@ urlpatterns = [
     path('api/payment/', include("payment.urls")),
     path('api/obtain-token/', views.obtain_auth_token),
     # здесь появится аутентификация
-    path('auth/', include("drf_social_oauth2.urls", namespace="drf")),
+    # path('auth/', include("drf_social_oauth2.urls", namespace="drf")),
 ]
 
 if settings.DEBUG:
