@@ -120,9 +120,9 @@ const account = {
                 "ru-RU": "Ожидает оплаты",
             },
             completed: {
-                "en-US": "Delivered",
-                "en-UK": "Delivered",
-                "ru-RU": "Доставлен",
+                "en-US": "completed",
+                "en-UK": "completed",
+                "ru-RU": "Завершен",
             },
             cancelled: {
                 "en-US": "Cancelled",
@@ -133,7 +133,17 @@ const account = {
                 "en-US": "Processing",
                 "en-UK": "Processing",
                 "ru-RU": "В процессе сборки"
-            }
+            },
+            delivering: {
+                "en-US": "Delivering",
+                "en-UK": "Delivering",
+                "ru-RU": "В доставке",
+            },
+            delivered: {
+                "en-US": "Delivered",
+                "en-UK": "Delivered",
+                "ru-RU": "Доставлен",
+            },
         }
     },
     noOrders: {
@@ -403,7 +413,12 @@ const shop = {
             "en-US": "descending",
             "en-UK": "descending",
             "ru-RU": "по убыванию",
-        }
+        },
+    },
+    price: {
+        "en-US": "$",
+        "en-UK": "£",
+        "ru-RU": "₽"
     }
 };
 
@@ -657,9 +672,9 @@ const checkout = {
         "ru-RU": "Метод доставки",
     },
     payment: {
-        "en-US": "payment",
-        "en-UK": "payment",
-        "ru-RU": "Оплата",
+        "en-US": "Pay now",
+        "en-UK": "Pay now",
+        "ru-RU": "Оплатить сейчас",
     },
     contact: {
         "en-US": "contact",
@@ -748,6 +763,21 @@ const stuff = {
         "en-US": "email already exists...",
         "en-UK": "email already exists...",
         "ru-RU": "Указанный email уже существует..."
+    },
+    offer: {
+        "en-US": "offer",
+        "en-UK": "offer",
+        "ru-RU": "Оферта",
+    },
+    contacts: {
+        "en-US": "contacts",
+        "en-UK": "contacts",
+        "ru-RU": "Обратная связь",
+    },
+    shippingMethods: {
+        "en-US": "shipping methods",
+        "en-UK": "shipping methods",
+        "ru-RU": "Способы доставки",
     }
 };
 
@@ -825,7 +855,7 @@ const forms = {
 }
 
 const language = () => {
-    return localStorage.getItem("language") !== null ? localStorage.getItem("language") : "en-US";
+    return localStorage.getItem("language") !== null ? localStorage.getItem("language") : "ru-RU";
 };
 
 const setLanguage = async (language) => {

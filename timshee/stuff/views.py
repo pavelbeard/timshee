@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model, models
+from django.contrib.sites.shortcuts import get_current_site
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
@@ -139,3 +140,13 @@ class ChangeLanguageAPIView(generics.GenericAPIView):
                 user.userprofile.save()
 
         return JsonResponse({"language": language_code}, status=status.HTTP_200_OK)
+
+
+class TestAPIView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        from . import services
+        status_ = services.send_test_email(request, 3, 'delivering')
+        return JsonResponse({"test": status_}, status=status.HTTP_200_OK)

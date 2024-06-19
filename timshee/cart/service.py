@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 from store import models as store_models
 from order import models as order_models
@@ -71,17 +71,15 @@ class Cart:
             }
 
         self.cart['order'][stock_id]['quantity'] += quantity
-        if created:
+        order_quantity_total = int(
+            order_models.Order.objects.get(
+                id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
+        )
+        if created and order_quantity_total < 10:
             order_item.item.decrease_stock(quantity=quantity)
-        elif not created and order_item.item.decrease_stock(quantity=quantity):
+        elif not created and order_item.item.decrease_stock(quantity=quantity) and order_quantity_total < 10:
             order_item.quantity += quantity
             order_item.save()
-
-        # order_obj = order_models.Order.objects.get(
-        #     pk=self.cart['order_id']['id']
-        # )
-        # order_obj.order_item.set((order_item.id,))
-        # order_obj.save()
 
         self.save()
         return order_item.item.id
@@ -98,8 +96,12 @@ class Cart:
         stock_id = str(order_item.item.id)
         quantity_in_cart = int(self.cart['order'][stock_id]['quantity'])
 
+        order_quantity_total = int(
+            order_models.Order.objects.get(
+                id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
+        )
         if not increase:
-            if order_item.item.decrease_stock(quantity=quantity):
+            if order_item.item.decrease_stock(quantity=quantity) and order_quantity_total < 10:
                 order_item.quantity += quantity
                 self.cart['order'][stock_id]['quantity'] += quantity
                 self.cart['order'][stock_id]['price'] = str(

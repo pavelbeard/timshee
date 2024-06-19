@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    @font-face {
+        font-family: "Bebas Neue Cyrillic";
+        src: url('timshee/stuff/static/stuff/static/fonts/bebasneuecyrillic/BebasNeueCyrillic.ttf') format('truetype');
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        font-family: "Bebas Neue Cyrillic";
+        font-variant-caps: all-petite-caps;
+        font-size: 24px;
+    }
+
+    body {
+        height: 100vh;
+        width: 100%;
+    }
+
+    .message-title {
+        padding-top: 0.5rem;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .message-container {
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .ordered-items {
+        display: flex;
+        padding: 1.5rem;
+        flex-direction: column;
+    }
+
+    .item-container {
+        display: flex;
+    }
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        padding-left: 1rem;
+    }
+
+    .info > div {
+        margin-bottom: 0.3rem;
+    }
+
+    .your-items {
+        padding-left: 1.5rem;
+        display: flex;
+        justify-content: flex-start;
+    }
+</style>
+<body>
+    <header class="message-title">
+        <img src="timshee/media/product_images/logos/img.png" alt="alt-title" height="50">
+    </header>
+    <div class="message-container">
+        <span>Спасибо за заказанный заказ 10000FMFMFM</span>
+    </div>
+    <div class="your-items">
+        <span>Ваши вещи:</span>
+    </div>
+    <div class="ordered-items">
+        <div class="item-container">
+            <div class="img">
+                <img src="timshee/media/product_images/item_images/_51a7952c-5058-4652-bd5d-f485e8be3dac.jpeg" alt="alt-image" height="100">
+            </div>
+            <div class="info">
+                <div>M</div>
+                <div>VERMILLION SCARLET</div>
+                <div>399.00</div>
+            </div>
+        </div>
+        <div class="item-container">
+            <div class="img">
+                <img src="timshee/media/product_images/item_images/_51a7952c-5058-4652-bd5d-f485e8be3dac.jpeg" alt="alt-image" height="100">
+            </div>
+            <div class="info">
+                <div>M</div>
+                <div>VERMILLION SCARLET</div>
+                <div>399.00</div>
+            </div>
+        </div>
+    </div>
+    <div class="order-page">
+        <span>Для отслеживания состояния заказа перейдите по <a href="https://77.238.243.142/orders/5/detail">ссылке</a>:</span>
+    </div>
+</body>
+</html>

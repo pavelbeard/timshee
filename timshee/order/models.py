@@ -4,9 +4,7 @@ import string
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.db import models
-from parler.models import TranslatableModel, TranslatedFields
-from django.utils.translation import gettext as _
-
+from parler.models import TranslatableModel
 from store import models as store_models
 
 
@@ -91,6 +89,7 @@ class Order(models.Model):
         ('pending_for_pay', 'PENDING FOR PAY'),
         ('processing', 'PROCESSING'),
         ('delivering', 'DELIVERING'),
+        ('delivered', 'DELIVERED'),
         ('completed', 'COMPLETED'),
         ('partial_refunded', 'PARTIAL_REFUNDED'),
         ('cancelled', 'CANCELLED'),

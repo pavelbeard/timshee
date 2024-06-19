@@ -16,6 +16,8 @@
         box-sizing: border-box;
         margin: 0;
         font-family: "Bebas Neue Cyrillic";
+        font-variant-caps: all-petite-caps;
+        font-size: 24px;
     }
 
     body {
@@ -24,6 +26,7 @@
     }
 
     .message-title {
+        padding-top: 0.5rem;
         width: 100%;
         display: flex;
         justify-content: center;
@@ -34,13 +37,67 @@
         justify-content: center;
         padding: 1rem;
     }
+
+    .ordered-items {
+        display: flex;
+        padding: 1.5rem;
+        flex-direction: column;
+    }
+
+    .item-container {
+        display: flex;
+    }
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        padding-left: 1rem;
+    }
+
+    .info > div {
+        margin-bottom: 0.3rem;
+    }
+
+    .your-items {
+        padding-left: 1.5rem;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .order-page {
+        padding-left: 1.5rem;
+    }
 </style>
 <body>
     <header class="message-title">
         <img src="{{ logo_url }}" alt="alt-title" height="50">
     </header>
     <div class="message-container">
-        <span>{{ message }}</span>
+        <h2 style="text-align: center">{{ message }}</h2>
     </div>
+    {% if ordered_items %}
+        <div class="your-items">
+            <span>{{ your_items }}</span>
+        </div>
+        <div class="ordered-items">
+            {% for item in ordered_items %}
+                <div class="item-container">
+                    <div class="img">
+                        <img src="{{ item.image }}" alt="alt-image" height="100">
+                    </div>
+                    <div class="info">
+                        <div>{{ item.size }}</div>
+                        <div>{{ item.color }}</div>
+                        <div>{{ item.price }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if status != 'refunded' or status != 'partial_refunded' or status != 'cancelled' %}
+            <div class="order-page">
+                <span>{{ order_following_text1.strip }}<a href="{{ order_link }}">{{ order_following_text2.strip }}</a></span>
+            </div>
+        {% endif %}
+    {% endif %}
 </body>
 </html>

@@ -1,10 +1,12 @@
 import React, {useEffect} from 'react';
 
 import "./CheckoutItems.css";
+import t from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const CheckoutItems = ({ cart }) => {
+    const language = t.language();
     const [imageSize, setImageSize] = React.useState(100);
 
     useEffect(() => {
@@ -43,7 +45,9 @@ const CheckoutItems = ({ cart }) => {
                         <div className="checkout-item-color">{item.stock.color.name}</div>
                     </div>
                     <div className="checkout-item-price">
-                        <span>{item.price}</span>
+                        <span>{item.price}
+                            <span>{t.shop.price[language]}</span>
+                        </span>
                     </div>
                 </div>
             ))}

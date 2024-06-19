@@ -13,6 +13,7 @@ urlpatterns = [
     path('get-csrf-token/', views.GetCsrfToken.as_view(), name='csrf'),
     path('register/', views.RegisterAPIView.as_view(), name='register'),
     path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
+    path('test/', views.TestAPIView.as_view(), name='test'),
 ]
 
 urlpatterns += router.urls

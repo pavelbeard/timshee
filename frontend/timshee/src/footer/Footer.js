@@ -25,6 +25,8 @@ const Footer = () => {
             <nav className="nav contact-container">
                 <ul className="nav-list footer-list">
                     <li className="nav-item"><Link to="/privacy-information">Privacy&Cookie</Link></li>
+                    <li className="nav-item"><Link to="/offer">{t.stuff.offer[language]}</Link></li>
+                    <li className="nav-item"><Link to="/contacts">{t.stuff.contacts[language]}</Link></li>
                     {/*<li className="nav-item"><Link to="">Twi</Link></li>*/}
                     {/*<li className="nav-item"><Link to="">Telegram</Link></li>*/}
                 </ul>

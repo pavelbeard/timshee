@@ -9,6 +9,7 @@ import close from "../../media/static_images/cruz.svg";
 import CartItems from "./CartItems";
 import {getCartItems} from "./api/asyncThunks";
 import translateService from "../translate/TranslateService";
+import t from "../translate/TranslateService";
 
 const Cart = () => {
     window.document.title = "Cart | Timshee";
@@ -60,10 +61,10 @@ const Cart = () => {
                                         </span>
                                     </label>
                                 </div>
-                                <div className={`cart-checkout ${isPrivacyHaveRead 
+                                <div className={`cart-checkout ${isPrivacyHaveRead
                                     ? "cart-checkout-enabled" : "cart-checkout-disabled"
                                 }`} onClick={checkout}>
-                                    {translateService.cart.checkout[language]} • {cart.totalPrice}
+                                    {translateService.cart.checkout[language]} • {cart.totalPrice}<span>{t.shop.price[language]}</span>
                                 </div>
                             </div>
                         </>

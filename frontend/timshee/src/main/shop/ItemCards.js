@@ -5,6 +5,7 @@ import {Link, useParams} from "react-router-dom";
 import "./Shop.css";
 import "./ItemCards.css";
 import {useSelector} from "react-redux";
+import t from "../translate/TranslateService";
 
 const Colors = ( {colors, visibility}) => {
     return (
@@ -39,6 +40,7 @@ const Sizes = ({ sizes, visibility }) => {
 
 const ItemCards = ({items}) => {
     const params = useParams();
+    const language = t.language();
     const [imageSize, setImageSize] = useState("");
     const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
     const {genders} = useSelector(state => state.shop);
@@ -91,9 +93,10 @@ const ItemCards = ({items}) => {
                             </Link>
                             <div className="item-data">
                                 <p>{item.name}</p>
-                                <p>{item.price}</p>
+                                <p>{item.price}
+                                    <span>{t.shop.price[language]}</span></p>
                             </div>
-                            <div className="item-data-hidden">
+                        <div className="item-data-hidden">
                                 <Colors colors={item.colors} visibility={index === selectedItemIndex} />
                                 <Sizes sizes={item.sizes} visibility={index === selectedItemIndex} />
                             </div>

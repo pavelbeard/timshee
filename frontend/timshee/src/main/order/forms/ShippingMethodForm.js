@@ -46,7 +46,9 @@ const ShippingMethodForm = ({
                                    }}/>
                             <span>{method.shipping_name}</span>
                         </label>
-                        <div className="shipping-price">{method.price === "0.00" ? "Free" : method.price}</div>
+                        <div className="shipping-price">{method.price === "0.00" ? "Free" : method.price}
+                            <span>{t.shop.price[language]}</span>
+                        </div>
                     </div>
                 ))}
                 <div className="form-submit">

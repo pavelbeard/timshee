@@ -61,7 +61,9 @@ const OrderDetail = () => {
                                      alt={`alt-image-${index}`}/>
                                 <div className="order-detail-item-info">
                                     <span>{item.item.item.name}</span>
-                                    <span>{item.item.item.price}</span>
+                                    <span>{item.item.item.price}
+                                        <span>{t.shop.price[language]}</span>
+                                    </span>
                                 </div>
                                 <div className="order-detail-item-info">
                                     {

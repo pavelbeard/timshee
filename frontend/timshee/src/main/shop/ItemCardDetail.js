@@ -13,6 +13,7 @@ import {addToWishlist, deleteWishlistItem} from "../account/api/reducers/asyncTh
 import Error from "../Error";
 import {checkItemInWishList} from "../account/api/reducers/wishlistSlice";
 import translateService from "../translate/TranslateService";
+import t from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -168,7 +169,8 @@ const ItemCardDetail = () => {
                     <div className="item-card-info">
                         <div className="item-name-price">
                             <div>{item.name}</div>
-                            <div>{item.price}</div>
+                            <div>{item.price}
+                                <span>{t.shop.price[language]}</span></div>
                         </div>
                         <div className="item-description"><pre>{item.description}</pre></div>
                         <div className="item-card-specs">

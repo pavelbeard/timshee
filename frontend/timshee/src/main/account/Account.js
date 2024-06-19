@@ -8,6 +8,7 @@ import AuthService from "../api/authService";
 import Loading from "../Loading";
 import t from "../translate/TranslateService";
 import {toggleChangeEmail} from "../../redux/slices/menuSlice";
+import {toCamelCase} from "../api/stuff";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -146,7 +147,7 @@ const Account = () => {
                                                     <>
                                                         <div>
                                                             <span>{t.account.status[language]}</span>
-                                                            <span>{order.status}</span>
+                                                            <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
                                                         </div>
                                                         <div>
                                                             <span>{t.account.refundedAt[language]}</span>
@@ -157,7 +158,7 @@ const Account = () => {
                                                     <>
                                                         <div>
                                                             <span>{t.account.status[language]}</span>
-                                                            <span>{order.status}</span>
+                                                            <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
                                                         </div>
                                                         <div>
                                                             <span>{t.account.updatedAt[language]}</span>

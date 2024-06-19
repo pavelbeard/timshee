@@ -8,7 +8,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {getCartItems} from "../main/cart/api/asyncThunks";
 import {closeCart, toggleCart} from "../redux/slices/menuSlice";
 import {resetIsAdded} from "../main/cart/reducers/cartSlice";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import AuthService from "../main/api/authService";
 import {getWishlist} from "../main/account/api/reducers/asyncThunks";
 import t from "../main/translate/TranslateService";
@@ -210,9 +210,13 @@ const Header = () => {
                     </ul>
                 </li>
                 <li className="nav-item-lvl0"
-                onClick={() => setMenuOpen(false)}><span>{t.shop.house[language]}</span></li>
+                    onClick={() => setMenuOpen(false)}>
+                    <span><Link to="/house">{t.shop.house[language]}</Link></span>
+                </li>
                 <li className="nav-item-lvl0"
-                onClick={() => setMenuOpen(false)}><span>{t.shop.about[language]}</span></li>
+                    onClick={() => setMenuOpen(false)}>
+                    <span><Link to="/about">{t.shop.about[language]}</Link></span>
+                </li>
             </ul>
         </nav>
     };
@@ -220,41 +224,46 @@ const Header = () => {
     const navRight = () => {
         return <nav className="nav nav-right">
             <ul className="nav-list-lvl0">
+                {/*<li className="nav-item-lvl0">*/}
+                {/*    <span>{t.shop.changeLanguage[language]}</span>*/}
+                {/*    <ul className="nav-list-lvl1"*/}
+                {/*        onMouseEnter={() => setLvl1open(true)}*/}
+                {/*        onMouseLeave={() => setLvl1open(false)}*/}
+                {/*    >*/}
+                {/*        {continents.map((continent, index) => (*/}
+                {/*            <li className="nav-item-lvl1" key={index}>*/}
+                {/*                <span>*/}
+                {/*                    {continent.name}*/}
+                {/*                </span>*/}
+                {/*                <ul className="nav-list-lvl2"*/}
+                {/*                    onMouseEnter={() => setLvl2open(true)}*/}
+                {/*                    onMouseLeave={() => setLvl2open(false)}*/}
+                {/*                >*/}
+                {/*                    {countries.map((country, index) => {*/}
+                {/*                        if (country.continent.id !== continent.id) {*/}
+                {/*                            return <div key={index + 10}></div>*/}
+                {/*                        }*/}
+                {/*                        return (*/}
+                {/*                            <li className="nav-item-lvl2" key={index + 10}*/}
+                {/*                                onClick={() => {*/}
+                {/*                                    setMenuOpen(false);*/}
+                {/*                                    postLanguage(country.language);*/}
+                {/*                                }}>*/}
+                {/*                                <span>*/}
+                {/*                                    {country.name}*/}
+                {/*                                </span>*/}
+                {/*                            </li>*/}
+                {/*                        )*/}
+                {/*                    })}*/}
+                {/*                </ul>*/}
+                {/*            </li>*/}
+                {/*        ))}*/}
+                {/*    </ul>*/}
+                {/*</li>*/}
                 <li className="nav-item-lvl0">
-                    <span>{t.shop.changeLanguage[language]}</span>
-                    <ul className="nav-list-lvl1"
-                        onMouseEnter={() => setLvl1open(true)}
-                        onMouseLeave={() => setLvl1open(false)}
-                    >
-                        {continents.map((continent, index) => (
-                            <li className="nav-item-lvl1" key={index}>
-                                <span>
-                                    {continent.name}
-                                </span>
-                                <ul className="nav-list-lvl2"
-                                    onMouseEnter={() => setLvl2open(true)}
-                                    onMouseLeave={() => setLvl2open(false)}
-                                >
-                                    {countries.map((country, index) => {
-                                        if (country.continent.id !== continent.id) {
-                                            return <div key={index + 10}></div>
-                                        }
-                                        return (
-                                            <li className="nav-item-lvl2" key={index + 10}
-                                                onClick={() => {
-                                                    setMenuOpen(false);
-                                                    postLanguage(country.language);
-                                                }}>
-                                                <span>
-                                                    {country.name}
-                                                </span>
-                                            </li>
-                                        )
-                                    })}
-                                </ul>
-                            </li>
-                        ))}
-                    </ul>
+                    <span>
+                        <Link to="/shipping-methods">{t.stuff.shippingMethods[language]}</Link>
+                    </span>
                 </li>
                 <li className="nav-item-lvl0">
                     <span>{t.shop.account[language]}</span>

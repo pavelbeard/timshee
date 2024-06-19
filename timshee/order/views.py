@@ -16,6 +16,7 @@ from order import models as order_models
 
 logger = logging.getLogger(__name__)
 
+
 # Create your views here.
 
 class CountryViewSet(viewsets.ModelViewSet):
@@ -103,7 +104,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
             return Response({
                 "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
-                }, status=status.HTTP_200_OK
+            }, status=status.HTTP_200_OK
             )
         except Exception as e:
             logger.exception(msg=f"{e.args}", exc_info=e)
@@ -125,7 +126,7 @@ class AddressViewSet(viewsets.ModelViewSet):
                 return Response(data, status=status.HTTP_200_OK)
 
             return Response({"detail": f"primary address by {
-                session_key if isinstance(user, AnonymousUser) else user.email
+            session_key if isinstance(user, AnonymousUser) else user.email
             } doesn't exist"},
                             status=status.HTTP_200_OK)
         except Exception as e:
@@ -154,15 +155,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
+        data = copy.copy(request.data)
         if request.user.is_authenticated:
-            request.data["user"] = request.user.id
-        request.data["session_key"] = request.session.session_key
-        request.data["updated_at"] = timezone.now()
+            data["user"] = request.user.id
+        data["session_key"] = request.session.session_key
+        data["updated_at"] = timezone.now()
 
-        if request.data.get('status'):
-            if request.data['status'] == "processing":
+        if data.get('status'):
+            if data['status'] == "processing":
                 from stuff import services
-                services.send_email(request, kwargs['pk'], 'processing', "")
+                services.send_email(request, kwargs['pk'], 'processing')
 
         return super().update(request, *args, **kwargs)
 
@@ -182,7 +184,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 return Response(data, status=status.HTTP_200_OK)
 
             return Response({"detail": f"last order by {
-                session_key if isinstance(user, AnonymousUser) else user.email
+            session_key if isinstance(user, AnonymousUser) else user.email
             } doesn't exist"},
                             status=status.HTTP_200_OK)
         except Exception as e:
@@ -205,7 +207,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 return Response(data, status=status.HTTP_200_OK)
 
             return Response({"detail": f"orders by {
-                session_key if isinstance(user, AnonymousUser) else user.email
+            session_key if isinstance(user, AnonymousUser) else user.email
             } don't exist"}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.exception(msg=f"{e.args}", exc_info=e)

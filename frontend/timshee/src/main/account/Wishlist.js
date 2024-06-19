@@ -50,7 +50,8 @@ const Wishlist = () => {
                                 <div className="wishlist-item-info">
                                     <div className="wishlist-item-name-price">
                                         <span>{w.stock?.item?.name}</span>
-                                        <span>{w.stock?.item?.price}</span>
+                                        <span>{w.stock?.item?.price}
+                                            <span>{t.shop.price[language]}</span></span>
                                     </div>
                                     <span>{w.stock?.size?.value}</span>
                                     <div className="wishlist-item-color">

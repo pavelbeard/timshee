@@ -11,7 +11,6 @@ import ItemCardDetail from "./main/shop/ItemCardDetail";
 import NotFound from "./NotFound";
 import Cart from "./main/cart/Cart";
 import Checkout from "./main/order/Checkout";
-// import TestComponent from "./test/TestComponent";
 import OrderPaid from "./main/order/OrderPaid";
 import Orders from "./main/account/Orders";
 import OrderIsNotPaid from "./main/order/OrderIsNotPaid";
@@ -30,7 +29,9 @@ import {TranslateProvider} from "./main/translate/TranslateProvider";
 import StartPage from "./main/StartPage";
 import {getPhoneCodes, getProvinces} from "./main/account/forms/reducers/asyncThunks";
 import {getShippingMethods} from "./main/order/api/asyncThunks";
-import ChangeEmailForm from "./main/account/forms/ChangeEmailForm";
+import Oferta from "./main/Oferta";
+import Contacts from "./main/Contacts";
+import ShippingMethods from "./main/ShippingMethods";
 
 const MainComponent = () => {
     const dispatch = useDispatch();
@@ -93,6 +94,9 @@ const MainComponent = () => {
                                 <Route path="/shop/:orderId/checkout/order-failed/:orderNumber"
                                        element={<OrderIsNotPaid/>}/>
                                 <Route path="/privacy-information" element={<PrivacyInfo />} />
+                                <Route path="/offer" element={<Oferta />} />
+                                <Route path="/contacts" element={<Contacts />} />
+                                <Route path="/shipping-methods" element={<ShippingMethods />} />
                             </Route>
                             <Route path="/shop/:orderId/checkout" element={<Checkout/>}/>
                             <Route path="/shop/:orderId/checkout/:step" element={<Checkout/>}/>

@@ -4,6 +4,7 @@ import {changeQuantity, clearCart, deleteCartItems, getCartItems} from "./api/as
 import {resetAddCartItemStatus} from "./reducers/cartSlice";
 import AuthService from "../api/authService";
 import translateService from "../translate/TranslateService";
+import t from "../translate/TranslateService";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -58,7 +59,8 @@ const CartItems = ({cart, dispatch}) => {
                                 {/*    }*/}
                                 {/*}>{item.stock.item.name}</Link>*/}
                                 <div className="cart-item-name">{item.stock.item.name}</div>
-                                <div className="cart-item-price">{item.stock.item.price}</div>
+                                <div className="cart-item-price">{item.stock.item.price}
+                                    <span>{t.shop.price[language]}</span></div>
                                 <div className="cart-item-size">{item.stock.size.value}</div>
                                 <div className="cart-item-color">{item.stock.color.name}</div>
                                 <div className="cart-item-quantity">

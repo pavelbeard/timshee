@@ -317,7 +317,8 @@ const Checkout = () => {
                         <div className="checkout-subtotal">
                             <div className="checkout-fees">
                             <span>{t.checkout.subtotal[language]}</span>
-                                <span>{cart.totalPrice}</span>
+                                <span>{cart.totalPrice}
+                                    <span>{t.shop.price[language]}</span></span>
                             </div>
                             <div className="checkout-shipping">
                                 <span>{t.checkout.shippingMethod[language]}:</span>
@@ -326,9 +327,11 @@ const Checkout = () => {
                                         ? (
                                             <span>{parseFloat(order?.shipping_method?.price) === 0.00
                                                 ? "Free"
-                                                : parseFloat(shippingPrice || order.shipping_method.price)}</span>
+                                                : parseFloat(shippingPrice || order.shipping_method.price)}
+                                                <span>{t.shop.price[language]}</span></span>
                                         ) : (
-                                            <span>{parseFloat(shippingPrice).toFixed(2)}</span>
+                                            <span>{parseFloat(shippingPrice).toFixed(2)}
+                                                <span>{t.shop.price[language]}</span></span>
                                         )
                                 }
 
@@ -339,9 +342,11 @@ const Checkout = () => {
                             {
                                 order?.shipping_method?.id !== undefined
                                     ? (
-                                        <span>{(parseFloat(cart.totalPrice) + parseFloat(shippingPrice || order.shipping_method.price)).toFixed(2)}</span>
+                                        <span>{(parseFloat(cart.totalPrice) + parseFloat(shippingPrice || order.shipping_method.price)).toFixed(2)}
+                                            <span>{t.shop.price[language]}</span></span>
                                     ) : (
-                                        <span>{(parseFloat(shippingPrice) + parseFloat(cart.totalPrice)).toFixed(2)}</span>
+                                        <span>{(parseFloat(shippingPrice) + parseFloat(cart.totalPrice)).toFixed(2)}
+                                            <span>{t.shop.price[language]}</span></span>
                                     )
                             }
                         </div>
