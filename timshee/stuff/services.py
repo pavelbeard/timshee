@@ -32,7 +32,7 @@ def send_test_email(request, order_id, msg_type):
     order_items = []
 
     add_item = lambda x: order_items.append(ReducedOrderItem(
-        quantity=x.item.quantity,
+        quantity=x.quantity,
         image=f"http://{current_site.domain}{settings.MEDIA_URL}{x.item.item.image}",
         size=x.item.size.value,
         color=x.item.color.name
@@ -106,25 +106,45 @@ def send_email(request, order_id, msg_type):
     message = None
     template = 'templates/stuff/templates/message_template.html'
     order_items = []
+
+    add_item = lambda x: order_items.append(ReducedOrderItem(
+        quantity=x.item.quantity,
+        image=f"http://{current_site.domain}{settings.MEDIA_URL}{x.item.item.image}",
+        size=x.item.size.value,
+        color=x.item.color.name
+    ))
+
+    items_total_price = order.orderitem_set.aggregate(total=Sum(F('quantity') * F('item__item__price')))[
+        'total']
+    shipping_price = order.orderitem_set.values('order__shipping_method__price').distinct()
+
+    if shipping_price:
+        shipping_price = shipping_price[0]['order__shipping_method__price']
+    else:
+        shipping_price = 0
+
+    total_price = items_total_price + shipping_price if items_total_price else shipping_price
+
+    ordered_items = order.orderitem_set
     match msg_type:
         case 'processing':
-            ordered_items = order.orderitem_set.all()
-            for item in ordered_items:
-                order_items.append(ReducedOrderItem(
-                    price=item.item.item.price,
-                    image=f"http://{current_site.domain}{settings.MEDIA_URL}{item.item.item.image}",
-                    size=item.item.size.value,
-                    color=item.item.color.name
-                ))
-            message = _('Your order is in processing. Thank you for purchasing!')
+            for item in ordered_items.all():
+                add_item(x=item)
+            message = _(f'Твой заказ {order.order_number} в процессе сборки.  Спасибо за покупку!')
+        case 'delivering':
+            message = _(f'Твой заказ {order.order_number} в процессе доставки.')
         case 'delivered':
-            pass
+            for item in ordered_items.all():
+                add_item(x=item)
+            message = _(f'Твой заказ {order.order_number} доставлен!')
         case 'partial_refunded':
-            pass
+            for item in ordered_items.exclude(Q(refund_reason="") | Q(refund_reason=None)):
+                add_item(x=item)
+            message = _(f'Твой заказ {order.order_number} частично возвращен')
         case 'refunded':
-            pass
+            message = _(f'Твой заказ {order.order_number} возвращен!')
         case 'canceled':
-            pass
+            message = f'Твой заказ {order.order_number} отменен!'
 
     if settings.DEBUG:
         logo_url = f"http://{current_site.domain}{static('static/stuff/static/img/img.png')}"
@@ -138,6 +158,12 @@ def send_email(request, order_id, msg_type):
         "logo_url": logo_url,
         "ordered_items": order_items,
         "your_items": _("Your items:"),
+        "order_following_text1": _("Чтобы отследить статус твоего заказа"),
+        "order_following_text2": _("перейди по этой ссылке"),
+        "order_link": f"{settings.CLIENT_REDIRECT}orders/{order.id}/detail",
+        "total_price": total_price,
+        "items_total_price": items_total_price,
+        "shipping_price": shipping_price,
     }
 
     html_message = render_to_string(template, context)

@@ -148,5 +148,5 @@ class TestAPIView(generics.GenericAPIView):
 
     def get(self, request):
         from . import services
-        status_ = services.send_test_email(request, 3, 'delivering')
+        status_ = services.send_test_email(request, 3, 'processing')
         return JsonResponse({"test": status_}, status=status.HTTP_200_OK)

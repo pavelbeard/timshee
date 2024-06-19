@@ -58,10 +58,14 @@
         margin-bottom: 0.3rem;
     }
 
-    .your-items {
+    .your-items, .price{
         padding-left: 1.5rem;
         display: flex;
         justify-content: flex-start;
+    }
+
+    .price > ul > li {
+        list-style-type: none;
     }
 
     .order-page {
@@ -88,10 +92,29 @@
                     <div class="info">
                         <div>{{ item.size }}</div>
                         <div>{{ item.color }}</div>
-                        <div>{{ item.price }}</div>
+                        <div>{{ item.quantity }}</div>
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        <div class="price">
+        <ul>
+            <li><span>Стоимость вещей:</span></li>
+            <li><span>{{ items_total_price }}</span></li>
+        </ul>
+        </div>
+        <div class="price">
+            <ul>
+                <li><span>Стоимость доставки: </span></li>
+                <li><span>{{ shipping_price }}</span></li>
+            </ul>
+
+        </div>
+        <div class="price">
+            <ul>
+                <li><span>Полная стоимость: </span></li>
+                <li><span>{{ total_price }}</span></li>
+            </ul>
         </div>
         {% if status != 'refunded' or status != 'partial_refunded' or status != 'cancelled' %}
             <div class="order-page">
