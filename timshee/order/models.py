@@ -107,6 +107,7 @@ class Order(models.Model):
     refund_reason = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    non_refundable = models.BooleanField(default=False)
 
     def __str__(self):
         return (f"[OrderID: {self.order_number}] [Status: {self.status}] "

@@ -77,7 +77,7 @@ const OrderDetail = () => {
                                 </div>
                                 <div className="order-refund-item">
                                     {
-                                        item.refund_reason === null ? (
+                                        item.refund_reason === null && order.non_refundable === false ? (
                                             <Link to={`/orders/${order.id}/order-refund/${item.item.id}/${item.quantity}`}>
                                                 {t.account.returnItem[language]}
                                             </Link>

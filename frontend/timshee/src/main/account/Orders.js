@@ -83,7 +83,8 @@ const Orders = () => {
                                                     </div>
                                                 </Link>
                                                 {
-                                                    (order.status !== "refunded" && order.status !== "partial_refunded") && (
+                                                    (order.status !== "refunded" && order.status !== "partial_refunded"
+                                                    && order.non_refundable === false) && (
                                                         <Link to={`/orders/${order.id}/order-refund`}>
                                                             <div className="order-button">{t.account.returnOrder[language]}</div>
                                                         </Link>
