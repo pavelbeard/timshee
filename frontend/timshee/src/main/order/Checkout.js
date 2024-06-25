@@ -147,6 +147,16 @@ const Checkout = () => {
             token,
         }));
 
+        setShippingAddressString(
+            `${addressFormObject?.address1}, ` +
+            `${addressFormObject?.address2}, ` +
+            `${addressFormObject?.postal_code}, ` +
+            `${addressFormObject?.province?.name}, ` +
+            `${addressFormObject?.city}, ` +
+            `${addressFormObject?.province?.country?.name}, ` +
+            `${addressFormObject?.first_name} ${addressFormObject?.last_name}`
+        );
+
         navigate(`/shop/${params.orderId}/checkout/shipping`);
         setCurrentStep(2);
     };
@@ -235,7 +245,6 @@ const Checkout = () => {
                                 provinces={provinces}
                                 submit={handleSubmitShippingAddressForm}
                                 setCurrentStep={handleStepChange}
-                                shippingAddressString={shippingAddressString}
                                 setShippingAddressString={setShippingAddressString}
                             />
                         </>

@@ -59,8 +59,14 @@ class RegisterAPIView(generics.GenericAPIView):
         )
         user.save()
 
-        order_models.Order.objects.filter(session_key=session_key).update(user=user)
-        store_models.Wishlist.objects.filter(session_key=session_key).update(user=user)
+        orders = order_models.Order.objects.filter(session_key=session_key)
+        wishlist_objs = store_models.Wishlist.objects.filter(session_key=session_key)
+
+        if orders.exists():
+            orders.update(user=user)
+
+        if wishlist_objs.exists():
+            wishlist_objs.update(user=user)
 
         token = tokens.RefreshToken.for_user(user)
         response = JsonResponse({

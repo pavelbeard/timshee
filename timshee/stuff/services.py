@@ -108,7 +108,7 @@ def send_email(request, order_id, msg_type):
     order_items = []
 
     add_item = lambda x: order_items.append(ReducedOrderItem(
-        quantity=x.item.quantity,
+        quantity=x.quantity,
         image=f"http://{current_site.domain}{settings.MEDIA_URL}{x.item.item.image}",
         size=x.item.size.value,
         color=x.item.color.name

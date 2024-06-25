@@ -24,14 +24,14 @@ def validation_link(value):
 
 
 class Size(models.Model):
-    value = models.CharField(max_length=50)
+    value = models.CharField(max_length=50, unique=True, null=False, blank=False)
 
     def __str__(self):
         return self.value
 
 
 class Color(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True, null=False, blank=False)
     hex = fields.ColorField()
 
     def __str__(self):
@@ -42,7 +42,7 @@ class Color(models.Model):
 
 
 class Collection(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Коллекция")
+    name = models.CharField(max_length=100, verbose_name="Коллекция", unique=True, null=False, blank=False)
     collection_image = models.ImageField(
         upload_to="product_images/collection_images/",
         verbose_name="Изображение коллекции",
@@ -65,8 +65,8 @@ class Collection(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Имя категории")
-    code = models.CharField(max_length=100, verbose_name="Код категории", blank=True, null=True)
+    name = models.CharField(max_length=100, verbose_name="Имя категории", unique=True, null=False, blank=False)
+    code = models.CharField(max_length=100, verbose_name="Код категории", unique=True, blank=False, null=False)
     category_image = models.ImageField(
         upload_to="product_images/category_images/",
         verbose_name="Изображение категории",
@@ -82,8 +82,8 @@ class Category(models.Model):
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=50, unique=True, null=False, blank=False)
+    code = models.CharField(max_length=50, unique=True, null=False, blank=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -126,7 +126,9 @@ class CarouselImage(models.Model):
     item = models.ForeignKey("Item", on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to="product_images/1/",
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])]
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        null=False,
+        blank=False,
     )
 
     def __str__(self):
@@ -171,7 +173,7 @@ class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     session_key = models.CharField(max_length=40, blank=True, null=True)
     stock = models.ForeignKey("Stock", on_delete=models.CASCADE)
-    stock_link = models.CharField(max_length=250, blank=True, null=True)
+    stock_link = models.CharField(max_length=250, blank=False, null=False)
 
     def __str__(self):
         return f"[Item: {self.stock}]"

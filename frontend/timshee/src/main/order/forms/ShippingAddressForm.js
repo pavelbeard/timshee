@@ -15,7 +15,6 @@ import t from "../../translate/TranslateService";
 
 const ShippingAddressForm = ({
      initialValue: addressFormObject,
-     shippingAddressString,
      setShippingAddressString,
      shippingAddresses,
      usernameEmail,

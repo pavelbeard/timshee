@@ -162,9 +162,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         data["updated_at"] = timezone.now()
 
         if data.get('status'):
-            if data['status'] == "processing":
-                from stuff import services
-                services.send_email(request, kwargs['pk'], 'processing')
+            from stuff import services
+            services.send_email(request, kwargs['pk'], data['status'])
 
         return super().update(request, *args, **kwargs)
 

@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from . import models
+from . import models, forms
 
 
 # Register your models here.
@@ -32,12 +32,18 @@ def compress_image(image):
 class ItemAdmin(admin.ModelAdmin):
     class StockInLine(admin.TabularInline):
         model = models.Stock
+        form = forms.StockForm
+        formset = forms.StockFormSet
+        extra = 1
 
     class CarouselImageInline(admin.TabularInline):
         model = models.CarouselImage
+        form = forms.CarouselImageForm
+        formset = forms.CarouselImageFormSet
+        extra = 1
 
     inlines = [StockInLine, CarouselImageInline]
-    
+
     def save_model(self, request, obj, form, change):
         if obj.image:
             obj.image = compress_image(obj.image)
@@ -78,7 +84,7 @@ class CategoryAdmin(admin.ModelAdmin):
         model = models.Type
 
     inlines = [TypeInline]
-    
+
     def save_model(self, request, obj, form, change):
         if obj.category_image:
             obj.category_image = compress_image(obj.category_image)
