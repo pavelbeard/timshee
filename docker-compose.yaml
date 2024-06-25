@@ -30,7 +30,7 @@ services:
       dockerfile: prod.Dockerfile
     restart: always
     ports:
-      - "8111:80"
+      - "80:80"
       - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
