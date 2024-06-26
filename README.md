@@ -2,7 +2,7 @@
 
 <b>Перед запуском:</b>
 
-<p>НЕ ЗАБУДЬ В ФАЙЛАХ <b>timshee/prod.env</b> и <b>postgres-files/prod.env</b> заполнить перменные окружения</p>
+<p>НЕ ЗАБУДЬ В ФАЙЛАХ <b>timshee/prod.env</b>, <b>frontend/timshee/.env.production</b>,  и <b>postgres-files/prod.env</b> заполнить перменные окружения</p>
 <ul>
     <li>
         <p>timshee/prod.env</p>
@@ -22,6 +22,12 @@
         <p>postgres-files/prod.env</p>
         <ul>
             <li>POSTGRES_PASSWORD</li>
+        </ul>
+    </li> 
+    <li>
+        <p>frontend/timshee/.env.production</p>
+        <ul>
+            <li>REACT_APP_API_URL</li>
         </ul>
     </li>
 </ul>
