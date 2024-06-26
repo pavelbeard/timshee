@@ -424,7 +424,7 @@
     }
 
     .nav-item-lvl3 {
-        padding: 0.2rem 0;
+        padding: 0.2rem 0.5rem 0.2rem 0;
         letter-spacing: 1px;
     }
 }
