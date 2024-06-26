@@ -5,7 +5,7 @@ import ShippingAddressForm from "./forms/ShippingAddressForm";
 
 import "./Checkout.css";
 
-import logo from "../../../public/logo.png";
+import logo from "../../media/static_images/logo.png";
 import forwardImg from "../../media/static_images/forward_to.svg";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import ShippingMethodForm from "./forms/ShippingMethodForm";
