@@ -2,7 +2,7 @@ import "./Header2.css";
 import "../main/Main.css"
 import React, {useContext, useEffect, useState} from "react";
 
-import logo from "../media/static_images/logo.png";
+import logo from "../../public/logo.png";
 import burger from "../media/static_images/burger-menu.svg";
 import {useDispatch, useSelector} from "react-redux";
 import {getCartItems} from "../main/cart/api/asyncThunks";
