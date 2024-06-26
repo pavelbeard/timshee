@@ -100,7 +100,6 @@ const MainComponent = () => {
                             </Route>
                             <Route path="/shop/:orderId/checkout" element={<Checkout/>}/>
                             <Route path="/shop/:orderId/checkout/:step" element={<Checkout/>}/>
-                            {/*<Route path="/test" element={<TestComponent/>}/>*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
                     </BrowserRouter>
