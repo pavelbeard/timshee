@@ -1,10 +1,17 @@
 from django.contrib import admin
+from django.urls import path
+
+from . import models, views
+
 
 # Register your models here.
-
-from . import models
 
 
 @admin.register(models.UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.DynamicSettings)
+class ConfigAdmin(admin.ModelAdmin):
     pass

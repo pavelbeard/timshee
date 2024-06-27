@@ -2,8 +2,8 @@ import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useParams} from "react-router-dom";
 import {getOrderDetail} from "./forms/reducers/asyncThunks";
-import Loading from "../Loading";
-import Error from "../Error";
+import Loading from "../techPages/Loading";
+import Error from "../techPages/Error";
 
 import "./Orders.css";
 import AuthService from "../api/authService";

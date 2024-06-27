@@ -4,7 +4,7 @@ import {Navigate, useParams} from "react-router-dom";
 import "./OrderStatus.css";
 import {checkPaymentStatus} from "./api";
 import AuthService from "../api/authService";
-import Error from "../Error";
+import Error from "../techPages/Error";
 
 const OrderCheckPayment = () => {
     const params = useParams();

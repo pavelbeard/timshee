@@ -9,9 +9,9 @@ import {
 import {editAddress} from "./forms/reducers/addressFormSlice";
 import AuthService from "../api/authService";
 import t from "../translate/TranslateService";
-import Loading from "../Loading";
-import Error from "../Error";
-import Nothing from "../Nothing";
+import Loading from "../techPages/Loading";
+import Error from "../techPages/Error";
+import Nothing from "../techPages/Nothing";
 
 const Addresses = () => {
     const dispatch = useDispatch();

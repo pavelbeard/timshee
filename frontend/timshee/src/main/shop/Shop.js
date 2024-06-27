@@ -16,8 +16,8 @@ import {
     uncheckColors,
     uncheckSizes, uncheckTypes, updateOrderBy
 } from "./api/reducers/shopSlice";
-import Loading from "../Loading";
-import Nothing from "../Nothing";
+import Loading from "../techPages/Loading";
+import Nothing from "../techPages/Nothing";
 import t from "../translate/TranslateService";
 
 const Pagination = ({ totalPages, currentPage, setCurrentPage, prevPage, nextPage }) => {

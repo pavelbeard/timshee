@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {getEmail} from "./api";
 import {getLastOrder, getAddresses} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
-import Loading from "../Loading";
+import Loading from "../techPages/Loading";
 import t from "../translate/TranslateService";
 import {toggleChangeEmail} from "../../redux/slices/menuSlice";
 import {toCamelCase} from "../api/stuff";

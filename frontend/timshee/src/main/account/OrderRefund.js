@@ -3,8 +3,8 @@ import {useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getOrderDetail} from "./forms/reducers/asyncThunks";
 import AuthService from "../api/authService";
-import Loading from "../Loading";
-import Error from "../Error";
+import Loading from "../techPages/Loading";
+import Error from "../techPages/Error";
 
 import "./Orders.css";
 import RefundForm from "./forms/RefundForm";

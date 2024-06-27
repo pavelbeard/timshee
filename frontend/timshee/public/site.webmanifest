@@ -27,12 +27,6 @@
             "sizes": "16x16",
             "type": "image/png"
         },
-        {
-            "src": "/favicon.ico",
-            "sizes": "16x16",
-            "type": "icon"
-        },
-
     ],
     "start_url": "/",
     "theme_color":"#ffffff",

@@ -491,3 +491,28 @@ export const changeEmail = async ({token, data}) => {
         return false;
     }
 };
+
+export const getDynamicSettings = async ({token}) => {
+    const url = `${API_URL}api/stuff/dynamic-settings/`;
+
+    let headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    };
+
+    if (token?.access) {
+        headers["Authorization"] = `Bearer ${token?.access}`;
+    }
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+    });
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
+    }
+};

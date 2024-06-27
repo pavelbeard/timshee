@@ -1,5 +1,5 @@
 import React from "react";
-import t from "./translate/TranslateService";
+import t from "../translate/TranslateService";
 
 const Error = () => {
     const language = t.language();

@@ -1,10 +1,10 @@
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import Error from "../Error";
-import Loading from "../Loading";
+import Error from "../techPages/Error";
+import Loading from "../techPages/Loading";
 import {deleteWishlistItem, getWishlist} from "./api/reducers/asyncThunks";
 import AuthService from "../api/authService";
-import Nothing from "../Nothing";
+import Nothing from "../techPages/Nothing";
 import {Link} from "react-router-dom";
 
 import "./Wishlist.css";

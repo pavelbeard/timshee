@@ -56,8 +56,11 @@ const initialState = {
     addresses: [],
     shippingAddressesStatus: 'idle',
     countries: [],
+    countriesStatus: 'idle',
     provinces: [],
+    provincesStatus: 'idle',
     phoneCodes: [],
+    phoneCodesStatus: 'idle',
     provincesFilteredList: [],
     phoneCodesFilteredList: [],
 };
@@ -224,38 +227,38 @@ const addressFormSlice = createSlice({
             })
 
             .addCase(getCountries.pending, (state, action) => {
-                state.isLoading = true;
+                state.countriesStatus = 'loading';
             })
             .addCase(getCountries.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.countriesStatus = 'success';
                 state.countries = action.payload;
             })
             .addCase(getCountries.rejected, (state, action) => {
-                state.isLoading = false;
+                state.countriesStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getProvinces.pending, (state, action) => {
-                state.isLoading = true;
+                state.provincesStatus = 'loading';
             })
             .addCase(getProvinces.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.provincesStatus = 'success';
                 state.provinces = action.payload;
             })
             .addCase(getProvinces.rejected, (state, action) => {
-                state.isLoading = false;
+                state.provincesStatus = 'error';
                 state.isError = action.payload;
             })
 
             .addCase(getPhoneCodes.pending, (state, action) => {
-                state.isLoading = true;
+                state.phoneCodesStatus = 'loading';
             })
             .addCase(getPhoneCodes.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.phoneCodesStatus = 'success';
                 state.phoneCodes = action.payload;
             })
             .addCase(getPhoneCodes.rejected, (state, action) => {
-                state.isLoading = false;
+                state.phoneCodesStatus = 'error';
                 state.isError = action.payload;
             })
     }

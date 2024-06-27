@@ -10,7 +10,7 @@ import {resetAddCartItemStatus} from "../cart/reducers/cartSlice";
 import {addCartItem, getCartItems} from "../cart/api/asyncThunks";
 import AuthService from "../api/authService";
 import {addToWishlist, deleteWishlistItem} from "../account/api/reducers/asyncThunks";
-import Error from "../Error";
+import Error from "../techPages/Error";
 import {checkItemInWishList} from "../account/api/reducers/wishlistSlice";
 import translateService from "../translate/TranslateService";
 import t from "../translate/TranslateService";

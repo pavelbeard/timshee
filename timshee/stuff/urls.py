@@ -14,6 +14,7 @@ urlpatterns = [
     path('register/', views.RegisterAPIView.as_view(), name='register'),
     path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
     path('test/', views.TestAPIView.as_view(), name='test'),
+    path('dynamic-settings/', views.GetDynSettingsAPIView.as_view(), name='get-dyn-settings'),
 ]
 
 urlpatterns += router.urls

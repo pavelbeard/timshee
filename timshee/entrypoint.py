@@ -39,6 +39,7 @@ def main():
 
     if check_db(pre_args, post_args=["checkdb", "--database"], db="default"):
         call_django_functions(pre_args, ["migrate"])
+        call_django_functions(pre_args, ["create_dynamic_settings"])
         call_django_functions(pre_args, ["createsuperuser",
                                          "--username", os.getenv("DJANGO_SUPERUSER_USERNAME", "admin"),
                                          "--noinput",

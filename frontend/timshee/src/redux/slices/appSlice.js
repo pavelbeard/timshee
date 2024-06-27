@@ -2,9 +2,9 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 
 import {
     getCountries as fetchCountries,
+    getDynamicSettings as fetchDynamicSettings,
 } from "../../main/api/asyncFetchers";
 import {checkAuthStatus} from "./checkAuthSlice";
-import error from "../../main/Error";
 import {uniqueData} from "../../main/api/stuff";
 
 const initialState = {
@@ -17,6 +17,8 @@ const initialState = {
     collectionsStatus: 'idle',
     categories: [],
     categoriesStatus: 'idle',
+    dynamicSettings: undefined,
+    dynamicSettingsStatus: 'idle',
 };
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -70,7 +72,7 @@ export const getCategories = createAsyncThunk(
             return thunkAPI.rejectWithValue(error.message);
         }
     }
-)
+);
 
 export const getCountries = createAsyncThunk(
     "app/getCountries",
@@ -87,6 +89,23 @@ export const getCountries = createAsyncThunk(
         }
     }
 );
+
+export const getDynamicSettings = createAsyncThunk(
+    "app/getDynamicSettings",
+    async ({token}, thunkAPI) => {
+        try {
+            const result = await fetchDynamicSettings({token});
+
+            if (result) {
+                return result;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+)
 
 const appSlice = createSlice({
     name: "app",
@@ -145,6 +164,18 @@ const appSlice = createSlice({
             })
             .addCase(getCategories.rejected, (state, action) => {
                 state.categoriesStatus = 'error';
+            })
+
+
+            .addCase(getDynamicSettings.pending, (state, action) => {
+                state.dynamicSettingsStatus = 'loading';
+            })
+            .addCase(getDynamicSettings.fulfilled, (state, action) => {
+                state.dynamicSettingsStatus = 'success';
+                state.dynamicSettings = action.payload;
+            })
+            .addCase(getDynamicSettings.rejected, (state, action) => {
+                state.dynamicSettingsStatus = 'error';
             })
     }
 });

@@ -195,7 +195,6 @@ if DEBUG:
 else:
     MEDIA_URL = "/backend/media/"
 
-
 if DEBUG or TESTING:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:8112",
@@ -290,7 +289,6 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
-
 # MAIL
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -320,11 +318,11 @@ LANGUAGES = (
 
 PARLER_LANGUAGES = {
     None: (
-        {'code': 'en',},
-        {'code': 'es',},
-        {'code': 'fr',},
-        {'code': 'it',},
-        {'code': 'ru',},
+        {'code': 'en', },
+        {'code': 'es', },
+        {'code': 'fr', },
+        {'code': 'it', },
+        {'code': 'ru', },
     ),
     'default': {
         'fallbacks': ['en'],
@@ -338,3 +336,7 @@ FIXTURE_DIRS = (
     BASE_DIR / 'stuff',
     BASE_DIR / 'store',
 )
+
+# messages
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

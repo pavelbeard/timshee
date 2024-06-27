@@ -2,7 +2,7 @@ import React from 'react';
 import {useEffect} from "react";
 
 import "./Cards.css";
-import Loading from "./Loading";
+import Loading from "./techPages/Loading";
 import {Link} from "react-router-dom";
 
 const Cards = ({ data }) => {

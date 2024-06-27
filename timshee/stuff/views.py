@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model, models
 from django.contrib.sites.shortcuts import get_current_site
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
+from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_protect
@@ -17,8 +19,9 @@ from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-
 # Create your views here.
+
+from . import models
 
 
 class GetCsrfToken(generics.GenericAPIView):
@@ -156,3 +159,16 @@ class TestAPIView(generics.GenericAPIView):
         from . import services
         status_ = services.send_test_email(request, 3, 'processing')
         return JsonResponse({"test": status_}, status=status.HTTP_200_OK)
+
+
+class GetDynSettingsAPIView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    allowed_methods = ["GET"]
+
+    def get(self, request):
+        dyn_settings = models.DynamicSettings.objects.get(pk=1)
+        return JsonResponse({
+            "onContentUpdate": dyn_settings.on_content_update,
+            "onMaintenance": dyn_settings.on_maintenance,
+        }, status=status.HTTP_200_OK)

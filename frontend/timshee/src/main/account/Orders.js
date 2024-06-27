@@ -5,11 +5,11 @@ import {getOrders} from "./forms/reducers/asyncThunks";
 
 import "./Orders.css";
 import AuthService from "../api/authService";
-import Loading from "../Loading";
-import Error from "../Error";
+import Loading from "../techPages/Loading";
+import Error from "../techPages/Error";
 import t from "../translate/TranslateService";
 import {toCamelCase} from "../api/stuff";
-import Nothing from "../Nothing";
+import Nothing from "../techPages/Nothing";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
