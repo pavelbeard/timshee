@@ -3,7 +3,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {
     getCountries as fetchCountries,
     getDynamicSettings as fetchDynamicSettings,
-} from "../../main/api/asyncFetchers";
+} from "../../main/api/actions";
 import {checkAuthStatus} from "./checkAuthSlice";
 import {uniqueData} from "../../main/api/stuff";
 

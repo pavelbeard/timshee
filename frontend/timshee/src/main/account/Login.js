@@ -1,8 +1,6 @@
-import Cookies from 'js-cookie';
 import React, {useContext} from 'react';
 import {useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
+import {Link, useNavigate} from "react-router-dom";
 
 import "./Login.css";
 import AuthContext from "../auth/AuthProvider";
@@ -57,8 +55,15 @@ const Login = () => {
                         required
                     />
                 </label>
-                <div className="login-button">
-                    <button type="submit">{translateService.authForms.login[language]}</button>
+                <div className="button-set">
+                    <div className="button-item">
+                        <button type="submit">{translateService.authForms.login[language]}</button>
+                    </div>
+                    <div className="button-item">
+                        <button type="submit" onClick={() => navigate("/account/password/reset/send-email")}>
+                            {translateService.authForms.forgotPassword[language]}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

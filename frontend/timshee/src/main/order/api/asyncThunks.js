@@ -3,7 +3,7 @@ import {
     updatePaymentInfo as putPaymentInfo,
     createOrUpdateAddress as postOrPutAddress
 } from "./index";
-import {deleteOrder as destroyOrder} from "../../api/asyncFetchers";
+import {deleteOrder as destroyOrder} from "../../api/actions";
 import {createAddress, updateAddress, updateOrder} from "../../../redux/slices/shopSlices/checkout";
 import AuthService from "../../api/authService";
 

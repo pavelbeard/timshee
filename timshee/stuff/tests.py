@@ -1,13 +1,21 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.test import TestCase, RequestFactory
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from order import models as order_models
+from rest_framework import status
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
+
+from . import models as stuff_models
+
+User = get_user_model()
 
 
 class CurrentSite:
@@ -181,3 +189,106 @@ class TemplateTestCase(TestCase):
             )
 
         print(orderitems)
+
+
+class ChangePasswordTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='test',
+            email='test@gmail.com',
+            password='Rt3$YiOO'
+        )
+        self.client = APIClient()
+
+    def test_request_password_reset(self):
+        instance = stuff_models.ResetPasswordCases.objects.create(
+            user=self.user,
+        )
+        uuid = instance.uuid
+
+        from . import services
+        request = RequestFactory().get('/')
+        result = services.send_email_reset_password(request, uuid, self.user.email)
+        self.assertEqual(result, 1)
+
+    def test_change_password(self):
+        url_check_email = reverse('user-check-email')
+        url_password_duration_validation = reverse('user-is-reset-password-request-valid')
+        url_change_password = reverse('user-change-password')
+
+        data1 = {
+            'email': self.user.email,
+        }
+
+        response1 = self.client.post(url_check_email, data1, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+
+        response2 = self.client.post(url_password_duration_validation, data1, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+        data2 = {
+            'email': self.user.email,
+            'password1': 'cojonesPompl0ne$',
+            'password2': 'cojonesPompl0ne$',
+        }
+
+        response3 = self.client.post(url_change_password, data2, format='json')
+        self.assertEqual(response3.status_code, status.HTTP_200_OK)
+
+    def test_change_password_with_expired_link(self):
+        url_check_email = reverse('user-check-email')
+        url_password_duration_validation = reverse('user-is-reset-password-request-valid')
+
+        data1 = {
+            'email': self.user.email,
+        }
+
+        response1 = self.client.post(url_check_email, data1, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+
+        reset_password_case = stuff_models.ResetPasswordCases.objects.first()
+        reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
+        reset_password_case.save()
+
+        response2 = self.client.post(url_password_duration_validation, data1, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_recent_cases(self):
+        url_check_email = reverse('user-check-email')
+
+        data = {
+            'email': self.user.email,
+        }
+
+        response1 = self.client.post(url_check_email, data, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        response2 = self.client.post(url_check_email, data, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+        cases = stuff_models.ResetPasswordCases.objects.all()
+
+        self.assertFalse(cases.last().is_active)
+        self.assertTrue(cases.first().is_active)
+
+    def test_recent_cases_with_expired_link(self):
+        url_check_email = reverse('user-check-email')
+        url_password_duration_validation = reverse('user-is-reset-password-request-valid')
+
+        data1 = {
+            'email': self.user.email,
+        }
+
+        response1 = self.client.post(url_check_email, data1, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        response2 = self.client.post(url_check_email, data1, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+        reset_password_case = stuff_models.ResetPasswordCases.objects.filter(user=self.user, is_active=True).first()
+        reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
+        reset_password_case.save()
+
+        response3 = self.client.post(url_password_duration_validation, data1, format='json')
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
+
+        for case in stuff_models.ResetPasswordCases.objects.all():
+            print(case.is_active, case.user.username)

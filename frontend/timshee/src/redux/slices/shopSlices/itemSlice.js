@@ -1,6 +1,4 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import Cookies from "js-cookie";
-import {deleteOrder} from "./checkout";
 
 const initialState = {
     data: {},
@@ -10,6 +8,7 @@ const initialState = {
     quantityOfCart: 0,
     items: [],
     itemDetail: undefined,
+    itemDetailStatus: 'idle',
     cartItems: [],
     hasChanged: false,
     hasDeleted: false,
@@ -66,10 +65,10 @@ export const getItemDetail = createAsyncThunk(
             if (response.ok) {
                 return await response.json();
             } else {
-                return {};
+                return thunkAPI.rejectWithValue("Not found");
             }
-        } catch (e) {
-            thunkAPI.rejectWithValue(e);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
@@ -132,16 +131,14 @@ export const itemSlice = createSlice({
             })
 
             .addCase(getItemDetail.pending, (state, action) => {
-                state.isLoading = true;
+                state.itemDetailStatus = 'loading';
             })
             .addCase(getItemDetail.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.itemDetailStatus = 'success';
                 state.itemDetail = action.payload;
             })
             .addCase(getItemDetail.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.itemDetail = undefined;
+                state.itemDetailStatus = 'error';
             });
     }
 });

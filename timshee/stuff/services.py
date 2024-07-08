@@ -97,6 +97,54 @@ def send_test_email(request, order_id, msg_type):
     return email.send()
 
 
+def send_email_reset_password(request, uuid, email_address):
+    current_site = get_current_site(request)
+    subject = f'Timshee store | Reset password'
+
+    template = 'templates/stuff/templates/reset_password_template.html'
+
+    message = (f"Установить новый пароль вы можете по ссылке: "
+               f"{settings.CLIENT_REDIRECT}account/password/reset/{uuid}/new-password")
+    if settings.DEBUG:
+        logo_url = f"http://{current_site.domain}{static('static/stuff/static/img/img.png')}"
+    else:
+        logo_url = f"https://{current_site.domain}{static('static/stuff/static/img/img.png')}"
+
+    context = {
+        'logo_url': logo_url,
+        'message': message,
+    }
+
+    html_message = render_to_string(template, context)
+    to = email_address
+    email = EmailMessage(subject, html_message, to=[to])
+    email.content_subtype = 'html'
+    return email.send()
+
+
+def send_email_reset_password_success(request, email_address):
+    current_site = get_current_site(request)
+    subject = f'Timshee store | Reset password'
+    template = 'templates/stuff/templates/reset_password_template.html'
+    message = 'Пароль успешно изменен!'
+
+    if settings.DEBUG:
+        logo_url = f"http://{current_site.domain}{static('static/stuff/static/img/img.png')}"
+    else:
+        logo_url = f"https://{current_site.domain}{static('static/stuff/static/img/img.png')}"
+
+    context = {
+        'logo_url': logo_url,
+        'message': message,
+    }
+
+    html_message = render_to_string(template, context)
+    to = email_address
+    email = EmailMessage(subject, html_message, to=[to])
+    email.content_subtype = 'html'
+    return email.send()
+
+
 def send_email(request, order_id, msg_type):
     user = request.user
     order = order_models.Order.objects.get(pk=order_id)

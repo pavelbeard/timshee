@@ -14,6 +14,7 @@ import Error from "../techPages/Error";
 import {checkItemInWishList} from "../account/api/reducers/wishlistSlice";
 import translateService from "../translate/TranslateService";
 import t from "../translate/TranslateService";
+import NotFound from "../../NotFound";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -46,7 +47,7 @@ const ItemCardDetail = () => {
     const token = AuthService.getCurrentUser();
     const language = translateService.language();
     const {cart, getCartItemsStatus, addCartItemStatus} = useSelector(state => state.cart);
-    const {inStock} = useSelector(state => state.item);
+    const {inStock, itemDetailStatus} = useSelector(state => state.item);
     const {wishlist, isItemInWishlist} = useSelector(state => state.wishlist);
 
     const {itemDetail: item} = useSelector(state => state.item);
@@ -86,10 +87,6 @@ const ItemCardDetail = () => {
     useEffect(() => {
         dispatch(getItemDetail({itemId: params.itemId}));
     }, []);
-
-    useEffect(() => {
-
-    }, [])
 
     useEffect(() => {
         if (item !== undefined) {
@@ -160,7 +157,7 @@ const ItemCardDetail = () => {
     };
 
 
-    if (item !== undefined) {
+    if (itemDetailStatus === 'success') {
         return (
             <div className="item-card-container">
                 <div className="empty-space left"></div>
@@ -222,6 +219,8 @@ const ItemCardDetail = () => {
                 </div>
             </div>
         )
+    } else if (itemDetailStatus === 'error') {
+        return <NotFound />
     } else if (getCartItemsStatus === "error") {
         return <Error />;
     }

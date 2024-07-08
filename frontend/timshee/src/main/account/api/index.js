@@ -1,6 +1,7 @@
-import AuthService from "../../api/authService";
+import Cookies from "js-cookie";
 
 const API_URL = process.env.REACT_APP_API_URL;
+const csrftoken = Cookies.get("csrftoken");
 
 export const getEmail = async ({token}) => {
     const headers = {

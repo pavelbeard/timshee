@@ -117,3 +117,68 @@
     }
 }
 
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.a-start {
+    align-items: flex-start;
+}
+
+.mb-5 {
+    margin-bottom: 5px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mt-5 {
+    margin-top: 5px;
+}
+
+.p-10-30 {
+    padding: 10px 30px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.btn-beautiful {
+    font-family: "Bebas Neue Cyrillic";
+    letter-spacing: 3px;
+    background: none;
+    border: none;
+    outline: 1px solid black;
+    padding: 10px 30px;
+    cursor: pointer;
+}
+
+.btn-beautiful:hover {
+    background: #000;
+    color: #fff;
+}
+
+.disabled {
+    cursor: not-allowed;
+}
+
+.input-beautiful {
+    border: none;
+    border-bottom: 1px solid;
+    outline: none;
+    padding-block: 0;
+    padding: 0;
+    padding-inline: 0;
+}
+

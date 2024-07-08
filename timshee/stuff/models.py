@@ -1,6 +1,10 @@
+import uuid
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Singleton(models.Model):
@@ -32,3 +36,17 @@ class UserProfile(models.Model):
 class DynamicSettings(Singleton):
     on_content_update = models.BooleanField(default=False)
     on_maintenance = models.BooleanField(default=False)
+
+
+class ResetPasswordCases(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    until = models.DateTimeField(default=timezone.now() + timedelta(hours=3))
+    is_active = models.BooleanField(default=True)
+
+    def get_total_seconds(self):
+        return self.until
+
+    def __str__(self):
+        return f"Reset password for {self.user}"
+

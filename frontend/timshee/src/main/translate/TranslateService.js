@@ -623,6 +623,11 @@ const privacy = {
 }
 
 const authForms = {
+    forgotPassword: {
+        "en-US": "I forgot my password",
+        "en-UK": "I forgot my password",
+        "ru-RU": "Я забыл(-а) пароль",
+    },
     login: {
         "en-US": "Login",
         "en-UK": "Login",

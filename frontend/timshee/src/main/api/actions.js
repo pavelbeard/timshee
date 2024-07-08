@@ -516,3 +516,57 @@ export const getDynamicSettings = async ({token}) => {
         return false;
     }
 };
+
+export const checkEmail = async ({data}) => {
+    const headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    const url = `${API_URL}api/stuff/email/check_email/`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    return response.ok;
+};
+
+export const changePassword = async ({data}) => {
+    const headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    const url = `${API_URL}api/stuff/email/change_password/`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    return response.ok;
+};
+
+export const checkResetPasswordRequest = async({data}) => {
+    const headers = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Accept": "application/json",
+    };
+
+    const url = `${API_URL}api/stuff/email/is_reset_password_request_valid/`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+        credentials: "include",
+    });
+
+    return response.ok;
+}

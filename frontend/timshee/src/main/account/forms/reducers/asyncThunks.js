@@ -14,7 +14,10 @@ import {
     getOrderDetail as fetchOrderDetail,
     refundOrder as requestRefundOrder,
     changeEmail as putEmail,
-} from "../../../api/asyncFetchers";
+    checkEmail as postCheckEmail,
+    changePassword as postChangePassword,
+    checkResetPasswordRequest as resetPasswordRequestValidation,
+} from "../../../api/actions";
 
 
 // FOR ADDRESSES PAGE
@@ -251,6 +254,57 @@ export const changeEmail = createAsyncThunk(
 
             if (result) {
                 return data.email;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const checkEmail = createAsyncThunk(
+    'account/checkEmail',
+    async ({data}, thunkAPI) => {
+        try {
+            const result = await postCheckEmail({data});
+
+            if (result) {
+                return data.email;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const changePassword = createAsyncThunk(
+    'account/changePassword',
+    async ({data}, thunkAPI) => {
+        try {
+            const result = await postChangePassword({data});
+
+            if (result) {
+                return true;
+            } else {
+                return thunkAPI.rejectWithValue("Something went wrong...");
+            }
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    }
+);
+
+export const checkResetPasswordRequest = createAsyncThunk(
+    'account/checkResetPasswordRequest',
+    async ({data}, thunkAPI) => {
+        try {
+            const result = await resetPasswordRequestValidation({data});
+
+            if (result) {
+                return result;
             } else {
                 return thunkAPI.rejectWithValue("Something went wrong...");
             }

@@ -6,7 +6,7 @@ import {
     getCartItems as fetchCartItems,
     changeQuantityInCart as updateQuantityInCart,
     clearCart as destroyCart,
-} from "../../api/asyncFetchers";
+} from "../../api/actions";
 
 export const addCartItem = createAsyncThunk(
     "cart/addCartItem",

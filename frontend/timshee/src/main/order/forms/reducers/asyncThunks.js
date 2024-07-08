@@ -2,7 +2,7 @@ import {createAsyncThunk} from "@reduxjs/toolkit";
 import {
     getShippingAddresses as fetchShippingAddresses,
     getShippingAddressAsTrue as fetchShippingAddressAsTrue,
-} from "../../../api/asyncFetchers";
+} from "../../../api/actions";
 import {getEmail} from "../../../account/api";
 import {createOrUpdateAddress as postOrPutAddress} from "../../api";
 

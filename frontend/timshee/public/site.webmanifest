@@ -26,10 +26,12 @@
             "src": "/favicon-16x16.png",
             "sizes": "16x16",
             "type": "image/png"
-        },
+        }
     ],
     "start_url": "/",
     "theme_color":"#ffffff",
     "background_color":"#ffffff",
-    "display":"standalone"
+    "display":"standalone",
+    "lang": "ru",
+    "description": "Timshee - Moscow based fashion brand"
 }

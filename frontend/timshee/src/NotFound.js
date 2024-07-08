@@ -11,7 +11,7 @@ const NotFound = () => {
     return(
         <div className="not-found">
             <h1>NOT FOUND</h1>
-            <div className="back-to-main" onClick={() => navigate(``)}>BACK TO MAIN</div>
+            <div className="back-to-main" onClick={() => navigate('/')}>BACK TO MAIN</div>
         </div>
     )
 };

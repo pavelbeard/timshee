@@ -22,7 +22,11 @@
     border-bottom: 1px solid #e4e4e4;
 }
 
-.login-button > button {
+.button-set > *:first-child {
+    margin-bottom: 10px;
+}
+
+.button-item > * {
     padding: 10px;
     width: 100%;
     font-family: "Bebas Neue Cyrillic";
@@ -33,7 +37,7 @@
     cursor: pointer;
 }
 
-.login-button > button:hover {
+.button-item > *:hover {
     background: #000;
     color: #fff;
 }

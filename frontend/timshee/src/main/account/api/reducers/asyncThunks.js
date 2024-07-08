@@ -4,7 +4,7 @@ import {
     addToWishlist as postToWishlist,
     getWishlist as fetchWishlist,
     deleteWishlistItem as destroyWishlistItem,
-} from "../../../api/asyncFetchers";
+} from "../../../api/actions";
 
 export const addToWishlist = createAsyncThunk(
     'wishlist/addToWishlist',
