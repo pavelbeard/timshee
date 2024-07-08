@@ -20,4 +20,14 @@
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
+    <url>
+        <loc>https://timshee.ru/account/login</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/account/register</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
 </urlset>
