@@ -1,24 +1,24 @@
 import Main from "./main/Main.js";
 import {useDispatch, useSelector} from "react-redux";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Shop from "./main/shop/Shop";
+import Shop from "./main/shop/pages/Shop";
 import React, {useEffect, useState} from "react";
-import Login from "./main/account/Login";
-import Register from "./main/account/Register";
-import Account from "./main/account/Account";
-import Addresses from "./main/account/Addresses";
-import ItemCardDetail from "./main/shop/ItemCardDetail";
+import Login from "./main/account/pages/auth/login/Login";
+import Signup from "./main/account/pages/auth/signup/Signup";
+import Account from "./main/account/pages/Account";
+import Addresses from "./main/account/pages/addresses/Addresses";
+import ItemCardDetail from "./main/shop/pages/components/itemCardDetail/ItemCardDetail";
 import NotFound from "./NotFound";
-import Cart from "./main/cart/Cart";
-import Checkout from "./main/order/Checkout";
-import OrderPaid from "./main/order/OrderPaid";
-import Orders from "./main/account/Orders";
-import OrderIsNotPaid from "./main/order/OrderIsNotPaid";
-import OrderCheckPayment from "./main/order/OrderCheckPayment";
-import OrderDetail from "./main/account/OrderDetail";
+import Cart from "./main/cart/pages/Cart";
+import Checkout from "./main/order/checkout/pages/Checkout";
+import OrderPaid from "./main/order/orderStatus/pages/components/orderPaid/OrderPaid";
+import Orders from "./main/account/pages/orders/Orders";
+import OrderIsNotPaid from "./main/order/orderStatus/pages/components/orderIsNotPaid/OrderIsNotPaid";
+import OrderCheckPayment from "./main/order/orderStatus/pages/OrderCheckPayment";
+import OrderDetail from "./main/account/pages/orders/components/OrderDetail";
 import {AuthProvider} from "./main/auth/AuthProvider";
 import PrivateRoute from "./main/auth/PrivateRoute";
-import OrderRefund from "./main/account/OrderRefund";
+import OrderRefund from "./main/account/pages/orders/components/OrderRefund";
 import {
     getCategories,
     getCollectionLinks,
@@ -29,10 +29,10 @@ import {
 import Loading from "./main/techPages/Loading";
 import Error from "./main/techPages/Error";
 import PrivacyInfo from "./main/PrivacyInfo";
-import Wishlist from "./main/account/Wishlist";
+import Wishlist from "./main/account/pages/wishlist/Wishlist";
 import {TranslateProvider} from "./main/translate/TranslateProvider";
 import StartPage from "./main/StartPage";
-import {getPhoneCodes, getProvinces} from "./main/account/forms/reducers/asyncThunks";
+import {getPhoneCodes, getProvinces} from "./main/account/pages/forms/reducers/asyncThunks";
 import {getShippingMethods} from "./main/order/api/asyncThunks";
 import Oferta from "./main/Oferta";
 import Contacts from "./main/Contacts";
@@ -41,8 +41,8 @@ import Nothing from "./main/techPages/Nothing";
 import OnMaintenance from "./main/techPages/OnMaintenance";
 import OnContentUpdate from "./main/techPages/OnContentUpdate";
 import AuthService from "./main/api/authService";
-import SendEmailForm from "./main/account/forms/SendEmailForm";
-import NewPasswordForm from "./main/account/forms/NewPasswordForm";
+import SendEmailForm from "./main/account/pages/auth/login/forms/SendEmailForm";
+import NewPasswordForm from "./main/account/pages/auth/login/forms/NewPasswordForm";
 
 const MainComponent = () => {
     const token = AuthService.getCurrentUser();
@@ -92,7 +92,7 @@ const MainComponent = () => {
                                             <Route path="/account/login" element={<Login/>}/>
                                             <Route path="/account/password/reset/send-email" element={<SendEmailForm/>}/>
                                             <Route path="/account/password/reset/:uuid/new-password" element={<NewPasswordForm/>}/>
-                                            <Route path="/account/register" element={<Register/>}/>
+                                            <Route path="/account/register" element={<Signup/>}/>
                                             <Route element={<PrivateRoute/>}>
                                                 <Route path="/account/details" element={<Account/>}/>
                                                 <Route path="/account/details/addresses" element={<Addresses/>}/>

@@ -9,15 +9,15 @@ import filtersSlice from "./slices/shopSlices/filtersSlice";
 import itemSlice from "./slices/shopSlices/itemSlice";
 import orderSlice from "../main/order/api/reducers/orderSlice";
 import paymentSlice from "./slices/shopSlices/paymentSlice";
-import shippingAddressFormSlice from "../main/order/forms/reducers/shippingAddressFormSlice";
+import shippingAddressFormSlice from "../main/order/checkout/pages/forms/reducers/shippingAddressFormSlice";
 import checkoutSlice from "../main/order/api/reducers/checkoutSlice";
-import addressFormSlice from "../main/account/forms/reducers/addressFormSlice";
-import ordersSlice from "../main/account/forms/reducers/ordersSlice";
+import addressFormSlice from "../main/account/pages/forms/reducers/addressFormSlice";
+import ordersSlice from "../main/account/pages/forms/reducers/ordersSlice";
 import cartSlice from "../main/cart/reducers/cartSlice";
 import appSlice from "./slices/appSlice";
 import shopSlice from "../main/shop/api/reducers/shopSlice";
 import wishlistSlice from "../main/account/api/reducers/wishlistSlice";
-import accountSlice from "../main/account/forms/reducers/accountSlice";
+import accountSlice from "../main/account/pages/forms/reducers/accountSlice";
 
 export default configureStore({
     reducer: {

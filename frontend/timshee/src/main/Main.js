@@ -6,9 +6,9 @@ import Content from "./Content";
 import Footer from "../footer/Footer";
 
 import "./Main.css";
-import EditAddressForm from "./account/forms/EditAddressForm";
-import Cart from "./cart/Cart";
-import ChangeEmailForm from "./account/forms/ChangeEmailForm";
+import EditAddressForm from "./account/pages/addresses/forms/EditAddressForm";
+import Cart from "./cart/pages/Cart";
+import ChangeEmailForm from "./account/pages/forms/ChangeEmailForm";
 
 
 const Main = () => {
