@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import "./CheckoutItems.css";
 import t from "../../../../translate/TranslateService";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../../../../config';
 
 const CheckoutItems = ({ cart }) => {
     const language = t.language();

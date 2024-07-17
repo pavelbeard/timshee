@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
+import { API_URL } from '../../../config';
 
-const API_URL = process.env.REACT_APP_API_URL;
 const csrftoken = Cookies.get("csrftoken");
 
 export const getEmail = async ({token}) => {

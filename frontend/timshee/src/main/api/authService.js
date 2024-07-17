@@ -1,7 +1,7 @@
-import {jwtDecode} from 'jwt-decode';
+import { API_URL } from '../../config';
+import { jwtDecode } from 'jwt-decode';
 import Cookies from "js-cookie";
 
-const API_URL = process.env.REACT_APP_API_URL;
 const csrftoken = Cookies.get("csrftoken");
 
 const register = async ({firstName, lastName, email, password, setErrorMessage}) => {

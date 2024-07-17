@@ -3,12 +3,10 @@ import {
     updatePaymentInfo as putPaymentInfo,
     createOrUpdateAddress as postOrPutAddress
 } from "./index";
-import {deleteOrder as destroyOrder} from "../../api/actions";
-import {createAddress, updateAddress, updateOrder} from "../../../redux/slices/shopSlices/checkout";
+import { updateOrder } from "../../../redux/slices/shopSlices/checkout";
 import AuthService from "../../api/authService";
+import { API_URL } from '../../../config';
 
-const API_URL = process.env.REACT_APP_API_URL;
-const token = AuthService.getCurrentUser();
 
 // CHECKOUT INIT
 export const getPhoneCodes = createAsyncThunk(

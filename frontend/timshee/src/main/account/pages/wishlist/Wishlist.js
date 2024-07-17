@@ -9,8 +9,8 @@ import {Link} from "react-router-dom";
 
 import "./Wishlist.css";
 import t from "../../../translate/TranslateService";
+import { API_URL } from '../../../../config';
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 const Wishlist = () => {
     const dispatch = useDispatch();

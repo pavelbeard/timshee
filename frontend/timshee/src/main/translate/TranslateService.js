@@ -1,7 +1,7 @@
 import React from "react";
 import AuthService from "../api/authService";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../config';
 
 const siteCreated = {
     "en-US": "Site created by heavycream9090",

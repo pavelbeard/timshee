@@ -5,8 +5,8 @@ import {resetAddCartItemStatus} from "../../reducers/cartSlice";
 import AuthService from "../../../api/authService";
 import translateService from "../../../translate/TranslateService";
 import t from "../../../translate/TranslateService";
+import { API_URL } from '../../../../config';
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 const CartItems = ({cart, dispatch}) => {
     const token = AuthService.getCurrentUser();

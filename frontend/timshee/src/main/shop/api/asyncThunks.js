@@ -1,6 +1,6 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from
 
 export const getItems = createAsyncThunk(
     "shop/getItems",

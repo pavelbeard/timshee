@@ -1,8 +1,7 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {deleteAddress as extDeleteAddress}  from "./shopSlices/checkout";
 import AuthService from "../../main/api/authService";
+import { API_URL } from '../../config';
 
-const API_URL = process.env.REACT_APP_API_URL;
 const token = AuthService.getCurrentUser();
 
 

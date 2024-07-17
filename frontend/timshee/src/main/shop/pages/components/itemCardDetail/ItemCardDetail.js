@@ -16,7 +16,7 @@ import translateService from "../../../../translate/TranslateService";
 import t from "../../../../translate/TranslateService";
 import NotFound from "../../../../../NotFound";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../../../../config';
 
 const Carousel = ({ images, imageSize }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);

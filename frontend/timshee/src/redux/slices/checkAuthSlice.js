@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../config';
 
 const initialState = {
     isValid: localStorage.getItem("token") !== undefined,

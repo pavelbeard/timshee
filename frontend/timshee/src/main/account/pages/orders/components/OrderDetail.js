@@ -10,7 +10,7 @@ import AuthService from "../../../../api/authService";
 import t from "../../../../translate/TranslateService";
 import {toCamelCase} from "../../../../api/stuff";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../../../../config';
 
 const OrderDetail = () => {
     const dispatch = useDispatch();

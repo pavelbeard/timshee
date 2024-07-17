@@ -10,7 +10,7 @@ import {toggleChangeEmail} from "../../../redux/slices/menuSlice";
 import {toCamelCase} from "../../api/stuff";
 import "./Account.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../../../config';
 
 const Account = () => {
     const dispatch = useDispatch();
