@@ -293,14 +293,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         # weak
         items_total_price = ordered_items.aggregate(total=Sum(F('quantity') * F('item__item__price')))['total']
-        shipping_price = ordered_items.values('order__shipping_method__price').distinct()
+        shipping_price = order.shipping_method.price
 
-        if shipping_price:
-            shipping_price = shipping_price[0]['order__shipping_method__price']
+        if shipping_price is not None and shipping_price > 0:
+            total_price = shipping_price + items_total_price
         else:
-            shipping_price = 0
-
-        total_price = items_total_price + shipping_price if items_total_price else shipping_price
+            total_price = items_total_price
         items = []
 
         for ordered_item in ordered_items:

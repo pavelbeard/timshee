@@ -164,14 +164,9 @@ def send_email(request, order_id, msg_type):
 
     items_total_price = order.orderitem_set.aggregate(total=Sum(F('quantity') * F('item__item__price')))[
         'total']
-    shipping_price = order.orderitem_set.values('order__shipping_method__price').distinct()
+    shipping_price = order.shipping_method.price
 
-    if shipping_price:
-        shipping_price = shipping_price[0]['order__shipping_method__price']
-    else:
-        shipping_price = 0
-
-    if shipping_price != 0 or shipping_price is not None:
+    if shipping_price is not None and shipping_price != 0:
         total_price = shipping_price + items_total_price
     else:
         total_price = items_total_price
