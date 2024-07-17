@@ -148,6 +148,37 @@ const Header = () => {
                                         })}
                                     </ul>
                                 </li>
+                                <li className="nav-item-lvl2"
+                                    onMouseEnter={() => setLvl2open(true)}
+                                    onMouseLeave={() => setLvl2open(false)}
+                                >
+                                    {
+                                        !menuOpen ? (
+                                            <span>
+                                                <Link to={`/shop/collections/${genders[2].value}+${collections[0].link}`}>{t.shop.unisex[language]}</Link>
+                                            </span>
+                                        ) : (
+                                            <span>{t.shop.unisex[language]}</span>
+                                        )
+                                    }
+                                    <ul className="nav-list-lvl3"
+                                        onMouseEnter={() => setLvl3open(true)}
+                                        onMouseLeave={() => setLvl3open(false)}
+                                    >
+                                        {categories.map((category, index) => {
+                                            const linkTo = `/shop/collections/${genders[2].value}+${collections[0].link}`
+                                                + `+${category.code}`
+                                            return (
+                                                <li className="nav-item-lvl3" key={index}
+                                                onClick={() => setMenuOpen(false)}>
+                                                <span>
+                                                    <Link to={linkTo}>{category.name}</Link>
+                                                </span>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li className="nav-item-lvl1"
@@ -182,6 +213,27 @@ const Header = () => {
                                         onClick={() => setMenuOpen(false)}>
                                         <span>
                                             <Link to={`/shop/collections/${genders[1].value}+${category.code}`}>
+                                                {category.name}
+                                            </Link>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
+                        <li className="nav-item-lvl1"
+                            onClick={() => setMenuOpen(false)}>
+                            <span>
+                                <Link to={`/shop/collections/${genders[2].value}`}>{t.shop.unisex[language]}</Link>
+                            </span>
+                            <ul className="nav-list-lvl2"
+                                onMouseEnter={() => setLvl2open(true)}
+                                onMouseLeave={() => setLvl2open(false)}
+                            >
+                                {categories.map((category, index) => (
+                                    <li className="nav-item-lvl2" key={index}
+                                        onClick={() => setMenuOpen(false)}>
+                                        <span>
+                                            <Link to={`/shop/collections/${genders[2].value}+${category.code}`}>
                                                 {category.name}
                                             </Link>
                                         </span>

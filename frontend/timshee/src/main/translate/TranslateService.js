@@ -325,6 +325,11 @@ const shop = {
         "en-UK": "for him",
         "ru-RU": "Для него",
     },
+    unisex: {
+        "en-US": "for them",
+        "en-UK": "for them",
+        "ru-RU": "Для них",
+    },
     house: {
         "en-US": "timshee",
         "en-UK": "timshee",
