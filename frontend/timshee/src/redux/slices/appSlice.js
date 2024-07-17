@@ -21,7 +21,7 @@ const initialState = {
     dynamicSettingsStatus: 'idle',
 };
 
-import { API_URL } from
+import { API_URL } from '../../config';
 
 export const getCsrfToken = createAsyncThunk(
     "app/getCsrfToken",

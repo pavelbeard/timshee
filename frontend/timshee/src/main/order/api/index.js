@@ -2,7 +2,7 @@ import {setError, setIsLoading} from "./reducers/checkoutSlice";
 import AuthService from "../../api/authService";
 import Cookies from "js-cookie";
 
-import { API_URL } from
+import { API_URL } from '../../../config';
 const csrftoken = Cookies.get("csrftoken");
 const token = AuthService.getCurrentUser();
 

@@ -1,4 +1,5 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import { API_URL } from '../../../config';
 
 const initialState = {
     data: {},
@@ -18,7 +19,6 @@ const initialState = {
     error: null,
 }
 
-import { API_URL } from '../../../config';
 
 export const checkInStock = createAsyncThunk(
     "items/checkInStock",

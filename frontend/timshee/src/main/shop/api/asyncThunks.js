@@ -1,6 +1,6 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 
-import { API_URL } from
+import { API_URL } from '../../../config';
 
 export const getItems = createAsyncThunk(
     "shop/getItems",
