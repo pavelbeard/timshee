@@ -87,7 +87,7 @@ def send_test_email(request, order_id, msg_type):
         "order_link": f"{settings.CLIENT_REDIRECT}orders/{order.id}/detail",
         "total_price": total_price,
         "items_total_price": items_total_price,
-        "shipping_price": shipping_price,
+        "shipping_price": shipping_price or 0,
     }
 
     html_message = render_to_string(template, context)
@@ -171,7 +171,10 @@ def send_email(request, order_id, msg_type):
     else:
         shipping_price = 0
 
-    total_price = items_total_price + shipping_price if items_total_price else shipping_price
+    if shipping_price != 0 or shipping_price is not None:
+        total_price = shipping_price + items_total_price
+    else:
+        total_price = items_total_price
 
     ordered_items = order.orderitem_set
     match msg_type:
@@ -211,7 +214,7 @@ def send_email(request, order_id, msg_type):
         "order_link": f"{settings.CLIENT_REDIRECT}orders/{order.id}/detail",
         "total_price": total_price,
         "items_total_price": items_total_price,
-        "shipping_price": shipping_price,
+        "shipping_price": shipping_price or 0,
     }
 
     html_message = render_to_string(template, context)
