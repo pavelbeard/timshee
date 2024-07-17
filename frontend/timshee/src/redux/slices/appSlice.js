@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-
+import { API_URL } from '../../config';
 import {
     getCountries as fetchCountries,
     getDynamicSettings as fetchDynamicSettings,
@@ -21,7 +21,6 @@ const initialState = {
     dynamicSettingsStatus: 'idle',
 };
 
-import { API_URL } from '../../config';
 
 export const getCsrfToken = createAsyncThunk(
     "app/getCsrfToken",
