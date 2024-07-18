@@ -388,7 +388,7 @@ const Header = () => {
 
     const logoCenter = () => {
         return <div className="logo">
-            <Link to={``}>
+            <Link to={`/`}>
                 <img src={logo} alt="alt-logo" height={35}/>
             </Link>
         </div>
@@ -411,11 +411,21 @@ const Header = () => {
         }></div>
     )
 
+//     .header {
+//     display: flex;
+//     align-items: center;
+//     justify-content: space-between;
+//     padding: 30px 50px;
+//     letter-spacing: 1px;
+//     font-variant: all-petite-caps;
+//     font-size: 24px;
+//     position: relative;
+// }
 
     return (
         <>
-            <div className="header-container">
-                <header className={`header ${menuOpen ? "show-nav" : ""}`}>
+            <div className="w-full bg-white">
+                <header className={`flex items-center justify-between pt-7 pl-12 pb-7 pr-12 tracking-wide ${menuOpen ? "show-nav" : ""}`}>
                     {burgerMenuButton()}
                     {menuOpen && burgerMenu()}
                     {!menuOpen && navLeft()}

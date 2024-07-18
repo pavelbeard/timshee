@@ -9,6 +9,7 @@ const Footer = () => {
     const language = t.language();
 
     return (
+        // <div className="footer">
         <div className="footer">
             <nav className="nav contact-container">
                 <ul className="nav-list footer-list">
