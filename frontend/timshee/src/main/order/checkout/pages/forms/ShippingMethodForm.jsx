@@ -54,8 +54,6 @@ const ShippingMethodForm = ({
         }
     }
 
-
-
     if (shippingMethods.length > 0) {
         return(
             <form onSubmit={handleSubmit}>
@@ -95,6 +93,9 @@ const ShippingMethodForm = ({
                         {t.checkout.toPayment[language]}
                     </button>
                 </div>
+                {errorMessage && (
+                    <div className="error-message">{errorMessage}</div>
+                )}
             </form>
         )
     } else {
