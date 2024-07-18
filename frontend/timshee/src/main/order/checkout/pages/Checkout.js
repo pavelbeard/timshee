@@ -161,15 +161,6 @@ const Checkout = () => {
         setCurrentStep(2);
     };
 
-    const toPayment = () => {
-        const selectedMethod = shippingMethods.find(
-            method => method.id === shippingMethodExternal
-        );
-        setShippingPrice(selectedMethod.price);
-        setCurrentStep(3);
-        navigate(`/shop/${params.orderId}/checkout/payment`);
-    };
-
     const handleSubmitShippingMethodForm = async e => {
         e.preventDefault();
 
@@ -287,7 +278,7 @@ const Checkout = () => {
                                 orderId={params.orderId}
                                 setShippingPrice={setShippingPrice}
                                 setShippingMethodExternal={setShippingMethodExternal}
-                                submit={toPayment}
+                                submit={handleSubmitShippingMethodForm}
                                 setCurrentStep={handleStepChange}
                             />
                         </>

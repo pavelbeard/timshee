@@ -1,9 +1,0 @@
-.increase-decrease {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-}
-
-.increase-decrease > * {
-    margin-bottom: 10px;
-}

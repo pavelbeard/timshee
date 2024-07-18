@@ -201,13 +201,11 @@ if DEBUG or TESTING:
         "http://localhost:8113",
         "http://localhost:3000",
         "http://localhost:3002",
-        "http://localhost:3003",
         "https://localhost",
         "http://127.0.0.1:8112",
         "http://127.0.0.1:8113",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3002",
-        "http://127.0.0.1:3003",
         "https://127.0.0.1",
     ]
     CORS_ALLOWED_ORIGINS = [
@@ -215,13 +213,11 @@ if DEBUG or TESTING:
         "http://localhost:8113",
         "http://localhost:3000",
         "http://localhost:3002",
-        "http://localhost:3003",
         "https://localhost",
         "http://127.0.0.1:8112",
         "http://127.0.0.1:8113",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3002",
-        "http://127.0.0.1:3003",
         "https://127.0.0.1",
     ]
 else:

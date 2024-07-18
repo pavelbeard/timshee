@@ -45,19 +45,8 @@ const OrderDetail = () => {
                     <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
                 </div>
                 <div className="order-detail-shipping-address order-detail-info">
-                    {
-                        order?.shipping_method?.price === 0 ? (
-                            <>
-                                <span>{t.account.to[language]}</span>
-                                <span>Самовывоз</span>
-                            </>
-                        ) : (
-                            <>
-                                <span>{t.account.to[language]}</span>
-                                {shippingAddress(order.shipping_address)}
-                            </>
-                        )
-                    }
+                    <span>{t.account.to[language]}</span>
+                    {shippingAddress(order.shipping_address)}
                 </div>
                 <div className="order-img-block order-img-block-detail ">
                     {
