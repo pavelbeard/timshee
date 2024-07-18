@@ -29,7 +29,7 @@ const itemCardDetail = {
     outOfStock: {
         "en-US": "Out of stock",
         "en-UK": "Out of stock",
-        "ru-Ru": "Нет в наличии",
+        "ru-RU": "Нет в наличии",
     },
     hasAdded: {
         "en-US": "Has added",
