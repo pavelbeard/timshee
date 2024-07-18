@@ -1,11 +1,14 @@
 import React, {useEffect} from "react";
 import backImg from "../../../../../media/static_images/back_to.svg";
-import {Link} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 
 import "./CheckoutForms.css";
 import {setShippingMethod} from "./reducers/shippingAddressFormSlice";
 import {useDispatch, useSelector} from "react-redux";
 import t from "../../../../translate/TranslateService";
+import { putShippingMethod } from "./lib";
+import AuthService from "../../../../api/authService";
+import {getOrderDetail, updateOrderShippingMethod} from "../../../api/asyncThunks";
 
 const ShippingMethodForm = ({
     initialValue: shippingMethods,
@@ -18,6 +21,9 @@ const ShippingMethodForm = ({
     const dispatch = useDispatch();
     const language = t.language();
     const {order} = useSelector(state => state.shippingAddressForm);
+    const token = AuthService.getCurrentUser();
+    const [selectedShippingMethod, setSelectedShippingMethod] = React.useState(0);
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     useEffect(() => {
         if (order && order.shipping_method) {
@@ -26,9 +32,33 @@ const ShippingMethodForm = ({
         }
     }, [order]);
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const result = await putShippingMethod({
+            orderId: orderId,
+            data: {
+                shipping_method: selectedShippingMethod,
+            },
+            token: token
+        });
+
+        if (typeof result === "boolean") {
+            dispatch(getOrderDetail({
+                orderId: orderId,
+                token: token
+            }));
+            submit();
+        } else {
+            setErrorMessage(result.message);
+        }
+    }
+
+
+
     if (shippingMethods.length > 0) {
         return(
-            <form onSubmit={submit}>
+            <form onSubmit={handleSubmit}>
                 <span className="shipping-address">
                     <h3>{t.checkout.shippingMethod[language]}</h3>
                 </span>
@@ -40,6 +70,7 @@ const ShippingMethodForm = ({
                                    value={method.id}
                                    checked={method.checked}
                                    onChange={e => {
+                                       setSelectedShippingMethod(parseInt(e.target.value));
                                        setShippingMethodExternal(parseInt(e.target.value));
                                        dispatch(setShippingMethod(parseInt(e.target.value)));
                                        setShippingPrice(method.price);
@@ -60,7 +91,7 @@ const ShippingMethodForm = ({
                             {t.checkout.toInformation[language]}
                         </Link>
                     </div>
-                    <button type="submit" onSubmit={submit}>
+                    <button type="submit">
                         {t.checkout.toPayment[language]}
                     </button>
                 </div>

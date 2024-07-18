@@ -388,7 +388,7 @@ const Header = () => {
 
     const logoCenter = () => {
         return <div className="logo">
-            <Link to={``}>
+            <Link to={`/`}>
                 <img src={logo} alt="alt-logo" height={35}/>
             </Link>
         </div>
