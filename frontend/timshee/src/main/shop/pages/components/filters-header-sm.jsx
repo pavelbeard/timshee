@@ -7,7 +7,7 @@ import {useControlsStore} from "../../../../store";
 
 export default function FiltersHeaderSm(props) {
     const { t } = useTranslation();
-    const { robotoText, activeFilterLabel, toggleFiltersMenu } = props;
+    const { robotoText, toggleFiltersMenu } = props;
     return (
         <div>
             <div className="flex justify-between items-center border-b-[1px] border-gray-200" data-narrow-filters-t="">
@@ -17,11 +17,6 @@ export default function FiltersHeaderSm(props) {
                 </div>
                 <XMarkIcon strokeWidth="0.5" className="size-4" onClick={() => toggleFiltersMenu()}/>
             </div>
-            {activeFilterLabel ?
-            <div className="flex items-center h-6" data-narrow-filters-b="">
-                <ArrowLeftIcon className="size-4" strokeWidth="0.5" />
-                <span className={clsx(robotoText, 'ml-2')}>{activeFilterLabel}</span>
-            </div> : <div className="h-6"></div>}
         </div>
     )
 

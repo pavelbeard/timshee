@@ -4,9 +4,9 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {ArrowLeftIcon} from "@heroicons/react/24/outline";
 
-export default function SizesBlock(props) {
-    const { robotoText, blockStyle  } = props;
+export default function SizesBlock(props, children) {
     const { t } = useTranslation();
+    const { robotoText, blockStyle  } = props;
     const {sizes, uncheckSizes, checkSizes} = useShopStore();
     return (
         <div className={blockStyle}>
@@ -16,7 +16,7 @@ export default function SizesBlock(props) {
                 </span>
                 <div className={clsx("reset", robotoText)} onClick={uncheckSizes}>{t('shop:reset')}</div>
             </div>
-            <div className={clsx("filters-list", )}>
+            <div className={clsx("filters-list",)}>
                 {Array.isArray(sizes) && sizes?.map((size) => {
                     return (
                         <label key={size.id} className={clsx('flex items-center')}>

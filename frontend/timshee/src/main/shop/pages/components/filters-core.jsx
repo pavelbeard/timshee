@@ -2,11 +2,6 @@ import React, {useState, forwardRef, useImperativeHandle, useEffect} from "react
 import {clsx} from "clsx";
 import {useControlsStore, useShopStore} from "../../../../store";
 import {useTranslation} from "react-i18next";
-import ItemsTotal from "./items-total";
-import SizesBlock from "./sizes-block";
-import ColorsBlock from "./colors-block";
-import TypesBlock from "./types-block";
-import CustomSelect from "../../../../components/custom-select";
 import FiltersHeaderSm from "./filters-header-sm";
 import FiltersFooterSm from "./filters-footer-sm";
 import {useWindowSize} from "../../../../lib/hooks";
@@ -15,15 +10,13 @@ import FiltersContainer from "./filters-container";
 import FiltersGroupStock from "./filters-group-stock";
 import FiltersOrderBy from "./filters-order-by";
 import FilterList from "./filters-list";
+import FiltersBodySm from "./filters-body-sm";
 
 const FiltersCore = forwardRef((props, ref) => {
     const { setCurrentPageLink } = props;
     const { itemsObject, filters, sortOrder, updateOrderBy, resetFilters } = useShopStore();
     const {
-        isFiltersMenuOpen, toggleFiltersMenu,
-        isSizesMenuOpen, toggleSizesMenu,
-        isColorsMenuOpen, toggleColorsMenu,
-        isTypesMenuOpen, toggleTypesMenu,
+        isFiltersMenuOpen, toggleFiltersMenu, toggleSizesMenu, toggleColorsMenu, toggleTypesMenu
     } = useControlsStore();
     const { t } = useTranslation();
     const { width } = useWindowSize();
@@ -47,13 +40,6 @@ const FiltersCore = forwardRef((props, ref) => {
             e.target.localName === 'input';
         if (!prohibitedFilters) {
             const filter = e.target.getAttribute("data-filter");
-            if (filter === 'size') {
-                toggleSizesMenu();
-            } else if (filter === 'color') {
-                toggleColorsMenu();
-            } else if (filter === 'type') {
-                toggleTypesMenu();
-            }
             setActiveFilter(activeFilter === filter ? null : filter);
         }
     }
@@ -76,9 +62,12 @@ const FiltersCore = forwardRef((props, ref) => {
             <FiltersContainerSm>
                 <FiltersHeaderSm
                     robotoText={robotoText}
-                    activeFilterLabel={activeFilterLabels[activeFilter]}
                     toggleFiltersMenu={toggleFiltersMenu}
                 />
+                <FiltersBodySm
+                    robotoText={robotoText}
+                    turnFilters={turnFilters}
+                    activeFilterLabels={activeFilterLabels} />
                 <FiltersFooterSm />
             </FiltersContainerSm>
         )
