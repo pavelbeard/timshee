@@ -10,27 +10,16 @@ export const menuSlice = createSlice({
         shopIsTouched: false,
         collectionsIsTouched: false,
         accountBarIsTouched: false,
+        isAddressCreateFormOpened: false,
         isAddressEditFormOpened: false,
-        isCartClicked: false,
+        isCartMenuOpen: false,
     },
     reducers: {
-        toggleMenu: (state) => {
-            state.isActive = !state.isActive;
-        },
-        toggleMenuLvl1: (state) => {
-            state.isMenuLvl1Active = !state.isMenuLvl1Active;
-        },
         toggleMenuLvl2: (state) => {
             state.isMenuLvl2Active = !state.isMenuLvl2Active;
         },
-        toggleShopIsTouched: (state) => {
-            state.shopIsTouched = !state.shopIsTouched;
-        },
-        toggleCollectionsIsTouched: (state) => {
-            state.collectionsIsTouched = !state.collectionsIsTouched;
-        },
-        toggleAccountBarIsTouched: (state, action) => {
-            state.accountBarIsTouched = !state.accountBarIsTouched;
+        toggleCreateAddressForm: (state) => {
+            state.isAddressCreateFormOpened = !state.isAddressCreateFormOpened;
         },
         toggleAddressEditForm: (state) => {
             state.isAddressEditFormOpened = !state.isAddressEditFormOpened;
@@ -41,24 +30,19 @@ export const menuSlice = createSlice({
 
         toggleCart: (state, action) => {
             if (action.payload === false) {
-                state.isCartClicked = false;
+                state.isCartMenuOpen = false;
             } else {
-                state.isCartClicked = !state.isCartClicked;
+                state.isCartMenuOpen = !state.isCartMenuOpen;
             }
         },
         closeCart: (state) => {
-            state.isCartClicked = false;
+            state.isCartMenuOpen = false;
         }
     }
 })
 
 export const {
-    toggleMenu,
-    toggleMenuLvl1,
-    toggleMenuLvl2,
-    toggleShopIsTouched,
-    toggleCollectionsIsTouched,
-    toggleAccountBarIsTouched,
+    toggleCreateAddressForm,
     toggleAddressEditForm,
     toggleChangeEmail,
     toggleCart,

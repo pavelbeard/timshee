@@ -1,0 +1,18 @@
+{
+  "country": "Country:",
+  "firstname": "First Name:",
+  "lastname": "Last Name:",
+  "streetAddress": "Street address:",
+  "apartment": "Apartment:",
+  "postalCode": "Postal Code:",
+  "city": "City:",
+  "province": "Province/State:",
+  "phoneCode": "Phone Code:",
+  "phoneNumber": "Phone Number:",
+  "asPrimary": "as primary",
+  "submit": "Submit",
+  "newEmail": "New Email:",
+  "changeEmail": "Change Email:",
+  "email": "email:",
+  "emailConfirmed": "Email confirmed!"
+}

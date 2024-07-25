@@ -4,11 +4,11 @@ import {Navigate, useParams} from "react-router-dom";
 import "./OrderStatus.css";
 import {checkPaymentStatus} from "../../api";
 import AuthService from "../../../api/authService";
-import Error from "../../../techPages/Error";
+import Error from "../../../techPages/error";
 
 const OrderCheckPayment = () => {
     const params = useParams();
-    const token = AuthService.getCurrentUser();
+    const token = AuthService.getAccessToken();
 
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;

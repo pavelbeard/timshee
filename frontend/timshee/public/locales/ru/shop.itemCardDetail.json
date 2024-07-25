@@ -1,0 +1,9 @@
+{
+  "sizes": "Размеры:",
+  "colors": "Цвета:",
+  "outOfStock": "Нет в наличии",
+  "hasAdded": "В корзине",
+  "addToCart": "В корзину",
+  "addToWishlist": "В избранное",
+  "removeFromWishlist": "Удалить из избранного"
+}

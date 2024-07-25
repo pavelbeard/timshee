@@ -1,9 +1,9 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {
     getShippingAddresses as fetchShippingAddresses,
-    getShippingAddressAsTrue as fetchShippingAddressAsTrue,
+
 } from "../../../../../api/actions";
-import {getEmail} from "../../../../../account/api";
+// import {getEmail} from "../../../../../account/api";
 import {createOrUpdateAddress as postOrPutAddress} from "../../../../api";
 
 export const createOrUpdateAddress = createAsyncThunk(
@@ -43,8 +43,8 @@ export const getUsernameEmail = createAsyncThunk(
     "shippingAddressForm/getUsernameEmail",
     async ({token}, thunkAPI) => {
         try {
-            const result = await getEmail({token});
-
+            // const result = await getEmail({token});
+            const result = null;
             if (result) {
                 return result;
             } else {

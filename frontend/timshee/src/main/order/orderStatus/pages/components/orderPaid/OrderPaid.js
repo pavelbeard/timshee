@@ -17,7 +17,7 @@ const OrderPaid = () => {
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
 
-    const token = AuthService.getCurrentUser();
+    const token = AuthService.getAccessToken();
 
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState("");

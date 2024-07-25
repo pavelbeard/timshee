@@ -32,7 +32,7 @@ class Cart:
         order = order_models.Order.objects.filter(
             Q(status="created") | Q(status="pending_for_payment")
         ).first() or order_models.Order.objects.create(
-            session_key=self.request.session.session_key,
+            session_key=self.request.COOKIES.get('sessionid'),
         )
 
         if self.request.user.is_authenticated:

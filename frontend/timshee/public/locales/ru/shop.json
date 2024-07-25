@@ -1,0 +1,16 @@
+{
+  "orderByPrice": "Сортировка по:",
+  "dash": "---",
+  "ascending": "по возрастанию",
+  "descending": "по убыванию",
+  "price": "₽",
+  "size": "размер",
+  "color": "цвет",
+  "type": "тип",
+  "reset": "сбросить",
+  "filters": "фильтры:",
+  "filtersAndSort": "фильтры и сортировка",
+  "totalItems": "вещей:",
+  "apply": "применить",
+  "selected": "выбрано:"
+}

@@ -1,0 +1,42 @@
+{
+  "account": {
+    "logout": "Выйти из аккаунта",
+    "address": "Адрес",
+    "primaryAddress": "Главный адрес",
+    "noAddress": "Главный адрес не установлен",
+    "editAddress": "Изменить адрес",
+    "addAddress": "Добавить адрес",
+    "returnToAccount": "Вернуться в аккаунт",
+    "edit": "Изменить",
+    "delete": "Удалить",
+    "orders": {
+      "key": "Заказы",
+      "status": {
+        "partialRefunded": "Частично возвращен",
+        "refunded": "Возвращен",
+        "pendingForPay": "Ожидает оплаты",
+        "completed": "Завершен",
+        "cancelled": "Отменен",
+        "processing": "В процессе сборки",
+        "delivering": "В доставке",
+        "delivered": "Доставлен"
+      }
+    },
+    "noOrders": "Нет заказов",
+    "deliveredAt": "Доставлено:",
+    "status": "Статус:",
+    "refundedAt": "Возвращено:",
+    "seeAddresses": "Просмотреть адреса",
+    "seeOrders": "Просмотреть заказы",
+    "createdAt": "Создано:",
+    "updatedAt": "Обновлено:",
+    "orderDetail": "Просмотреть заказ",
+    "returnOrder": "Вернуть заказ",
+    "returnThroughMail": "Дальнейший возврат заказа возможен только через почту",
+    "returnItem": "Вернуть вещь",
+    "returnToOrders": "Вернуться в 'Заказы'",
+    "quantity": "Количество:",
+    "to": "Доставка в:",
+    "orderNumber": "Номер заказа"
+  }
+}

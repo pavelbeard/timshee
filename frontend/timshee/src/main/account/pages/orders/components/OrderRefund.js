@@ -1,20 +1,20 @@
-import React, {useContext, useEffect} from "react";
+import React, {useEffect} from "react";
 import {useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getOrderDetail} from "../../forms/reducers/asyncThunks";
 import AuthService from "../../../../api/authService";
-import Loading from "../../../../techPages/Loading";
-import Error from "../../../../techPages/Error";
+import Loading from "../../../../techPages/loading";
+import Error from "../../../../techPages/error";
 
 import "../Orders.css";
-import RefundForm from "../forms/RefundForm";
+import RefundForm from "../forms/refund-form";
 
 const OrderRefund = () => {
     const dispatch = useDispatch();
     const params = useParams();
     const stockItemId = params.stockItemId ? parseInt(params.stockItemId) : 0;
     const stockItemQuantity = params.stockItemId ? parseInt(params.stockItemQuantity) : 0;
-    const token = AuthService.getCurrentUser();
+    const token = AuthService.getAccessToken();
     const {order, orderDetailStatus} = useSelector(state => state.ordersPage);
 
     useEffect(() => {

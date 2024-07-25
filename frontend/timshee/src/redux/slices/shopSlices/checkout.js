@@ -3,7 +3,7 @@ import AuthService from "../../../main/api/authService";
 import { API_URL } from '../../../config';
 
 const csrftoken = Cookies.get("csrftoken");
-const token = AuthService.getCurrentUser();
+const token = AuthService.getAccessToken();
 
 export const createAddress = async ({data, token}) => {
     let headers = {

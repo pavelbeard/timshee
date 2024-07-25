@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 import { API_URL } from '../../../config';
 const csrftoken = Cookies.get("csrftoken");
-const token = AuthService.getCurrentUser();
+const token = AuthService.getAccessToken();
 
 // ADDRESSES
 export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId, token}) => {

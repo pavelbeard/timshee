@@ -5,7 +5,7 @@ import {
     updateOrderShippingMethod, updateOrderStatus
 } from "../asyncThunks";
 
-const token = AuthService.getCurrentUser();
+const token = AuthService.getAccessToken();
 
 const initialState = {
     // orderDetail

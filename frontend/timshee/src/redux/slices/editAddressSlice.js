@@ -2,7 +2,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import AuthService from "../../main/api/authService";
 import { API_URL } from '../../config';
 
-const token = AuthService.getCurrentUser();
+const token = AuthService.getAccessToken();
 
 
 

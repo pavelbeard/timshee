@@ -1,0 +1,18 @@
+{
+  "country": "Страна:",
+  "firstname": "Имя:",
+  "lastname": "Фамилия:",
+  "streetAddress": "Адрес:",
+  "apartment": "Квартира (по желанию):",
+  "postalCode": "Почтовый индекс:",
+  "city": "Город:",
+  "province": "Регион:",
+  "phoneCode": "Код телефона:",
+  "phoneNumber": "Номер телефона:",
+  "asPrimary": "Установить как главный адрес",
+  "submit": "Отправить",
+  "newEmail": "Новый email:",
+  "changeEmail": "Сменить email:",
+  "email": "email:",
+  "emailConfirmed": "Email подтвержден!"
+}

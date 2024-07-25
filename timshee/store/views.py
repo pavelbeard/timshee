@@ -112,8 +112,7 @@ class ColorViewSet(viewsets.ModelViewSet):
 
 class WishlistViewSet(viewsets.ModelViewSet):
     queryset = models.Wishlist.objects.all()
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = [authentication.JWTAuthentication]
+    authentication_classes = []
 
     def get_serializer_class(self):
         if self.action in ['list', 'get_wishlist_by_user', 'create']:
@@ -159,7 +158,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated:
             user = request.user.id
         else:
-            session_key = request.session.session_key
+            session_key = request.COOKIES.get('session_key')
         qs = models.Wishlist.objects.filter(Q(user=user) | Q(session_key=session_key))
         data = serializers.WishlistSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)

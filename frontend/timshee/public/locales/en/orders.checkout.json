@@ -1,0 +1,16 @@
+{
+  "cart": "cart",
+  "information": "information",
+  "shipping": "shipping",
+  "payment": "Pay now",
+  "contact": "contact",
+  "shippingAddress": "shipping address:",
+  "shippingMethod": "shipping method:",
+  "toShipping": "continue to shipping",
+  "toCart": "return to cart",
+  "shippingInfo": "shipping info",
+  "subtotal": "subtotal:",
+  "total": "total:",
+  "toPayment": "continue to payment",
+  "toInformation": "return to information"
+}

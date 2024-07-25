@@ -8,12 +8,12 @@ router = routers.DefaultRouter()
 router.register(r'email', views.EmailViewSet)
 
 urlpatterns = [
-    path('token/', views.LoginView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('get-csrf-token/', views.GetCsrfToken.as_view(), name='csrf'),
-    path('register/', views.RegisterAPIView.as_view(), name='register'),
+    path('signin/', views.SigninAPIView.as_view(), name='signin'),
+    path('signup/', views.SignupAPIView.as_view(), name='signup'),
+    path('signout/', views.SignoutAPIView.as_view(), name='signout'),
+    path('token/refresh/', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', jwt_views.TokenVerifyView.as_view(), name='token_verify'),
     path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
-    path('test/', views.TestAPIView.as_view(), name='test'),
     path('dynamic-settings/', views.GetDynSettingsAPIView.as_view(), name='get-dyn-settings'),
 ]
 

@@ -1,0 +1,19 @@
+{
+  "signInTitle": "Sign In",
+  "signUpTitle": "Sign Up",
+  "forgotPassword": "I forgot my password",
+  "login": "Login",
+  "password": "Password:",
+  "firstname": "First Name:",
+  "lastname": "Last Name:",
+  "passwordConfirm": "Password confirm:",
+  "register": "Register",
+  "recoverAccess": "Recover access to your account",
+  "recoverAccessEmail": "Enter your email:",
+  "recoverAccessNewPass": "New password:",
+  "recoverAccessChangePass": "Change password",
+  "recoverAccessSuccess": "Password has been change!",
+  "recoverAccessSpamNote": "Your email has to receive a recover link. Please, check Spam folder of your mail!",
+  "recoverAccessToLogin": "Go to sign in",
+  "recoverAccessEmailNotExists": "This email isn't exists!"
+}

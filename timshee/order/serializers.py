@@ -4,7 +4,7 @@ from parler_rest.serializers import TranslatableModelSerializer
 from rest_framework import serializers
 
 from . import models, strict_serializers
-from .models import Continent
+from .models import Continent, Province, CountryPhoneCode
 
 User = get_user_model()
 

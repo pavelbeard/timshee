@@ -53,6 +53,8 @@ const initialState = {
     addressFormObject: {
         ...addressObject
     },
+    createAddressForm: null,
+    editAddressForm: null,
     addresses: [],
     shippingAddressesStatus: 'idle',
     countries: [],
@@ -94,24 +96,30 @@ const addressFormSlice = createSlice({
             }
         },
         // edit form
+        createAddress: (state, action) => {
+            state.createAddressForm = action.payload;
+        },
         editAddress: (state, action) => {
-            console.log(action.payload);
-            state.addressFormObject = {
-                ...state.addressFormObject,
-                id: action.payload.id,
-                firstName: action.payload.firstName,
-                lastName: action.payload.lastName,
-                streetAddress: action.payload.streetAddress,
-                apartment: action.payload.apartment,
-                postalCode: action.payload.postalCode,
-                city: action.payload.city,
-                phoneNumber: action.payload.phoneNumber,
-                province: action.payload.province,
-                phoneCode: action.payload.phoneCode,
-                asPrimary: action.payload.asPrimary,
-                email: action.payload.email,
-            };
+            state.editAddressForm = action.payload;
         }
+        // editAddress: (state, action) => {
+        //     console.log(action.payload);
+        //     state.addressFormObject = {
+        //         ...state.addressFormObject,
+        //         id: action.payload.id,
+        //         firstName: action.payload.firstName,
+        //         lastName: action.payload.lastName,
+        //         streetAddress: action.payload.streetAddress,
+        //         apartment: action.payload.apartment,
+        //         postalCode: action.payload.postalCode,
+        //         city: action.payload.city,
+        //         phoneNumber: action.payload.phoneNumber,
+        //         province: action.payload.province,
+        //         phoneCode: action.payload.phoneCode,
+        //         asPrimary: action.payload.asPrimary,
+        //         email: action.payload.email,
+        //     };
+        // }
     },
     extraReducers: (builder) => {
         builder
@@ -265,12 +273,12 @@ const addressFormSlice = createSlice({
 });
 
 export const {
-    setIsLoading,
     setError,
     setProvince,
     setPhoneCode,
     setProvincesFiltered,
     setPhoneCodesFiltered,
-    editAddress
+    // createAddress,
+    editAddress,
 } = addressFormSlice.actions;
 export default addressFormSlice.reducer;

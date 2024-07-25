@@ -5,7 +5,7 @@ import {
     getDynamicSettings as fetchDynamicSettings,
 } from "../../main/api/actions";
 import {checkAuthStatus} from "./checkAuthSlice";
-import {uniqueData} from "../../main/api/stuff";
+import {uniqueData} from "../../lib/stuff";
 
 const initialState = {
     countriesLengthStatus: 'idle',
@@ -20,20 +20,6 @@ const initialState = {
     dynamicSettings: undefined,
     dynamicSettingsStatus: 'idle',
 };
-
-
-export const getCsrfToken = createAsyncThunk(
-    "app/getCsrfToken",
-    async (arg, thunkAPI) => {
-        try {
-            await fetch(API_URL + "api/stuff/get-csrf-token/", {
-                credentials: "include",
-            });
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.message);
-        }
-    }
-);
 
 export const getCollectionLinks = createAsyncThunk(
     "app/getCollectionLinks",
@@ -128,17 +114,6 @@ const appSlice = createSlice({
             })
             .addCase(getCountries.rejected, (state, action) => {
                 state.countriesLengthStatus = 'error';
-                state.error = action.payload;
-            })
-
-            .addCase(getCsrfToken.pending, (state, action) => {
-                state.csrftokenStatus = 'loading';
-            })
-            .addCase(getCsrfToken.fulfilled, (state, action) => {
-                state.csrftokenStatus = 'success';
-            })
-            .addCase(getCsrfToken.rejected, (state, action) => {
-                state.csrftokenStatus = 'error';
                 state.error = action.payload;
             })
 

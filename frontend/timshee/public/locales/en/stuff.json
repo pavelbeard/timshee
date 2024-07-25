@@ -1,0 +1,12 @@
+{
+  "loading": "loading...",
+  "nothing": "nothing",
+  "error": "error",
+  "error500": "SERVER ERROR 500. WE ARE ALREADY SOLVING THIS PROBLEM",
+  "startPage": "For start to work you need to add some data to DB: continents, countries, phone codes, provinces, categories and collections",
+  "paymentOptions": "Payment options:",
+  "emailExists": "email already exists...",
+  "offer": "offer",
+  "contacts": "contacts",
+  "shippingMethods": "shipping methods"
+}

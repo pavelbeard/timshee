@@ -1,0 +1,16 @@
+{
+  "orderReturned": "ORDER HAS BEEN REFUNDED",
+  "returnToOrder": "Return to order",
+  "refundForm": "REFUND FORM",
+  "question": "WHY YOU WANT TO REFUND THIS ITEM?",
+  "dontLike": "Item didn't like me",
+  "dontCorrect": "Item's color/size isn't correct",
+  "wrongDescription": "Item doesn't match the description in the store",
+  "wrongAppearance": "Dissatisfaction with appearance",
+  "longShipping": "Shipping is very long",
+  "wrongItemOrdered": "Wrong item ordered",
+  "wrongQuantity": "I ordered more items than I wanted",
+  "quantityForRefund": "Quantity for refund:",
+  "otherReasons": "Other reasons:",
+  "refundItem": "Refund item/order"
+}

@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {getLastOrder, getOrderDetail, getOrders, refundPartial, refundWhole} from "./asyncThunks";
-import orders from "../../orders/Orders";
+import orders from "../../orders/orders";
 
 const initialState = {
     // general values
