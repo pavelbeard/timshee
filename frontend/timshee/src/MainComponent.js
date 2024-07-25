@@ -43,6 +43,8 @@ import OnContentUpdate from "./main/techPages/OnContentUpdate";
 import AuthService from "./main/api/authService";
 import SendEmailForm from "./main/account/pages/auth/login/forms/SendEmailForm";
 import NewPasswordForm from "./main/account/pages/auth/login/forms/NewPasswordForm";
+import About from "./main/About";
+import House from "./main/House";
 
 const MainComponent = () => {
     const token = AuthService.getCurrentUser();
@@ -84,6 +86,8 @@ const MainComponent = () => {
                                 <BrowserRouter>
                                     <Routes>
                                         <Route path="" element={<Main/>}>
+                                            <Route path="/about" element={<About/>} />
+                                            <Route path="/house" element={<House/>} />
                                             <Route path="/cart" element={<Cart/>}/>
                                             <Route path="/shop/collections/:c" element={<Shop/>}/>
                                             <Route path="/shop/collections/:c/page/:page" element={<Shop/>}/>
