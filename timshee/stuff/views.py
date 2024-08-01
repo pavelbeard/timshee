@@ -1,26 +1,27 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth import get_user_model, models
+from django.contrib.auth import get_user_model, models, authenticate
+from django.contrib.sessions.models import Session
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.middleware.csrf import get_token
+from django.middleware import csrf
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.utils.translation import activate
-from django.views.decorators.csrf import csrf_protect
+from order import models as order_models
+from order import serializers as order_serializers
 from rest_framework import generics, status, permissions, viewsets
+from rest_framework import views
 from rest_framework.decorators import action
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-from . import models, services
-
-from order import models as order_models
-from order import serializers as order_serializers
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import TokenRefreshView
 from store import models as store_models
+
+from . import models, services, serializers
 
 # Create your views here.
 User = get_user_model()
@@ -29,84 +30,159 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class GetCsrfToken(generics.GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
-    allowed_methods = ["get"]
-
-    def get(self, request):
-        get_token(request)
-        return JsonResponse({'detail': "CSRF token has set successfully"},
-                            safe=False, status=status.HTTP_200_OK)
+def get_token_for_user(user):
+    token = tokens.RefreshToken.for_user(user)
+    return {
+        'refresh': str(token),
+        'access': str(token.access_token)
+    }
 
 
-@method_decorator(csrf_protect, name='dispatch')
-class RegisterAPIView(generics.GenericAPIView):
+class SignupAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = []
+    allowed_methods = ["post"]
+    serializer_class = serializers.SignupSerializer
+
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            instance = serializer.save()
+
+            if not instance:
+                return AuthenticationFailed('Failed to create user.')
+
+            session_key = request.COOKIES.get('sessionid')
+
+            if session_key:
+                orders = order_models.Order.objects.filter(session__session_key=session_key)
+                wishlist_objs = store_models.Wishlist.objects.filter(session__session_key=session_key)
+
+                if orders.exists():
+                    orders.update(user=instance)
+
+                if wishlist_objs.exists():
+                    wishlist_objs.update(user=instance)
+
+            response = Response(status=status.HTTP_201_CREATED)
+            response.data = {'detail': 'User created'}
+            response['X-CSRFToken'] = csrf.get_token(request)
+
+            return response
+        except IntegrityError:
+            return AuthenticationFailed('User already exists.')
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SigninAPIView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = []
+    allowed_methods = ["post"]
+    serializer_class = serializers.SigninSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            username = self.request.data['username']
+            password = self.request.data['password']
+
+            if username and password:
+                user = authenticate(username=username, password=password)
+
+                if isinstance(user, User):
+                    session_key = self.request.COOKIES.get('sessionid')
+                    order_models.Order.objects.filter(session__session_key=session_key).update(user=user)
+                    store_models.Wishlist.objects.filter(session__session_key=session_key).update(user=user)
+                    _tokens = get_token_for_user(user)
+
+                    response = Response(status=status.HTTP_200_OK)
+                    response.set_cookie(
+                        key=settings.SIMPLE_JWT['AUTH_ACCESS_COOKIE'],
+                        value=_tokens['access'],
+                        max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
+                        secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                        httponly=False,
+                        samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                    )
+                    response.set_cookie(
+                        key=settings.SIMPLE_JWT['AUTH_REFRESH_COOKIE'],
+                        value=_tokens['refresh'],
+                        max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds(),
+                        secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                        httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                        samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                    )
+                    response.data = {'access': _tokens['access']}
+                    response['X-CSRFToken'] = csrf.get_token(request)
+                    return response
+
+                response = Response(status=status.HTTP_400_BAD_REQUEST)
+                response.data = {'error': 'Invalid credentials.'}
+                return response
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SignoutAPIView(views.APIView):
     allowed_methods = ["post"]
 
     def post(self, request):
         try:
-            email = request.data.get('email')
-            password = request.data.get('password')
-            first_name = request.data.get('firstName')
-            last_name = request.data.get('lastName')
-            session_key = request.session.session_key
+            refresh = request.COOKIES.get('refresh_token')
+            session_id = request.COOKIES.get('sessionid')
+            Session.objects.filter(session_key=session_id).delete()
 
-            if User.objects.filter(email=email).exists():
-                return JsonResponse({'detail': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            token = tokens.RefreshToken(refresh)
+            token.blacklist()
+            response = Response()
+            response.delete_cookie(key=settings.SIMPLE_JWT['AUTH_ACCESS_COOKIE'])
+            response.delete_cookie(key=settings.SIMPLE_JWT['AUTH_REFRESH_COOKIE'])
+            response.delete_cookie(key='csrftoken')
+            response.delete_cookie(key='X-CSRFToken')
+            response['X-CSRFToken'] = None
+            response.data = {"detail": "You're logged out!"}
+            response.status = status.HTTP_200_OK
+            return response
+        except TokenError:
+            logger.exception('Token is blacklisted', exc_info=True)
+            return Response({'error': 'Token is blacklisted'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            logger.exception('Unexpected error', exc_info=True)
+            return Response({'error': 'Unexpected error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            user = User.objects.create_user(
-                username=email,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name
+
+class CookieTokenRefreshView(TokenRefreshView):
+    serializer_class = serializers.CookieTokenRefreshSerializer
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.data.get('refresh'):
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_ACCESS_COOKIE'],
+                value=response.data['access'],
+                max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly=False,
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             )
-            user.save()
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_REFRESH_COOKIE'],
+                value=response.data['refresh'],
+                max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds(),
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            )
 
-            orders = order_models.Order.objects.filter(session_key=session_key)
-            wishlist_objs = store_models.Wishlist.objects.filter(session_key=session_key)
+            del response.data['refresh']
 
-            if orders.exists():
-                orders.update(user=user)
-
-            if wishlist_objs.exists():
-                wishlist_objs.update(user=user)
-
-            token = tokens.RefreshToken.for_user(user)
-            response = JsonResponse({
-                "refresh": str(token),
-                "access": str(token.access_token),
-            }, status=status.HTTP_201_CREATED)
-            response.set_cookie('refresh', str(token), httponly=True)
-
-            return response
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        response['X-CSRFToken'] = request.COOKIES.get('csrftoken')
+        return super().finalize_response(request, response, *args, **kwargs)
 
 
-@method_decorator(csrf_protect, name='dispatch')
-class LoginView(TokenObtainPairView):
-    def post(self, request, *args, **kwargs):
-        try:
-            response = super().post(request, *args, **kwargs)
-            if response.status_code == status.HTTP_200_OK:
-                session_key = request.session.session_key
-                user = User.objects.get(email=request.data['username'])
-                order_models.Order.objects.filter(session_key=session_key).update(user=user)
-                store_models.Wishlist.objects.filter(session_key=session_key).update(user=user)
-                token = tokens.RefreshToken.for_user(user)
-                response.set_cookie('refresh', str(token), httponly=True)
-
-            return response
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class EmailViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = order_serializers.UserSerializer
     allowed_methods = ["GET", "get_email"]
@@ -126,13 +202,13 @@ class EmailViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated:
             user = self.request.user
             try:
-                user.email = request.data['email'].strip()
-                user.username = request.data['email'].strip()
+                user.email = request.data.strip()
+                user.username = request.data.strip()
                 user.save()
 
-                return Response({"detail": "email has been changed"}, status=status.HTTP_200_OK)
+                return Response({'email': user.email}, status=status.HTTP_200_OK)
             except IntegrityError:
-                return Response({"detail": "email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "email already exists"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
@@ -144,16 +220,15 @@ class EmailViewSet(viewsets.ModelViewSet):
             email = request.data.get('email').strip()
             user = User.objects.get(email=email)
             if user:
-                recent_cases = models.ResetPasswordCases.objects.filter(user=user)
+                recent_cases = models.ResetPasswordCase.objects.filter(user=user)
 
                 if recent_cases.exists():
                     recent_cases.update(is_active=False)
 
-                instance = models.ResetPasswordCases.objects.create(
+                instance = models.ResetPasswordCase.objects.create(
                     user=user,
                 )
-                services.send_email_reset_password(request, instance.uuid, email)
-                return Response(status=status.HTTP_200_OK)
+                return Response({'token': instance.uuid}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
@@ -167,7 +242,7 @@ class EmailViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
             uuid = request.data.get('uuid').strip()
-            reset_password_case = models.ResetPasswordCases.objects.filter(uuid=uuid, is_active=True).first()
+            reset_password_case = models.ResetPasswordCase.objects.filter(uuid=uuid, is_active=True).first()
 
             if not reset_password_case:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -196,10 +271,10 @@ class EmailViewSet(viewsets.ModelViewSet):
             password1 = request.data.get('password1')
             password2 = request.data.get('password2')
 
-            if not (password1 == password2):
+            if password1 != password2:
                 return Response({"detail": "Passwords don't match."}, status=status.HTTP_400_BAD_REQUEST)
 
-            recent_case = models.ResetPasswordCases.objects.filter(uuid=uuid).first()
+            recent_case = models.ResetPasswordCase.objects.filter(uuid=uuid).first()
 
             if not recent_case:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -211,14 +286,21 @@ class EmailViewSet(viewsets.ModelViewSet):
             recent_case.is_active = False
             recent_case.save()
 
-            services.send_email_reset_password_success(request, user.email)
-
             return Response(status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
+    def send_email(self, request):
+        result = services.send_email(request)
+
+        if result == 1:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeLanguageAPIView(generics.GenericAPIView):
@@ -254,17 +336,7 @@ class ChangeLanguageAPIView(generics.GenericAPIView):
             return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class TestAPIView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request):
-        from . import services
-        status_ = services.send_test_email(request, 3, 'processing')
-        return JsonResponse({"test": status_}, status=status.HTTP_200_OK)
-
-
-class GetDynSettingsAPIView(generics.GenericAPIView):
+class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     allowed_methods = ["GET"]

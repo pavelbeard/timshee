@@ -11,7 +11,6 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import ShippingMethodForm from "./forms/ShippingMethodForm";
 import PaymentForm from "./forms/PaymentForm";
 import {toggleCart} from "../../../../redux/slices/menuSlice";
-import AuthService from "../../../api/authService";
 import {getCartItems} from "../../../cart/api/asyncThunks";
 import {
     createOrUpdateAddress,
@@ -21,15 +20,16 @@ import {
 import {
     getCountries, getOrderDetail,
     getPhoneCodes,
-    getProvinces, getShippingMethodDetail,
+    getProvinces,
     getShippingMethods, updateOrderShippingMethod
 } from "../../api/asyncThunks";
 import t from "../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 
 const Checkout = () => {
     window.document.title = 'Timshee | Checkout';
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const params = useParams();
     const dispatch = useDispatch();
@@ -265,7 +265,7 @@ const Checkout = () => {
                             <div className="order-info">
                                 <h3>{t.checkout.shippingInfo[language]}</h3>
                                 {
-                                    token?.access ? (
+                                    token ? (
                                         <div>
                                             <span>EMAIL:</span>
                                             <span>{usernameEmail}</span>
@@ -300,7 +300,7 @@ const Checkout = () => {
                             <div className="order-info">
                                 <h3>{t.checkout.shippingInfo[language]}</h3>
                                 {
-                                    token?.access ? (
+                                    token ? (
                                         <div>
                                             <span>EMAIL:</span>
                                             <span>{usernameEmail}</span>

@@ -17,6 +17,7 @@ import t from "../../../../translate/TranslateService";
 import NotFound from "../../../../../NotFound";
 
 import { API_URL } from '../../../../../config';
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const Carousel = ({ images, imageSize }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -44,7 +45,7 @@ const Carousel = ({ images, imageSize }) => {
 const ItemCardDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = translateService.language();
     const {cart, getCartItemsStatus, addCartItemStatus} = useSelector(state => state.cart);
     const {inStock, itemDetailStatus} = useSelector(state => state.item);

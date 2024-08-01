@@ -25,7 +25,7 @@ export const checkInStock = createAsyncThunk(
     async ({itemId, size, color}, thunkAPI) => {
         try {
             const url = [
-                `${API_URL}api/store/stocks/`,
+                `${API_URL}/api/store/stocks/`,
                 `?item__id=${itemId}`,
                 `&size__id=${size}`,
                 `&color__id=${color}`
@@ -52,7 +52,7 @@ export const getItemDetail = createAsyncThunk(
     "items/getItemDetail",
     async ({itemId}, thunkAPI) => {
         try {
-            const url = `${API_URL}api/store/items/${itemId}/`;
+            const url = `${API_URL}/api/store/items/${itemId}/`;
             const response = await fetch(encodeURI(url), {
                 method: "GET",
                 headers: {

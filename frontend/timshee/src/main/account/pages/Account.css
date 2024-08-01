@@ -16,6 +16,7 @@
 
 .second-block {
     display: flex;
+    justify-content: space-between;
 }
 
 .first-block > form > button {

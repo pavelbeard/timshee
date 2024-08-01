@@ -216,9 +216,9 @@ export const getOrderDetail = createAsyncThunk(
 
 export const refundWhole = createAsyncThunk(
     "ordersPage/refundWhole",
-    async ({orderNumber, data, token}, thunkAPI) => {
+    async ({orderId, data, token}, thunkAPI) => {
         try {
-            const result = await requestRefundOrder({orderNumber, data, token, refundWhole: true});
+            const result = await requestRefundOrder({orderId, data, token, refundWhole: true});
             if (result) {
                 return result;
             } else {
@@ -232,9 +232,9 @@ export const refundWhole = createAsyncThunk(
 
 export const refundPartial = createAsyncThunk(
     "ordersPage/refundPartial",
-    async ({orderNumber, data, token}, thunkAPI) => {
+    async ({orderId, data, token}, thunkAPI) => {
         try {
-            const result = await requestRefundOrder({orderNumber, data, token});
+            const result = await requestRefundOrder({orderId, data, token});
             if (result) {
                 return result;
             } else {

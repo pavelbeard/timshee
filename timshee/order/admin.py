@@ -33,16 +33,24 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ["order_number", "order_item"]
+    readonly_fields = ["order_number", "order_item", "returned_item"]
 
     class OrderItem(admin.TabularInline):
         model = models.OrderItem
 
-    inlines = [OrderItem]
+    class ReturnedItem(admin.TabularInline):
+        model = models.ReturnedItem
+
+    inlines = [OrderItem, ReturnedItem]
 
 
 @admin.register(models.OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ReturnedItem)
+class ReturnedItemAdmin(admin.ModelAdmin):
     pass
 
 

@@ -1,16 +1,14 @@
-import { API_URL } from '../../config';
+import {API_URL, CSRF_TOKEN} from '../../config';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from "js-cookie";
 
-const csrftoken = Cookies.get("csrftoken");
-
 const register = async ({firstName, lastName, email, password, setErrorMessage}) => {
     try {
-        const response = await fetch(API_URL + "api/stuff/register/", {
+        const response = await fetch(API_URL + "/api/stuff/signup/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
+                "X-CSRFToken": CSRF_TOKEN,
             },
             body: JSON.stringify({
                 firstName: firstName,
@@ -36,11 +34,11 @@ const register = async ({firstName, lastName, email, password, setErrorMessage})
 
 const login = async ({email, password, setErrorMessage}) => {
     try {
-        const response = await fetch(API_URL + "api/stuff/token/", {
+        const response = await fetch(API_URL + "/api/stuff/signin/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
+                "X-CSRFToken": CSRF_TOKEN,
             },
             body: JSON.stringify({username: email, password}),
             credentials: "include",
@@ -59,6 +57,10 @@ const login = async ({email, password, setErrorMessage}) => {
         setTimeout(() => setErrorMessage(''), 2000);
     }
 };
+
+const refresh = async () => {
+
+}
 
 const logout = () => {
     localStorage.removeItem("user");

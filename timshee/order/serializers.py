@@ -48,6 +48,13 @@ class AddressSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         return strict_serializers.StrictUserSerializer(obj.user).data
 
+    def get_fields(self, *args, **kwargs):
+        fields = super().get_fields(*args, **kwargs)
+        request = self.context.get('request')
+        if request is not None and not request.parser_context.get('kwargs'):
+            fields.pop('session')
+        return fields
+
     class Meta:
         model = models.Address
         fields = "__all__"
@@ -61,29 +68,54 @@ class OrderItemSerializer(serializers.ModelSerializer):
         depth = 2
 
 
+class ReturnedItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ReturnedItem
+        exclude = ("order",)
+        depth = 2
+
+
 class OrderSerializer(serializers.ModelSerializer):
     shipping_address = serializers.SerializerMethodField()
     shipping_method = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField(required=False)
     order_number = serializers.CharField(required=False)
     order_item = serializers.SerializerMethodField()
+    returned_item = serializers.SerializerMethodField()
+    items_total_price = serializers.SerializerMethodField()
+    shipping_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+
+    def get_shipping_address(self, obj):
+        return None if obj.shipping_address is None else strict_serializers.StrictAddressSerializer(
+            obj.shipping_address).data
+
+    def get_shipping_method(self, obj):
+        return None if obj.shipping_method is None else ShippingMethodSerializer(obj.shipping_method).data
+
+    def get_user(self, obj):
+        return None if obj.user is None else UserSerializer(obj.user).data
 
     def get_order_item(self, obj):
         data = models.OrderItem.objects.filter(order_id=obj.id)
         return OrderItemSerializer(data, many=True).data
 
-    def get_shipping_address(self, obj):
-        return strict_serializers.StrictAddressSerializer(obj.shipping_address).data
+    def get_returned_item(self, obj):
+        data = models.ReturnedItem.objects.filter(order_id=obj.id)
+        return ReturnedItemSerializer(data, many=True).data
 
-    def get_shipping_method(self, obj):
-        return ShippingMethodSerializer(obj.shipping_method).data
+    def get_items_total_price(self, obj):
+        return obj.items_total_price()
 
-    def get_user(self, obj):
-        return UserSerializer(obj.user).data
+    def get_shipping_price(self, obj):
+        return obj.shipping_price()
+
+    def get_total_price(self, obj):
+        return obj.total_price()
 
     class Meta:
         model = models.Order
-        fields = "__all__"
+        exclude = ('session', )
         depth = 3
 
 

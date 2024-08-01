@@ -1,12 +1,17 @@
-import React, {useContext} from "react";
-import AuthContext from "./AuthProvider";
-import {Route, Navigate, Outlet} from "react-router-dom";
+import React from "react";
+import {Navigate, Outlet, useLocation} from "react-router-dom";
+import {useSelector} from "react-redux";
+import {selectCurrentToken} from "../../redux/services/features/auth/authSlice";
 
 const PrivateRoute = ({ element: Element, ...rest }) => {
-    const user = useContext(AuthContext);
+    const token = useSelector(selectCurrentToken);
+    const location = useLocation();
 
-    return user ? <Outlet /> : <Navigate to="/login" />;
-
+    if (token) {
+        return <Outlet />
+    } else {
+        return <Navigate to="/account/login" state={{ from: location }} replace />
+    }
 };
 
 export default PrivateRoute;

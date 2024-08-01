@@ -6,11 +6,12 @@ import AuthService from "../../../../api/authService";
 import "./CheckoutForms.css";
 
 import t from "../../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const PaymentForm = ({ orderId }) => {
     const language = t.language();
 
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,7 @@ const PaymentForm = ({ orderId }) => {
         setIsLoading(true);
 
         const paymentData = {
-            "order_id": orderId,
+            "store_order_id": orderId,
         };
 
         const updateOrderResult = await updateOrder({
@@ -41,7 +42,7 @@ const PaymentForm = ({ orderId }) => {
                 paymentData, setError, setIsLoading, token,
             });
 
-            setRedirectUrl(createPaymentResult['confirmation_url']);
+            setRedirectUrl(createPaymentResult?.confirmation_url);
         }
     };
 

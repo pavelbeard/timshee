@@ -29,7 +29,7 @@ export const getItems = createAsyncThunk(
                 ? `&type__code__in=${filters.types.join(',')}`
                 : "";
             const encodedURI = encodeURI(API_URL
-                + `api/store/items/?${currentPage === 1 ? "" : `page=${currentPage}`}`
+                + `/api/store/items/?${currentPage === 1 ? "" : `page=${currentPage}`}`
                 + filterSizes
                 + filterColors
                 + filterCategory
@@ -71,7 +71,7 @@ export const getSizes = createAsyncThunk(
     "shop/getSizes",
     async (arg, thunkAPI) => {
         try {
-            const response = await fetch(API_URL + "api/store/sizes/");
+            const response = await fetch(API_URL + "/api/store/sizes/");
 
             if (response.ok) {
                 const json = await response.json();
@@ -97,7 +97,7 @@ export const getColors = createAsyncThunk(
     "shop/getColors",
     async (args, thunkAPI) => {
         try {
-            const url = `${API_URL}api/store/colors/`;
+            const url = `${API_URL}/api/store/colors/`;
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -132,7 +132,7 @@ export const getCategories = createAsyncThunk(
     "shop/getCategories",
     async (arg, thunkAPI) => {
         try {
-            const url = `${API_URL}api/store/categories/`;
+            const url = `${API_URL}/api/store/categories/`;
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -168,7 +168,7 @@ export const getTypes = createAsyncThunk(
     "shop/getTypes",
     async (arg, thunkAPI) => {
         try {
-            const url = `${API_URL}api/store/types/`;
+            const url = `${API_URL}/api/store/types/`;
             const response = await fetch(url, {
                 method: "GET",
                 headers: {

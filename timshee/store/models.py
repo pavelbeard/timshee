@@ -1,8 +1,8 @@
 import re
 
 from colorfield import fields
-from auxiliaries.auxiliaries_methods import calculate_discount as calc_discount
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
 
 from django.db import models
@@ -112,7 +112,7 @@ class Stock(models.Model):
         return False
 
     def increase_stock(self, quantity=1):
-        self.in_stock += quantity
+        self.in_stock += int(quantity)
         self.save()
 
     class Meta:
@@ -171,7 +171,7 @@ class Item(models.Model):
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    session_key = models.CharField(max_length=40, blank=True, null=True)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
     stock = models.ForeignKey("Stock", on_delete=models.CASCADE)
     stock_link = models.CharField(max_length=250, blank=False, null=False)
 

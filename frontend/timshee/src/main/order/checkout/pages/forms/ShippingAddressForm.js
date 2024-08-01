@@ -12,6 +12,7 @@ import {
 import AuthService from "../../../../api/authService";
 import {getFilteredPhoneCodes, getFilteredProvinces} from "../../../api/asyncThunks";
 import t from "../../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const ShippingAddressForm = ({
      initialValue: addressFormObject,
@@ -27,7 +28,7 @@ const ShippingAddressForm = ({
 }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const {
         errorMessage,
@@ -79,7 +80,7 @@ const ShippingAddressForm = ({
                 <h3>{t.checkout.contact[language]}</h3>
             </span>
             {
-                token?.access ? (
+                token ? (
                     <div className="shipping-address-user">
                         <span>{usernameEmail}</span>
                         <span onClick={() => {

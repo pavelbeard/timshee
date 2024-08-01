@@ -39,7 +39,8 @@ class OrderFilter(django_filters.FilterSet):
     class Meta:
         model = models.Order
         fields = {
-            "id": ["exact"],
+            # CHANGES
+            # "id": ["exact"],
             "user__id": ["exact"],
             "order_number": ["exact"],
             "status": ["exact"],

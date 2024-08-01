@@ -10,11 +10,12 @@ import {Link} from "react-router-dom";
 import "./Wishlist.css";
 import t from "../../../translate/TranslateService";
 import { API_URL } from '../../../../config';
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 
 const Wishlist = () => {
     const dispatch = useDispatch();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const {wishlist, wishlistStatus, getWishlistStatus} = useSelector(
         state => state.wishlist
@@ -33,7 +34,7 @@ const Wishlist = () => {
             return (
                 <>
                     {
-                        !(token?.access) && (<span style={{
+                        !(token) && (<span style={{
                             paddingLeft: "3.3rem",
                         }}>{t.wishlist.saveWL[language]}</span>)
                     }

@@ -8,13 +8,14 @@ import Error from "../../../../techPages/Error";
 
 import "../Orders.css";
 import RefundForm from "../forms/RefundForm";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const OrderRefund = () => {
     const dispatch = useDispatch();
     const params = useParams();
     const stockItemId = params.stockItemId ? parseInt(params.stockItemId) : 0;
     const stockItemQuantity = params.stockItemId ? parseInt(params.stockItemQuantity) : 0;
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const {order, orderDetailStatus} = useSelector(state => state.ordersPage);
 
     useEffect(() => {
@@ -26,7 +27,7 @@ const OrderRefund = () => {
     if (orderDetailStatus === 'success') {
         return (
             <div className="order-refund-container">
-                <RefundForm orderNumber={order.order_number}
+                <RefundForm orderId={order.second_id}
                             stockId={stockItemId}
                             stockQuantity={stockItemQuantity} />
             </div>

@@ -216,7 +216,7 @@ export const shippingAddressFormSlice = createSlice({
                 if (action.payload?.shipping_method?.name !== "") {
                     const shippingMethodsCopy = [...current(state).shippingMethods];
                     state.shippingMethods = shippingMethodsCopy.map(m =>
-                        m.id === action.payload.shipping_method.id
+                        m.id === action.payload.shipping_method?.id
                             ? {...m, checked: true} : {...m, checked: false}
                     );
                 }

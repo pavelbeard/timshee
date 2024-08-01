@@ -12,18 +12,19 @@ import t from "../../../translate/TranslateService";
 import Loading from "../../../techPages/Loading";
 import Error from "../../../techPages/Error";
 import Nothing from "../../../techPages/Nothing";
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 const Addresses = () => {
     const dispatch = useDispatch();
 
     const isEditAddressMenuClicked = useSelector(state => state.menu.isAddressEditFormOpened);
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const {addresses, shippingAddressesStatus} = useSelector(state => state.addressForm);
     const {deleteAddressStatus} = useSelector(state => state.editAddress);
 
     useEffect(() => {
-        if (token?.access && shippingAddressesStatus === 'idle') {
+        if (token && shippingAddressesStatus === 'idle') {
             dispatch(getAddresses({token}));
         }
     }, [shippingAddressesStatus, isEditAddressMenuClicked, deleteAddressStatus]);

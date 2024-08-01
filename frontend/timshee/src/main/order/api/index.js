@@ -2,13 +2,11 @@ import {setError, setIsLoading} from "./reducers/checkoutSlice";
 import AuthService from "../../api/authService";
 import Cookies from "js-cookie";
 
-import { API_URL } from '../../../config';
-const csrftoken = Cookies.get("csrftoken");
-const token = AuthService.getCurrentUser();
+import {API_URL, CSRF_TOKEN} from '../../../config';
 
 // ADDRESSES
 export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId, token}) => {
-    let url= `${API_URL}api/order/addresses/`;
+    let url= `${API_URL}/api/order/addresses/`;
 
     if (shippingAddressId !== 0 && shippingAddressId !== undefined) {
         url += `${shippingAddressId}/`;
@@ -16,12 +14,12 @@ export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId,
 
     let headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     let response;
@@ -50,12 +48,12 @@ export const createOrUpdateAddress = async ({shippingAddress, shippingAddressId,
 };
 
 // ORDERS
-export const getOrder = async ({ orderId, isAuthenticated, dispatch }) => {
+export const getOrder = async ({ orderId, token, dispatch }) => {
     try {
-        const url = `${API_URL}api/order/orders/${orderId}/`;
+        const url = `${API_URL}/api/order/orders/${orderId}/`;
         const headers = {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
+            "Authorization": `Bearer ${token}`,
             "Accept": "application/json",
         };
 
@@ -77,15 +75,15 @@ export const getOrder = async ({ orderId, isAuthenticated, dispatch }) => {
 
 export const updateOrder = async ({ orderId, data, token, setError, setIsLoading }) => {
     try {
-        const url = `${API_URL}api/order/orders/${orderId}/`;
+        const url = `${API_URL}/api/order/orders/${orderId}/`;
         const headers = {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
+            "X-CSRFToken": CSRF_TOKEN,
             "Accept": "application/json",
         };
 
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
         }
 
         const response = await fetch(url, {
@@ -106,16 +104,16 @@ export const updateOrder = async ({ orderId, data, token, setError, setIsLoading
 // PAYMENTS
 export const createPayment = async ({ paymentData, setError, setIsLoading, token }) => {
     try {
-        const url = `${API_URL}api/payment/payment/`;
+        const url = `${API_URL}/api/payment/payment/`;
 
         const headers = {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
+            "X-CSRFToken": CSRF_TOKEN,
             "Accept": "application/json",
         }
 
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
         }
 
         const response = await fetch(url, {
@@ -134,20 +132,21 @@ export const createPayment = async ({ paymentData, setError, setIsLoading, token
     }
 };
 
-export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading, token }) => {
+export const checkPaymentStatus = async ({ orderId, setError, setIsLoading, token }) => {
     try {
         const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
         };
 
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
         }
 
-        const url = `${API_URL}api/payment/payment/${orderNumber}/get_status/`;
+        const url = `${API_URL}/api/payment/payment/${orderId}/get_status/`;
         const response = await fetch(url, {
             method: "GET",
+            credentials: "include",
         });
 
         if (response.ok) {
@@ -160,12 +159,12 @@ export const checkPaymentStatus = async ({ orderNumber, setError, setIsLoading, 
     }
 }
 
-export const updatePaymentInfo = async ({ storeOrderNumber, data, setError, setIsLoading }) => {
+export const updatePaymentInfo = async ({ storeOrderId, data, setError, setIsLoading }) => {
     try {
-        const url = `${API_URL}api/payment/payment/${storeOrderNumber}/`;
+        const url = `${API_URL}/api/payment/payment/${storeOrderId}/`;
         const headers = {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
+            "X-CSRFToken": CSRF_TOKEN,
             "Accept": "application/json",
         }
         const response = await fetch(url, {

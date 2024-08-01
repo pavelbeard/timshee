@@ -198,10 +198,19 @@ class ChangePasswordTestCase(TestCase):
             email='test@gmail.com',
             password='Rt3$YiOO'
         )
+
+        user2 = User(
+            username='testuser@testuser.com',
+            email='testuser@testuser.com',
+        )
+        user2.set_password('Rt3$YiOO')
+        user2.save()
+
+        self.user2 = user2
         self.client = APIClient()
 
     def test_request_password_reset(self):
-        instance = stuff_models.ResetPasswordCases.objects.create(
+        instance = stuff_models.ResetPasswordCase.objects.create(
             user=self.user,
         )
         uuid = instance.uuid
@@ -246,7 +255,7 @@ class ChangePasswordTestCase(TestCase):
         response1 = self.client.post(url_check_email, data1, format='json')
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
 
-        reset_password_case = stuff_models.ResetPasswordCases.objects.first()
+        reset_password_case = stuff_models.ResetPasswordCase.objects.first()
         reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
         reset_password_case.save()
 
@@ -265,7 +274,7 @@ class ChangePasswordTestCase(TestCase):
         response2 = self.client.post(url_check_email, data, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-        cases = stuff_models.ResetPasswordCases.objects.all()
+        cases = stuff_models.ResetPasswordCase.objects.all()
 
         self.assertFalse(cases.last().is_active)
         self.assertTrue(cases.first().is_active)
@@ -283,12 +292,124 @@ class ChangePasswordTestCase(TestCase):
         response2 = self.client.post(url_check_email, data1, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-        reset_password_case = stuff_models.ResetPasswordCases.objects.filter(user=self.user, is_active=True).first()
+        reset_password_case = stuff_models.ResetPasswordCase.objects.filter(user=self.user, is_active=True).first()
         reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
         reset_password_case.save()
 
         response3 = self.client.post(url_password_duration_validation, data1, format='json')
         self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
 
-        for case in stuff_models.ResetPasswordCases.objects.all():
+        for case in stuff_models.ResetPasswordCase.objects.all():
             print(case.is_active, case.user.username)
+
+        # paths
+
+        # admin /
+        # api / store /
+        # api / cart /
+        # api / order /
+        # api / stuff / signin / [name = 'signin']
+        # api / stuff / signup / [name = 'signup']
+        # api / stuff / token / refresh / [name = 'token_refresh']
+        # api / stuff / lang / [name = 'lang']
+        # api / stuff / dynamic - settings / [name = 'get-dyn-settings']
+        # api / stuff / ^ email /$ [name = 'user-list']
+        # api / stuff / ^ email\.(?P < format >[a-z0-9]+) /?$ [name = 'user-list']
+        # api / stuff / ^ email / change_email /$ [name = 'user-change-email']
+        # api / stuff / ^ email / change_email\.(?P < format >[a-z0-9]+) /?$ [name = 'user-change-email']
+        # api / stuff / ^ email / change_password /$ [name = 'user-change-password']
+        # api / stuff / ^ email / change_password\.(?P < format >[a-z0-9]+) /?$ [name = 'user-change-password']
+        # api / stuff / ^ email / check_email /$ [name = 'user-check-email']
+        # api / stuff / ^ email / check_email\.(?P < format >[a-z0-9]+) /?$ [name = 'user-check-email']
+        # api / stuff / ^ email / get_email /$ [name = 'user-get-email']
+        # api / stuff / ^ email / get_email\.(?P < format >[a-z0-9]+) /?$ [name = 'user-get-email']
+        # api / stuff / ^ email / is_reset_password_request_valid /$ [name = 'user-is-reset-password-request-valid']
+        # api / stuff / ^ email / is_reset_password_request_valid\.(?P < format >[a-z0-9]+) /?$ [
+        #     name = 'user-is-reset-password-request-valid']
+        # api / stuff / ^ email / (?P < pk >[^ /.]+) /$ [name = 'user-detail']
+        # api / stuff / ^ email / (?P < pk >[^ /.]+)\.(?P < format >[a-z0-9]+) /?$ [name = 'user-detail']
+        # api / stuff / ^$ [name = 'api-root']
+        # api / stuff / ^\.(?P < format >[a-z0-9]+) /?$ [name = 'api-root']
+        # api / payment /
+        # api / obtain - token /
+        # debug /
+        # ^ timshee / media / (?P < path >.*)$
+        # ^ static / (?P < path >.*)$
+
+    def test_signin(self):
+        url = reverse('signin')
+
+        data = {
+            'username': 'testuser@testuser.com',
+            'password': 'Rt3$YiOO'
+        }
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print(response.cookies)
+
+    def test_signup_and_test_signup_and_test_refresh(self):
+        data = {
+            'username': 'testuser1@testuser1.com',
+            'password': 'Rt3$YiOO',
+            'password2': 'Rt3$YiOO',
+            'first_name': 'testuser',
+            'last_name': 'testuser',
+        }
+
+        url = reverse('signup')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        data2 = {
+            'username': 'testuser1@testuser1.com',
+            'password': 'Rt3$YiOO',
+        }
+
+        url = reverse('signin')
+        response = self.client.post(url, data2, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('access_token', response.cookies)
+        self.assertIn('refresh_token', response.cookies)
+        self.assertIn('csrftoken', response.cookies)
+
+        csrftoken = response.cookies['csrftoken'].value
+        self.client.cookies.load({'refresh_token': response.cookies['refresh_token']})
+        url = reverse('token_refresh')
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('access_token', response.cookies)
+        self.assertIn('refresh_token', response.cookies)
+
+        url = reverse('signout')
+        response = self.client.post(url, headers={'X-CSRFToken': csrftoken,
+                                                  'Authorization': 'Bearer {0}'.format(
+                                                      response.cookies['access_token'].value)})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_send_email(self):
+        url = reverse('user-send-email')
+        data = {
+            'subject': 'Timshee | Test subject',
+            'html_message': '''
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html dir="ltr" lang="en"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/><meta name="x-apple-disable-message-reformatting"/><style>
+                @font-face {
+                  font-family: 'Bebas Neue';
+                  font-style: normal;
+                  font-weight: 400;
+                  mso-font-alt: 'sans-serif';
+                  src: url(https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap) format('woff2');
+                }
+
+                * {
+                  font-family: 'Bebas Neue', sans-serif;
+                }
+              </style></head><body><div>Ссылка на подтверждения email: ....</div></body></html>
+            ''',
+            'to': 'heavycream9090@icloud.com'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

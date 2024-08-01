@@ -2,21 +2,18 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import AuthService from "../../main/api/authService";
 import { API_URL } from '../../config';
 
-const token = AuthService.getCurrentUser();
-
-
 
 export const getAddressDetail = createAsyncThunk(
     "editAddress/getAddressDetail",
-    async ({addressId}, thunkAPI) => {
+    async ({token, addressId}, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/addresses/${addressId}/`;
+            const url = `${API_URL}/api/order/addresses/${addressId}/`;
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "Authorization": `Bearer ${token?.access}`,
+                    "Authorization": `Bearer ${token}`,
                 }
             });
 

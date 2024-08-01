@@ -12,16 +12,17 @@ import {toCamelCase} from "../../../api/stuff";
 import Nothing from "../../../techPages/Nothing";
 
 import { API_URL } from '../../../../config';
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 
 const Orders = () => {
     const dispatch = useDispatch();
     const language = t.language();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const {orders, ordersStatus} = useSelector(state => state.ordersPage);
 
     useEffect(() => {
-        if (token?.access && ordersStatus === 'idle') {
+        if (token && ordersStatus === 'idle') {
             dispatch(getOrders({token}));
         }
     }, [ordersStatus]);
@@ -35,7 +36,7 @@ const Orders = () => {
                 {
                     orders.length > 0 ? (
                         <div className="orders-container">
-                            {
+                            {Array.isArray(orders.order_item) &&
                                 orders.map((order, index) => {
                                     if (order.order_item.length === 0) {
                                         return <></>
@@ -77,7 +78,7 @@ const Orders = () => {
                                                 ))}
                                             </div>
                                             <div className="order-buttons">
-                                                <Link to={`/orders/${order.id}/detail`}>
+                                                <Link to={`/orders/${order.second_id}/detail`}>
                                                     <div className="order-button">
                                                         {t.account.orderDetail[language]}
                                                     </div>
@@ -85,7 +86,7 @@ const Orders = () => {
                                                 {
                                                     (order.status !== "refunded" && order.status !== "partial_refunded"
                                                     && order.non_refundable === false) && (
-                                                        <Link to={`/orders/${order.id}/order-refund`}>
+                                                        <Link to={`/orders/${order.second_id}/order-refund`}>
                                                             <div className="order-button">{t.account.returnOrder[language]}</div>
                                                         </Link>
                                                     )

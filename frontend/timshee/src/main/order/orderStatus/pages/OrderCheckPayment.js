@@ -3,12 +3,13 @@ import {Navigate, useParams} from "react-router-dom";
 
 import "./OrderStatus.css";
 import {checkPaymentStatus} from "../../api";
-import AuthService from "../../../api/authService";
 import Error from "../../../techPages/Error";
+import {useSelector} from "react-redux";
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 const OrderCheckPayment = () => {
     const params = useParams();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
 
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
@@ -20,9 +21,9 @@ const OrderCheckPayment = () => {
 
     useEffect(() => {
         const fetchStatus = async () => {
-            if (orderNumber !== undefined) {
+            if (orderId !== undefined) {
                 const result = await checkPaymentStatus({
-                    orderNumber, setError, setIsLoading, token
+                    orderId, setError, setIsLoading, token
                 });
 
                 if (result) {

@@ -22,9 +22,9 @@ const OrderDetail = () => {
     const shippingAddress = (address) => {
         return (
             <div>
-                <span>{`${address.province.country.name}, ${address.postal_code}, ${address.province.name}, ${address.city}`}</span>
+                <span>{`${address?.province?.country?.name}, ${address?.postal_code}, ${address?.province.name}, ${address?.city}`}</span>
                 <br/>
-                <span>{`${address.address1}, ${address.address2}`}</span>
+                <span>{`${address?.address1}, ${address?.address2}`}</span>
             </div>
         );
     };
@@ -54,7 +54,7 @@ const OrderDetail = () => {
                         ) : (
                             <>
                                 <span>{t.account.to[language]}</span>
-                                {shippingAddress(order.shipping_address)}
+                                {order?.shipping_address ? shippingAddress(order.shipping_address) : "NULL"}
                             </>
                         )
                     }
@@ -75,6 +75,12 @@ const OrderDetail = () => {
                                     <span>{item.item.item.price}
                                         <span>{t.shop.price[language]}</span>
                                     </span>
+                                </div>
+                                <div className="order-detail-item-info">
+                                    <span>{item.item.size.value}</span>
+                                </div>
+                                <div className="order-detail-item-info">
+                                    <span>{item.item.color.name}</span>
                                 </div>
                                 <div className="order-detail-item-info">
                                     {

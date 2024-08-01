@@ -40,7 +40,6 @@ const cartSlice = createSlice({
             })
             .addCase(addCartItem.fulfilled, (state, action) => {
                 state.addCartItemStatus = 'success';
-                console.log(action.payload);
                 state.cart = {
                     cartItems: action.payload['data'],
                     totalQuantityInCart: action.payload['total_quantity'],

@@ -1,21 +1,20 @@
-import { API_URL } from "../../../../../../config";
+import {API_URL, CSRF_TOKEN} from "../../../../../../config";
 import Cookies from "js-cookie";
 
-const csrftoken = Cookies.get("csrftoken");
 
 export async function putShippingMethod({ orderId, data, token }) {
     try {
         const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "X-CSRFToken": csrftoken,
+            "X-CSRFToken": CSRF_TOKEN,
         };
 
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token.access}`
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`
         }
 
-        const url = `${API_URL}api/order/orders/${orderId}/`;
+        const url = `${API_URL}/api/order/orders/${orderId}/`;
         const response = await fetch(url, {
             method: "PUT",
             body: JSON.stringify(data),

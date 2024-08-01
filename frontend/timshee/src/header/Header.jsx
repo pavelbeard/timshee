@@ -13,11 +13,12 @@ import AuthService from "../main/api/authService";
 import {getWishlist} from "../main/account/api/reducers/asyncThunks";
 import t from "../main/translate/TranslateService";
 import TranslateContext from "../main/translate/TranslateProvider";
+import {selectCurrentToken} from "../redux/services/features/auth/authSlice";
 
 const Header = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken)
     const language = t.language();
     const {postLanguage} = useContext(TranslateContext);
     const {collections, categories, countries, continents} = useSelector(state => state.app);
@@ -320,7 +321,7 @@ const Header = () => {
                 <li className="nav-item-lvl0">
                     <span>{t.shop.account[language]}</span>
                     {
-                        token?.access ? (
+                        token ? (
                             <ul className="nav-list-lvl1"
                                 onMouseEnter={() => setLvl1open(true)}
                                 onMouseLeave={() => setLvl1open(false)}

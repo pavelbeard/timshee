@@ -9,11 +9,12 @@ import t from "../../../translate/TranslateService";
 import {useNavigate} from "react-router-dom";
 import {toggleChangeEmail} from "../../../../redux/slices/menuSlice";
 import {resetChangeEmailStatus} from "./reducers/accountSlice";
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 const ChangeEmailForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const {changedEmail, changeEmailStatus} = useSelector(state => state.account);
     const [newEmail, setNewEmail] = useState('');

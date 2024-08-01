@@ -88,3 +88,10 @@ class WishlistSerializer(serializers.ModelSerializer):
         model = models.Wishlist
         fields = "__all__"
         depth = 2
+
+    def get_fields(self, *args, **kwargs):
+        fields = super().get_fields(*args, **kwargs)
+        request = self.context.get('request')
+        if request is not None and not request.parser_context.get('kwargs'):
+            fields.pop('session')
+        return fields

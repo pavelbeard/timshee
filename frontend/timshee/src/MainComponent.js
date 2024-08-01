@@ -2,7 +2,7 @@ import Main from "./main/Main.js";
 import {useDispatch, useSelector} from "react-redux";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Shop from "./main/shop/pages/Shop";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useReducer, useState} from "react";
 import Login from "./main/account/pages/auth/login/Login";
 import Signup from "./main/account/pages/auth/signup/Signup";
 import Account from "./main/account/pages/Account";
@@ -23,7 +23,6 @@ import {
     getCategories,
     getCollectionLinks,
     getCountries,
-    getCsrfToken,
     getDynamicSettings
 } from "./redux/slices/appSlice";
 import Loading from "./main/techPages/Loading";
@@ -45,9 +44,13 @@ import SendEmailForm from "./main/account/pages/auth/login/forms/SendEmailForm";
 import NewPasswordForm from "./main/account/pages/auth/login/forms/NewPasswordForm";
 import About from "./main/About";
 import House from "./main/House";
+import {selectCurrentToken, setCredentials} from "./redux/services/features/auth/authSlice";
+import {useRefreshMutation} from "./redux/services/features/auth/refreshApiSlice";
+import {useGetCurrentUserMutation} from "./redux/services/features/auth/getUserApiSlice";
 
 const MainComponent = () => {
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
+    const [refresh, { isLoading: isRefreshLoading }] = useRefreshMutation();
     const dispatch = useDispatch();
     const {
         collections: collectionLinks, categories, collectionsStatus,
@@ -55,9 +58,22 @@ const MainComponent = () => {
     } = useSelector(state => state.app);
     const {provinces, provincesStatus, phoneCodes, phoneCodesStatus } = useSelector(state => state.addressForm);
     const {shippingMethods} = useSelector(state => state.shippingAddressForm);
+    const [coreError, setCoreError] = useState(false);
 
     useEffect(() => {
-        dispatch(getCsrfToken());
+        (async() => {
+            try {
+                const refreshResult = await refresh().unwrap();
+                dispatch(setCredentials({ token: refreshResult.access, user: null }));
+            } catch (e) {
+                if (e?.status === 500) {
+                    setCoreError(true);
+                }
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
         dispatch(getCollectionLinks());
         dispatch(getCategories());
         dispatch(getCountries());
@@ -73,7 +89,11 @@ const MainComponent = () => {
         && phoneCodes.length > 0
         && shippingMethods.length > 0;
 
-    if (dynamicSettingsStatus === 'success') {
+    if (isRefreshLoading || dynamicSettingsStatus === 'loading') {
+        return <Loading />;
+    } else if (coreError || dynamicSettingsStatus === 'error') {
+        return <Error />
+    } else if (dynamicSettingsStatus === 'success') {
         if (dynamicSettings && !dynamicSettings.onContentUpdate && !dynamicSettings.onMaintenance) {
             if (collectionsStatus === 'success'
                 && provincesStatus === 'success'
@@ -160,10 +180,6 @@ const MainComponent = () => {
         } else if (dynamicSettings.onMaintenance) {
             return <OnMaintenance />
         }
-    } else if (dynamicSettingsStatus === 'loading') {
-        return <Loading />;
-    } else if (dynamicSettingsStatus === 'error') {
-        return <Error />;
     }
 };
 

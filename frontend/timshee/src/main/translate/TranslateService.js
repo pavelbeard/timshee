@@ -2,6 +2,8 @@ import React from "react";
 import AuthService from "../api/authService";
 
 import { API_URL } from '../../config';
+import {selectCurrentToken} from "../../redux/services/features/auth/authSlice";
+import {useSelector} from "react-redux";
 
 const siteCreated = {
     "en-US": "Site created by heavycream9090",
@@ -868,18 +870,17 @@ const language = () => {
     return localStorage.getItem("language") !== null ? localStorage.getItem("language") : "ru-RU";
 };
 
-const setLanguage = async (language) => {
+const setLanguage = async (token, language) => {
     try {
         const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
         };
 
-        const token = AuthService.getCurrentUser();
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token.access}`
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`
         }
-        const response = await fetch(`${API_URL}api/stuff/lang/`, {
+        const response = await fetch(`${API_URL}/api/stuff/lang/`, {
             method: "POST",
             headers,
             body: JSON.stringify({
@@ -900,18 +901,17 @@ const setLanguage = async (language) => {
     }
 };
 
-const getLanguage = async () => {
+const getLanguage = async ({token}) => {
     try {
         const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
         };
 
-        const token = AuthService.getCurrentUser();
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token.access}`
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`
         }
-        const response = await fetch(`${API_URL}api/stuff/lang/`, {
+        const response = await fetch(`${API_URL}/api/stuff/lang/`, {
             method: "GET",
             headers,
             credentials: "include",

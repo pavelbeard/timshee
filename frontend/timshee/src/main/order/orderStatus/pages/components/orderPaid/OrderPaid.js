@@ -7,6 +7,7 @@ import {clearCart} from "../../../../../cart/api/asyncThunks";
 import {updateOrderStatus, updatePaymentInfo} from "../../../../api/asyncThunks";
 import AuthService from "../../../../../api/authService";
 import translateService from "../../../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../../../redux/services/features/auth/authSlice";
 
 const OrderPaid = () => {
     const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const OrderPaid = () => {
     const orderId = params.orderId;
     const orderNumber = params.orderNumber;
 
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
 
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState("");
@@ -25,8 +26,9 @@ const OrderPaid = () => {
     const updateInfo = () => {
         if (orderId !== undefined) {
             dispatch(updatePaymentInfo({
-                storeOrderNumber: orderNumber,
+                storeOrderId: orderId,
                 data: {
+                    store_order_id: orderId,
                     status: "succeeded"
                 },
                 setError: setError,

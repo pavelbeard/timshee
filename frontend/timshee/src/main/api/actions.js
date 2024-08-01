@@ -1,20 +1,16 @@
-import AuthService from "./authService";
-import Cookies from "js-cookie";
-import { API_URL } from '../../config';
+import {API_URL, CSRF_TOKEN} from '../../config';
 
-const csrftoken = Cookies.get("csrftoken");
-const token = AuthService.getCurrentUser();
 
 // FOR ADDRESSES AND CHECKOUT FORMS
 export const getShippingAddresses = async ({ token }) => {
-    const url = `${API_URL}api/order/addresses/get_addresses_by_user/`;
+    const url = `${API_URL}/api/order/addresses/get_addresses_by_user/`;
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`
     }
 
     const response = await fetch(url, {
@@ -29,15 +25,15 @@ export const getShippingAddresses = async ({ token }) => {
 };
 
 export const getShippingAddressAsTrue = async({token}) => {
-    const url = `${API_URL}api/order/addresses/get_address_as_primary/`;
+    const url = `${API_URL}/api/order/addresses/get_address_as_primary/`;
 
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`
     }
 
     const response = await fetch(url, {
@@ -54,15 +50,15 @@ export const getShippingAddressAsTrue = async({token}) => {
 };
 
 export const createAddress = async ({token, data}) => {
-    const url = `${API_URL}api/order/addresses/`;
+    const url = `${API_URL}/api/order/addresses/`;
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     }
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`
     }
     const response = await fetch(url, {
         method: "POST",
@@ -77,15 +73,15 @@ export const createAddress = async ({token, data}) => {
 };
 
 export const updateAddress = async ({token, addressId, data}) => {
-    const url = `${API_URL}api/order/addresses/${addressId}/`;
+    const url = `${API_URL}/api/order/addresses/${addressId}/`;
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     }
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`
     }
     const response = await fetch(url, {
         method: "PUT",
@@ -102,15 +98,15 @@ export const updateAddress = async ({token, addressId, data}) => {
 export const deleteAddress = async ({token, addressId}) => {
     let headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const response = await fetch(API_URL + `api/order/addresses/${addressId}/`, {
+    const response = await fetch(API_URL + `/api/order/addresses/${addressId}/`, {
         method: "DELETE",
         headers,
         credentials: "include",
@@ -122,14 +118,14 @@ export const deleteAddress = async ({token, addressId}) => {
 };
 
 // JUST GET ONLY ONE REGULAR ADDRESS
-export const getAddressDetail = async ({ addressId }) => {
-    const url = `${API_URL}api/order/addresses/${addressId}/`;
+export const getAddressDetail = async ({ token, addressId }) => {
+    const url = `${API_URL}/api/order/addresses/${addressId}/`;
     const response = await fetch(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "Authorization": `Bearer ${token?.access}`,
+                "Authorization": `Bearer ${token}`,
             }
         });
 
@@ -140,15 +136,15 @@ export const getAddressDetail = async ({ addressId }) => {
 
 // WISHLIST
 export const addToWishlist = async ({token, data}) => {
-    const url = `${API_URL}api/store/wishlist/`;
+    const url = `${API_URL}/api/store/wishlist/`;
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -166,14 +162,14 @@ export const addToWishlist = async ({token, data}) => {
 };
 
 export const getWishlist = async ({token}) => {
-    const url = `${API_URL}api/store/wishlist/get_wishlist_by_user/`;
+    const url = `${API_URL}/api/store/wishlist/get_wishlist_by_user/`;
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -190,15 +186,15 @@ export const getWishlist = async ({token}) => {
 };
 
 export const deleteWishlistItem = async ({token, wishlistItemId}) => {
-    const url = `${API_URL}api/store/wishlist/${wishlistItemId}/`;
+    const url = `${API_URL}/api/store/wishlist/${wishlistItemId}/`;
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -212,7 +208,7 @@ export const deleteWishlistItem = async ({token, wishlistItemId}) => {
 
 // GET LOCATION DATA
 export const getPhoneCodes = async () => {
-    const url = `${API_URL}api/order/phone-codes/`;
+    const url = `${API_URL}/api/order/phone-codes/`;
     const response = await fetch(url, {
         credentials: "include",
     });
@@ -223,7 +219,7 @@ export const getPhoneCodes = async () => {
 };
 
 export const getCountries = async () => {
-    const url = `${API_URL}api/order/countries/`;
+    const url = `${API_URL}/api/order/countries/`;
     const response = await fetch(url, {
         credentials: "include",
     });
@@ -234,7 +230,7 @@ export const getCountries = async () => {
 };
 
 export const getProvinces = async () => {
-    const url = `${API_URL}api/order/provinces/`;
+    const url = `${API_URL}/api/order/provinces/`;
     const response = await fetch(url, {
         credentials: "include",
     });
@@ -249,15 +245,15 @@ export const getProvinces = async () => {
 //FOR AUTHENTICATED USERS
 //"get_orders_by_user", "get_last_order_by_user"
 export const getOrders = async ({token}) => {
-    let url = `${API_URL}api/order/orders/get_orders_by_user/`;
+    let url = `${API_URL}/api/order/orders/get_orders_by_user/`;
 
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -272,14 +268,14 @@ export const getOrders = async ({token}) => {
 };
 
 export const getLastOrder = async ({token}) => {
-    let url = `${API_URL}api/order/orders/get_last_order_by_user/`;
+    let url = `${API_URL}/api/order/orders/get_last_order_by_user/`;
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -297,15 +293,15 @@ export const getLastOrder = async ({token}) => {
 };
 
 export const getOrderDetail = async ({orderId, token}) => {
-    let url = `${API_URL}api/order/orders/${orderId}/`;
+    let url = `${API_URL}/api/order/orders/${orderId}/`;
 
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -320,13 +316,13 @@ export const getOrderDetail = async ({orderId, token}) => {
 };
 
 export const deleteOrder = async ({token, orderId}) => {
-    const url = `${API_URL}api/order/orders/${orderId}/`;
+    const url = `${API_URL}/api/order/orders/${orderId}/`;
 
     const headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
-        "Authorization": `Bearer ${token?.access}`,
+        "Authorization": `Bearer ${token}`,
     };
 
     const response = await fetch(url, {
@@ -338,8 +334,8 @@ export const deleteOrder = async ({token, orderId}) => {
     return response.ok;
 };
 
-export const refundOrder = async ({orderNumber, data, token, refundWhole=false}) => {
-    let url = `${API_URL}api/payment/payment/${orderNumber}/`;
+export const refundOrder = async ({orderId, data, token, refundWhole=false}) => {
+    let url = `${API_URL}/api/payment/payment/${orderId}/`;
 
     if (refundWhole) {
         url += `refund_whole_order/`;
@@ -350,15 +346,15 @@ export const refundOrder = async ({orderNumber, data, token, refundWhole=false})
     const headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
-        method: "POST",
+        method: "PUT",
         headers,
         body: JSON.stringify(data),
         credentials: "include",
@@ -373,7 +369,7 @@ export const refundOrder = async ({orderNumber, data, token, refundWhole=false})
 
 // CART
 export const getCartItems = async () => {
-    const url = `${API_URL}api/cart/cart/`;
+    const url = `${API_URL}/api/cart/cart/`;
     const response = await fetch(url, {
         method: "GET",
         credentials: "include",
@@ -384,16 +380,16 @@ export const getCartItems = async () => {
 };
 
 export const addCartItem = async ({ data, token }) => {
-    const url = `${API_URL}api/cart/cart/`;
+    const url = `${API_URL}/api/cart/cart/`;
 
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -409,10 +405,10 @@ export const addCartItem = async ({ data, token }) => {
 };
 
 export const clearCart = async ({token, hasOrdered}) => {
-    const url = `${API_URL}api/cart/cart/`;
+    const url = `${API_URL}/api/cart/cart/`;
     let headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
     let body = hasOrdered ? {
@@ -421,8 +417,8 @@ export const clearCart = async ({token, hasOrdered}) => {
         clear: true
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
     const response = await fetch(url, {
         method: "DELETE",
@@ -437,15 +433,15 @@ export const clearCart = async ({token, hasOrdered}) => {
 }
 
 export const changeQuantityInCart = async ({itemSrc, increaseStock, token, quantity=1}) => {
-    const url = `${API_URL}api/cart/cart/`;
+    const url = `${API_URL}/api/cart/cart/`;
     let headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     }
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const body = {
@@ -467,15 +463,15 @@ export const changeQuantityInCart = async ({itemSrc, increaseStock, token, quant
 
 // STUFF
 export const changeEmail = async ({token, data}) => {
-    const url = `${API_URL}api/stuff/email/change_email/`;
+    const url = `${API_URL}/api/stuff/profile/change_email/`;
     let headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -493,15 +489,15 @@ export const changeEmail = async ({token, data}) => {
 };
 
 export const getDynamicSettings = async ({token}) => {
-    const url = `${API_URL}api/stuff/dynamic-settings/`;
+    const url = `${API_URL}/api/stuff/settings/`;
 
     let headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     };
 
-    if (token?.access) {
-        headers["Authorization"] = `Bearer ${token?.access}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
@@ -520,11 +516,11 @@ export const getDynamicSettings = async ({token}) => {
 export const checkEmail = async ({data}) => {
     const headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    const url = `${API_URL}api/stuff/email/check_email/`;
+    const url = `${API_URL}/api/stuff/profile/check_email/`;
     const response = await fetch(url, {
         method: "POST",
         headers,
@@ -538,11 +534,11 @@ export const checkEmail = async ({data}) => {
 export const changePassword = async ({data}) => {
     const headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    const url = `${API_URL}api/stuff/email/change_password/`;
+    const url = `${API_URL}/api/stuff/profile/change_password/`;
     const response = await fetch(url, {
         method: "POST",
         headers,
@@ -556,11 +552,11 @@ export const changePassword = async ({data}) => {
 export const checkResetPasswordRequest = async({data}) => {
     const headers = {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": CSRF_TOKEN,
         "Accept": "application/json",
     };
 
-    const url = `${API_URL}api/stuff/email/is_reset_password_request_valid/`;
+    const url = `${API_URL}/api/stuff/profile/is_reset_password_request_valid/`;
     const response = await fetch(url, {
         method: "POST",
         headers,

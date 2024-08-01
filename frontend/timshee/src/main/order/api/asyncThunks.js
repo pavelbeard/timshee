@@ -13,7 +13,7 @@ export const getPhoneCodes = createAsyncThunk(
     "shippingAddressForm/getPhoneCodes",
     async (args, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/phone-codes/`;
+            const url = `${API_URL}/api/order/phone-codes/`;
             const response = await fetch(url, {
                 credentials: "include",
             });
@@ -31,7 +31,7 @@ export const getFilteredPhoneCodes = createAsyncThunk(
     "shippingAddressForm/getFilteredPhoneCodes",
     async ({countryId}, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/phone-codes/?country__id=${countryId}`;
+            const url = `${API_URL}/api/order/phone-codes/?country__id=${countryId}`;
             const response = await fetch(url, {
                 credentials: "include",
             });
@@ -51,7 +51,7 @@ export const getCountries = createAsyncThunk(
     "shippingAddressForm/getCountries",
     async (args, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/countries/`;
+            const url = `${API_URL}/api/order/countries/`;
             const response = await fetch(url, {
                 credentials: "include",
             });
@@ -69,7 +69,7 @@ export const getFilteredProvinces = createAsyncThunk(
     "shippingAddressForm/getFilteredProvinces",
     async ({countryId}, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/provinces/?country__id=${countryId}`;
+            const url = `${API_URL}/api/order/provinces/?country__id=${countryId}`;
             const response = await fetch(url, {
                 credentials: "include",
             });
@@ -89,7 +89,7 @@ export const getProvinces = createAsyncThunk(
     "shippingAddressForm/getProvinces",
     async (args, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/provinces/`;
+            const url = `${API_URL}/api/order/provinces/`;
             const response = await fetch(url, {
                 credentials: "include",
             });
@@ -109,7 +109,7 @@ export const getProvinces = createAsyncThunk(
 export const getShippingMethods = createAsyncThunk(
     "shippingAddressForm/getShippingMethods",
     async (arg, thunkAPI) => {
-        let url = `${API_URL}api/order/shipping-methods/`;
+        let url = `${API_URL}/api/order/shipping-methods/`;
 
         try {
             const response = await fetch(url, {
@@ -136,7 +136,7 @@ export const getShippingMethodDetail = createAsyncThunk(
             return;
         }
 
-        let url = `${API_URL}api/order/shipping-methods/${shippingMethodId}/`;
+        let url = `${API_URL}/api/order/shipping-methods/${shippingMethodId}/`;
 
         try {
             const response = await fetch(url, {
@@ -158,9 +158,9 @@ export const getShippingMethodDetail = createAsyncThunk(
 // CHECKOUT STEPS
 export const updatePaymentInfo = createAsyncThunk(
     "checkout/updatePaymentInfo",
-    async ({storeOrderNumber, data, setError, setIsLoading}, thunkAPI) => {
+    async ({storeOrderId, data, setError, setIsLoading}, thunkAPI) => {
         try {
-            const result = await putPaymentInfo({storeOrderNumber, data, setError, setIsLoading});
+            const result = await putPaymentInfo({storeOrderId, data, setError, setIsLoading});
 
             if (result) {
                 return result;
@@ -233,14 +233,14 @@ export const getOrderDetail = createAsyncThunk(
     "order/getOrderDetail",
     async ({orderId, token}, thunkAPI) => {
         try {
-            const url = `${API_URL}api/order/orders/${orderId}/`;
+            const url = `${API_URL}/api/order/orders/${orderId}/`;
             let headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             };
 
-            if (token?.access) {
-                headers["Authorization"] = `Bearer ${token?.access}`;
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
             }
 
             const response = await fetch(url, {

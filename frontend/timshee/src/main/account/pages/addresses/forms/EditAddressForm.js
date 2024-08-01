@@ -22,6 +22,7 @@ import {
 } from "../../forms/reducers/addressFormSlice";
 import AuthService from "../../../../api/authService";
 import t from "../../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const EditAddressForm = () => {
     const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const EditAddressForm = () => {
         addressFormObject, countries, provinces,
         phoneCodes, isError, provincesFilteredList
     } = useSelector(state => state.addressForm);
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
 
     // FETCH COUNTRIES, PROVINCES AND MORE

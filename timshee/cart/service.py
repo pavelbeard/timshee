@@ -2,12 +2,12 @@ import logging
 from decimal import Decimal
 
 from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.db.models import Q, Sum
 
 from store import models as store_models
 from order import models as order_models
 from store import serializers as store_serializers
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +29,13 @@ class Cart:
         if 'order_id' in self.cart:
             return self.cart['order_id']
 
-        order = order_models.Order.objects.filter(
-            Q(status="created") | Q(status="pending_for_payment")
-        ).first() or order_models.Order.objects.create(
-            session_key=self.request.session.session_key,
-        )
+        session = Session.objects.get(session_key=self.request.COOKIES.get('sessionid'))
+        order = order_models.Order.objects.filter(session=session).first()
+        if not order:
+            order = order_models.Order(
+                session=session
+            )
+            order.save()
 
         if self.request.user.is_authenticated:
             order.user = self.request.user
@@ -41,6 +43,7 @@ class Cart:
         self.cart['order_id'] = {
             "id": order.id,
             "number": order.order_number,
+            "second_id": order.second_id,
         }
         self.cart['order'] = {}
         self.save()
@@ -207,7 +210,7 @@ class Cart:
         if not self.cart.get('order_id'):
             return
 
-        return self.cart['order_id']['id']
+        return self.cart['order_id']['second_id']
 
     def clear(self, has_ordered=False):
         if not self.cart.get('order_id'):

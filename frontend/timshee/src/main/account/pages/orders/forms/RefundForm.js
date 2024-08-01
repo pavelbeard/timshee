@@ -9,12 +9,13 @@ import back from "../../../../../media/static_images/back_to.svg"
 
 import "../../Forms.css";
 import translateService from "../../../../translate/TranslateService";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
-const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
+const RefundForm = ({orderId, stockId=0, stockQuantity=0}) => {
     const dispatch = useDispatch();
     const params = useParams();
     const language = translateService.language();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const {orderRefundWholeStatus, orderRefundPartialStatus} = useSelector(state => state.ordersPage);
     const [reason, setReason] = React.useState({id: 0, reason: "It didn't like"});
     const [quantity, setQuantity] = React.useState(1);
@@ -26,13 +27,13 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
             "stock_item_id": stockId,
             "quantity": reason.id === 6 ? quantity : stockQuantity,
             "quantity_total": stockQuantity,
-            "reason": reason,
+            "reason": reason.reason,
         }
 
         if (stockId === 0 || stockId === undefined) {
-            dispatch(refundWhole({data, orderNumber, token}));
+            dispatch(refundWhole({data, orderId, token}));
         } else {
-            dispatch(refundPartial({data, orderNumber, token}));
+            dispatch(refundPartial({data, orderId, token}));
         }
 
     };
@@ -43,7 +44,7 @@ const RefundForm = ({orderNumber, stockId=0, stockQuantity=0}) => {
             <div className="order-partial-refund-form order-refunded">
                 <h3>{translateService.refundForm.orderReturned[language]}</h3>
                 {
-                    token?.access && (
+                    token && (
                         <div className="order-buttons">
                             <Link to="/account/details/orders">
                                 <div className="order-button" onClick={() => dispatch(resetRefundStatus())}>

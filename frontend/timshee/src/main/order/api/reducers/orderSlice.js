@@ -1,11 +1,4 @@
 import {createSlice, current} from "@reduxjs/toolkit";
-import AuthService from "../../../api/authService";
-import {
-    getOrderDetail,
-    updateOrderShippingMethod, updateOrderStatus
-} from "../asyncThunks";
-
-const token = AuthService.getCurrentUser();
 
 const initialState = {
     // orderDetail

@@ -6,10 +6,11 @@ import AuthService from "../../../api/authService";
 import translateService from "../../../translate/TranslateService";
 import t from "../../../translate/TranslateService";
 import { API_URL } from '../../../../config';
+import {selectCurrentToken} from "../../../../redux/services/features/auth/authSlice";
 
 
 const CartItems = ({cart, dispatch}) => {
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = translateService.language();
 
     const {orderId} = useSelector(state => state.order);

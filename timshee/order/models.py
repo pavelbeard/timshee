@@ -1,11 +1,13 @@
-import random
 import string
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.db import models
+from django.db.models import Sum, F
 from parler.models import TranslatableModel
+from shortuuid.django_fields import ShortUUIDField
 from store import models as store_models
+from . import services
 
 
 # Create your models here.
@@ -59,7 +61,7 @@ class Address(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
-    session_key = models.CharField(max_length=40, blank=True, null=True)
+    session = models.ForeignKey(Session, blank=True, null=True, on_delete=models.CASCADE)
     city = models.CharField(max_length=50)
     province = models.ForeignKey(Province, on_delete=models.CASCADE)
     address1 = models.CharField(max_length=255)
@@ -96,11 +98,12 @@ class Order(models.Model):
         ('refunded', 'REFUNDED'),
     )
 
+    second_id = ShortUUIDField(length=16, max_length=32, alphabet=string.ascii_uppercase + string.digits)
     order_number = models.CharField(max_length=255, unique=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
-    session_key = models.CharField(max_length=40, blank=True, null=True)
-    ordered_items = models.JSONField(blank=True, null=True)
-    order_item = models.ManyToManyField(store_models.Stock, through="OrderItem")
+    session = models.ForeignKey(Session, blank=True, null=True, on_delete=models.CASCADE)
+    order_item = models.ManyToManyField(store_models.Stock, related_name="order_items", through="OrderItem")
+    returned_item = models.ManyToManyField(store_models.Stock, related_name="returned_items", through="ReturnedItem")
     shipping_address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
     shipping_method = models.ForeignKey("ShippingMethod", on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created')
@@ -110,29 +113,50 @@ class Order(models.Model):
     non_refundable = models.BooleanField(default=False)
 
     def __str__(self):
-        return (f"[OrderID: {self.order_number}] [Status: {self.status}] "
+        return (f"[OrderID: {self.pk}-{self.order_number}] [Status: {self.status}] "
                 f"[Created: {self.created_at}] [Updated: {self.updated_at}]")
 
+    def items_total_price(self):
+        if self.order_item:
+            items_total_price = self.orderitem_set.aggregate(
+                total=Sum(F('quantity') * F('item__item__price'))
+            )['total']
+            return items_total_price
+        return 0
+
+    def shipping_price(self):
+        if self.shipping_method:
+            shipping_method_price = self.orderitem_set.values('order__shipping_method__price').distinct()
+            if shipping_method_price:
+                shipping_price = shipping_method_price[0]['order__shipping_method__price']
+                return shipping_price
+        return 0
+
+    def total_price(self):
+        if self.shipping_method or self.order_item:
+            shipping_price = self.shipping_price()
+            items_total_price = self.items_total_price()
+            if items_total_price != 0 and shipping_price != 0:
+                return items_total_price + shipping_price
+            elif items_total_price != 0:
+                return items_total_price
+        return 0
+
     def save(self, *args, **kwargs):
-        # with transaction.atomic():
         if self.pk is None:
-            # order_number_obj, created = OrderNumber.objects.select_for_update().get_or_create(pk=1)
-            order_number_obj, created = OrderNumber.objects.get_or_create(pk=1)
-            if not created:
-                order_number_obj.last_order_id += 1
-                order_number_obj.save()
+            super().save(*args, **kwargs)
 
-            self.order_number = (f"{order_number_obj.last_order_id}"
-                                 f"{''.join(random.choice(string.ascii_uppercase) for _ in range(6))}")
+        if self.order_number is None or self.order_number == '':
+            date_str = self.created_at.strftime('%Y%m%d')
+            self.order_number = f"{date_str}-{services.order_number(self.second_id)}"
 
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
     item = models.ForeignKey(store_models.Stock, on_delete=models.CASCADE, blank=True, null=True)
     quantity = models.PositiveIntegerField(default=0)
-    refund_reason = models.CharField(max_length=255, blank=True, null=True, choices=Order.STATUS_CHOICES)
 
     def __str__(self):
         return f"[Order: {self.order}] [Item: {self.item}] [Quantity: {self.quantity}]"
@@ -146,6 +170,21 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Order Item"
         verbose_name_plural = "Order Items"
+        unique_together = (("order", "item"),)
+
+
+class ReturnedItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, blank=True, null=True)
+    item = models.ForeignKey(store_models.Stock, on_delete=models.CASCADE, blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=0)
+    refund_reason = models.CharField(max_length=255, blank=True, null=True, choices=Order.STATUS_CHOICES)
+
+    def __str__(self):
+        return f"[Order: {self.order}] [Item: {self.item}] [Quantity: {self.quantity}]"
+
+    class Meta:
+        verbose_name = "Returned Item"
+        verbose_name_plural = "Returned Items"
         unique_together = (("order", "item"),)
 
 
