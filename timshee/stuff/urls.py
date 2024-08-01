@@ -5,7 +5,7 @@ from rest_framework_simplejwt import views as jwt_views
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'email', views.EmailViewSet)
+router.register(r'profile', views.ProfileViewSet)
 
 urlpatterns = [
     path('signin/', views.SigninAPIView.as_view(), name='signin'),
@@ -14,7 +14,7 @@ urlpatterns = [
     path('token/refresh/', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', jwt_views.TokenVerifyView.as_view(), name='token_verify'),
     path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
-    path('dynamic-settings/', views.GetDynSettingsAPIView.as_view(), name='get-dyn-settings'),
+    path('settings/', views.GetSettingsAPIView.as_view(), name='get-dyn-settings'),
 ]
 
 urlpatterns += router.urls

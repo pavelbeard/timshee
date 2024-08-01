@@ -230,6 +230,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
 
+# AUTH_USER_MODEL = 'stuff.UUIDUser'
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE__X_FORWARDED_PROTO = True

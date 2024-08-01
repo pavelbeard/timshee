@@ -6,12 +6,12 @@
 
 @font-face {
     font-family: 'Bebas Neue Cyrillic';
-    src: url('./fonts/bebasneuecyrillic/BebasNeueCyrillic.eot');
+    src: url('assets/fonts/bebasneuecyrillic/BebasNeueCyrillic.eot');
     src: local('Bebas Neue Cyrillic'), local('BebasNeueCyrillic'),
-        url('./fonts/bebasneuecyrillic/BebasNeueCyrillic.eot?#iefix') format('embedded-opentype'),
-        url('./fonts/bebasneuecyrillic/BebasNeueCyrillic.woff2') format('woff2'),
-        url('./fonts/bebasneuecyrillic/BebasNeueCyrillic.woff') format('woff'),
-        url('./fonts/bebasneuecyrillic/BebasNeueCyrillic.ttf') format('truetype');
+        url('assets/fonts/bebasneuecyrillic/BebasNeueCyrillic.eot?#iefix') format('embedded-opentype'),
+        url('assets/fonts/bebasneuecyrillic/BebasNeueCyrillic.woff2') format('woff2'),
+        url('assets/fonts/bebasneuecyrillic/BebasNeueCyrillic.woff') format('woff'),
+        url('assets/fonts/bebasneuecyrillic/BebasNeueCyrillic.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -112,5 +112,19 @@
   font-family: "Roboto", sans-serif;
   font-weight: 900;
   font-style: italic;
+}
+
+@media not all and (min-width: 640px) {
+    * {
+        font-size: 16px;
+    }
+}
+
+.tooltip {
+    @apply invisible absolute;
+}
+
+.has-tooltip:hover .tooltip {
+    @apply visible z-50;
 }
 

@@ -4,6 +4,7 @@ import sys
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.sessions.models import Session
 from django.db.models import Sum, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
@@ -113,6 +114,7 @@ class ColorViewSet(viewsets.ModelViewSet):
 class WishlistViewSet(viewsets.ModelViewSet):
     queryset = models.Wishlist.objects.all()
     authentication_classes = []
+    permission_classes = []
 
     def get_serializer_class(self):
         if self.action in ['list', 'get_wishlist_by_user', 'create']:
@@ -125,7 +127,6 @@ class WishlistViewSet(viewsets.ModelViewSet):
             if request.user.is_authenticated:
                 request.data['user'] = request.user.id
 
-            request.data['session_key'] = request.session.session_key
             item_id, size_id, color_id = request.data['stock']['item_id'], \
                 request.data['stock']['size_id'], request.data['stock']['color_id']
             stock = models.Stock.objects.get(
@@ -135,7 +136,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
             request.data['stock'] = stock.id
 
             instance = models.Wishlist.objects.create(
-                session_key=request.session.session_key,
+                session=Session.objects.get(pk=request.COOKIES['sessionid']),
                 stock=stock,
                 stock_link=request.data['stock_link']
             )
@@ -151,7 +152,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
             logger.error(msg=f"{e.args}", exc_info=e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'], permission_classes=[permissions.IsAuthenticatedOrReadOnly])
     def get_wishlist_by_user(self, request, *args, **kwargs):
         user = None
         session_key = None
@@ -159,7 +160,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
             user = request.user.id
         else:
             session_key = request.COOKIES.get('session_key')
-        qs = models.Wishlist.objects.filter(Q(user=user) | Q(session_key=session_key))
+        qs = models.Wishlist.objects.filter(Q(user=user) | Q(session__session_key=session_key))
         data = serializers.WishlistSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)
 

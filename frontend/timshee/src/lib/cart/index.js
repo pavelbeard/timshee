@@ -1,14 +1,12 @@
 import {API_URL, CSRF_TOKEN} from "../../config";
+import {api} from "../api";
 
 
 export async function getCartItems () {
-    const url = `${API_URL}api/cart/cart/`;
-    const response = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-    });
-    if (response.ok) {
-        return await response.json();
+    try {
+        const response = await api.get('/api/cart/cart/')
+    } catch (error) {
+        return error;
     }
 }
 

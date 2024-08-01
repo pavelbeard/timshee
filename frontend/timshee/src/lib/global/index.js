@@ -1,13 +1,9 @@
-import {API_URL, CSRF_TOKEN} from "../../config";
+import {api} from "../api";
 
 export async function getPhoneCodes () {
     try {
-        const url = `${API_URL}api/order/phone-codes/`;
-        const response = await fetch(url, {
-            credentials: "include",
-        });
-
-        return await response.json();
+        const response = await api.get('/api/order/phone-codes/');
+        return await response.data;
     } catch (error) {
         return error;
     }
@@ -15,16 +11,8 @@ export async function getPhoneCodes () {
 
 export async function getCountries() {
     try {
-        const url = `${API_URL}api/order/countries/`;
-        const response = await fetch(url, {
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.get('/api/order/countries/');
+        return await response.data;
     } catch (error) {
         return error;
     }
@@ -32,74 +20,28 @@ export async function getCountries() {
 
 export async function getProvinces() {
     try {
-        const url = `${API_URL}api/order/provinces/`;
-        const response = await fetch(url, {
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.get('/api/order/provinces/');
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
-export async function getOrders ({token}) {
+export async function getOrders () {
     try {
-        const url = `${API_URL}api/order/orders/get_orders_by_user/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "GET",
-            headers,
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.get('/api/order/orders/get_orders_by_user/');
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
-export async function updateOrder ({ orderId, data, token }) {
+export async function updateOrder ({ orderId, data }) {
     try {
-        const url = `${API_URL}api/order/orders/${orderId}/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": CSRF_TOKEN,
-            "Accept": "application/json",
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "PUT",
-            headers,
-            body: JSON.stringify(data),
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.put(`/api/order/orders/${orderId}/`,
+            JSON.stringify(data)
+        );
+        return await response.data;
     } catch (error) {
         return error;
     }

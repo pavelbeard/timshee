@@ -1,55 +1,20 @@
-import {API_URL, CSRF_TOKEN} from "../../config";
+import {api} from "../api";
 
-export async function changeEmail({token, data}) {
+export async function changeEmail({data}) {
     try {
-        const url = `${API_URL}api/stuff/email/change_email/`;
-        let headers = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": CSRF_TOKEN,
-            "Accept": "application/json",
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "PUT",
-            headers,
-            body: JSON.stringify(data),
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.post('/api/stuff/profile/change_email/',
+            JSON.stringify(data)
+        );
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
-export async function getEmail({token}) {
+export async function getEmail() {
     try {
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token?.access}`,
-            "Accept": "application/json",
-        };
-
-        const response = await fetch(`${API_URL}api/stuff/email/get_email/`, {
-            method: "GET",
-            headers,
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        const data = await response.json();
-        return data["email"];
+        const response = await api.get(`/api/stuff/email/get_email/`);
+        return response.data;
     } catch (error) {
         return error;
     }
@@ -57,72 +22,40 @@ export async function getEmail({token}) {
 
 export async function checkEmail({data}) {
     try {
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRFToken": CSRF_TOKEN,
-        };
-        const response = await fetch(`${API_URL}api/stuff/email/check_email/`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.post(`/api/stuff/profile/check_email/`,
+            JSON.stringify(data),
+        );
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
-export async function getDynamicSettings ({ token }) {
+export async function getSettings () {
     try {
-        const url = `${API_URL}api/stuff/dynamic-settings/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "GET",
-            headers,
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return await response.json();
+        const response = await api.get('/api/stuff/settings/');
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
 export function toCamelCase(str) {
-    if (!str.includes('_')) {
+    if (!str?.includes('_')) {
         return str;
     }
-
-    return str.replace(/_([a-z])/g, function(match, letter) {
+    return str?.replace(/_([a-z])/g, function(match, letter) {
         return letter.toUpperCase();
     });
 }
 
-const uniqs = new Set();
 export const uniqueData = (data, key) => {
+    const uniqs = new Set();
     return data.filter(item => {
         if (!uniqs.has(item[key])) {
             uniqs.add(item[key]);
             return true;
         }
         return false;
-    })
+    });
 };

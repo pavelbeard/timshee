@@ -101,16 +101,14 @@ class AddressViewSet(viewsets.ModelViewSet):
             if user.is_authenticated:
                 qs = models.Address.objects.filter(user=user)
             elif user.is_anonymous:
-                qs = models.Address.objects.filter(session_key=session_key)
+                qs = models.Address.objects.filter(session__session_key=session_key)
 
-            if qs.exists():
-                data = self.get_serializer(qs, many=True).data
-                return Response(data, status=status.HTTP_200_OK)
+            if not qs.exists():
+                return Response(status=status.HTTP_404_NOT_FOUND)
 
-            return Response({
-                "detail": f"addresses by {session_key if isinstance(user, AnonymousUser) else user.email} don't exist"
-            }, status=status.HTTP_200_OK
-            )
+            data = self.get_serializer(qs, many=True).data
+            return Response(data, status=status.HTTP_200_OK)
+
         except Exception as e:
             logger.exception(msg=f"{e.args}", exc_info=e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -124,14 +122,12 @@ class AddressViewSet(viewsets.ModelViewSet):
             if user.is_authenticated:
                 qs = models.Address.objects.filter(user=user, as_primary=True)
             elif user.is_anonymous:
-                qs = models.Address.objects.filter(session_key=session_key, as_primary=True)
+                qs = models.Address.objects.filter(session__session_key=session_key, as_primary=True)
 
             response = Response()
 
             if not qs.exists():
-                user_exists = session_key if isinstance(user, AnonymousUser) else user.email
-                response.data = {"detail": f"primary address by {user_exists} doesn't exist"}
-                response.status = status.HTTP_400_BAD_REQUEST
+                response.status = status.HTTP_404_NOT_FOUND
                 return response
 
             data = self.get_serializer(qs.first(), many=False).data
@@ -148,6 +144,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.OrderFilter
     permission_classes = (permissions.AllowAny,)
+    lookup_field = 'second_id'
 
     def get_serializer_class(self):
         if self.action in ['list', "retrieve", "get_orders_by_user", "get_last_order_by_user"]:
@@ -180,12 +177,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             if user.is_authenticated:
                 qs = models.Order.objects.filter(user=user)
             elif user.is_anonymous:
-                qs = models.Order.objects.filter(session_key=session_key)
+                qs = models.Order.objects.filter(session__session_key=session_key)
 
             if not qs.exists():
-                user_exists = session_key if isinstance(user, AnonymousUser) else user.email
-                response = Response(status=status.HTTP_400_BAD_REQUEST)
-                response.data = {"detail": f"last order by {user_exists} doesn't exist."}
+                response = Response(status=status.HTTP_404_NOT_FOUND)
                 return response
 
             data = self.get_serializer(qs.last(), many=False).data
@@ -205,17 +200,15 @@ class OrderViewSet(viewsets.ModelViewSet):
             if user.is_authenticated:
                 qs = models.Order.objects.filter(user=user).exclude(status="created").order_by('-created_at')
             elif user.is_anonymous:
-                qs = models.Order.objects.filter(session_key=session_key).order_by('-created_at')
+                qs = models.Order.objects.filter(session__session_key=session_key).order_by('-created_at')
 
             response = Response()
 
             if not qs.exists():
-                user_exists = session_key if isinstance(user, AnonymousUser) else user.email
-                response.data = {"detail": f"orders by {user_exists} doesn't exist."}
-                response.status = status.HTTP_400_BAD_REQUEST
+                response.status = status.HTTP_404_NOT_FOUND
                 return response
 
-            data = self.get_serializer(qs.last(), many=False).data
+            data = self.get_serializer(qs, many=True).data
             response.data = data
             response.status = status.HTTP_200_OK
             return response

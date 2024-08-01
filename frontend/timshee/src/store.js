@@ -1,58 +1,30 @@
 import { create } from "zustand";
 import {
-    getCountries, getOrders, getPhoneCodes, getProvinces,
-    updateOrder,
+    getOrders, updateOrder,
 } from "./lib/global";
-import AuthService from "./main/api/authService";
-import { changeEmail, getDynamicSettings, getEmail } from "./lib/stuff";
+import AuthService from "./main/api(old)/authService";
+import { changeEmail, getEmail } from "./lib/stuff";
 import { getShippingMethods } from "./lib/orders";
 import { addCartItem, changeQuantityInCart, clearCart, getCartItems } from "./lib/cart";
 import { getWishlist, deleteWishlistItem, addToWishlist } from "./lib/wishlist";
 import { getCollectionLinks, getCategories, getCollections, getColors, getItems, getSizes, getTypes} from "./lib/shop";
 import { sendEmail } from "./emails";
+import {useLocationSlice, useStuffSlice} from "./slices";
 
-export const useGlobalStore = create((set) => ({
-    error: null,
-    countries: [],
-    provinces: [],
-    phoneCodes: [],
-    dynamicSettings: null,
-    getCountries: async () => {
-        const countries = await getCountries();
-        if (!(countries instanceof Error))
-        {
-            set(() => ({ countries }));
-        } else {
-            set(() => ({ error: countries.message }));
-        }
-    },
-    getProvinces: async () => {
-        const provinces = await getProvinces();
-        if (!(provinces instanceof Error)) {
-            set(() => ({ provinces }));
-        } else {
-            set(() => ({ error: provinces.message }));
-        }
-    },
-    getPhoneCodes: async () => {
-        const phoneCodes = await getPhoneCodes();
-        if (!(phoneCodes instanceof Error)) {
-            set(() =>({ phoneCodes }));
-        } else {
-            set(() => ({ error: phoneCodes.message }));
-        }
-    },
-    getDynamicSettings: async (token) => {
-        const dynamicSettings = await getDynamicSettings({token});
-        if (!(dynamicSettings instanceof Error)) {
-            set(() =>({ dynamicSettings }));
-        } else {
-            set(() => ({ error: dynamicSettings.message }));
-        }
-    }
+export const useLocationStore = create((...a) => ({
+    ...useLocationSlice(...a),
+}))
+
+export const useStuffStore = create((...a) => ({
+    ...useStuffSlice(...a),
+}))
+
+export const useGlobalStore = create((...a) => ({
+    ...useLocationSlice(...a),
+    ...useStuffSlice(...a),
 }));
 
-export const useShopStore = create((set) => ({
+export const useShopStore = create((set, get) => ({
     error: null,
     collectionLinks: [],
     collections: [],
@@ -63,24 +35,16 @@ export const useShopStore = create((set) => ({
     itemsObject: null,
 
     filters: [],
-    sortOrder: [
-        {value: "", name: "---"},
-        {value: "price", name: "ascending"},
-        {value: "-price", name: "descending"},
-    ],
-    genders: [
-        {gender: "F", value: "women"},
-        {gender: "M", value: "men"},
-        {gender: "U", value: "unisex"}
-    ],
     getCollectionLinks: async () => {
         const collectionLinks = await getCollectionLinks();
+        console.log('store.js', collectionLinks)
         if (!(collectionLinks instanceof Error)) {
             set(() => ({ collectionLinks }));
         } else {
             set(() => ({ error: collectionLinks.message }));
         }
     },
+    setCollectionLinks: (payload) => set(() => ({ collectionLinks: payload })),
     getCollections: async () => {
         const collections = await getCollections();
         if (!(collections instanceof Error)) {
@@ -89,6 +53,7 @@ export const useShopStore = create((set) => ({
             set(() =>({ error: collections.message }));
         }
     },
+    setCollections: (payload) => set(() => ({ collections: payload })),
     getCategories: async () => {
         const categories = await getCategories();
         
@@ -98,6 +63,7 @@ export const useShopStore = create((set) => ({
             set(() => ({ error: categories.message }));
         }
     },
+    setCategories: (payload) => set(() => ({ categories: payload })),
     getSizes: async () => {
         const sizes = await getSizes();
         if (!(sizes instanceof Error)) {
@@ -106,6 +72,7 @@ export const useShopStore = create((set) => ({
             set(() => ({ error: sizes.message }));
         }
     },
+    setSizes: (payload) => set(() => ({ sizes: payload })),
     getColors: async () => {
         const colors = await getColors();
         if (!(colors instanceof Error)) {
@@ -114,6 +81,7 @@ export const useShopStore = create((set) => ({
             set(() => ({ error: colors.message }));
         }
     },
+    setColors: (payload) => set(() => ({ colors: payload })),
     getTypes: async () => {
         const types = await getTypes();
         if (!(types instanceof Error)) {
@@ -122,15 +90,43 @@ export const useShopStore = create((set) => ({
             set(() => ({ error: types.message }));
         }
     },
+    setTypes: (payload) => set(() => ({ types: payload })),
     getItems: async ({ filters, currentPage }) => {
         const itemsObject = await getItems({ filters, currentPage });
+
+        set((state) => {
+            if (Array.isArray(state?.sizes)) {
+                const sizes = [...get()?.sizes];
+                state.sizes = sizes.map(size => {
+                    const totalSizes = itemsObject.totalSizes.find(
+                        i => i.stock__size__value === size.value
+                    )?.total_sizes || 0;
+                    return {...size, total: totalSizes};
+                })
+            }
+        });
+
         if (!(itemsObject instanceof Error)) {
             set(() => ({ itemsObject }));
         } else {
             set(() => ({ error: itemsObject.message }));
         }
     },
-
+    setItems: (payload) => {
+        set((state) => {
+            if (Array.isArray(state?.sizes)) {
+                const sizes = [...get()?.sizes];
+                state.sizes = sizes.map(size => {
+                    const totalSizes = payload.totalSizes.find(
+                        i => i.stock__size__value === size.value
+                    )?.total_sizes || 0;
+                    return {...size, total: totalSizes};
+                });
+            }
+            //     COLORS
+            //     TYPES
+        })
+    },
     checkSizes: (payload) => set((state) => {
         const filteredSize = [...state.filters].find(size =>
             size.id === payload
@@ -216,23 +212,23 @@ export const useShopStore = create((set) => ({
         state.filters = state.filters.filter(i => !valuesToRemove.includes(i));
     }),
     updateOrderBy: (payload) => set((state) => {
-        const name = [...state.sortOrder].find(i => i.value === payload).name;
-        const index = state.filters.findIndex(i => i === "descending" || i === "ascending");
-
-        if (index === -1 && payload !== "") {
-            state.filters.push(name);
-        } else if (index !== -1 && payload !== "") {
-            state.filters[index] = name;
-        } else if (payload === "") {
-            state.filters.splice(index, 1);
-        }
+        // const name = sortOrder.find(i => i.value === payload).name;
+        // const index = state.filters.findIndex(i => i === "descending" || i === "ascending");
+        //
+        // if (index === -1 && payload !== "") {
+        //     state.filters.push(name);
+        // } else if (index !== -1 && payload !== "") {
+        //     state.filters[index] = name;
+        // } else if (payload === "") {
+        //     state.filters.splice(index, 1);
+        // }
     }),
     resetFilters: () => set((state) => {
         state.sizes = [...state.sizes].map(item => {return {...item, checked: false}});
         state.colors = [...state.colors].map(item => {return {...item, checked: false}});
         state.types = [...state.types].map(item => {return {...item, checked: false}});
         state.filters = [];
-    })
+    }),
 }));
 
 export const useWishlistStore = create((set) => ({
@@ -268,16 +264,16 @@ export const useEmailStore = create((set) => ({
             set(() => ({ error: isEmailExists.message }));
         }
     },
-    getEmail: async (token) => {
-        const email = await getEmail({token});
+    getEmail: async () => {
+        const email = await getEmail();
         if (!(email instanceof Error)) {
             set(() => ({ email }));
         } else {
             set(() => ({ error: email.message }));
         }
     },
-    changeEmail: async (token, data) => {
-        const result = await changeEmail({ token, data });
+    changeEmail: async (data) => {
+        const result = await changeEmail({ data });
         if (!(result instanceof Error)) {
             set(() => ({ email: result.email }));
         } else {
@@ -305,8 +301,8 @@ export const useOrderStore = create((set, get) => ({
             }
         }
     },
-    getOrders: async (token) => {
-        const orders = await getOrders({ token });
+    getOrders: async () => {
+        const orders = await getOrders();
         set(() => ({ orders }));
     },
     updateOrder: async (token, orderId, data) => {
@@ -317,14 +313,15 @@ export const useOrderStore = create((set, get) => ({
             set(() => ({ error: order.message }));
         }
     },
-    getShippingMethods: async (token) => {
-        const data = await getShippingMethods({ token });
+    getShippingMethods: async () => {
+        const data = await getShippingMethods();
         if (!(data instanceof Error)) {
             set(() =>({ shippingMethods: data }));
         } else {
             set(() => ({ error: data.message }));
         }
-    }
+    },
+    setShippingMethods: (payload) => set(() => ({ shippingMethods: payload })),
 }));
 
 export const useCartStore = create((set, get) => ({

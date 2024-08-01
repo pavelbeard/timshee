@@ -13,8 +13,8 @@ class Payment(models.Model):
         ("canceled", "CANCELLED"),
     )
 
-    payment_id = models.UUIDField()
-    store_order_id = models.PositiveIntegerField(default=0)
+    payment_id = models.UUIDField(blank=True, null=True)
+    store_order_id = models.CharField(max_length=255)
     store_order_number = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
     created_at = models.DateTimeField(blank=True, null=True)

@@ -1,4 +1,5 @@
 {
+  "account": "Аккаунт:",
   "logout": "Выйти из аккаунта",
   "address": "Адрес",
   "primaryAddress": "Главный адрес",
@@ -28,9 +29,9 @@
   "orderDetail": "Просмотреть заказ",
   "returnOrder": "Вернуть заказ",
   "returnThroughMail": "Дальнейший возврат заказа возможен только через почту",
-  "returnItem": "Вернуть вещь",
+  "returnItem": "Вернуть",
   "returnToOrders": "Вернуться в 'Заказы'",
   "quantity": "Количество:",
   "to": "Доставка в:",
-  "orderNumber": "Номер заказа"
+  "orderNumber": "Номер заказа:"
 }

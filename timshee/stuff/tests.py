@@ -210,7 +210,7 @@ class ChangePasswordTestCase(TestCase):
         self.client = APIClient()
 
     def test_request_password_reset(self):
-        instance = stuff_models.ResetPasswordCases.objects.create(
+        instance = stuff_models.ResetPasswordCase.objects.create(
             user=self.user,
         )
         uuid = instance.uuid
@@ -255,7 +255,7 @@ class ChangePasswordTestCase(TestCase):
         response1 = self.client.post(url_check_email, data1, format='json')
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
 
-        reset_password_case = stuff_models.ResetPasswordCases.objects.first()
+        reset_password_case = stuff_models.ResetPasswordCase.objects.first()
         reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
         reset_password_case.save()
 
@@ -274,7 +274,7 @@ class ChangePasswordTestCase(TestCase):
         response2 = self.client.post(url_check_email, data, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-        cases = stuff_models.ResetPasswordCases.objects.all()
+        cases = stuff_models.ResetPasswordCase.objects.all()
 
         self.assertFalse(cases.last().is_active)
         self.assertTrue(cases.first().is_active)
@@ -292,14 +292,14 @@ class ChangePasswordTestCase(TestCase):
         response2 = self.client.post(url_check_email, data1, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-        reset_password_case = stuff_models.ResetPasswordCases.objects.filter(user=self.user, is_active=True).first()
+        reset_password_case = stuff_models.ResetPasswordCase.objects.filter(user=self.user, is_active=True).first()
         reset_password_case.until = timezone.now() - timezone.timedelta(hours=1)
         reset_password_case.save()
 
         response3 = self.client.post(url_password_duration_validation, data1, format='json')
         self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
 
-        for case in stuff_models.ResetPasswordCases.objects.all():
+        for case in stuff_models.ResetPasswordCase.objects.all():
             print(case.is_active, case.user.username)
 
         # paths

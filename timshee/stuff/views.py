@@ -55,14 +55,15 @@ class SignupAPIView(generics.GenericAPIView):
 
             session_key = request.COOKIES.get('sessionid')
 
-            orders = order_models.Order.objects.filter(session_key=session_key)
-            wishlist_objs = store_models.Wishlist.objects.filter(session_key=session_key)
+            if session_key:
+                orders = order_models.Order.objects.filter(session__session_key=session_key)
+                wishlist_objs = store_models.Wishlist.objects.filter(session__session_key=session_key)
 
-            if orders.exists():
-                orders.update(user=instance)
+                if orders.exists():
+                    orders.update(user=instance)
 
-            if wishlist_objs.exists():
-                wishlist_objs.update(user=instance)
+                if wishlist_objs.exists():
+                    wishlist_objs.update(user=instance)
 
             response = Response(status=status.HTTP_201_CREATED)
             response.data = {'detail': 'User created'}
@@ -92,8 +93,8 @@ class SigninAPIView(generics.GenericAPIView):
 
                 if isinstance(user, User):
                     session_key = self.request.COOKIES.get('sessionid')
-                    order_models.Order.objects.filter(session_key=session_key).update(user=user)
-                    store_models.Wishlist.objects.filter(session_key=session_key).update(user=user)
+                    order_models.Order.objects.filter(session__session_key=session_key).update(user=user)
+                    store_models.Wishlist.objects.filter(session__session_key=session_key).update(user=user)
                     _tokens = get_token_for_user(user)
 
                     response = Response(status=status.HTTP_200_OK)
@@ -113,6 +114,7 @@ class SigninAPIView(generics.GenericAPIView):
                         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     )
+                    response.data = {'access': _tokens['access']}
                     response['X-CSRFToken'] = csrf.get_token(request)
                     return response
 
@@ -174,14 +176,13 @@ class CookieTokenRefreshView(TokenRefreshView):
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             )
 
-            del response.data['access']
             del response.data['refresh']
 
         response['X-CSRFToken'] = request.COOKIES.get('csrftoken')
         return super().finalize_response(request, response, *args, **kwargs)
 
 
-class EmailViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = order_serializers.UserSerializer
     allowed_methods = ["GET", "get_email"]
@@ -219,15 +220,15 @@ class EmailViewSet(viewsets.ModelViewSet):
             email = request.data.get('email').strip()
             user = User.objects.get(email=email)
             if user:
-                recent_cases = models.ResetPasswordCases.objects.filter(user=user)
+                recent_cases = models.ResetPasswordCase.objects.filter(user=user)
 
                 if recent_cases.exists():
                     recent_cases.update(is_active=False)
 
-                instance = models.ResetPasswordCases.objects.create(
+                instance = models.ResetPasswordCase.objects.create(
                     user=user,
                 )
-                return Response({'uuid': instance.uuid}, status=status.HTTP_200_OK)
+                return Response({'token': instance.uuid}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
@@ -241,7 +242,7 @@ class EmailViewSet(viewsets.ModelViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
             uuid = request.data.get('uuid').strip()
-            reset_password_case = models.ResetPasswordCases.objects.filter(uuid=uuid, is_active=True).first()
+            reset_password_case = models.ResetPasswordCase.objects.filter(uuid=uuid, is_active=True).first()
 
             if not reset_password_case:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -273,7 +274,7 @@ class EmailViewSet(viewsets.ModelViewSet):
             if password1 != password2:
                 return Response({"detail": "Passwords don't match."}, status=status.HTTP_400_BAD_REQUEST)
 
-            recent_case = models.ResetPasswordCases.objects.filter(uuid=uuid).first()
+            recent_case = models.ResetPasswordCase.objects.filter(uuid=uuid).first()
 
             if not recent_case:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -335,7 +336,7 @@ class ChangeLanguageAPIView(generics.GenericAPIView):
             return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class GetDynSettingsAPIView(generics.GenericAPIView):
+class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     allowed_methods = ["GET"]

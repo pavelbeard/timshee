@@ -1,73 +1,29 @@
-import { API_URL, CSRF_TOKEN } from "../../config";
+import {api} from "../api";
 
-export async function getWishlist ({token}) {
+export async function getWishlist () {
     try {
-        const url = `${API_URL}api/store/wishlist/get_wishlist_by_user/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "GET",
-            headers,
-            credentials: "include",
-        });
-
-        return await response.json();
+        const response = await api.get('/api/store/wishlist/get_wishlist_by_user/');
+        return await response.data;
     } catch (error) {
         return error;
     }
 }
 
-export async function deleteWishlistItem ({token, wishlistItemId}) {
+export async function deleteWishlistItem ({wishlistItemId}) {
     try {
-        const url = `${API_URL}api/store/wishlist/${wishlistItemId}/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRFToken": CSRF_TOKEN,
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        await fetch(url, {
-            method: "DELETE",
-            headers,
-            credentials: "include",
-        });
+        await api.delete(`$/api/store/wishlist/${wishlistItemId}/`);
+        return true;
     } catch (error) {
         return error;
     }
 }
 
-export async function addToWishlist ({token, data}) {
+export async function addToWishlist ({data}) {
     try {
-        const url = `${API_URL}api/store/wishlist/`;
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRFToken": CSRF_TOKEN,
-        };
-
-        if (token?.access) {
-            headers["Authorization"] = `Bearer ${token?.access}`;
-        }
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(data),
-            credentials: "include",
-        })
-
-        return await response.json();
+        const response = await api.post(`/api/store/wishlist/`,
+            JSON.stringify(data)
+        );
+        return await response.data;
     } catch (error) {
         return error;
     }

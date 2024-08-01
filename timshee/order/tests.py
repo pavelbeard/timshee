@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from order.models import Order
+from order.models import Order, Address, Country, Province, CountryPhoneCode, ShippingMethod
+from store.models import Item, Stock, Size, Color, Type, Category, Collection, CarouselImage
 from rest_framework import status
 from rest_framework.reverse import reverse
 
@@ -55,19 +56,67 @@ from rest_framework.reverse import reverse
 
 class OrderTests(TestCase):
     def setUp(self):
+        new_collection = Collection.objects.create(name='TEST COLLECTION', collection_image='test.jpg',
+                                                   link='test-collection-2024-2025')
+        new_category = Category.objects.create(name='TEST CATEGORY', category_image='test.jpg', code='test-category')
+        new_size = Size.objects.create(value='40-50')
+        new_color = Color.objects.create(name='TEST COLOR', hex='#FFFFFF')
+        new_type = Type.objects.create(name='TEST TYPE', code='test-type', category=new_category)
+        new_item = Item(
+            name='TEST ITEM',
+            description='TEST ITEM',
+            gender='M',
+            collection=new_collection,
+            type=new_type,
+            image='test_jpg',
+            price=999.99,
+        )
+        new_item.save()
+        new_stock = Stock.objects.create(item=new_item, size=new_size, color=new_color, in_stock=10)
+        new_item.sizes.set([new_size])
+        new_item.colors.set([new_color])
+        new_item.save()
+
+        new_carousel_images = CarouselImage.objects.create(image='test.jpg', item=new_item)
+        # new_item.carousel_images.set([new_carousel_images])
+        # new_item.save()
+
+        new_country = Country.objects.create(name='United States')
+        new_province = Province.objects.create(name='Washington DC', country=new_country)
+        new_phone_code = CountryPhoneCode.objects.create(phone_code="1", country=new_country)
+        new_shipping_method = ShippingMethod.objects.create(shipping_name='Shipping', price=15.00)
+        new_shipping_address = Address.objects.create(
+            first_name='John',
+            last_name='Doe',
+            address1='C/ Test, 1',
+            address2='2',
+            postal_code='12345',
+            as_primary=True,
+            province=new_province,
+            phone_code=new_phone_code,
+            email='test@test.com',
+
+        )
+        new_order = Order(
+            shipping_address=new_shipping_address,
+            shipping_method=new_shipping_method,
+        )
+        new_order.save()
+        new_order.order_item.set([new_stock])
+        new_order.save()
+        self.instance = new_order
         user = User(
             username='testuser@testuser.com',
             email='testuser@testuser.com',
         )
         user.set_password('Rt3$YiOO')
         user.save()
-        self.order = Order.objects.create(
-            session_key='sdfghjkl3456789'
-        )
-
         self.user = user
 
     def test_last_orders_without_user(self):
         url = reverse('order-get-last-order-by-user')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_new_order(self):
+        print(self.instance)

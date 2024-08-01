@@ -15,3 +15,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(models.DynamicSettings)
 class ConfigAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.OwnerData)
+class OwnerDataAdmin(admin.ModelAdmin):
+    pass

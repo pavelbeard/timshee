@@ -39,7 +39,7 @@ class Cart:
             order.user = self.request.user
 
         self.cart['order_id'] = {
-            "id": order.id,
+            "id": order.second_id,
             "number": order.order_number,
         }
         self.cart['order'] = {}
@@ -73,7 +73,7 @@ class Cart:
         self.cart['order'][stock_id]['quantity'] += quantity
         order_quantity_total = int(
             order_models.Order.objects.get(
-                id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
+                second_id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
         )
         if created and order_quantity_total < 10:
             order_item.item.decrease_stock(quantity=quantity)
@@ -98,7 +98,7 @@ class Cart:
 
         order_quantity_total = int(
             order_models.Order.objects.get(
-                id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
+                second_id=self.cart['order_id']["id"]).orderitem_set.all().aggregate(quantity=Sum('quantity'))['quantity']
         )
         if not increase:
             if order_item.item.decrease_stock(quantity=quantity) and order_quantity_total < 10:
