@@ -867,7 +867,8 @@ const forms = {
 }
 
 const language = () => {
-    return localStorage.getItem("language") !== null ? localStorage.getItem("language") : "ru-RU";
+    // return localStorage.getItem("language") !== null ? localStorage.getItem("language") : "ru-RU";
+    return "ru-RU";
 };
 
 const setLanguage = async (token, language) => {

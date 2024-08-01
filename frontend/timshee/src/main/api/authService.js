@@ -2,7 +2,7 @@ import {API_URL, CSRF_TOKEN} from '../../config';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from "js-cookie";
 
-const register = async ({firstName, lastName, email, password, setErrorMessage}) => {
+const register = async ({first_name, last_name, username, password, password2}) => {
     try {
         const response = await fetch(API_URL + "/api/stuff/signup/", {
             method: "POST",
@@ -11,24 +11,21 @@ const register = async ({firstName, lastName, email, password, setErrorMessage})
                 "X-CSRFToken": CSRF_TOKEN,
             },
             body: JSON.stringify({
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                password: password,
+                first_name,
+                last_name,
+                username,
+                password,
+                password2
             }),
             credentials: "include",
         })
 
         if (response.ok) {
-            const result = await response.json();
-            localStorage.setItem("user", JSON.stringify(result));
-            const decodedToken = jwtDecode(result.access);
-            return {...result, user: decodedToken};
+            return true;
         }
 
     } catch (error) {
-        setErrorMessage("Server's error...", error.message);
-        setTimeout(() => setErrorMessage(''), 2000);
+        console.error(error.message)
     }
 };
 

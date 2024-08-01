@@ -30,7 +30,13 @@ const Signup = () => {
             return;
         }
 
-        const result = await register({firstName, lastName, email, password, setErrorMessage});
+        const result = await register({
+            first_name: firstName,
+            last_name: lastName,
+            username: email,
+            password,
+            password2: confirmPassword,
+        });
 
         if (result) {
             navigate(`/`);

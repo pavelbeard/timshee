@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  postgresql:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - postgres-files/preprod.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  django:
+    build:
+      context: timshee/
+      dockerfile: preprod.Dockerfile
+    env_file:
+      - timshee/preprod.env
+    volumes:
+      - preprod.volume:/home/timshee_store_app/app/staticfiles
+      - preprod-image.volume:/home/timshee_store_app/app/media/product_images
+    command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
+    depends_on:
+      - postgresql
+    restart: on-failure
+
+  frontend:
+    build:
+      context: frontend/
+      dockerfile: preprod.Dockerfile
+    ports:
+      - "8111:80"
+      - "443:443"
+    volumes:
+      - preprod.volume:/home/timshee_store_app/app/staticfiles
+      - preprod-image.volume:/home/timshee_store_app/app/media/product_images
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - django
+    restart: on-failure
+
+volumes:
+  preprod.volume:
+  preprod-image.volume:
+  postgres_data:
