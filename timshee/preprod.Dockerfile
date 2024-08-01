@@ -5,9 +5,9 @@ ENV APP_HOME=/home/timshee_store_app/app
 
 WORKDIR $APP_HOME
 
-COPY test.requirements.txt $APP_HOME
+COPY requirements.txt $APP_HOME
 
-RUN pip install -r $APP_HOME/test.requirements.txt
+RUN pip install -r $APP_HOME/requirements.txt
 
 COPY . $APP_HOME
 

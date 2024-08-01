@@ -57,15 +57,14 @@ const Addresses = () => {
         }));
     };
 
-    if (shippingAddressesStatus === 'success') {
-        return (
+    return (
             <>
                 <div className="return-to-account">
                     <Link to="/account/details">{
                         t.account.returnToAccount[language]
                     }</Link>
                 </div>
-                {
+                {shippingAddressesStatus === 'success' ?
                     addresses.length > 0 ? (
                         <div className="items-container">
                             {addresses.map((address, index) => {
@@ -103,22 +102,16 @@ const Addresses = () => {
                                 )
                             })}
                         </div>
-                    ) : (
+                    ) :
                         <Nothing/>
-                    )
+                            : <Loading/>
+
                 }
                 <div className="add-address" onClick={() => callEditAddressForm(undefined)}>
                     <p>{t.account.addAddress[language]}</p>
                 </div>
             </>
         );
-    } else if (shippingAddressesStatus === 'loading') {
-        return <Loading/>;
-    } else if (shippingAddressesStatus === 'error') {
-        return <Error/>;
-    }
-
-
 };
 
 export default Addresses;
