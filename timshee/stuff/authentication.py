@@ -10,7 +10,7 @@ class EmailAuthenticationBackend(ModelBackend):
         if username is None or password is None:
             return None
         try:
-            user = User.objects.get(email=username)
+            user = User.objects.filter(email=username).first()
             if user.check_password(password):
                 return user
 

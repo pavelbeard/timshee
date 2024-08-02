@@ -131,7 +131,7 @@ const Account = () => {
                                 <Nothing />
                         }
                         <Link className="go-to-list" to={`/account/details/addresses`}>
-                            {t.account.editAddress[language]}
+                            Просмотреть адреса
                         </Link>
                     </div>
                     {lastOrderStatus === 'success'
