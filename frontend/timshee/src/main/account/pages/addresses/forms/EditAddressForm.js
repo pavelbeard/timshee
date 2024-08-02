@@ -6,156 +6,111 @@ import "../../Forms.css";
 import "../../../../Main.css";
 import crossBtn from "../../../../../media/static_images/cruz.svg";
 import {
-    createAddress,
-    getAddressDetail,
-    getCountries,
-    getPhoneCodes,
-    getProvinces, updateAddress
-} from "../../forms/reducers/asyncThunks";
-import {
     setError,
     setPhoneCode,
     setPhoneCodesFiltered,
     setProvince,
     setProvincesFiltered,
-    editAddress as setAddressObject
 } from "../../forms/reducers/addressFormSlice";
-import AuthService from "../../../../api/authService";
 import t from "../../../../translate/TranslateService";
 import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
+import {
+    useCreateAddressMutation,
+    useGetCountriesMutation, useGetPhoneCodesMutation,
+    useGetProvincesMutation, useUpdateAddressMutation
+} from "../../../../../redux/services/features/account/accountDataApiSlice";
+import {
+    changeAddress,
+    pushAddress,
+    selectAddress,
+    setAddress,
+    setLocationData, toggleAddressForm
+} from "../../../../../redux/services/features/account/accountDataSlice";
 
 const EditAddressForm = () => {
     const dispatch = useDispatch();
-    const {
-        addressFormObject, countries, provinces,
-        phoneCodes, isError, provincesFilteredList
-    } = useSelector(state => state.addressForm);
     const token = useSelector(selectCurrentToken);
+    const [getCountries, { isLoading: isCountriesLoading }] = useGetCountriesMutation();
+    const [getProvinces, { isLoading: isProvincesLoading }] = useGetProvincesMutation();
+    const [getPhoneCodes, { isLoading: isPhoneCodesLoading }] = useGetPhoneCodesMutation();
+    const [createAddress, { isLoading: isCreateAddressLoading }] = useCreateAddressMutation();
+    const [updateAddress, { isLoading: isUpdateAddressLoading }] = useUpdateAddressMutation();
+    const { address } = useSelector(state => state.accountData);
+    const [countries, setCountries] = useState([]);
+    const [provinces, setProvinces] = useState([]);
+    const [phoneCodes, setPhoneCodes] = useState([]);
+    const [_provinces, _setProvinces] = useState([]);
+    const [error, setError] = useState(null);
     const language = t.language();
 
     // FETCH COUNTRIES, PROVINCES AND MORE
-    useEffect(() => {
-        dispatch(getCountries());
-        dispatch(getProvinces());
-        dispatch(getPhoneCodes());
-    }, []);
 
-    // FETCH ADDRESS
     useEffect(() => {
-        if (addressFormObject.id !== 0 && addressFormObject.id !== undefined) {
-            dispatch(getAddressDetail({addressId: addressFormObject.id}));
+        const fetchAll = async () => {
+            const [countries, provinces, phoneCodes] = await Promise.all([
+                getCountries().unwrap(),
+                getProvinces().unwrap(),
+                getPhoneCodes().unwrap(),
+            ]);
+            setCountries(countries);
+            setProvinces(provinces);
+            _setProvinces(provinces.filter(p => p.country.id === countries[0].id));
+            setPhoneCodes(phoneCodes);
+            dispatch(setAddress({ ...address, phone_code: phoneCodes.find(pc => pc.country === countries[0].id) }));
         }
+
+        fetchAll();
     }, []);
-
-    useEffect(() => {
-        if (addressFormObject.id === undefined &&
-            countries.length > 0 &&
-            provinces.length > 0 &&
-            phoneCodes.length > 0
-        ) {
-            const filteredProvinces = provinces.filter(p =>
-                p.country.id === countries[0].id
-            );
-
-            const filteredPhoneCodes = phoneCodes.filter(phoneCode =>
-                phoneCode.country === countries[0].id
-            )
-
-            dispatch(setProvincesFiltered(filteredProvinces));
-            dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
-
-            dispatch(setPhoneCode({
-                phoneCode: filteredPhoneCodes[0].phone_code,
-                country: filteredPhoneCodes[0].country
-            }));
-            dispatch(setProvince({
-                id: filteredProvinces[0].id,
-                name: filteredProvinces[0].name,
-                country: filteredProvinces[0].country
-            }))
-        } else if (
-            countries.length > 0 &&
-            provinces.length > 0 &&
-            phoneCodes.length > 0
-        ) {
-            const filteredProvinces = provinces.filter(p =>
-                p.country.id === addressFormObject.province.country.id
-            );
-
-            const filteredPhoneCodes = phoneCodes.filter(phoneCode =>
-                phoneCode.country === addressFormObject.phoneCode.country
-            );
-
-            dispatch(setProvincesFiltered(filteredProvinces));
-            dispatch(setPhoneCodesFiltered(filteredPhoneCodes));
-        }
-    }, [countries]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const data = {
-            first_name: addressFormObject.firstName,
-            last_name: addressFormObject.lastName,
-            address1: addressFormObject.streetAddress,
-            address2: addressFormObject.apartment,
-            postal_code: addressFormObject.postalCode,
-            province: addressFormObject.province.id,
-            city: addressFormObject.city,
-            phone_code: addressFormObject.phoneCode.country,
-            phone_number: addressFormObject.phoneNumber,
-            email: addressFormObject.email,
-            as_primary: addressFormObject.asPrimary
-        };
+        try {
+            if (!address?.id) {
+                const newAddress = await createAddress({
+                    ...address, province: address.province.id, phone_code: address.phone_code.country
+                }).unwrap();
+                dispatch(pushAddress(newAddress));
+            } else {
+                const updatedAddress = await updateAddress({
+                    ...address, province: address.province.id, phone_code: address.phone_code.country
+                }).unwrap();
+                dispatch(changeAddress(updatedAddress));
+            }
+            dispatch(toggleAddressForm());
 
-        if (addressFormObject.id !== undefined && addressFormObject.id !== 0)
-        {
-            dispatch(updateAddress({
-                token,
-                data,
-                addressId: addressFormObject.id,
-            }));
-        } else {
-            dispatch(createAddress({
-                token,
-                data,
-            }));
+        } catch (e) {
+            if (e?.status === 500) {
+                setError('Что-то пошло не так...');
+            }
         }
-
-        dispatch(toggleAddressEditForm());
     };
 
     const changeCountry = (e) => {
-        const selectedCountryId = parseInt(e.target.value);
-
-        const phoneCodesInternalTmp = phoneCodes.filter(phoneCode =>
-            phoneCode.country === selectedCountryId
-        );
-
-        const provincesInternalTmp = provinces.filter(province =>
-            province.country.id === selectedCountryId
-        );
-
-        dispatch(setPhoneCodesFiltered(phoneCodesInternalTmp));
-        dispatch(setProvincesFiltered(provincesInternalTmp));
-
-        dispatch(setProvince(provincesInternalTmp[0]));
-        dispatch(setPhoneCode({
-            country: phoneCodesInternalTmp[0].country,
-            phoneCode: phoneCodesInternalTmp[0].phone_code,
+        const countryId = parseInt(e.target.value);
+        const filteredProvinces = provinces.filter(p => p.country.id === countryId);
+        _setProvinces(filteredProvinces);
+        dispatch(setAddress({
+            ...address,
+            province: provinces.filter(p => p.country.id === countryId)[0],
+            phone_code: phoneCodes.find(pc => pc.country === countryId),
         }));
     };
 
     const changeProvince = (e) => {
-        const province = provinces.filter(province =>
-            province.id === parseInt(e.target.value)
-        );
+        const provinceId = parseInt(e.target.value);
+        dispatch(setAddress({
+            ...address,
+            province: provinces.find(p => p.id === provinceId),
+        }));
+    }
 
-        dispatch(setProvince(province[0]));
+    const closeForm = () => {
+        dispatch(toggleAddressForm());
     };
 
-    const closeForm = (e) => {
-        dispatch(toggleAddressEditForm());
+    const changeAddressState = e => {
+        dispatch(setAddress({ ...address, [e.target.id]: e.target.value }));
     };
 
 
@@ -164,64 +119,65 @@ const EditAddressForm = () => {
             <div style={{ zIndex: "-1", width: "100%", minHeight: "100vh"}} onClick={closeForm}></div>
             <form onSubmit={handleSubmit} className={`forms-form ${window.innerWidth > 600 ?  "height-650" : "height-450"}`}>
                 <span className="form-title">{t.account.editAddress[language]}</span>
-                {isError && <div className="errorMessage">{isError}</div>}
+                {error && <div className="errorMessage">{error}</div>}
                 <div>
-                    <label htmlFor="firstName">
+                    <label htmlFor="first_name">
                         <span className="label-text">{t.forms.firstname[language]}</span>
                         <input
-                            id="firstName"
+                            id="first_name"
                             type="text"
-                            value={addressFormObject.firstName}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                firstName: e.target.value
-                            }))} required />
+                            value={address?.first_name}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
-                    <label htmlFor="lastName">
+                    <label htmlFor="last_name">
                         <span className="label-text">{t.forms.lastname[language]}</span>
                         <input
-                            id="lastName"
+                            id="last_name"
                             type="text"
-                            value={addressFormObject.lastName}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                lastName: e.target.value
-                            }))} required />
+                            value={address?.last_name}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="address1">
                         <span className="label-text">{t.forms.streetAddress[language]}</span>
-                        <input id="address1" type="text" value={addressFormObject.streetAddress}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                streetAddress: e.target.value
-                            }))} required />
+                        <input
+                            id="address1"
+                            type="text"
+                            value={address?.address1}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="address2">
                         <span className="label-text">{t.forms.apartment[language]}</span>
-                        <input id="address2" type="text" value={addressFormObject.apartment}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                apartment: e.target.value
-                            }))} required />
+                        <input
+                            id="address2"
+                            type="text"
+                            value={address?.address2}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
-                    <label htmlFor="postcode">
+                    <label htmlFor="postal_code">
                         <span className="label-text">{t.forms.postalCode[language]}</span>
                         <input
-                            id="postcode"
+                            id="postal_code"
                             type="text"
-                            value={addressFormObject.postalCode}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                postalCode: e.target.value
-                            }))} required />
+                            value={address?.postal_code}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
@@ -229,11 +185,8 @@ const EditAddressForm = () => {
                         <span className="label-text">{t.forms.city[language]}</span>
                         <input
                             id="city"
-                            value={addressFormObject.city}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                city: e.target.value
-                            }))}
+                            value={address?.city}
+                            onChange={changeAddressState}
                             type="text"
                             required
                         />
@@ -242,9 +195,13 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="province">
                         <span className="label-text">{t.forms.province[language]}</span>
-                        <select id="province" value={addressFormObject.province.id}
-                                onChange={changeProvince} required>
-                            {provincesFilteredList?.map((province) => (
+                        <select
+                            id="province"
+                            value={address?.province?.id}
+                            onChange={changeProvince}
+                            required
+                        >
+                            {_provinces?.map((province) => (
                                 <option key={province.id} value={province.id}>
                                     {province.name}
                                 </option>
@@ -255,8 +212,12 @@ const EditAddressForm = () => {
                 <div>
                     <label htmlFor="country">
                         <span className="label-text">{t.forms.country[language]}</span>
-                        <select id="country" value={addressFormObject.province.country.id}
-                                onChange={changeCountry} required>
+                        <select
+                            id="country"
+                            value={address?.province?.country?.id}
+                            onChange={changeCountry}
+                            required
+                        >
                             {countries?.map((country) => (
                                 <option key={country.id} value={country.id}>
                                     {country.name}
@@ -266,47 +227,49 @@ const EditAddressForm = () => {
                     </label>
                 </div>
                 <div>
-                    <label htmlFor="phoneCode">
+                    <label htmlFor="phone_code">
                         <span className="label-text">{t.forms.phoneCode[language]}</span>
-                        <div id="phoneCode">{"± " + addressFormObject.phoneCode.phoneCode}</div>
+                        <div id="phone_code">{"± " + address?.phone_code?.phone_code || ""}</div>
                     </label>
                 </div>
                 <div>
-                    <label htmlFor="phone">
+                    <label htmlFor="phone_number">
                         <span className="label-text">{t.forms.phoneNumber[language]}</span>
-                        <input id="phone" type="text" value={addressFormObject.phoneNumber}
-                               onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                phoneNumber: e.target.value
-                            }))} required />
+                        <input
+                            id="phone_number"
+                            type="text"
+                            value={address?.phone_number}
+                            onChange={changeAddressState}
+                            required
+
+                        />
                     </label>
                 </div>
                 <div>
                     <label htmlFor="email">
                         <span className="label-text">email:</span>
-                        <input id="email" type="email" value={addressFormObject.email}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                email: e.target.value
-                            }))} required />
+                        <input
+                            id="email"
+                            type="email"
+                            value={address?.email}
+                            onChange={changeAddressState}
+                            required
+                        />
                     </label>
                 </div>
                 <div>
-                    <label id="last-as-primary" htmlFor="asPrimary">
+                    <label id="last-as-primary" htmlFor="as_primary">
                         <input
-                            id="asPrimary"
-                            checked={addressFormObject.asPrimary}
-                            onChange={e => dispatch(setAddressObject({
-                                ...addressFormObject,
-                                asPrimary: e.target.checked
-                            }))}
+                            id="as_primary"
+                            checked={address?.as_primary}
+                            onChange={e => dispatch(setAddress({ ...address, as_primary: e.target.checked }))}
                             type="checkbox"
                         />
                         <span className="label-text">{t.forms.asPrimary[language]}</span>
                     </label>
                 </div>
                 <div>
-                    <button onSubmit={handleSubmit}>{t.forms.submit[language]}</button>
+                    <button type="submit">{t.forms.submit[language]}</button>
                     <img src={crossBtn} onClick={closeForm} alt="alt-cross-btn" height={20}/>
                 </div>
             </form>

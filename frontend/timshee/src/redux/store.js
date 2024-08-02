@@ -18,11 +18,13 @@ import wishlistSlice from "../main/account/api/reducers/wishlistSlice";
 import accountSlice from "../main/account/pages/forms/reducers/accountSlice";
 import { apiSlice } from "./services/app/api/apiSlice";
 import authReducer from "./services/features/auth/authSlice";
+import accountDataReducer from './services/features/account/accountDataSlice';
 
 export const store = configureStore({
     reducer: {
         [apiSlice.reducerPath]: apiSlice.reducer,
         auth: authReducer,
+        accountData: accountDataReducer,
 
         menu: menuSlice,
         search: searchSlice,

@@ -9,5 +9,5 @@ git pull;
 cp timshee/preprod.env.copy timshee/preprod.env
 cp postgres-files/preprod.env.copy postgres-files/preprod.env
 
-docker-compose down;
-docker-compose up --build -d;
+docker-compose -f preprod.docker-compose.yml down;
+docker-compose -f preprod.docker-compose.yml up --build -d;

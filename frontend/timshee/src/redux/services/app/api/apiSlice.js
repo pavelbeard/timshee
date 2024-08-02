@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_URL } from "../../../../config";
+import {API_URL, CSRF_TOKEN} from "../../../../config";
 import {setCredentials, signOut} from "../../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
@@ -9,6 +9,8 @@ const baseQuery = fetchBaseQuery({
         const token = getState().auth.token;
         if (token) {
             headers.set("authorization", `Bearer ${token}`);
+            headers.set("Content-Type", "application/json");
+            headers.set("X-CSRFToken", CSRF_TOKEN);
         }
         return headers;
     }

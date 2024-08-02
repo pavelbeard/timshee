@@ -50,11 +50,11 @@ const Account = () => {
 
     useEffect(() => {
         if (token && addressesStatus === 'idle') {
-            dispatch(getAddresses({token: token}))
+            dispatch(getAddresses({token}))
         }
 
         if (token && lastOrderStatus === 'idle') {
-            dispatch(getLastOrder({token: token}));
+            dispatch(getLastOrder({token}));
         }
     }, [addressesStatus, lastOrderStatus, order, addressObject]);
 
@@ -62,15 +62,15 @@ const Account = () => {
         if (order !== undefined && order.shipping_address !== undefined) {
             setShipTo(
                 [
-                    `${order.shipping_address?.province?.country?.name}, `,
-                    `${order.shipping_address?.postal_code}, `,
-                    `${order.shipping_address?.province?.name}, `,
-                    `${order.shipping_address?.city}, `,
-                    `${order.shipping_address?.address1}, `,
-                    `${order.shipping_address?.address2} `
+                    `${order?.shipping_address?.province?.country?.name}, `,
+                    `${order?.shipping_address?.postal_code}, `,
+                    `${order?.shipping_address?.province?.name}, `,
+                    `${order?.shipping_address?.city}, `,
+                    `${order?.shipping_address?.address1}, `,
+                    `${order?.shipping_address?.address2} `
                 ].join("")
             );
-            setFor(order.shipping_address?.firstName + " " + order.shipping_address?.last_name);
+            setFor(order?.shipping_address?.firstName + " " + order?.shipping_address?.last_name);
 
             if (order.status === "completed") {
                 setDeliveredAt(order.updated_at)
@@ -95,9 +95,10 @@ const Account = () => {
                     </form>
                 </div>
                 <div className="second-block">
-                    {addressesStatus === 'success'
-                        ?
-                        <div className="blocks-container">
+
+                    <div className="blocks-container">
+                        {addressesStatus === 'success'
+                            ?
                             <div className="block-1">
                                 <div className="block-title">{t.account.primaryAddress[language]}</div>
                                 <div className="divider"></div>
@@ -122,17 +123,17 @@ const Account = () => {
                                     }
                                 </div>
                             </div>
-                            <Link className="go-to-list" to={`/account/details/addresses`}>
-                                {t.account.editAddress[language]}
-                            </Link>
-                        </div>
-                        :
-                        addressesStatus === 'loading'
-                            ?
-                            <Loading />
                             :
-                            <Nothing />
-                    }
+                            addressesStatus === 'loading'
+                                ?
+                                <Loading />
+                                :
+                                <Nothing />
+                        }
+                        <Link className="go-to-list" to={`/account/details/addresses`}>
+                            {t.account.editAddress[language]}
+                        </Link>
+                    </div>
                     {lastOrderStatus === 'success'
                         ?
                         <div className="blocks-container">
@@ -141,7 +142,7 @@ const Account = () => {
                                 <div className="divider"></div>
                                 <div className="info-block info-block-main">
                                     {
-                                        order.id === undefined
+                                        order?.id === undefined
                                             // order.id === 0 &&
                                             // order.status === "created"
                                             ? (
