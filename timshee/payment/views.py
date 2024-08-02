@@ -127,6 +127,8 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         items = []
 
+
+
         for ordered_item in ordered_items:
             items.append({
                 "description": ordered_item.item.item.name + "\n" + ordered_item.item.item.description,
@@ -187,10 +189,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     },
                     "receipt": {
                         "customer": {
-                            "full_name": owner_data.full_name,
-                            "email": owner_data.email,
-                            "phone": owner_data.contact_number,
-                            "inn": owner_data.tax_number
+                            "email": order.shipping_address.email,
                         },
                         "items": items
                     },
