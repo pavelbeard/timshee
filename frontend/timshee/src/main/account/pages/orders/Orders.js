@@ -29,7 +29,7 @@ const Orders = () => {
             <div className="return-to-account">
                 <Link to="/account/details">{t.account.returnToAccount[language]}</Link>
             </div>
-            {orders.length > 0 ?
+            {orders?.length > 0 ?
                 <div className="orders-container">
                     {Array.isArray(orders) &&
                         orders.map((order, index) => (
@@ -77,14 +77,14 @@ const Orders = () => {
                                     ))}
                                 </div>
                                 <div className="order-buttons">
-                                    <Link to={`/orders/${order.second_id}/detail`}>
+                                    <Link to={`/orders/${order?.second_id}/detail`}>
                                         <div className="order-button">
                                             {t.account.orderDetail[language]}
                                         </div>
                                     </Link>
                                     {
-                                        (order.status !== "refunded" && order.status !== "partial_refunded"
-                                            && order.non_refundable === false) && (
+                                        (order?.status !== "refunded" && order?.status !== "partial_refunded"
+                                            && order?.non_refundable === false) && (
                                             <Link to={`/orders/${order.second_id}/order-refund`}>
                                                 <div
                                                     className="order-button">{t.account.returnOrder[language]}</div>
