@@ -58,16 +58,18 @@ class AddressViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
-        request.data['session_key'] = request.COOKIES.get('sessionid')
 
         serializer = self.get_serializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         instance = serializer.save()
 
-        if request.data.get('order_id'):
-            order = order_models.Order.objects.get(pk=request.data['order_id'])
+        second_order_id = request.data.get('order_id', None)
+        if second_order_id:
+            order = order_models.Order.objects.get(second_id=second_order_id)
             order.shipping_address = self.queryset.get(pk=instance.id)
+            if self.request.user.is_authenticated:
+                order.user = self.request.user
             order.save()
             del request.data['order_id']
 
@@ -76,7 +78,6 @@ class AddressViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
-        request.data['session_key'] = request.COOKIES.get('sessionid')
 
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -84,9 +85,12 @@ class AddressViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if request.data.get('order_id'):
-            order = order_models.Order.objects.get(second_id=request.data['order_id'])
+        second_order_id = request.data.get('order_id', None)
+        if second_order_id:
+            order = order_models.Order.objects.get(second_id=second_order_id)
             order.shipping_address = self.queryset.get(pk=kwargs.get('pk'))
+            if self.request.user.is_authenticated:
+                order.user = self.request.user
             order.save()
             del request.data['order_id']
 

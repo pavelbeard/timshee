@@ -6,16 +6,16 @@ import Loading from "../../../../techPages/Loading";
 import Error from "../../../../techPages/Error";
 
 import "../Orders.css";
-import AuthService from "../../../../api/authService";
 import t from "../../../../translate/TranslateService";
 import {toCamelCase} from "../../../../api/stuff";
-
-import { API_URL } from '../../../../../config';
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
+import OrderItem from "./OrderItem";
+import ReturnedItem from "./ReturnedItem";
 
 const OrderDetail = () => {
     const dispatch = useDispatch();
     const params = useParams();
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken);
     const language = t.language();
     const {order, orderDetailStatus} = useSelector(state => state.ordersPage);
 
@@ -35,90 +35,42 @@ const OrderDetail = () => {
 
     if (orderDetailStatus === 'success') {
         return (
-            <div className="order-detail-container">
-                <div className="order-detail-number order-detail-info">
-                    <span>{t.account.orderNumber[language]}</span>
-                    <span>{order.order_number}</span>
-                </div>
-                <div className="order-detail-status order-detail-info">
-                    <span>{t.account.status[language]}</span>
-                    <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
-                </div>
-                <div className="order-detail-shipping-address order-detail-info">
-                    {
-                        order?.shipping_method?.price === 0 ? (
-                            <>
-                                <span>{t.account.to[language]}</span>
-                                <span>Самовывоз</span>
-                            </>
-                        ) : (
-                            <>
-                                <span>{t.account.to[language]}</span>
-                                {order?.shipping_address ? shippingAddress(order.shipping_address) : "NULL"}
-                            </>
-                        )
-                    }
-                </div>
-                <div className="order-img-block order-img-block-detail ">
-                    {
-                        order.order_item.map((item, index) => (
-                            <div key={index}>
-                                <img height={180}
-                                     style={{
-                                         padding: "10px",
-                                         filter: item.refund_reason !== null ? "brightness(0.6)" : "none"
-                                     }}
-                                     src={`${API_URL}${item.item.item.image}`}
-                                     alt={`alt-image-${index}`}/>
-                                <div className="order-detail-item-info">
-                                    <span>{item.item.item.name}</span>
-                                    <span>{item.item.item.price}
-                                        <span>{t.shop.price[language]}</span>
-                                    </span>
-                                </div>
-                                <div className="order-detail-item-info">
-                                    <span>{item.item.size.value}</span>
-                                </div>
-                                <div className="order-detail-item-info">
-                                    <span>{item.item.color.name}</span>
-                                </div>
-                                <div className="order-detail-item-info">
-                                    {
-                                        item.quantity > 1 && (
-                                            <>
-                                                <span>{t.account.quantity[language]}</span>
-                                                <span>{item.quantity}</span>
-                                            </>
-                                        )
-                                    }
-                                </div>
-                                <div className="order-refund-item">
-                                    {
-                                        item.refund_reason === null && order.non_refundable === false ? (
-                                            <Link to={`/orders/${order.id}/order-refund/${item.item.id}/${item.quantity}`}>
-                                                {t.account.returnItem[language]}
-                                            </Link>
-                                        ) : item.quantity > 0 && (
-                                            <p>{t.account.returnThroughMail[language]}</p>
-                                        )
-                                    }
-                                </div>
-                            </div>
+            <>
+                {token && <div className="return-to-account">
+                    <Link to="/account/details/orders">Вернуться в 'заказы'</Link>
+                </div>}
+                <div className="order-detail-container">
 
-                        ))
-                    }
+                    <div className="order-detail-number order-detail-info">
+                        <span>{t.account.orderNumber[language]}</span>
+                        <span>{order.order_number}</span>
+                    </div>
+                    <div className="order-detail-status order-detail-info">
+                        <span>{t.account.status[language]}</span>
+                        <span>{t.account.orders.status[toCamelCase(order.status)][language]}</span>
+                    </div>
+                    <div className="order-detail-shipping-address order-detail-info">
+                        {
+                            order?.shipping_method?.price === 0 ? (
+                                <>
+                                    <span>{t.account.to[language]}</span>
+                                    <span>Самовывоз</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>{t.account.to[language]}</span>
+                                    {order?.shipping_address ? shippingAddress(order.shipping_address) : "NULL"}
+                                </>
+                            )
+                        }
+                    </div>
+                    <div className="order-img-block order-img-block-detail ">
+                        {order?.order_item?.length > 0 && <OrderItem order={order} language={language} /> }
+                        {order?.returned_item?.length > 0 && <ReturnedItem order={order} language={language} /> }
+                    </div>
                 </div>
-                {
-                    token?.access && (
-                        <div className="order-buttons">
-                            <Link to={`/account/details/orders`}>
-                                <div className="order-button">{t.account.returnToOrders[language]}</div>
-                            </Link>
-                        </div>
-                    )
-                }
-        </div>
-    )
+            </>
+        )
     } else if (orderDetailStatus === 'loading') {
         return <Loading/>;
     } else if (orderDetailStatus === 'error') {

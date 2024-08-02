@@ -30,7 +30,12 @@ class Cart:
             return self.cart['order_id']
 
         session = Session.objects.get(session_key=self.request.COOKIES.get('sessionid'))
-        order = order_models.Order.objects.filter(session=session).first()
+        order = order_models.Order.objects.filter(session=session).exclude(
+            status__in=[
+                order_models.Order.REFUNDED, order_models.Order.PARTIAL_REFUNDED, order_models.Order.COMPLETED,
+                order_models.Order.DELIVERED, order_models.Order.CANCELLED
+            ]
+        ).first()
         if not order:
             order = order_models.Order(
                 session=session
