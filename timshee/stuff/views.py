@@ -103,7 +103,7 @@ class SigninAPIView(generics.GenericAPIView):
                         value=_tokens['access'],
                         max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                        httponly=False,
+                        httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     )
                     response.set_cookie(
@@ -221,13 +221,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
             user = User.objects.get(email=email)
             if user:
                 recent_cases = models.ResetPasswordCase.objects.filter(user=user)
-
                 if recent_cases.exists():
                     recent_cases.update(is_active=False)
 
                 instance = models.ResetPasswordCase.objects.create(
                     user=user,
                 )
+                services.send_email_reset_password(request, instance.uuid, email)
                 return Response({'token': instance.uuid}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -295,7 +295,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
     def send_email(self, request):
-        result = services.send_email(request)
+        result = 1
 
         if result == 1:
             return Response(status=status.HTTP_200_OK)

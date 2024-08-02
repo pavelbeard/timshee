@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {checkEmail} from "../../../forms/reducers/asyncThunks";
 import {Navigate, useNavigate} from "react-router-dom";
 
-const SendEmailForm = () => {
+const Request = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {checkedEmail, checkEmailStatus} = useSelector(state => state.account);
@@ -73,4 +73,4 @@ const SendEmailForm = () => {
     }
 };
 
-export default SendEmailForm;
+export default Request;

@@ -40,7 +40,7 @@ import Nothing from "./main/techPages/Nothing";
 import OnMaintenance from "./main/techPages/OnMaintenance";
 import OnContentUpdate from "./main/techPages/OnContentUpdate";
 import AuthService from "./main/api/authService";
-import SendEmailForm from "./main/account/pages/auth/login/forms/SendEmailForm";
+import Request from "./main/account/pages/auth/login/forms/Request";
 import NewPasswordForm from "./main/account/pages/auth/login/forms/NewPasswordForm";
 import About from "./main/About";
 import House from "./main/House";
@@ -114,7 +114,7 @@ const MainComponent = () => {
                                             <Route path="/shop/collections/:c/:type/:itemId/:itemName"
                                                    element={<ItemCardDetail/>}/>
                                             <Route path="/account/login" element={<Login/>}/>
-                                            <Route path="/account/password/reset/send-email" element={<SendEmailForm/>}/>
+                                            <Route path="/account/password/reset/send-email" element={<Request/>}/>
                                             <Route path="/account/password/reset/:uuid/new-password" element={<NewPasswordForm/>}/>
                                             <Route path="/account/register" element={<Signup/>}/>
                                             <Route element={<PrivateRoute/>}>

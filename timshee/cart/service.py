@@ -29,8 +29,10 @@ class Cart:
         if 'order_id' in self.cart:
             return self.cart['order_id']
 
+        user = self.request.user
+        user = user if user.is_authenticated else None
         session = Session.objects.get(session_key=self.request.COOKIES.get('sessionid'))
-        order = order_models.Order.objects.filter(session=session).exclude(
+        order = order_models.Order.objects.filter(Q(session=session) | Q(user=user)).exclude(
             status__in=[
                 order_models.Order.REFUNDED, order_models.Order.PARTIAL_REFUNDED, order_models.Order.COMPLETED,
                 order_models.Order.DELIVERED, order_models.Order.CANCELLED
@@ -39,7 +41,10 @@ class Cart:
         if not order:
             order = order_models.Order(
                 session=session
+
             )
+            if user:
+                order.user = user
             order.save()
 
         if self.request.user.is_authenticated:
