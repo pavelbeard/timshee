@@ -273,7 +273,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
                     refund = Refund.create({
                         "amount": {
-                            "value": order.total_price(),
+                            "value": order.items_total_price(),
                             "currency": "RUB",
                         },
                         "payment_id": payment_id,
