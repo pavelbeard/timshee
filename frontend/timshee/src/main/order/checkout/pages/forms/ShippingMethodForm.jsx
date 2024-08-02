@@ -1,14 +1,14 @@
 import React, {useEffect} from "react";
 import backImg from "../../../../../media/static_images/back_to.svg";
-import {Link, useParams} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import "./CheckoutForms.css";
 import {setShippingMethod} from "./reducers/shippingAddressFormSlice";
 import {useDispatch, useSelector} from "react-redux";
 import t from "../../../../translate/TranslateService";
 import { putShippingMethod } from "./lib";
-import AuthService from "../../../../api/authService";
-import {getOrderDetail, updateOrderShippingMethod} from "../../../api/asyncThunks";
+import {getOrderDetail} from "../../../api/asyncThunks";
+import {selectCurrentToken} from "../../../../../redux/services/features/auth/authSlice";
 
 const ShippingMethodForm = ({
     initialValue: shippingMethods,
@@ -21,7 +21,7 @@ const ShippingMethodForm = ({
     const dispatch = useDispatch();
     const language = t.language();
     const {order} = useSelector(state => state.shippingAddressForm);
-    const token = AuthService.getCurrentUser();
+    const token = useSelector(selectCurrentToken)
     const [selectedShippingMethod, setSelectedShippingMethod] = React.useState(0);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
