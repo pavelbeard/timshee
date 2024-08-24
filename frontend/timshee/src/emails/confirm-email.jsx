@@ -1,8 +1,7 @@
 import {Body, Font, Head, Html, Img, Tailwind, Link} from "@react-email/components";
 
-export default function ConfirmEmail(props) {
-    const { email } = props;
-    const src = email ? "-IMAGE_SRC-" : `/static/logo.png`
+export default function ConfirmEmail({ token, text, text2 }) {
+    const src = token ? "-IMAGE_SRC-" : `/static/logo.png`
     return(
         <Tailwind>
             <Html>
@@ -18,7 +17,7 @@ export default function ConfirmEmail(props) {
                         fontStyle='normal'
                     />
                 </Head>
-                <Body className="text-2xl">
+                <Body className="flex pt-3 flex-col w-full">
                     <div className="flex justify-center items-center">
                         <Img
                             src={src}
@@ -27,9 +26,12 @@ export default function ConfirmEmail(props) {
                             alt="timshee-logo"
                         />
                     </div>
-                    <div className="flex justify-start">
-                        <div className="p-6">
-                            <Link href={`-SITE_URL-account/confirm-email?email=${encodeURIComponent(email)}`}>Email confirming</Link>
+                    <div className="flex bg-gray-100 mt-6 py-6 pl-6 justify-start ">
+                        <div className="py-2">
+                            {<p>{text2 || 'Filler email '}</p>}
+                            <Link href={`-SITE_URL-account/confirm-email?token=${token}`}>
+                                {text || 'Filler link'}
+                            </Link>
                         </div>
                     </div>
                 </Body>
