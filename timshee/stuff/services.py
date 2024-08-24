@@ -1,12 +1,9 @@
-from ipaddress import IPv4Address, IPv6Address
-
 import dns
-from rest_framework import serializers
-from validate_email import validate_email
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.templatetags.static import static
+from rest_framework import serializers
 
 try:
     from . import resolver

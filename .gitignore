@@ -24,3 +24,6 @@ package.json
 package-lock.json
 frontend-v2
 timshee/credentials.json
+*creator.sh
+unstable.images*.env
+unstable.creator*.yml
