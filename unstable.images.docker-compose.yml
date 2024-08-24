@@ -11,6 +11,7 @@ services:
 
   django:
     image: pavelbeard/django:unstable
+    platform: linux/amd64
     env_file:
       - timshee/unstable.env
     volumes:
@@ -23,6 +24,7 @@ services:
 
   frontend:
     image: pavelbeard/frontend:unstable
+    platform: linux/amd64
     ports:
       - "8112:80"
       - "443:443"
