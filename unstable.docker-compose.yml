@@ -14,7 +14,7 @@ services:
       context: timshee/
       dockerfile: unstable.Dockerfile
     env_file:
-      - timshee/test.env
+      - timshee/unstable.env
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images

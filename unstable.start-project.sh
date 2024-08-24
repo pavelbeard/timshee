@@ -9,5 +9,5 @@ git pull;
 cp timshee/prod.env.copy timshee/prod.env
 cp postgres-files/prod.env.copy postgres-files/prod.env
 
-docker-compose down;
-docker-compose up --build -d;
+docker-compose -f unstable.docker-compose.yaml down;
+docker-compose -f unstable.docker-compose.yaml up --build -d;
