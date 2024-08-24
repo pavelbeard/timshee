@@ -4,6 +4,7 @@
   "account.orders",
   "account.refundForm",
   "cart",
+  "errors",
   "footer",
   "header",
   "orders.checkout",

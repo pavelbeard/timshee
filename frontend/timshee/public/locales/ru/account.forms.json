@@ -14,5 +14,8 @@
   "newEmail": "Новый email:",
   "changeEmail": "Сменить email:",
   "email": "email:",
-  "emailConfirmed": "Email подтвержден!"
+  "emailConfirmed": "Email подтвержден!",
+  "confirmationMail": "Дождитесь ссылки потверждения вашей почты, которая должна приди туда. Проверьте папку 'Спам' на всякий случай.",
+  "linkEmailConfirmation": "Потдвердить email",
+  "linkEmailConfirmText2": "Ваша ссылка на подтверждение email \uD83D\uDC47"
 }

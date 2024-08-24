@@ -1,18 +1,19 @@
 import React from 'react';
 import {clsx} from "clsx";
 
-export default function Button ({ children, className, ...rest }) {
+export default function Button ({ children, width, className, ...rest }) {
     const btn = clsx(
-        'border-[1px] border-black flex items-center justify-center cursor-pointer',
+        'border-[1px] border-black flex items-center justify-center ',
         'tracking-widest py-3 mt-2',
-        'hover:bg-black hover:text-white',
-        'w-full'
+        rest?.disabled
+            ? 'bg-gray-200 pointer-events-none'
+            : 'hover:bg-black hover:text-white cursor-pointer',
     );
     return(
         <button
             {...rest}
             className={clsx(
-                btn, className
+                btn, className, width ? width : 'w-full'
             )}
             >{children}
         </button>

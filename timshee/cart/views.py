@@ -1,74 +1,90 @@
-from rest_framework import status, permissions
-from rest_framework import status, permissions
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from . import service
+from . import serializers, models, cart_logic
 
 
 # Create your views here.
 
-class CartAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = [JWTAuthentication]
-    allowed_methods = ("GET", "POST", "PUT", "DELETE", "OPTIONS")
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = models.Cart.objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (AllowAny,)
 
-    def get(self, request, *args, **kwargs):
-        cart = service.Cart(request)
-        data = {
-            "data": list(cart.__iter__()),
-            "total_quantity": cart.get_total_quantity(),
-            "total_price": cart.get_total_price(),
-            "order_id": cart.get_order_id() or "",
-        }
-        return Response(data, status=status.HTTP_200_OK)
+    def get_serializer_class(self):
+        if self.action in ['list', 'get_items']:
+            return serializers.CartResponseSerializer
+        elif self.action in ['create', 'add_item']:
+            return serializers.CartAddSerializer
+        elif self.action in ['change_quantity']:
+            return serializers.CartUpdateSerializer
+        elif self.action in ['delete', 'remove']:
+            return serializers.CartRemoveSerializer
 
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        cart = service.Cart(request)
+    @action(detail=False, methods=['POST'], authentication_classes=[JWTAuthentication], permission_classes=[AllowAny])
+    def add_item(self, request, *args, **kwargs):
+        serializer = serializers.CartAddSerializer(request.data)
+        item_has_added = cart_logic.add_to_cart(request, serializer.data)
+        if not item_has_added:
+            return Response(
+                data={'error': "one user can't order more than 10 items"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        cart.add_item(
-            item_id=data["item_id"],
-            size_id=data["size_id"],
-            color_id=data["color_id"],
-            quantity=data["quantity"],
-        )
-        data = {
-            "data": list(cart.__iter__()) or [],
-            "total_quantity": cart.get_total_quantity() or 0,
-            "total_price": cart.get_total_price() or 0,
-            "order_id": cart.get_order_id() or "",
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
-    def put(self, request, *args, **kwargs):
-        data = request.data
-        cart = service.Cart(request)
+    @action(detail=False, methods=['GET'])
+    def get_items(self, request):
+        cart_manager = cart_logic.CartManager(request)
+        cart = cart_manager.get_cart()
+        if not cart:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        cart.change_quantity(
-            stock_id=data["stock_id"],
-            quantity=data["quantity"],
-            increase=data["increase"]
-        )
+        serializer = self.get_serializer(cart)
+        return Response(serializer.data)
 
-        data = {
-            "data": list(cart.__iter__()) or [],
-            "total_quantity": cart.get_total_quantity() or 0,
-            "total_price": cart.get_total_price() or 0,
-            "order_id": cart.get_order_id() or "",
-        }
-        return Response(data, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['PUT'])
+    def change_quantity(self, request):
+        serializer = self.get_serializer(request.data)
+        quantity_has_changed = cart_logic.change_quantity(request, serializer.data)
+        if quantity_has_changed == 1:
+            return Response(
+                data={'error': "one user can't order more than 10 items"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        elif quantity_has_changed == 2:
+            return Response(
+                data={'error': "one user can't order less than 0 items"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    def delete(self, request, *args, **kwargs):
-        cart = service.Cart(request)
+        return Response(status=status.HTTP_200_OK)
 
-        if "remove" in request.data:
-            cart.remove_item(stock_id=request.data["stock_id"])
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        elif "clear" in request.data:
-            cart.clear()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        elif "clear_by_has_ordered" in request.data:
-            cart.clear(has_ordered=True)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    @action(detail=False, methods=['DELETE'])
+    def remove(self, request):
+        serializer = self.get_serializer(request.data)
+        item_has_deleted = cart_logic.remove_item(request, serializer.data)
+        if not item_has_deleted:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['DELETE'], authentication_classes=[])
+    def clear_cart(self, request):
+        delete_result = cart_logic.clear_cart(request)
+        if delete_result == 1:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['POST'])
+    def add_to_order(self, request):
+        result = cart_logic.add_cart_items_to_order(request)
+        if not result:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(data={'detail': result}, status=status.HTTP_201_CREATED)

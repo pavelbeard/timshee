@@ -1,7 +1,7 @@
 {
   "shop": "Shop",
-  "women": "for her",
-  "men": "for him",
+  "male": "for her",
+  "female": "for him",
   "unisex": "for them",
   "house": "timshee",
   "about": "about",

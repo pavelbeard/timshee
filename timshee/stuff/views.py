@@ -1,41 +1,33 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model, models, authenticate
-from django.contrib.sessions.models import Session
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware import csrf
 from django.utils import timezone
 from django.utils.translation import activate
-from order import models as order_models
-from order import serializers as order_serializers
 from rest_framework import generics, status, permissions, viewsets
 from rest_framework import views
 from rest_framework.decorators import action
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
+from order import models as order_models
 from store import models as store_models
+from cart import models as cart_models
+from order import serializers as order_serializers
+from auxiliaries.auxiliaries_methods import get_logger
 
-from . import models, services, serializers
+from . import models, services, serializers, stuff_logic
 
 # Create your views here.
 User = get_user_model()
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
-def get_token_for_user(user):
-    token = tokens.RefreshToken.for_user(user)
-    return {
-        'refresh': str(token),
-        'access': str(token.access_token)
-    }
 
 
 class SignupAPIView(generics.GenericAPIView):
@@ -52,18 +44,6 @@ class SignupAPIView(generics.GenericAPIView):
 
             if not instance:
                 return AuthenticationFailed('Failed to create user.')
-
-            session_key = request.COOKIES.get('sessionid')
-
-            if session_key:
-                orders = order_models.Order.objects.filter(session__session_key=session_key)
-                wishlist_objs = store_models.Wishlist.objects.filter(session__session_key=session_key)
-
-                if orders.exists():
-                    orders.update(user=instance)
-
-                if wishlist_objs.exists():
-                    wishlist_objs.update(user=instance)
 
             response = Response(status=status.HTTP_201_CREATED)
             response.data = {'detail': 'User created'}
@@ -85,17 +65,21 @@ class SigninAPIView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            username = self.request.data['username']
-            password = self.request.data['password']
+            username = str(self.request.data['username']).strip()
+            password = str(self.request.data['password']).strip()
 
             if username and password:
-                user = authenticate(username=username, password=password)
+                user = authenticate(email=username, password=password)
+
+                if isinstance(user, ValidationError) or user is None:
+                    return Response(status=status.HTTP_404_NOT_FOUND)
 
                 if isinstance(user, User):
                     session_key = self.request.COOKIES.get('sessionid')
+                    cart_models.Cart.objects.filter(session__session_key=session_key).update(user=user)
                     order_models.Order.objects.filter(session__session_key=session_key).update(user=user)
                     store_models.Wishlist.objects.filter(session__session_key=session_key).update(user=user)
-                    _tokens = get_token_for_user(user)
+                    _tokens = stuff_logic.get_token_for_user(user)
 
                     response = Response(status=status.HTTP_200_OK)
                     response.set_cookie(
@@ -103,7 +87,7 @@ class SigninAPIView(generics.GenericAPIView):
                         value=_tokens['access'],
                         max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                        httponly=False,
+                        httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     )
                     response.set_cookie(
@@ -114,7 +98,7 @@ class SigninAPIView(generics.GenericAPIView):
                         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     )
-                    response.data = {'access': _tokens['access']}
+                    response.data = {'access': _tokens['access'], 'user': user.email}
                     response['X-CSRFToken'] = csrf.get_token(request)
                     return response
 
@@ -132,8 +116,6 @@ class SignoutAPIView(views.APIView):
     def post(self, request):
         try:
             refresh = request.COOKIES.get('refresh_token')
-            session_id = request.COOKIES.get('sessionid')
-            Session.objects.filter(session_key=session_id).delete()
 
             token = tokens.RefreshToken(refresh)
             token.blacklist()
@@ -164,7 +146,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 value=response.data['access'],
                 max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                 secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                httponly=False,
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             )
             response.set_cookie(
@@ -176,6 +158,9 @@ class CookieTokenRefreshView(TokenRefreshView):
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             )
 
+            refresh = response.data['refresh']
+            user = User.objects.get(id=tokens.RefreshToken(refresh)['user_id'])
+            response.data['user'] = user.email
             del response.data['refresh']
 
         response['X-CSRFToken'] = request.COOKIES.get('csrftoken')
@@ -197,19 +182,52 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_403_FORBIDDEN)
 
-    @action(detail=False, methods=["PUT"])
-    def change_email(self, request):
-        if self.request.user.is_authenticated:
-            user = self.request.user
-            try:
-                user.email = request.data.strip()
-                user.username = request.data.strip()
-                user.save()
+    @action(detail=False, methods=["POST"], permission_classes=[permissions.IsAuthenticated])
+    def generate_verification_token(self, request, *args, **kwargs):
+        serializer = serializers.EmailVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-                return Response({'email': user.email}, status=status.HTTP_200_OK)
-            except IntegrityError:
-                return Response({"error": "email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_403_FORBIDDEN)
+        result, data = stuff_logic.generate_verification_token(request, serializer.validated_data)
+        if result == 1:
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        elif result == 2:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+    @action(
+        detail=False,
+        methods=["PUT"],
+        permission_classes=[permissions.IsAuthenticated],
+        authentication_classes=[JWTAuthentication]
+    )
+    def change_email(self, request):
+        user = self.request.user
+        try:
+            serializer = serializers.EmailTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            data = serializer.validated_data
+
+            email_token = models.EmailToken.objects.filter(uuid=data['token']).first()
+            if not email_token:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            expired = (timezone.now() > email_token.until)
+            if expired:
+                email_token.is_active = False
+                email_token.save()
+                return Response({'error': 'token has expired'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.email = email_token.for_email
+            user.save()
+
+            return Response(status=status.HTTP_200_OK)
+        except IntegrityError:
+            return Response({"error": "email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            logger.exception(msg='Something went wrong...', exc_info=True)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
     def check_email(self, request):
@@ -293,14 +311,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
-    def send_email(self, request):
-        result = services.send_email(request)
 
-        if result == 1:
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeLanguageAPIView(generics.GenericAPIView):
@@ -342,8 +353,41 @@ class GetSettingsAPIView(generics.GenericAPIView):
     allowed_methods = ["GET"]
 
     def get(self, request):
-        dyn_settings = models.DynamicSettings.objects.get(pk=1)
-        return JsonResponse({
+        dyn_settings = models.DynamicSettings.objects.filter(pk=1).first()
+        session = None
+        if not request.COOKIES.get('sessionid'):
+            session = request.session.create()
+
+        if not dyn_settings:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        response = JsonResponse({
             "onContentUpdate": dyn_settings.on_content_update,
             "onMaintenance": dyn_settings.on_maintenance,
         }, status=status.HTTP_200_OK)
+        if session:
+            response.set_cookie(
+                key='sessionid',
+                value=session.session_key,
+                max_age=settings.SESSION_COOKIE_AGE,
+                secure=settings.SESSION_COOKIE_SECURE,
+                httponly=settings.SESSION_COOKIE_HTTPONLY,
+                samesite=settings.SESSION_COOKIE_SAMESITE,
+            )
+        return response
+
+
+class EmailViewSet(viewsets.ViewSet):
+    authentication_classes = []
+    permission_classes = []
+
+    @action(detail=False, methods=["POST"])
+    def send_email(self, request):
+        try:
+            result = services.send_email(request)
+
+            if result == 1:
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=e)

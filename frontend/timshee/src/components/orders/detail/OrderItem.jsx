@@ -5,27 +5,26 @@ import RefundButton from "../../ui/RefundButton";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
 import {useTranslation} from "react-i18next";
+import ItemImage from "../../ui/ItemImage";
 
 export default function OrderItem({ order, showHideItems }) {
     const { t } = useTranslation();
     return (
         <div className={clsx(
             showHideItems && 'max-sm:hidden',
-            'flex max-sm:flex-col overflow-x-auto gap-2 mt-2')}>
+            'flex max-sm:flex-col overflow-x-auto gap-2 mt-2')}
+        >
             {Array.isArray(order?.order_item)
                 ? order?.order_item.map((item, index) => (
                     <div className={clsx(
-                        'flex-shrink-0 w-20 h-40',
+                        'flex-shrink-0 w-24 h-48',
                         'max-sm:h-80',
                         'xl:w-40 xl:h-[600px]'
                     )} key={index}>
-                        <Image
-                            className={clsx(
-                                item.refund_reason !== null && "brightness-50",
-                                'aspect-[3/5] object-cover',
-                            )}
+                        <ItemImage
                             src={`${API_URL}${item.item.item.image}`}
-                            alt={`alt-image-${index}`}/>
+                            alt={`alt-image-${index}`}
+                        />
                         <div
                             className="flex max-sm:flex-col md:flex-col xl:flex-row justify-between"
                             data-order-detail-price=""
@@ -71,9 +70,8 @@ export default function OrderItem({ order, showHideItems }) {
                     <div className={clsx(
                         'flex-shrink-0 w-20 h-40',
                         'max-sm:h-80'
-                    )}>
+                    )} key={index}>
                         <ImageSkeleton
-                            key={index}
                             className={clsx('aspect-[3/5] bg-gray-300 object-cover mt-2')}
                         />
                     </div>

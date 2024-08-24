@@ -1,27 +1,26 @@
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from "react-redux";
+import React from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import NotFound from "../../../NotFound";
-import {changePassword, checkResetPasswordRequest} from "../../../../main/account(old)/pages/forms/reducers/asyncThunks";
 import {useTranslation} from "react-i18next";
 import Button from "../../../../components/ui/Button";
 import CustomInput from "../../../../components/ui/forms/CustomInput";
 import {clsx} from "clsx";
+import {
+    useChangePasswordMutation,
+    useCheckResetPasswordRequestQuery
+} from "../../../../redux/features/api/stuffApiSlice";
+import Container from "../../../../components/ui/Container";
 
 const Reset = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const params = useParams();
+    const { t } = useTranslation();
+    const { token } = useParams();
     const [password1, setPassword1] = React.useState('');
     const [password2, setPassword2] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState(null);
-    const {
-        changePasswordStatus,
-        isLinkValidStatus,
-    } = useSelector(state => state.account);
-    const { t } = useTranslation();
+    const { isSuccess, isError} = useCheckResetPasswordRequestQuery({ uuid: token });
+    const [changePassword, { isSuccess: isChangePasswordSuccess }] = useChangePasswordMutation();
     const [isButtonActive, setIsButtonActive] = React.useState(true);
-
 
     const handleChangePassword = (e) => {
         e.preventDefault();
@@ -29,28 +28,24 @@ const Reset = () => {
         const data = {
             password1: password1,
             password2: password2,
-            uuid: params.uuid,
+            uuid: token,
         };
 
         if (password1 === password2) {
             setIsButtonActive(false);
             setErrorMessage(null);
-            dispatch(changePassword({data}));
+            changePassword(data).unwrap()
+                .catch(err => null);
         } else {
             setErrorMessage(t('stuff.forms:newPasswordDoesntMatch'));
         }
     };
 
-    useEffect(() => {
-        dispatch(checkResetPasswordRequest({data: {uuid: params.uuid}}));
-    }, [])
 
-    useEffect(() => {}, [changePasswordStatus, errorMessage]);
-
-    if (changePasswordStatus === 'success') {
+    if (isChangePasswordSuccess) {
         return (
-            <div className="flex justify-center">
-                <div className="flex flex-col justify-center">
+            <Container className="flex justify-center">
+                <div className="flex flex-col">
                     <span className="text-2xl">{t('stuff.forms:recoverAccessSuccess')}</span>
                     <Button
                         onClick={() => navigate('/account/signin')}
@@ -58,14 +53,14 @@ const Reset = () => {
                     >{t('stuff.forms:recoverAccessToLogin')}
                     </Button>
                 </div>
-            </div>
+            </Container>
 
         )
-    } else if (isLinkValidStatus === 'success') {
+    } else if (isSuccess) {
         return (
-            <div className="flex justify-center">
+            <Container className="flex justify-center">
                 <form className="flex flex-col w-2/6" onSubmit={handleChangePassword}>
-                <CustomInput
+                    <CustomInput
                         htmlFor="password1"
                         type="password"
                         labelText={t('stuff.forms:recoverAccessNewPass')}
@@ -90,7 +85,7 @@ const Reset = () => {
                     <Button
                         type="submit"
                         className={clsx(
-                            'px-2',
+                            'px-2 h-6',
                             isButtonActive && 'cursor-not-allowed'
                         )}
                         disabled={!isButtonActive}
@@ -100,9 +95,9 @@ const Reset = () => {
                     {errorMessage &&
                         (<div className="text-red-500">{errorMessage}</div>)}
                 </form>
-            </div>
+            </Container>
         )
-    } else if (isLinkValidStatus === 'error') {
+    } else if (isError) {
         return <NotFound />
     }
 };

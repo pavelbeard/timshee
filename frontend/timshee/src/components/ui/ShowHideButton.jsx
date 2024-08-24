@@ -7,22 +7,22 @@ export default function ShowHideButton({ showHideItems, setShowHideItems, childr
             ?
             <div
                 onClick={() => setShowHideItems(!showHideItems)}
-                className="hidden max-sm:flex max-sm:items-center">
+                className="lg:hidden flex items-center mb-4">
                 <ChevronDownIcon
                     strokeWidth="0.5"
-                    className="max-sm:size-4"
+                    className="size-4"
                 />
-                <span className="roboto-light text-xs max-sm:ml-2">{children}</span>
+                <span className="roboto-text ml-2">{children}</span>
             </div>
             :
             <div
                 onClick={() => setShowHideItems(!showHideItems)}
-                className="hidden max-sm:flex max-sm:items-center">
+                className="lg:hidden flex items-center mb-4">
                 <ChevronUpIcon
                     strokeWidth="0.5"
-                    className="max-sm:size-4"
+                    className="size-4"
                 />
-                <span className="roboto-light text-xs max-sm:ml-2">{children}</span>
+                <span className="roboto-text ml-2">{children}</span>
             </div>
 
     )

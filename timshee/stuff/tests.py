@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
@@ -411,4 +413,30 @@ class ChangePasswordTestCase(TestCase):
             'to': 'heavycream9090@icloud.com'
         }
         response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_token(self):
+        url = reverse('signin')
+        data = {
+            'username': 'testuser@testuser.com',
+            'password': 'Rt3$YiOO'
+        }
+
+        response = self.client.post(url, data, format='json')
+        csrftoken = response.cookies['csrftoken'].value
+        authorization = response.cookies['access_token'].value
+
+        url = reverse('user-generate-verification-token')
+        data = { 'email': data['username'] }
+        response = self.client.post(url, data=data, headers={'X-CSRFToken': csrftoken, 'Authorization': 'Bearer {0}'.format(authorization)})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+        print(response.data)
+
+        url = reverse('user-change-email')
+        data = {
+            'token': response.data['token'],
+        }
+        headers = {'X-CSRFToken': csrftoken, 'Authorization': 'Bearer {0}'.format(authorization)}
+        response = self.client.put(url, data=json.dumps(data), content_type='application/json', headers=headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

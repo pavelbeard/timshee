@@ -12,6 +12,15 @@ class CountryPhoneCodeFilter(django_filters.FilterSet):
         }
 
 
+class CountryFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Country
+        fields = {
+            'id': ['exact'],
+            'language': ['exact', 'icontains'],
+        }
+
+
 class ProvinceFilter(django_filters.FilterSet):
     class Meta:
         model = models.Province

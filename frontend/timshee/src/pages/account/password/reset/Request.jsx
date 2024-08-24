@@ -3,13 +3,15 @@ import {useTranslation} from "react-i18next";
 import CustomInput from "../../../../components/ui/forms/CustomInput";
 import Button from "../../../../components/ui/Button";
 import {clsx} from "clsx";
-import {useToken} from "../../../../lib/global/hooks";
 import ToChangePassword from "../../../../emails/to-change-password";
-import { checkEmail } from "../../../../lib/stuff";
-import {sendEmail} from "../../../../emails";
+import {useSendEmail} from "../../../../lib/hooks";
+import Container from "../../../../components/ui/Container";
+import {useLazyCheckEmailQuery} from "../../../../redux/features/api/stuffApiSlice";
 
 const Request = () => {
     const { t } = useTranslation();
+    const [sendEmail] = useSendEmail();
+    const [checkEmail] = useLazyCheckEmailQuery();
     const [email, setEmail] = useState('');
     const [success, setSuccess] = useState(false);
     const [isButtonActive, setIsButtonActive] = useState(true);
@@ -18,44 +20,33 @@ const Request = () => {
     const handleCheckEmail = async e => {
         e.preventDefault();
 
-        const result = await checkEmail({data: {email}});
-
-        if (result instanceof Error) {
-            setErrorMessage(t(`stuff.forms:recoverAccessEmailNotExists`));
-            return
-        }
-
-        const sendEmailResult =  await sendEmail(
-            email,
-            `Timshee | ${t('stuff.forms:recoverAccessEmail')}`,
-            <ToChangePassword
-                link={`-SITE_URL-account/password/reset/${result.uuid}/`}
-                h2={t('stuff.forms:recoverAccessChangePassEmail')}
-                text={{p1: t('stuff.forms:recoverAccessTextEmail'), p2: t('stuff.forms:recoverAccessAttentionEmail')}}
-                linkLabel={t('stuff.forms:recoverAccessLinkLabelEmail')}
-            />
-        );
-
-        if (sendEmailResult instanceof Error) {
-            setErrorMessage(sendEmailResult.message);
-            return
-        }
-
-        setIsButtonActive(false);
-        setSuccess(true);
+        checkEmail({ email }).unwrap()
+            .then(res => sendEmail(
+                email,
+                `Timshee | ${t('stuff.forms:recoverAccessEmail')}`,
+                <ToChangePassword
+                    link={`-SITE_URL-account/password/reset/${res.token}`}
+                    h2={t('stuff.forms:recoverAccessChangePassEmail')}
+                    text={{p1: t('stuff.forms:recoverAccessTextEmail'), p2: t('stuff.forms:recoverAccessAttentionEmail')}}
+                    linkLabel={t('stuff.forms:recoverAccessLinkLabelEmail')}
+                />,
+                () => {
+                    setIsButtonActive(false);
+                    setSuccess(true);
+                }
+            ))
+            .catch(() => setErrorMessage(t(`stuff.forms:recoverAccessEmailNotExists`)));
     };
-
-
 
     if (success) {
         return (
-            <div className="flex justify-center text-2xl">
+            <Container className="flex justify-center text-2xl">
                 {t('stuff.forms:recoverAccessSpamNote')}
-            </div>
+            </Container>
         )
     } else {
         return(
-            <div className="flex justify-center">
+            <Container className="flex justify-center">
                 <form className="flex flex-col" onSubmit={handleCheckEmail}>
                     <CustomInput
                         htmlFor="email"
@@ -70,7 +61,7 @@ const Request = () => {
                     <Button
                         type="submit"
                         className={clsx(
-                            'px-2',
+                            'px-2 h-6',
                             isButtonActive && 'cursor-not-allowed'
                         )}
                         disabled={!isButtonActive
@@ -81,7 +72,7 @@ const Request = () => {
                         <div className="text-red-500">{errorMessage}</div>
                     )}
                 </form>
-            </div>
+            </Container>
         )
     }
 };

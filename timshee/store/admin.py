@@ -34,13 +34,11 @@ class ItemAdmin(admin.ModelAdmin):
         model = models.Stock
         form = forms.StockForm
         formset = forms.StockFormSet
-        extra = 1
 
     class CarouselImageInline(admin.TabularInline):
         model = models.CarouselImage
         form = forms.CarouselImageForm
         formset = forms.CarouselImageFormSet
-        extra = 1
 
     inlines = [StockInLine, CarouselImageInline]
 
@@ -93,6 +91,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
+    form = forms.CollectionForm
+
     def save_model(self, request, obj, form, change):
         if obj.collection_image:
             obj.collection_image = compress_image(obj.collection_image)

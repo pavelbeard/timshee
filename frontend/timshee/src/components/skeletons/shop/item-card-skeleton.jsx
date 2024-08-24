@@ -4,30 +4,27 @@ import {clsx} from "clsx";
 
 export default function ItemCardSkeleton() {
     const itemContainerSkeleton = clsx(
-        // 'max-sm:w-20 max-sm:h-44 bg-gray-100 flex flex-col',
+        'min-h-60 bg-gray-200 flex flex-col items-center',
+        'md:h-80',
+        'lg:h-96'
     );
     const imgSkeleton = clsx(
-        'bg-gray-100',
-        'max-sm:w-20 max-sm:h-44',
-        'sm:w-32 sm:h-52',
-        'w-[372px] h-[642px]',  // LG
+        'min-h-52 w-full bg-gray-300',
+        'md:h-72',
+        'lg:h-[22rem]'
     );
     const itemPropsSkeleton = clsx(
-        'bg-gray-100 flex justify-between flex-col items-center w-full',
-        // 'max-sm:',
-        // 'sm:w-32 sm:h-6 sm:flex-col',
-        // '',
-        // 'w-[372px] h-[22px] ',  // LG
+        'h-6 w-full mt-1 bg-gray-300 flex justify-between',
     );
     const propSkeleton = clsx(
-        'ml-0.5 w-16 h-4 bg-gray-200'
-    )
+        'h-4 w-2/3 bg-gray-400',
+    );
     return(
         <div className={itemContainerSkeleton}>
             <div className={imgSkeleton}></div>
             <div className={itemPropsSkeleton}>
-                <div className={clsx(propSkeleton)}></div>
-                <div className={clsx(propSkeleton)}></div>
+                <div className={clsx(propSkeleton, 'mr-1')}></div>
+                <div className={clsx(propSkeleton, 'ml-1')}></div>
             </div>
         </div>
     )

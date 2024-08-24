@@ -1,28 +1,24 @@
 import {clsx} from "clsx";
 
-export default function Modal({ children, ...props }) {
-    const { isCartMenuOpen, isBurgerMenuOpen, isFiltersMenuOpen } = props;
-    const position = clsx(
-        isCartMenuOpen && 'left-0',
-        isBurgerMenuOpen && 'right-0',
-    );
-    const bg = clsx(
-        'w-[51%] min-h-[100vh] absolute bg-gray-500 opacity-30 z-[100]',
-        position
-    );
-
+export default function Modal({ open, close, children }) {
+    const style = {
+        base: 'fixed inset-0',
+        forForms: 'flex justify-center items-center',
+        forSideMenuLeft: 'w-full',
+        forSideMenuRight: 'w-8/12'
+    }
+    const childrenName = children?.at(2)?.type?.name;
     return(
-        <div className={clsx(
-            (isBurgerMenuOpen || isCartMenuOpen) && 'absolute flex w-full top-0 left-0 min-h-full z-0',
+        <div
+            onClick={close}
+            className={clsx(
+                style.base,
+                childrenName === 'VerticalHeader' && style.forSideMenuLeft,
+                childrenName?.includes('Form') && style.forForms,
+                childrenName?.includes('Cart') && style.forSideMenuRight,
+            open ? 'visible bg-black/20' : 'invisible'
         )}>
-            {isCartMenuOpen && <>
-                <div className={clsx(isCartMenuOpen && bg)}></div>
-                {children}
-            </>}
-            {(isBurgerMenuOpen || isFiltersMenuOpen) && <>
-                {children}
-                <div className={clsx(isBurgerMenuOpen && bg)}></div>
-            </>}
+            {children}
         </div>
     )
 }

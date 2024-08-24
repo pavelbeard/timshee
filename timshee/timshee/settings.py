@@ -48,12 +48,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
-    # 'oauth2_provider',
-    # 'social_django',
-    # 'drf_social_oauth2',
     'colorfield',
     'django_filters',
-    # "debug_toolbar" if (DEBUG or TESTING) else "",
     "parler",
     "parler_rest",
     # my
@@ -230,8 +226,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
 
-# AUTH_USER_MODEL = 'stuff.UUIDUser'
-
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE__X_FORWARDED_PROTO = True
@@ -251,24 +245,11 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    # 'drf_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'stuff.authentication.EmailAuthenticationBackend',
-    # custom
-    # 'social_core.backends.google.GoogleOAuth2',
 )
 
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
-#
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     'https://www.googleapis.com/auth/userinfo.email',
-#     'https://www.googleapis.com/auth/userinfo.profile',
-# ]
-
-CART_SESSION_ID = "cart"
-
-SESSION_COOKIE_AGE = 60 * 60 * 24
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 API_KEY = os.getenv("SECRET_KEY")
@@ -302,11 +283,11 @@ SIMPLE_JWT = {
 # MAIL
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = os.getenv('EMAIL_PORT', 2525)
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", '183c7aef5afc10')
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", '7b49b74b51cbce')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # LANGUAGE

@@ -1,34 +1,40 @@
 import React, {useEffect} from "react";
 import {useState} from "react";
-
 import {useNavigate} from "react-router-dom";
-
 import CustomInput from "../../components/ui/forms/CustomInput";
 import Button from "../../components/ui/Button";
 import {clsx} from "clsx";
-import {useAuthProvider, useErrorStore} from "../../store";
 import CustomTitle from "../../components/ui/forms/CustomTitle";
 import {useTranslation} from "react-i18next";
 import {useInput} from "../../lib/hooks";
-import {signUp} from "../../lib/auth";
+import {useSignUpMutation} from "../../redux/features/api/authApiSlice";
+import {changePassword} from "../../main/api(old)/actions";
+import SignFormContainer from "../../components/account/SignFormContainer";
 
 const SignUp = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [formData, reset, formAttrs] = useInput('formData', {
+    const [formData, setFormData] = useState({
         "first_name": "",
         "last_name": "",
         email: "",
-    })
+    });
+    const [signUp] = useSignUpMutation();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState(null);
     const [passwordError, setPasswordError] = useState(null);
 
     useEffect(() => {
-        setError(null);
-        setPasswordError(null);
-    }, [password, confirmPassword, formData]);
+        if (error || passwordError) {
+            setError(null);
+            setPasswordError(null);
+        }
+    }, [formData, password, confirmPassword]);
+
+    const setData = e => {
+        setFormData(prevState => ({...prevState, [e.target.name]: e.target.value}));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,44 +44,52 @@ const SignUp = () => {
             return;
         }
 
-        const result = await signUp({...formData, password, password2: confirmPassword });
-        if (!(result instanceof Error)) {
-            reset();
-            navigate(`/account/signin`);
-        } else {
-            setError(result.message)
-        }
+        signUp({...formData, password, password2: confirmPassword }).unwrap()
+            .then(() => {
+                // reset();
+                navigate(`/account/signin`);
+            })
+            .catch((err) => {
+                setError(err?.message);
+            });
     };
 
 
     return (
-        <div className={clsx('flex lg:items-center justify-between',)}>
+        <SignFormContainer>
             <div></div>
             <form className="flex flex-col md:w-4/12 lg:w-4/12 pb-6" onSubmit={handleSubmit}>
                 <CustomTitle title={t('stuff.forms:signUpTitle')} />
                 <CustomInput
                     htmlFor="first_name"
+                    name="first_name"
                     type="text"
                     labelText={t('stuff.forms:firstname')}
-                    {...formAttrs('first_name')}
+                    value={formData.first_name}
+                    onChange={setData}
                     required={true}
                 />
                 <CustomInput
                     htmlFor="last_name"
+                    name="last_name"
                     type="text"
                     labelText={t('stuff.forms:lastname')}
-                    {...formAttrs('last_name')}
+                    value={formData.last_name}
+                    onChange={setData}
                     required={true}
                 />
                 <CustomInput
                     htmlFor="username"
+                    name="username"
                     type="email"
                     labelText="email:"
-                    {...formAttrs('username')}
+                    value={formData.email}
+                    onChange={setData}
                     required={true}
                 />
                 <CustomInput
                     htmlFor="password"
+                    name="password"
                     type="password"
                     labelText={t('stuff.forms:password')}
                     value={password}
@@ -84,17 +98,18 @@ const SignUp = () => {
                 />
                 <CustomInput
                     htmlFor="password2"
+                    name="password2"
                     type="password"
                     labelText={t('stuff.forms:passwordConfirm')}
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     required={true}
                 />
-                <Button type="submit">{t('stuff.forms:register')}</Button>
+                <Button type="submit" className="h-6">{t('stuff.forms:register')}</Button>
                 {(error || passwordError) && (<div className="text-red-500">{error || passwordError}</div>)}
             </form>
             <div></div>
-        </div>
+        </SignFormContainer>
     )
 };
 

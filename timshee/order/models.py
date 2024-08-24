@@ -85,17 +85,27 @@ class Address(models.Model):
 
 
 class Order(models.Model):
-    STATUS_CHOICES = (
-        ('created', 'CREATED'),
-        ('pending_for_pay', 'PENDING FOR PAY'),
-        ('processing', 'PROCESSING'),
-        ('delivering', 'DELIVERING'),
-        ('delivered', 'DELIVERED'),
-        ('completed', 'COMPLETED'),
-        ('partial_refunded', 'PARTIAL_REFUNDED'),
-        ('cancelled', 'CANCELLED'),
-        ('refunded', 'REFUNDED'),
-    )
+    CREATED = 'created'
+    PENDING_FOR_PAY = 'pending_for_pay'
+    PROCESSING = 'processing'
+    DELIVERING = 'delivering'
+    DELIVERED = 'delivered'
+    COMPLETED = 'completed'
+    PARTIAL_REFUNDED = 'partial_refunded'
+    CANCELLED = 'cancelled'
+    REFUNDED = 'refunded'
+
+    STATUS_CHOICES = {
+        CREATED: 'CREATED',
+        PENDING_FOR_PAY: 'PENDING_FOR_PAY',
+        PROCESSING: 'PROCESSING',
+        DELIVERING: 'DELIVERING',
+        DELIVERED: 'DELIVERED',
+        COMPLETED: 'COMPLETED',
+        PARTIAL_REFUNDED: 'PARTIAL_REFUNDED',
+        CANCELLED: 'CANCELLED',
+        REFUNDED: 'REFUNDED',
+    }
 
     second_id = ShortUUIDField(length=16, max_length=32, alphabet=string.ascii_uppercase + string.digits)
     order_number = models.CharField(max_length=255, unique=True)

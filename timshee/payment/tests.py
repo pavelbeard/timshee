@@ -1,8 +1,10 @@
 import json
+import uuid
 from pprint import pprint
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -84,31 +86,42 @@ class PaymentTests(TestCase):
         self.order = new_order
 
     def test_payment(self):
-        # STEP 1, CREATE A PAYMENT
+        # STEP 1, CREATE A PAYMENT - MOCK
         data = {
-            "store_order_id": self.order.second_id,
-            "store_order_number": self.order.order_number,
+            "order_id": self.order.second_id,
+            "order_status": 'pending_for_payment',
         }
 
-        url = reverse('payment-list')
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        print(response.json())
-        input('Press Enter to continue...')
+        payment_id = str(uuid.uuid4())
+        models.Payment.objects.create(
+            store_order_id=self.order.second_id,
+            payment_id=payment_id,
+            status='success',
+            created_at=timezone.now(),
+            captured_at=timezone.now()
+        )
 
-        # STEP 2, CHECK IT
-        url = reverse('payment-get-status', kwargs={'store_order_id': self.order.second_id})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('status', response.json())
-        print(response.json())
-        data = response.json()
+        # url = reverse('payment-create-payment')
+        # response = self.client.post(url, data, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # print(response.json())
+        # input('Press Enter to continue...')
+
+        # STEP 2, CHECK IT - MOCK
+        # url = reverse('payment-get-status', kwargs={'store_order_id': self.order.second_id})
+        # response = self.client.get(url)
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertIn('status', response.json())
+        # print(response.json())
+        # data = response.json()
+        payment = models.Payment.objects.filter(store_order_id=self.order.second_id).first()
+        status = payment.status
 
         # STEP 3, UPDATE PAYMENT
-        if data['status'] == 'success':
+        if status == 'success':
             url = reverse('payment-detail', kwargs={'store_order_id': self.order.second_id})
-            data = {'status': data['status']}
-            response = self.client.put(url, data, format='json')
+            data = {'status': status, 'store_order_id': self.order.second_id}
+            response = self.client.put(url, data, format='json', content_type='application/json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             # STEP 4, UPDATE ORDER
@@ -127,7 +140,7 @@ class PaymentTests(TestCase):
                 "stock_item_id": 1,
                 "reason": "It didnt like",
             }
-            url = reverse('payment-refund-whole-order', kwargs={'store_order_id': self.order.second_id})
+            url = reverse('refund-whole-order', kwargs={'store_order_id': self.order.second_id})
             response = self.client.put(path=url, data=json.dumps(data), format='json', headers={'Content-Type': 'application/json'})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             pprint(response.json(), indent=4)

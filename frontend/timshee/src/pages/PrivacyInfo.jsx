@@ -2,9 +2,11 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {clsx} from "clsx";
 import {Link} from "react-router-dom";
+import {useFocus} from "../lib/hooks";
 
 const PrivacyInfo = () => {
     const { i18n } = useTranslation();
+    const containerRef = useFocus('/privacy');
     const privacyInfoTextStyle = clsx(
         "flex flex-col items-left py-6 px-12",
     );
@@ -16,10 +18,13 @@ const PrivacyInfo = () => {
     const emailUnderline = clsx(
         'underline underline-offset-2'
     );
+
+    const ref = <span tabIndex="-1" ref={containerRef}></span>
+
     switch (i18n.language) {
         case "en":
             return (
-                <div className={clsx(privacyInfoTextStyle)}>
+                <div autoFocus={true} className={clsx(privacyInfoTextStyle)}>
                     <h1 className={clsx(privacyInfoHeaderStyle)}>Privacy policy</h1>
                     <h2 className={clsx(privacyInfoHeaderStyle)}>Date of last change: 12/06/2024</h2>
                     <div style={{wordBreak: "break-word"}}>
@@ -106,6 +111,7 @@ const PrivacyInfo = () => {
         case "ru":
             return (
                 <div className={clsx(privacyInfoTextStyle)}>
+                    {ref}
                     <h1 className={clsx(privacyInfoHeaderStyle)}>Политика конфиденциальности </h1>
                     <h2 className={clsx(privacyInfoHeaderStyle)}>Дата последнего изменения: 12/06/2024</h2>
                     <div style={{wordBreak: "break-word"}}>

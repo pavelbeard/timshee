@@ -1,74 +1,94 @@
-import React, {useEffect} from "react";
+import React, {useState} from "react";
 
 import {clsx} from "clsx";
 import CustomInput from "../../ui/forms/CustomInput";
 import Button from "../../ui/Button";
 import ConfirmEmail from "../../../emails/confirm-email";
 import CustomTitle from "../../ui/forms/CustomTitle";
-import {XMarkIcon} from "@heroicons/react/16/solid";
+import {XMarkIcon} from "@heroicons/react/24/outline";
 import {useTranslation} from "react-i18next";
-import {useAccountContext, useMailsSenderContext} from "../../../lib/hooks";
+import {useSendEmail} from "../../../lib/hooks";
+import {useSelector} from "react-redux";
+import {selectCurrentUser} from "../../../redux/features/store/authSlice";
+import {useGenerateTokenMutation} from "../../../redux/features/api/stuffApiSlice";
+import ReactDOMServer from "react-dom/server";
 
-
-const ChangeEmailForm = () => {
+const ChangeEmailForm = ({ onClose }) => {
     const { t } = useTranslation();
-    const { email, setEmail, toggleChangeEmail } = useAccountContext();
-    const { sendEmail } = useMailsSenderContext();
+    const [email, setEmail] = useState(useSelector(selectCurrentUser));
+    const [sendEmail, error] = useSendEmail();
+    const [generateTokenMut, { error: genTokenErr, isError }] = useGenerateTokenMutation();
+    const [msg, setMsg] = useState(null);
 
     const formContainer = clsx(
-        'max-sm:w-10/12',
+        'w-10/12',
         'md:w-3/5',
         'lg:w-2/5',
     );
 
     const handleSubmit = async e => {
         e.preventDefault();
-
-        await sendEmail.mutate(
-            email,
-            `Timshee | ${t('account.forms:changeEmail')}:`,
-            <ConfirmEmail email={email} />
-        );
-
-
+        // const template = ReactDOMServer.renderToString()
+        generateTokenMut({ email }).unwrap()
+            .then(res => sendEmail(
+                email,
+                `Timshee | ${t('account.forms:changeEmail')}:`,
+                <ConfirmEmail
+                    token={res.token}
+                    text={t('account.forms:linkEmailConfirmation')}
+                    text2={t('account.forms:linkEmailConfirmText2')}
+                />,
+                () => setMsg(t('account.forms:confirmationMail'))
+            ))
+            .catch(err => console.error(err));
     };
 
-    useEffect(() => {
-        if (sendEmail.isSuccess) {
-            sendEmail.reset()
-        }
-    }, [sendEmail])
+    const btn = <XMarkIcon
+        strokeWidth="0.5"
+        onClick={onClose}
+        className={clsx(
+            "size-6 border-black border-[1px] mt-2",
+            'hover:bg-black hover:text-white cursor-pointer',
+        )}
+    />
 
-    return (
-        <div className="flex flex-col items-center justify-center pb-6">
-            <CustomTitle title={'Сменить email'} />
-            <form onSubmit={handleSubmit} className={clsx('flex flex-col', formContainer)}>
-                <CustomInput
-                    htmlFor="email"
-                    labelText={t('forms:newEmail')}
-                    required={true}
-                    value={email}
-                    onChange={e => {
-                        setEmail(e.target.value);
-                        sendEmail.reset();
-                    }}
-                />
-                <div className="flex items-center justify-between">
-                    <div className="w-1/2">
-                        <Button className="h-6">{t('forms:submit')}</Button>
-                    </div>
-                    <XMarkIcon
-                        onClick={() => toggleChangeEmail(false)}
-                        className={clsx(
-                            "w-6 h-6 border-black border-[1px] mt-2",
-                            'hover:bg-black hover:text-white cursor-pointer',
-                        )}
+
+    if (msg) {
+        return (
+            <div className="bg-white flex flex-col items-center justify-center p-6" onClick={e => e.stopPropagation()}>
+                <span>{msg}</span>
+                {btn}
+            </div>
+        )
+    } else {
+        return (
+            <div
+                className="flex bg-white w-10/12 lg:w-1/2 h-7/12 lg:h-3/4 flex-col items-center justify-center p-6"
+                onClick={e => e.stopPropagation()}
+            >
+                <CustomTitle title={'Сменить email'}/>
+                <form onSubmit={handleSubmit} className={clsx('flex flex-col', formContainer)}>
+                    <CustomInput
+                        htmlFor="email"
+                        type="email"
+                        labelText={t('account.forms:newEmail')}
+                        required={true}
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
                     />
-                </div>
-                {sendEmail?.error && (<div className="text-red-500">{sendEmail.error}</div>)}
-            </form>
-        </div>
-    )
+                    <div className="flex items-center justify-between">
+                        <div className="w-1/2">
+                            <Button className="h-6">{t('account.forms:submit')}</Button>
+                        </div>
+                        {btn}
+                    </div>
+                    {error?.status || isError && <div className="text-red-500">
+                        {t(`errors:${error?.status || genTokenErr?.status}changeEmail`)}
+                    </div>}
+                </form>
+            </div>
+        )
+    }
 };
 
 export default ChangeEmailForm;

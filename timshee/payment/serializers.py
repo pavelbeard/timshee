@@ -12,6 +12,14 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = models.Payment
         fields = '__all__'
 
+class PaymentCreateSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    order_status = serializers.CharField()
+
+
+class PaymentUpdateSerializer(serializers.Serializer):
+    payment_status = serializers.CharField()
+
 
 class PaymentRefundPartialSerializer(serializers.ModelSerializer):
     stock_item_id = serializers.IntegerField()
@@ -25,12 +33,11 @@ class PaymentRefundPartialSerializer(serializers.ModelSerializer):
 
 
 class PaymentRefundWholeSerializer(serializers.ModelSerializer):
-    stock_item_id = serializers.IntegerField()
     reason = serializers.CharField()
 
     class Meta:
         model = models.Payment
-        fields = ('stock_item_id', 'reason')
+        fields = ('reason', )
 
 
 class PaymentGetStatusSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ export default function Color(props) {
             style={{
                 backgroundColor: props.hex,
             }}
-            className="w-3 h-3 mr-0.5"
+            className="size-4"
         >
         </div>
     )

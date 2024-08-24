@@ -16,7 +16,6 @@ i18n
         lng: "ru",
 
         ns: namespaces,
-        defaultNS: "header",
         backend: {
             loadPath: '/locales/{{lng}}/{{ns}}.json',
         },

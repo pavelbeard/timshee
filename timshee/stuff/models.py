@@ -54,8 +54,8 @@ class OwnerData(Singleton):
         verbose_name_plural = 'Owner Data'
 
 
-def get_until_time():
-    return timezone.now() + timedelta(hours=3)
+def get_until_time(hours=3):
+    return timezone.now() + timedelta(hours=hours)
 
 
 class ResetPasswordCase(models.Model):
@@ -69,3 +69,17 @@ class ResetPasswordCase(models.Model):
 
     def __str__(self):
         return f"Reset password for {self.user}"
+
+
+class EmailToken(models.Model):
+    uuid = ShortUUIDField(length=16, max_length=128, editable=False)
+    for_email = models.EmailField(unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    until = models.DateTimeField(default=get_until_time(hours=1))
+    is_active = models.BooleanField(default=True)
+
+    def get_total_seconds(self):
+        return self.until
+
+    def __str__(self):
+        return f"Email verification token for {self.user}"

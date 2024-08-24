@@ -14,3 +14,8 @@ class ColorSerializer(serializers.Serializer):
 class TypeSerializer(serializers.Serializer):
     type__name = serializers.CharField()
     total_types = serializers.IntegerField()
+
+
+class CategorySerializer(serializers.Serializer):
+    type__category__name = serializers.CharField()
+    total_categories = serializers.IntegerField()

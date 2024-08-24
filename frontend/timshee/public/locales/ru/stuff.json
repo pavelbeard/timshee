@@ -8,5 +8,9 @@
   "emailExists": "Указанный email уже существует...",
   "offer": "Оферта",
   "contacts": "Обратная связь",
-  "shippingMethods": "Способы доставки"
+  "phone": "Телефон:",
+  "siteCreated": "Cайт создан heavycream9090",
+  "shippingMethods": "Способы доставки",
+  "redirecting": "Перенаправление на оплату...",
+  "backToMain": "Вернуться на главную"
 }

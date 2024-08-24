@@ -1,0 +1,50 @@
+### GET request to example server
+DELETE http://localhost:8113/api/cart/delete_cart/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIzOTk5MDY0LCJpYXQiOjE3MjM5OTgxNTQsImp0aSI6IjFiNjFkMDlhMDA2NTRhZTNiY2QwOTgxMjdhNGQwY2NjIiwidXNlcl9pZCI6MX0.ipGzIlp-_d92vlgGiecFIIoeFL2a5FoOWOvjl-GZANw
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+
+###
+POST http://localhost:8113/api/cart/add/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MDYyNjk2LCJpYXQiOjE3MjQwNjA0MDEsImp0aSI6IjljMzgyYWM3Y2U0NzQyMmZiYWE3Y2QzNzY2YTMzYjQyIiwidXNlcl9pZCI6MX0.ppK-3qsHx8al-ayzs9dREArWvcMMA7GxuCjggdVNXEs
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+Content-Type: application/json
+
+{
+  "item_id": 4,
+  "size_id": 1,
+  "color_id": 1,
+  "quantity": 1
+}
+###
+
+PUT http://localhost:8113/api/cart/change_quantity/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MDAwMTU3LCJpYXQiOjE3MjM5OTg3NzAsImp0aSI6ImJkYzE4ZWQ0N2JmZjRkZDc5ZGE4NWRkMTQ4NmY2MmExIiwidXNlcl9pZCI6MX0.AZtZ37ddHdYBC13I1j4R_XlERlV_CMPPmZO2V9Mj_Yg
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+Content-Type: application/json
+
+{
+  "stock_id": 6,
+  "quantity": 1,
+  "increase": true
+}
+
+###
+DELETE http://localhost:8113/api/cart/remove/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MDAwMTU3LCJpYXQiOjE3MjM5OTg3NzAsImp0aSI6ImJkYzE4ZWQ0N2JmZjRkZDc5ZGE4NWRkMTQ4NmY2MmExIiwidXNlcl9pZCI6MX0.AZtZ37ddHdYBC13I1j4R_XlERlV_CMPPmZO2V9Mj_Yg
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+Content-Type: application/json
+
+{
+  "stock_id": 6
+}
+
+###
+DELETE http://localhost:8113/api/cart/delete_cart/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MDYxMjc5LCJpYXQiOjE3MjQwNTk0MDksImp0aSI6ImU1MDI4MmM3NzE3YzQzNTg4N2RkMDQ1ZjE4MzYxM2M1IiwidXNlcl9pZCI6MX0.wdoJjh2HBLzUpBYOkaEd4RqzO46gOc_8FnH9X2DZnak
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+
+###
+GET http://localhost:8113/api/cart/items/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MDYyNjk2LCJpYXQiOjE3MjQwNjA0MDEsImp0aSI6IjljMzgyYWM3Y2U0NzQyMmZiYWE3Y2QzNzY2YTMzYjQyIiwidXNlcl9pZCI6MX0.ppK-3qsHx8al-ayzs9dREArWvcMMA7GxuCjggdVNXEs
+Cookie: sessionid=ypd9xvuq37vdp1xvtee9vmyz3cr692ws
+Content-Type: application/json

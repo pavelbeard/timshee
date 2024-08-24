@@ -1,15 +1,18 @@
-import {useNavigate, useParams} from "react-router-dom";
-import {useEmailStore} from "../../../store";
+import {useNavigate} from "react-router-dom";
 import CustomTitle from "../../ui/forms/CustomTitle";
 import Button from "../../ui/Button";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
+import {useSearchParameters} from "../../../lib/hooks";
+import {useChangeEmailMutation} from "../../../redux/features/api/stuffApiSlice";
+import {useDispatch} from "react-redux";
 
 export default function ConfirmEmailForm() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { encodedEmail } = useParams();
-    const { error, toggleConfirmEmail, isEmailConfirmed, changeEmail } = useEmailStore();
+    const { get } = useSearchParameters();
+    const [changeEmailMut, { isError, error }] = useChangeEmailMutation();
+    const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
 
     useEffect(() => {
         if(isEmailConfirmed) {
@@ -19,12 +22,9 @@ export default function ConfirmEmailForm() {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        const decodedEmail = decodeURIComponent(encodedEmail);
-        await changeEmail(decodedEmail)
-
-        if (!error) {
-            toggleConfirmEmail();
-        }
+        changeEmailMut({ token: get('token') }).unwrap()
+            .then(() => setIsEmailConfirmed(true))
+            .catch(err => null);
     }
 
     return(
@@ -34,7 +34,7 @@ export default function ConfirmEmailForm() {
                 <Button type="submit">{t('account.forms:submit')}</Button>
                 {isEmailConfirmed ?
                     (<div className="text-green-500">{t('account.forms:emailConfirmed')}</div>) :
-                    error && (<div className="text-red-500">{error}</div>)}
+                    isError && (<div className="text-red-500">{error?.message}</div>)}
             </form>
         </div>
     )

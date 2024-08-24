@@ -1,18 +1,13 @@
-import copy
 import logging
 
-from django.contrib.auth.models import AnonymousUser
-from django.forms import model_to_dict
-from django.utils import timezone
+from django.contrib.sessions.models import Session
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from . import models, serializers, write_serializers, filters
-
-from order import models as order_models
+from . import models, serializers, write_serializers, filters, order_logic
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +17,8 @@ logger = logging.getLogger(__name__)
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = filters.CountryFilter
 
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
@@ -58,7 +55,8 @@ class AddressViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
-        request.data['session_key'] = request.COOKIES.get('sessionid')
+
+        request.data['session_id'] = Session.objects.filter(session_key=request.COOKIES.get('sessionid'))
 
         serializer = self.get_serializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
@@ -144,6 +142,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.OrderFilter
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
     lookup_field = 'second_id'
 
     def get_serializer_class(self):
@@ -151,22 +150,20 @@ class OrderViewSet(viewsets.ModelViewSet):
             return serializers.OrderSerializer
         elif self.action in ["create", "update", "partial_update", "destroy"]:
             return write_serializers.OrderSerializer
+        elif self.action in ["update_shipping_info"]:
+            return write_serializers.OrderUpdateShippingInfoSerializer
 
     def retrieve(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
-        request.data['session_key'] = request.COOKIES.get('sessionid')
+        response = super().retrieve(request, *args, **kwargs)
+        return response
 
-        return super().retrieve(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        data = copy.copy(request.data)
-        if request.user.is_authenticated:
-            data["user"] = request.user.id
-        data["session_key"] = request.COOKIES.get('sessionid')
-        data["updated_at"] = timezone.now()
-
-        return super().update(request, *args, **kwargs)
+    @action(detail=True, methods=["PATCH"])
+    def update_shipping_info(self, request, *args, **kwargs):
+        data = order_logic.update_shipping_info(request, self.get_serializer, **kwargs)
+        response = Response(data, status=status.HTTP_200_OK)
+        return response
 
     @action(detail=False, methods=["GET"])
     def get_last_order_by_user(self, request, *args, **kwargs):

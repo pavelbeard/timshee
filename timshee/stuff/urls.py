@@ -6,6 +6,7 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'profile', views.ProfileViewSet)
+router.register(r'email', views.EmailViewSet, basename='email')
 
 urlpatterns = [
     path('signin/', views.SigninAPIView.as_view(), name='signin'),

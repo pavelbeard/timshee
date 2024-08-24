@@ -13,7 +13,7 @@ export default function RefundButton({ children, to }) {
             to={to}
         >
             <ReceiptRefundIcon strokeWidth="0.5" className={clsx('size-4')}/>
-            <span className="text-xs roboto-light">
+            <span className="roboto-text-xs">
                 {children}
             </span>
         </Link>

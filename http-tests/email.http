@@ -1,0 +1,10 @@
+### GET request to example server
+POST http://localhost:8113/api/stuff/email/send_email/
+Content-Type: application/json
+
+{
+  "html_message": "Nada",
+  "subject": "Test subject",
+  "to":  "heavycream9090@icloud.com"
+}
+###

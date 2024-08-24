@@ -1,16 +1,21 @@
 {
-  "orderByPrice": "Сортировка по:",
+  "byNameAZ": "Сортировка A-Z",
+  "byNameZA": "Сортировка Z-A",
+  "orderBy": "Сортировка по:",
   "dash": "---",
-  "ascending": "по возрастанию",
-  "descending": "по убыванию",
+  "ascending": "по возрастанию цены",
+  "descending": "по убыванию цены",
   "price": "₽",
   "size": "размер",
   "color": "цвет",
   "type": "тип",
+  "collection": "коллекция",
+  "category": "категория",
   "reset": "сбросить",
   "filters": "фильтры:",
   "filtersAndSort": "фильтры и сортировка",
   "totalItems": "вещей:",
   "apply": "применить",
-  "selected": "выбрано:"
+  "selected": "выбрано:",
+  "close": "Закрыть"
 }

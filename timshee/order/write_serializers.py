@@ -33,3 +33,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = "__all__"
 
+class OrderUpdateShippingInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Order
+        fields = ('shipping_address', 'shipping_method')

@@ -3,6 +3,7 @@ import Image from "../../ui/Image";
 import {API_URL} from "../../../config";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
+import ItemImage from "../../ui/ItemImage";
 
 export default function LastOrderReturnedItem({ lastOrder }) {
     return (
@@ -14,14 +15,12 @@ export default function LastOrderReturnedItem({ lastOrder }) {
                     <div
                         key={index}
                         className={clsx(
-                            'flex-shrink-0 w-20 h-40',
-                            'max-sm:h-80',
+                            'flex-shrink-0 w-24 h-48',
                         )}>
-                        <Image
+                        <ItemImage
                             src={`${API_URL}${item.item.item.image}`}
                             className={clsx(
                                 "brightness-50",
-                                "aspect-[3/5] object-cover mt-2",
                             )}
                             alt={`alt-img-${index}`}
                         />

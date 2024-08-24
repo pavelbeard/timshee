@@ -1,21 +1,32 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useNavigate, useParams} from "react-router-dom";
+import {useSearchParameters} from "../../../lib/hooks";
+import {useTranslation} from "react-i18next";
+import Button from "../../../components/ui/Button";
+import Container from "../../../components/ui/Container";
 
 const OrderIsNotPaid = () => {
-    const params = useParams();
+    const { t } = useTranslation();
+    const { orderId } = useParams();
+    const { get } = useSearchParameters();
+    const orderNumber = get('order_number')
     const navigate = useNavigate();
 
-    const orderId = params.orderId;
-    const orderNumber = params.orderNumber;
-
     return(
-        <div className="order-status">
-            <div className="order-paid">
-                <h1>PAYMENT FOR ORDER {orderNumber} HASN'T PASSED. Please try it again</h1>
+        <Container>
+            <div className="flex flex-col items-center justify-center mt-20">
+                <div className="text-2xl">
+                    <h1>{t('orders.checkout:failed', { orderNumber })}</h1>
+                </div>
+                <Button
+                    width="w-1/3"
+                    onClick={() =>
+                        navigate(`/checkout/${orderId}/payment`)}
+                >
+                    {t('orders.checkout:backToCheckout')}
+                </Button>
             </div>
-            <div className="back-to-main" onClick={() =>
-                navigate(`/shop/${orderId}/checkout/payment/`)}>BACK TO CHECKOUT</div>
-        </div>
+        </Container>
 
     )
 };

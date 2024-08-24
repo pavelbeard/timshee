@@ -1,9 +1,12 @@
-import {useShopStore} from "../../../store";
 import React from "react";
+import {useSelector} from "react-redux";
+import {selectTotalItemsCount} from "../../../redux/features/store/storeSlice";
+import {useTranslation} from "react-i18next";
 
 export default function ItemsTotal({...rest}) {
-    const { itemsObject } = useShopStore();
+    const { t } = useTranslation();
+    const totalItemsCount = useSelector(selectTotalItemsCount);
     return (
-        <div {...rest}>{itemsObject?.totalItemsCount}</div>
+        <div {...rest}>{t('shop:totalItems')} {totalItemsCount}</div>
     )
 }

@@ -10,38 +10,24 @@ import CustomInput from "../../../ui/forms/CustomInput";
 import Button from "../../../ui/Button";
 import Nothing from "../../../../pages/Nothing";
 import RefundFormSkeleton from "../../../skeletons/orders/forms/RefundFormSkeleton";
+import {useRefundPartialMutation, useRefundWholeMutation} from "../../../../redux/features/api/paymentApiSlice";
+import {useGetOrderQuery} from "../../../../redux/features/api/orderApiSlice";
+import Radio from "../../../ui/Radio";
+import {useSearchParameters} from "../../../../lib/hooks";
+import Container from "../../../ui/Container";
 
 const RefundForm = ({stockId=0, stockQuantity=0}) => {
     const { t } = useTranslation();
-    const params = useParams();
-    const orderId = params.orderId;
+    const { replace } = useSearchParameters();
+    const { orderId } = useParams();
     const [reason, setReason] = useState({id: 0, reason: "It didn't like"});
     const [quantity, setQuantity] = useState(1);
     const [checkedPartial, setCheckedPartial] = useState(false);
     const [checked, setChecked] = useState(false);
-    const refundWhole = useMutation({
-        mutationKey: ['order.refund.whole'],
-        mutationFn: async (data) => await privateApi.put(`/api/payment/payment/${orderId}/refund_whole_order/`,
-            {...data}
-        ),
-    });
-    const refundPartial = useMutation({
-        mutationKey: ['order.refund.partial'],
-        mutationFn: async (data) => await privateApi.put(`/api/payment/payment/${orderId}/refund_partial/`,
-            {...data}
-        ),
-    });
-    const { isLoading, data: order, error } = useQuery({
-        queryKey: ['order.refund.check'],
-        queryFn: async ({ signal }) => {
-            try {
-                const order = await privateApi.get(`/api/order/orders/${orderId}/`, {signal});
-                return order.data;
-            } catch (error) {
-                return null;
-            }
-        }
-    })
+
+    const [refundWhole, { error: refundWholeErr, isError: isRefundWholeErr, isSuccess: hasRefundedWhole }] = useRefundWholeMutation();
+    const [refundPartial, { error: refundPartialErr, isError: isRefundPartialErr,  isSuccess: hasRefundedPartial }] = useRefundPartialMutation();
+    const { isLoading, data: order, error } = useGetOrderQuery(orderId);
 
     useEffect(() => {
         if (order) {
@@ -59,7 +45,11 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                 setChecked(checkOrderNumber)
             }
         }
-    }, [order])
+    }, [order]);
+
+    useEffect(() => {
+        replace('reason', reason.id)
+    }, [reason])
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -73,25 +63,25 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                 "reason": reason.reason,
             };
 
-            refundPartial.mutate(data);
+            refundPartial({ orderId, data });
         } else if (checked) {
             data = {
                 "quantity": parseInt(stockQuantity),
                 "reason": reason.reason,
             };
 
-            refundWhole.mutate(data);
+            refundWhole({ orderId, data });
         }
     };
 
-    if (refundWhole.isSuccess || refundPartial.isSuccess) {
+    if (hasRefundedPartial || hasRefundedWhole) {
         return (
-            <div className="mx-6 mb-3 flex flex-col">
+            <Container className="mx-6 mb-3 flex flex-col">
                 <BackButton to={`/orders/${orderId}/detail`}>
                     {t('account.refundForm:returnToOrder')}
                 </BackButton>
                 <h3 className="roboto-medium">{t('account.refundForm:orderReturned')}</h3>
-            </div>
+            </Container>
         )
     } else if (isLoading) {
         return <RefundFormSkeleton />
@@ -105,7 +95,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                     <form onSubmit={handleSubmit} className="p-6 bg-gray-300 lg:w-1/2">
                         <CustomTitle title={t('account.refundForm:refundForm')}/>
                         <CustomTitle title={t('account.refundForm:question')}/>
-                        <CustomInput
+                        <Radio
                             htmlFor="didnt-like"
                             type="radio"
                             labelText={t('account.refundForm:dontLike')}
@@ -113,7 +103,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             checked={0 === reason.id}
                             onChange={() => setReason({id: 0, reason: "It didn't like"})}
                         />
-                        <CustomInput
+                        <Radio
                             htmlFor="color-size-isnt-correct"
                             type="radio"
                             labelText={t('account.refundForm:dontCorrect')}
@@ -121,7 +111,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             checked={1 === reason.id}
                             onChange={() => setReason({id: 1, reason: "Item's color/size isn't correct"})}
                         />
-                        <CustomInput
+                        <Radio
                             htmlFor="wrong-description"
                             type="radio"
                             labelText={t('account.refundForm:wrongDescription')}
@@ -132,7 +122,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                                 reason: "Item doesn't match the description in the store"
                             })}
                         />
-                        <CustomInput
+                        <Radio
                             htmlFor="appearance"
                             type="radio"
                             labelText={t('account.refundForm:wrongAppearance')}
@@ -140,7 +130,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             checked={3 === reason.id}
                             onChange={() => setReason({id: 3, reason: "Dissatisfaction with appearance"})}
                         />
-                        <CustomInput
+                        <Radio
                             htmlFor="long-shipping"
                             type="radio"
                             labelText={t('account.refundForm:longShipping')}
@@ -148,7 +138,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             checked={4 === reason.id}
                             onChange={() => setReason({id: 4, reason: "Shipping is very long"})}
                         />
-                        <CustomInput
+                        <Radio
                             htmlFor="order-errors"
                             type="radio"
                             labelText={t('account.refundForm:wrongItemOrdered')}
@@ -157,7 +147,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             onChange={() => setReason({id: 5, reason: "Wrong item ordered"})}
                         />
                         {stockId > 0 && stockQuantity > 1 &&
-                            <CustomInput
+                            <Radio
                                 htmlFor="wrong-quantity"
                                 type="radio"
                                 labelText={t('account.refundForm:wrongQuantity')}
@@ -194,8 +184,8 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                             onChange={e => setReason({id: 7, reason: e.target.value})}
                         />
                         <Button>{t('account.refundForm:refundItem')}</Button>
-                        {refundWhole.isError || refundPartial.isError && <div className="text-red-500">
-                            {refundWhole?.error?.message || refundPartial?.error?.message}
+                        {isRefundPartialErr || isRefundWholeErr && <div className="text-red-500">
+                            { refundWholeErr?.message || refundPartialErr?.message}
                         </div>}
                     </form>
                 </div>

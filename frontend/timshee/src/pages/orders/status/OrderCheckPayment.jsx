@@ -1,59 +1,32 @@
-import React, {useEffect} from 'react';
-import {Navigate, useParams} from "react-router-dom";
-
-import {checkPaymentStatus} from "../../../main/order(old)/api";
-import AuthService from "../../../main/api(old)/authService";
+import React from 'react';
+import {Navigate, useParams, useSearchParams} from "react-router-dom";
 import Error from "../../Error";
+import Loading from "../../Loading";
+import {useGetStatusQuery} from "../../../redux/features/api/paymentApiSlice";
+import {useSelector} from "react-redux";
+import {selectPaymentStatus} from "../../../redux/features/store/paymentSlice";
+import {useSearchParameters} from "../../../lib/hooks";
 
 const OrderCheckPayment = () => {
-    const params = useParams();
-    const token = AuthService.getAccessToken();
+    const {orderId}  = useParams();
+    const { get } = useSearchParameters();
+    const orderNumber = get('order_number');
+    const { data: status, isLoading, isError } = useGetStatusQuery(orderId);
+    const paymentStatus = useSelector(selectPaymentStatus);
 
-    const orderId = params.orderId;
-    const orderNumber = params.orderNumber;
-
-    const [status, setStatus] = React.useState("");
-    const [error, setError] = React.useState("");
-    const [loading, setIsLoading] = React.useState(false);
-
-
-    useEffect(() => {
-        const fetchStatus = async () => {
-            if (orderNumber !== undefined) {
-                const result = await checkPaymentStatus({
-                    orderNumber, setError, setIsLoading, token
-                });
-
-                if (result) {
-                    setStatus(result['status']);
-                } else {
-                    setStatus(undefined);
-                }
-            }
-        };
-
-        fetchStatus();
-    }, []);
-
-    if (status === "") {
-        return(
-            <div className="order-status">
-                <div className="order-paid">
-                    <h1>Loading...</h1>
-                </div>
-            </div>
-        )
+    if (isLoading) {
+        return <Loading />
     }
 
-    if (status === "pending") {
-        return <Navigate to={`/order/${orderId}/check/failed?order_number=${orderNumber}`} />
+    if (status === paymentStatus.pending) {
+        return <Navigate to={`/orders/${orderId}/status/failed?order_number=${orderNumber}`}/>
     }
 
-    if (status === "succeeded") {
-        return <Navigate to={`/order/${orderId}/check/paid?order_number=${orderNumber}`} />
+    if (status === paymentStatus.succeeded) {
+        return <Navigate to={`/orders/${orderId}/status/paid?order_number=${orderNumber}`} />
     }
 
-    if (status === undefined) {
+    if (isError) {
         return <Error />
     }
 };

@@ -1,6 +1,8 @@
+import Container from "../components/ui/Container";
+
 export default function About() {
     return(
-        <div className="max-w-[800px] tracking-wide text-2xl m-auto p-[20px]">
+        <Container className={'max-w-[800px] tracking-wide text-2xl m-auto p-5'}>
             <h1>О бренде TIMSHEE</h1>
             <p>Меня зовут Тимур Шибаев.<br/>
                 Я основатель бренда TIMSHEE.</p>
@@ -15,6 +17,6 @@ export default function About() {
             <br/>
             <p>Детство я провёл во Вьетнаме — отсюда страсть к сложному крою и желанию найти баланс между стилистиками
                 востока и запада.</p>
-        </div>
+        </Container>
     )
 }

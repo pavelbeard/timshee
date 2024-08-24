@@ -1,61 +1,70 @@
 import React, {useEffect} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {clearCart} from "../../cart/api(old)/asyncThunks";
-import {updateOrderStatus, updatePaymentInfo} from "../../../main/order(old)/api/asyncThunks";
-import AuthService from "../../../main/api(old)/authService";
-import translateService from "../../../main/translate(old)/TranslateService";
+import {useSelector} from "react-redux";
+import {useSearchParameters, useSendEmail} from "../../../lib/hooks";
+import Container from "../../../components/ui/Container";
+import {useUpdatePaymentQuery} from "../../../redux/features/api/paymentApiSlice";
+import {selectPaymentStatus} from "../../../redux/features/store/paymentSlice";
+import {useTranslation} from "react-i18next";
+import Button from "../../../components/ui/Button";
+import {selectCurrentToken, selectCurrentUser} from "../../../redux/features/store/authSlice";
+import {useClearCartMutation} from "../../../redux/features/api/cartApiSlice";
+import {useGetOrderQuery} from "../../../redux/features/api/orderApiSlice";
+import OrderProcessing from "../../../emails/order-processing";
+import ReactDOMServer from "react-dom/server";
+import OrderItem from "../../../components/orders/detail/OrderItem";
+import ItemImage from "../../../components/ui/ItemImage";
+import {API_URL} from "../../../config";
 
 const OrderPaid = () => {
-    const dispatch = useDispatch();
-    const params = useParams();
+    const { t } = useTranslation();
+    const { orderId } = useParams();
+    const { get } = useSearchParameters();
+    const [sendEmail] = useSendEmail();
     const navigate = useNavigate();
-    const language = translateService.language();
+    const orderNumber = get('order_number');
+    const paymentStatus = useSelector(selectPaymentStatus);
+    const token = useSelector(selectCurrentToken);
+    const user = useSelector(selectCurrentUser);
+    const { data: order, isLoading: isOrderLoading } = useGetOrderQuery(orderId);
+    const { data: status }= useUpdatePaymentQuery({ orderId, data: paymentStatus.succeeded });
+    const [clearCartMut] = useClearCartMutation();
+    const orderItems = order?.order_item?.map((item, idx) => {
+        const url = `${API_URL}${item?.name}`;
+        return <div key={idx}>
+            <ItemImage
+                src={url}
+                alt={`order-item-${idx}`}
+            />
 
-    const orderId = params.orderId;
-    const orderNumber = params.orderNumber;
-
-    const token = AuthService.getAccessToken();
-
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [error, setError] = React.useState("");
-
-    const updateInfo = () => {
-        if (orderId !== undefined) {
-            dispatch(updatePaymentInfo({
-                storeOrderNumber: orderNumber,
-                data: {
-                    status: "succeeded"
-                },
-                setError: setError,
-                setIsLoading: setIsLoading,
-            }))
-            dispatch(updateOrderStatus({
-                orderId: orderId,
-                token,
-                status: "processing",
-            }));
-            dispatch(clearCart({
-                token,
-                hasOrdered: true
-            }));
-            localStorage.setItem("currentStep", 1);
-        }
-    };
+        </div>
+    })
 
     useEffect(() => {
-        updateInfo();
-    }, []);
+        if (status === paymentStatus.succeeded && !isOrderLoading) {
+            const to = user || order?.shipping_address?.email;
+            const template = <OrderProcessing
+                orderNumber={orderNumber}
+                orderText={t('orders.checkout:orderInProcessing', { orderNumber })}
+                yourItems={t('orders.checkout:yourItems')}
+                orderItems={<section>{orderItems}</section>}
+            />;
+            clearCartMut().unwrap()
+                .then(() => sendEmail(to, `Timshee store | Order ${orderNumber}`, template, null))
+                .catch(err => console.error(err));
+        }
+    }, [status, isOrderLoading]);
 
     return(
-        <div className="order-status">
-            <div className="order-paid">
-                <h1 style={{
-                    textAlign: "center"
-                }}>{translateService.orderPaid[language].split('.')[0]} {orderNumber} {translateService.orderPaid[language].split('.')[1]}</h1>
+        <Container>
+            <div className="flex flex-col justify-center items-center mt-20">
+                <h1 className="text-2xl">{t(`orders.checkout:succeeded`, { orderNumber })}</h1>
+                <div className="w-1/3">
+                    <Button onClick={() => navigate(`/`)}>{t('stuff:backToMain')}</Button>
+                    {token && <Button onClick={() => navigate(`/account/details/orders`)}>{t('account:seeOrders')}</Button>}
+                </div>
             </div>
-            <div className="back-to-main" onClick={() => navigate(`/`)}>BACK TO MAIN</div>
-        </div>
+        </Container>
 
     )
 };

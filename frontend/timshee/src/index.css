@@ -25,6 +25,8 @@
     font-size: 22px;
     line-height: 1.2;
     letter-spacing: 0.5px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .bebas-neue-regular {
@@ -128,3 +130,64 @@
     @apply visible z-50;
 }
 
+.roboto-text-sm {
+    @apply roboto-light text-sm
+}
+
+.roboto-text-xs {
+    @apply roboto-light text-xs
+}
+
+.roboto-text-medium-xs {
+    @apply roboto-medium text-xs
+}
+
+.roboto-text {
+    @apply roboto-light text-xs lg:text-sm
+}
+
+.roboto-text-medium {
+    @apply roboto-medium text-xs lg:text-sm
+}
+
+.img-container {
+    @apply p-2 border-gray-200 border-[1px] hover:bg-gray-100
+}
+
+.img-cover {
+    @apply aspect-auto object-cover h-full
+}
+
+.bebas-neue-cyrillic {
+    font-family: "Bebas Neue Cyrillic";
+}
+
+.not-in-stock {
+    @apply after:absolute after:content-[''] after:left-1/2 after:top-1/2 after:bottom-0 after:right-0 after:w-[1px] after:h-10
+    after:bg-black after:transform after:-translate-y-1/2 after:rotate-45
+}
+
+
+.underlined-button {
+    @apply roboto-text-medium hover:text-gray-400 underline underline-offset-4
+}
+
+.underlined-button-set {
+    @apply hover:text-gray-400 underline underline-offset-4
+}
+
+.checkout-form-header {
+    @apply flex justify-between items-center p-2 border-[1px] border-gray-200
+}
+
+.border-lr {
+    @apply border-l-[1px] border-r-[1px]
+}
+
+.border-lrt {
+    @apply border-lr border-t-[1px]
+}
+
+.border-lrb {
+    @apply border-lr border-b-[1px]
+}

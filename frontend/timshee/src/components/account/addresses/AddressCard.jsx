@@ -1,12 +1,17 @@
 import React from "react";
 import {useTranslation} from "react-i18next";
 import {clsx} from "clsx";
-import {useAccountContext} from "../../../lib/hooks";
+import {useDispatch} from "react-redux";
+import {toggleAddressForm} from "../../../redux/features/store/uiControlsSlice";
+import {setAddress} from "../../../redux/features/store/accountSlice";
+import {useDeleteAddressMutation} from "../../../redux/features/api/accountApiSlice";
 
 export default function AddressCard(props) {
+    const dispatch = useDispatch();
     const { address } = props;
     const { t } = useTranslation();
-    const { toggleAddressForm, setAddress, deleteAddress } = useAccountContext();
+    const [deleteAddress, { error: deleteAddressError }] = useDeleteAddressMutation();
+
     const divider = clsx(
         'bg-gray-300 mb-2 h-[0.0825rem]',
     );
@@ -18,8 +23,8 @@ export default function AddressCard(props) {
         'xl:w-2/3',
     );
     const callEditAddressForm = address => {
-        toggleAddressForm(true);
-        setAddress(address);
+        dispatch(setAddress(address));
+        dispatch(toggleAddressForm(true));
     };
     return (
         <div className="flex flex-col w-full max-sm:mb-6 md:mb-6 bg-gray-100 p-6">
@@ -38,17 +43,19 @@ export default function AddressCard(props) {
             <span className="roboto-light">{"+" + address?.phone_code?.phone_code + " " + address?.phone_number}</span>
             <span className="roboto-light">{address?.email}</span>
             <div className={changeAddress}>
-                <span
-                    className="roboto-medium hover:text-gray-400 underline underline-offset-4 cursor-pointer"
+                <button
+                    className="underlined-button"
                     onClick={() => callEditAddressForm(address)}>
                     {t('account:edit')}
-                </span>
-                <span
-                    className="roboto-medium pl-3 hover:text-gray-400 underline underline-offset-4 cursor-pointer"
-                    onClick={() => deleteAddress.mutate(address.id)}>
+                </button>
+                <button
+                    className="underlined-button pl-3"
+                    onClick={async () => await deleteAddress(address.id)}>
                     {t('account:delete')}
-                </span>
+                </button>
             </div>
+            {deleteAddressError?.message &&
+                <div className="text-red-500 roboto-medium">{deleteAddressError.message}</div>}
         </div>
     )
 }

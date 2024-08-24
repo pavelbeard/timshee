@@ -1,6 +1,5 @@
 import React from "react";
 import {clsx} from "clsx";
-import {useShopFilters} from "../../../lib/hooks";
 
 export default function ShopHeader(props) {
     const { error, params } = props;
@@ -10,12 +9,11 @@ export default function ShopHeader(props) {
         "md:text-2xl md:p-4",
         "lg:text-3xl lg:p-6",
     );
-    const { collection } = useShopFilters();
     return (
         <div className={collNameStyle}>
 
-            {error ? <div className="text-red-500">{error}</div> :
-                collection?.replaceAll('-', ' ').replace(/(\d{4}) (\d{4})/, "$1/$2") || params.c.split('+')[0]}
+            {error?.message ? <div className="text-red-500">{error?.message}</div> :
+                params?.collection?.replaceAll('-', ' ').replace(/(\d{4}) (\d{4})/, "$1/$2") || params?.gender}
         </div>
     )
 }

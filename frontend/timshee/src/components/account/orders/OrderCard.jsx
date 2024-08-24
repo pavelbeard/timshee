@@ -1,5 +1,4 @@
 import {toCamelCase} from "../../../lib/stuff";
-import {API_URL} from "../../../config";
 import React from "react";
 import {useTranslation} from "react-i18next";
 import {clsx} from "clsx";
