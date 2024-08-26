@@ -29,11 +29,14 @@ class CartResponseSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj):
         user_obj = obj.user
-        return {
-            'id': user_obj.id,
-            'username': user_obj.username,
-            'email': user_obj.email,
-        }
+        if hasattr(user_obj, 'id'):
+            return {
+                'id': user_obj.id,
+                'username': user_obj.username,
+                'email': user_obj.email,
+            }
+
+        return None
 
     def get_cart_items(self, obj):
         cart_items = obj.cart_items.all()

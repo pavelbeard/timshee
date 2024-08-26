@@ -1,0 +1,10 @@
+{
+  "serverError": "[ERROR 500]: Algo salió mal",
+  "404": "Extraviado",
+  "400changeEmail": "Ya existe un usuario con este correo electrónico.",
+  "500": "[ERROR 500]: Algo salió mal",
+  "loginError400": "Inicio de sesión/contraseña incorrectos. Intentar otra vez.",
+  "loginError404": "Usuario no encontrado.",
+  "addressFormError400": "Los datos no han sido verificados.",
+  "backToMain": "volver a casa"
+}

@@ -1,0 +1,21 @@
+{
+  "country": "Página:",
+  "firstname": "Nombre:",
+  "lastname": "Apellido:",
+  "streetAddress": "Dirección:",
+  "apartment": "Apartamento (opcional):",
+  "postalCode": "Código Postal:",
+  "city": "Ciudad:",
+  "province": "Región:",
+  "phoneCode": "Código telefónico:",
+  "phoneNumber": "Número de teléfono:",
+  "asPrimary": "Establecer como dirección principal",
+  "submit": "Enviar",
+  "newEmail": "Nuevo correo electrónico:",
+  "changeEmail": "Cambiar correo electrónico:",
+  "email": "correo electrónico:",
+  "emailConfirmed": "Correo electrónico confirmado!",
+  "confirmationMail": "Espere el enlace de confirmación de su correo electrónico, que debería llegar allí. Revisa tu carpeta de Spam por si acaso.",
+  "linkEmailConfirmation": "Confirmar correo electrónico",
+  "linkEmailConfirmText2": "Tu enlace para confirmar el correo electrónico 👇"
+}

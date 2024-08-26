@@ -11,8 +11,6 @@ import {selectCurrentToken, selectCurrentUser} from "../../../redux/features/sto
 import {useClearCartMutation} from "../../../redux/features/api/cartApiSlice";
 import {useGetOrderQuery} from "../../../redux/features/api/orderApiSlice";
 import OrderProcessing from "../../../emails/order-processing";
-import ReactDOMServer from "react-dom/server";
-import OrderItem from "../../../components/orders/detail/OrderItem";
 import ItemImage from "../../../components/ui/ItemImage";
 import {API_URL} from "../../../config";
 
@@ -49,7 +47,7 @@ const OrderPaid = () => {
                 yourItems={t('orders.checkout:yourItems')}
                 orderItems={<section>{orderItems}</section>}
             />;
-            clearCartMut().unwrap()
+            clearCartMut({ has_ordered: true }).unwrap()
                 .then(() => sendEmail(to, `Timshee store | Order ${orderNumber}`, template, null))
                 .catch(err => console.error(err));
         }

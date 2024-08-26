@@ -50,4 +50,19 @@
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
+    <url>
+        <loc>https://timshee.ru/woman/shop</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/men/shop</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/unisex/shop</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
 </urlset>

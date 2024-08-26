@@ -207,7 +207,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated:
             user = request.user
         else:
-            session_key = request.COOKIES.get('session_key')
+            session_key = request.COOKIES.get('sessionid')
         qs = models.Wishlist.objects.filter(Q(user=user) | Q(session__session_key=session_key))
         data = serializers.WishlistSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)

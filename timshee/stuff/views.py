@@ -1,10 +1,12 @@
+from gettext import translation
+
 from django.conf import settings
 from django.contrib.auth import get_user_model, models, authenticate
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware import csrf
 from django.utils import timezone
-from django.utils.translation import activate
+from django.utils.translation import activate, get_language_info, gettext as _, get_language
 from rest_framework import generics, status, permissions, viewsets
 from rest_framework import views
 from rest_framework.decorators import action
@@ -26,8 +28,6 @@ from . import models, services, serializers, stuff_logic
 User = get_user_model()
 
 logger = get_logger(__name__)
-
-
 
 
 class SignupAPIView(generics.GenericAPIView):
@@ -311,42 +311,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-
-class ChangeLanguageAPIView(generics.GenericAPIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = []
-
-    def get(self, request):
-        try:
-            if self.request.user.is_authenticated:
-                lang = self.request.user.userprofile.preferred_language
-            else:
-                lang = self.request.session.get(settings.LANGUAGE_COOKIE_NAME, "en-US")
-            return JsonResponse({"language": lang}, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def post(self, request):
-        try:
-            language_code = self.request.data.get('language')
-            if language_code and language_code.split('-')[0] in dict(settings.LANGUAGES).keys():
-                self.request.session[settings.LANGUAGE_COOKIE_NAME] = language_code.split('-')[0]
-                activate(language_code.split('-')[0])
-
-                if request.user.is_authenticated:
-                    user = self.request.user
-                    user.userprofile.preferred_language = language_code.split('-')[0]
-                    user.userprofile.save()
-
-            return JsonResponse({"language": language_code}, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            return JsonResponse(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -363,6 +327,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
         response = JsonResponse({
             "onContentUpdate": dyn_settings.on_content_update,
             "onMaintenance": dyn_settings.on_maintenance,
+            "experimental": dyn_settings.experimental,
         }, status=status.HTTP_200_OK)
         if session:
             response.set_cookie(
@@ -391,3 +356,52 @@ class EmailViewSet(viewsets.ViewSet):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=e)
+
+
+class LanguageViewSet(viewsets.ViewSet):
+    authentication_classes = []
+    permission_classes = []
+
+    @action(detail=False, methods=["GET"])
+    def get_languages(self, request):
+        lang_dict = [{'language': language, 'translation': translation_} for language, translation_ in settings.LANGUAGES]
+        print(lang_dict, get_language())
+        return Response(data=lang_dict, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"])
+    def get_current_language(self, request):
+        if request.user.is_authenticated:
+            lang = User.objects.get(id=request.user.id).userprofile.preferred_language
+        elif request.COOKIES.get('server_language') is None:
+            lang = settings.LANGUAGE_CODE
+        else:
+            lang = request.COOKIES.get('server_language')
+
+        response = Response()
+        response.set_cookie(
+            key=settings.LANGUAGE_COOKIE_NAME,
+            value=lang,
+        )
+        response.status_code = status.HTTP_200_OK
+        return response
+
+    @action(detail=False, methods=["POST"])
+    def change_language(self, request):
+        lang = request.data.get('lang')
+
+        if not lang:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if request.user.is_authenticated:
+            user_profile = User.objects.get(id=request.user.id).userprofile
+            user_profile.preferred_language = lang
+            user_profile.save()
+
+        activate(lang)
+        response = Response()
+        response.set_cookie(
+            key=settings.LANGUAGE_COOKIE_NAME,
+            value=lang,
+        )
+        response.status_code = status.HTTP_200_OK
+        return response

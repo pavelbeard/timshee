@@ -38,7 +38,7 @@ export default function Checkout() {
                 </div>
                 <form className="flex flex-col mx-6 mb-24" name={formName[page]} onSubmit={handleSubmit}>
                     <FormInputs/>
-                    <div className={clsx('flex', page === 3 ? 'flex-col items-center' : 'xl:flex-row xl:justify-between')}>
+                    <div className={clsx('flex', page === 3 ? 'flex-col items-center' : 'flex-col xl:flex-row xl:justify-between')}>
                         <BackButton className={'mb-0 mt-2'} to={stageName[page - 1]?.link}>
                             {stageName[page - 1]?.title}
                         </BackButton>

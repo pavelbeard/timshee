@@ -27,3 +27,5 @@ timshee/credentials.json
 *creator.sh
 unstable.images*.env
 unstable.creator*.yml
+translator
+sftp

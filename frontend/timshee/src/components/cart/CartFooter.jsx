@@ -24,12 +24,13 @@ export default function CartFooter() {
                 .then(res => {
                     isCartMenuOpen && dispatch(toggleCartMenu(false));
                     navigate(`/checkout/${res.detail}/address-info`);
-                });
+                })
+                .catch(err => null);
         }
     };
 
     return (
-        <div className="flex flex-col border-t-[1px] bg-white">
+        <div className="flex pb-16 flex-col border-t-[1px] bg-white">
             <div className="py-2 px-6">
                 <p className="roboto-text">{t('cart:taxesAndShipping')}</p>
                 <div className="flex">
@@ -39,7 +40,7 @@ export default function CartFooter() {
                         type="checkbox"
                         onChange={e => setIsPrivacyHaveRead(e.target.checked)}
                     />
-                    <Link to={`/privacy-information`}>
+                    <Link to={`/privacy`}>
                         <span className="pl-1 roboto-text underline underline-offset-4">
                             {t('privacy:privacyText')}
                         </span>

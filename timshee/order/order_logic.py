@@ -33,8 +33,17 @@ def update_shipping_info(rq, get_serializer, **kwargs):
                 shipping_address_id = shipping_data.get('id')
                 address = models.Address.objects.filter(Q(id=shipping_address_id) | Q(session=session_obj) | Q(user=user))
                 if address.exists():
-                    # address.update(**shipping_data, province=province, phone_code=country_phone_code)
-                    data['shipping_address'] = int(shipping_address_id or address.first().id)
+                    shipping_data_session = shipping_data.pop('session')
+                    updated_address = address.first()
+                    updated_address.session = Session.objects.filter(session_key=shipping_data_session['session_key']).first()
+                    updated_address.province = province
+                    updated_address.country_phone_code = country_phone_code
+                    for k, v in shipping_data.items():
+                        setattr(updated_address, k, v)
+
+                    updated_address.save()
+
+                    data['shipping_address'] = int(shipping_address_id or updated_address.id)
                 else:
                     address = models.Address.objects.create(
                         **shipping_data,

@@ -52,9 +52,10 @@ export const cartApiSlice = _apiSliceWithTags.injectEndpoints({
             invalidatesTags: [tags.DELETE_ITEM_FROM_CART]
         }),
         clearCart: builder.mutation({
-            query: () => ({
+            query: (data) => ({
                 url: '/cart/cart-items/clear_cart/',
                 method: 'DELETE',
+                body: {...data}
             }),
             providesTags: [tags.REMOVE_ALL_CART],
             invalidatesTags: [tags.REMOVE_ALL_CART]

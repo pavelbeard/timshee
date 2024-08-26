@@ -1,0 +1,18 @@
+{
+  "orderReturned": "El pedido ha sido devuelto",
+  "returnToOrder": "Volver al pedido",
+  "refundForm": "Formulario de devolución",
+  "question": "¿Por qué quieres devolver tu pedido?",
+  "dontLike": "no me gustó la cosa",
+  "dontCorrect": "El color/tamaño del artículo es incorrecto.",
+  "wrongDescription": "El artículo no coincide con la descripción en la tienda.",
+  "wrongAppearance": "Insatisfacción con la apariencia.",
+  "longShipping": "Entrega muy larga",
+  "wrongItemOrdered": "Artículo incorrecto pedido",
+  "wrongQuantity": "Pedí más cosas de las que quería.",
+  "quantityForRefund": "Número de artículos a devolver",
+  "otherReasons": "Otras razones:",
+  "refundItem": "Devolver artículo/pedido",
+  "max": "máximo:",
+  "current": "solo:"
+}

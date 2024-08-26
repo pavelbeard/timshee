@@ -45,15 +45,16 @@ class CartManager:
 
     def get_order(self):
         order = order_models.Order.objects.filter(
-            Q(user=self.user) |
-            Q(session=self.session)
+            (Q(user=self.user) |
+            Q(session=self.session) ) &
+            Q(status='created')
         ).first()
         return order
 
-    def get_or_create_order(self):
+    def get_or_create_order(self, has_ordered=False):
         # TO CREATE ORDER
         o = order_models.Order
-        excluded_statuses = [o.CANCELLED, o.DELIVERED, o.COMPLETED, o.REFUNDED, o.PARTIAL_REFUNDED]
+        excluded_statuses = [o.CANCELLED, o.PROCESSING, o.DELIVERED, o.COMPLETED, o.REFUNDED, o.PARTIAL_REFUNDED]
         order = o.objects.filter(
             Q(session=self.session) |
             Q(user=self.user)
@@ -61,7 +62,7 @@ class CartManager:
 
         # TO CREATE ORDER!
         # if isn't there an order - create it
-        if not order:
+        if not order and not has_ordered:
             order = order_models.Order(
                 user=self.user,
                 session=self.session,
@@ -196,32 +197,33 @@ def remove_item(rq, serializer_data) -> bool:
     return False
 
 
-def clear_cart(rq) -> int:
+def clear_cart(rq, has_ordered=False) -> int:
     """
     That method allows to clear cart (and order depend on param <has_ordered>)
     :param rq: REQUEST FOR CART MANAGER
+    :param has_ordered: Indicates that if cart has ordered then order doesn't delete
     :return: 0 - OK,
     """
     try:
         cart_manager = CartManager(rq)
         cart = cart_manager.get_cart()
-        order = cart_manager.get_order()
+        order = cart_manager.get_or_create_order(has_ordered=has_ordered)
         cart_items = cart.cart_items.all()
         cart.total_items = 0
         cart.total = 0
 
         for cart_item in cart_items:
-            if not cart.ordered:
+            if not has_ordered:
                 cart_item.stock_item.increase_stock(cart_item.quantity)
 
             cart.cart_items.remove(cart_item)
             cart_item.delete()
             cart.save()
 
-            if not cart.ordered and order:
+            if not has_ordered and order:
                 order.order_item.remove(cart_item.stock_item)
 
-        if not cart.ordered:
+        if not has_ordered:
             order.delete()
 
 
@@ -237,8 +239,8 @@ def add_cart_items_to_order(rq):
         cart = cart_manager.get_cart()
         order = cart_manager.get_or_create_order()
         cart_items = cart.cart_items.all()
-
-        exists_id = order.order_item.filter(item_id__in=[ci.stock_item.id for ci in cart_items])
+        cart_item_ids = [ci.stock_item.id for ci in cart_items]
+        exists_id = order.order_item.filter(item_id__in=cart_item_ids)
         if len(exists_id) == 0:
             for cart_item in cart_items:
                 order_models.OrderItem.objects.create(

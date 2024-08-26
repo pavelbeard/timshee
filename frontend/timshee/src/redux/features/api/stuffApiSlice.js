@@ -1,7 +1,7 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
-import {authTags} from "./tags";
+import {authTags, stuffTags} from "./tags";
 
-const tags = { ...authTags };
+const tags = { ...authTags, ...stuffTags };
 
 export const stuffApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
@@ -46,6 +46,27 @@ export const stuffApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: {...data}
             })
+        }),
+        getLanguages: builder.query({
+            query: () => ({
+                url: '/stuff/lang/get_languages/',
+                method: 'GET'
+            }),
+            providesTags: [tags.CHANGE_LANGUAGE]
+        }),
+        getCurrentLanguage: builder.query({
+            query: () => ({
+                url: '/stuff/lang/get_current_language/',
+                method: 'GET'
+            })
+        }),
+        changeLanguage: builder.mutation({
+            query: (data) => ({
+                url: '/stuff/lang/change_language/',
+                method: 'POST',
+                body: {...data}
+            }),
+            invalidatesTags: [tags.CHANGE_LANGUAGE]
         })
     })
 });
@@ -57,4 +78,7 @@ export const {
     useLazyCheckEmailQuery,
     useCheckResetPasswordRequestQuery,
     useChangePasswordMutation,
+    useGetLanguagesQuery,
+    useGetCurrentLanguageQuery,
+    useChangeLanguageMutation,
 } = stuffApiSlice;

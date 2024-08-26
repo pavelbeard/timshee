@@ -50,8 +50,6 @@ INSTALLED_APPS = [
     "corsheaders",
     'colorfield',
     'django_filters',
-    "parler",
-    "parler_rest",
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -73,7 +71,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
     # my
-    'stuff.middleware.LanguageMiddleware'
+    # 'stuff.middleware.LanguageMiddleware'
 ]
 
 if DEBUG or TESTING:
@@ -158,13 +156,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+# LANGUAGE_CODE = 'ru'
+
+LANGUAGE_COOKIE_NAME = 'server_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 30
+LANGUAGES = (
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('ru', _('Russian')),
+)
 
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_TZ = True
+
+LOCALE_PATHS = (
+    BASE_DIR / 'locale',
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -238,6 +246,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
+    # 'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 9,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -290,36 +299,21 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", '183c7aef5afc10')
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", '7b49b74b51cbce')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# LANGUAGE
-
-LANGUAGE_COOKIE_NAME = 'server_language'
-LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 30
-
-LANGUAGES = (
-    ('en', _('English')),
-    ('fr', _('French')),
-    ('it', _('Italian')),
-    ('gr', _('Greek')),
-    ('de', _('Deutch')),
-    ('es', _('Spanish')),
-    ('ru', _('Russian')),
-)
-
 # PARLER
-
-PARLER_LANGUAGES = {
-    None: (
-        {'code': 'en', },
-        {'code': 'es', },
-        {'code': 'fr', },
-        {'code': 'it', },
-        {'code': 'ru', },
-    ),
-    'default': {
-        'fallbacks': ['en'],
-        'hide_untranslated': False,
-    }
-}
+#
+# PARLER_LANGUAGES = {
+#     None: (
+#         {'code': 'en', },
+#         {'code': 'es', },
+#         {'code': 'fr', },
+#         {'code': 'it', },
+#         {'code': 'ru', },
+#     ),
+#     'default': {
+#         'fallbacks': ['en'],
+#         'hide_untranslated': False,
+#     }
+# }
 
 # FIXTURES
 

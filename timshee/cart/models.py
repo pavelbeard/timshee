@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 from store.models import Stock
@@ -23,8 +24,12 @@ class Cart(models.Model):
         elif self.session:
             cart_id = self.session.session_key
         else:
-            cart_id = f"Anonymous cart: {self.pk}"
-        return f"[Cart for: {cart_id}]"
+            cart_id = f"{_('Anonymous cart')}: {self.pk}"
+        return f"[{_('Cart for')}: {cart_id}]"
+
+    class Meta:
+        verbose_name = _('Cart')
+        verbose_name_plural = _('Carts')
 
 
 class CartItem(models.Model):
@@ -46,8 +51,8 @@ class CartItem(models.Model):
             cart_str += f" {self.cart.session.session_key}"
 
 
-        return (f"[CartItem: "
-                f"id={self.pk} {cart_str} "
-                f"item={self.stock_item.item.name} "
-                f"size={self.stock_item.size} "
-                f"color={self.stock_item.color}]")
+        return (f"[{_('CartItem')}: "
+                f"{_('id')}={self.pk} {cart_str} "
+                f"{_('item')}={self.stock_item.item.name} "
+                f"{_('size')}={self.stock_item.size} "
+                f"{_('color')}={self.stock_item.color}]")

@@ -75,7 +75,8 @@ class CartViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['DELETE'], authentication_classes=[])
     def clear_cart(self, request):
-        delete_result = cart_logic.clear_cart(request)
+        has_ordered = request.data.get('has_ordered', False)
+        delete_result = cart_logic.clear_cart(request, has_ordered)
         if delete_result == 1:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

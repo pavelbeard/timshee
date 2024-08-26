@@ -1,12 +1,17 @@
 {
-  "loading": "loading...",
-  "nothing": "nothing",
-  "error": "error",
-  "error500": "SERVER ERROR 500. WE ARE ALREADY SOLVING THIS PROBLEM",
-  "startPage": "For start to work you need to add some data to DB: continents, countries, phone codes, provinces, categories and collections",
-  "paymentOptions": "Payment options:",
-  "emailExists": "email already exists...",
-  "offer": "offer",
-  "contacts": "contacts",
-  "shippingMethods": "shipping methods"
+  "loading": "Loading...",
+  "nothing": "Nothing found",
+  "error": "Error",
+  "error500": "ERROR 500. We are already working on this issue.",
+  "startPage": "To get started, you need to add some data to the database: continents, countries, country phone codes, regions, categories and collections",
+  "paymentOptions": "Payment methods:",
+  "emailExists": "The specified email already exists...",
+  "offer": "Offer",
+  "contacts": "Feedback",
+  "phone": "Phone:",
+  "siteCreated": "Site created by heavycream9090",
+  "shippingMethods": "Delivery methods",
+  "redirecting": "Redirecting to payment...",
+  "backToMain": "Return to home page",
+  "languages": "languages:"
 }

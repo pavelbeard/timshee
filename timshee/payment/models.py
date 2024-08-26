@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -13,12 +14,12 @@ CANCELLED = "canceled"
 
 class Payment(models.Model):
     STATUS_CHOICES = {
-        PENDING: "PENDING",
-        WAITING_FOR_CAPTURE: "WAITING_FOR_CAPTURE",
-        PARTIAL_REFUNDED: "PARTIAL_REFUNDED",
-        REFUNDED: "REFUNDED",
-        SUCCEEDED: "SUCCEEDED",
-        CANCELLED: "CANCELLED",
+        PENDING: _("PENDING"),
+        WAITING_FOR_CAPTURE: _("WAITING_FOR_CAPTURE"),
+        PARTIAL_REFUNDED: _("PARTIAL_REFUNDED"),
+        REFUNDED: _("REFUNDED"),
+        SUCCEEDED: _("SUCCEEDED"),
+        CANCELLED: _("CANCELLED"),
     }
 
     payment_id = models.UUIDField(blank=True, null=True)
@@ -32,5 +33,5 @@ class Payment(models.Model):
         return f"{self.store_order_number}"
 
     class Meta:
-        verbose_name = "Payment"
-        verbose_name_plural = "Payments"
+        verbose_name = _("Payment")
+        verbose_name_plural = _("Payments")

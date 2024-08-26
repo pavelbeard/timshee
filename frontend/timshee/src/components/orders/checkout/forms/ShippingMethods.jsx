@@ -15,7 +15,7 @@ export default function ShippingMethods() {
             <Radio
                 htmlFor="shipping_method"
                 labelText={method.shipping_name}
-                checked={parseInt(method.id) === (formData?.shipping_method || shippingMethods[0].id)}
+                checked={parseInt(method.id) === (formData?.shipping_method)}
                 onChange={setShippingMethod}
             />
             <span>{method.price}{t('shop:price')}</span>

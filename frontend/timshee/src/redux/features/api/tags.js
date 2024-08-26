@@ -24,6 +24,10 @@ export const authTags = {
     CHANGE_EMAIL: "CHANGE_EMAIL",
 };
 
+export const stuffTags = {
+    CHANGE_LANGUAGE: "CHANGE_LANGUAGE"
+};
+
 export const paymentTags = {
     HAS_SUCCEEDED: "HAS_SUCCEEDED",
     HAS_FAILED: "HAS_FAILED"

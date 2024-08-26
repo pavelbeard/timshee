@@ -7,6 +7,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register(r'profile', views.ProfileViewSet)
 router.register(r'email', views.EmailViewSet, basename='email')
+router.register(r'lang', views.LanguageViewSet, basename='lang')
 
 urlpatterns = [
     path('signin/', views.SigninAPIView.as_view(), name='signin'),
@@ -14,7 +15,6 @@ urlpatterns = [
     path('signout/', views.SignoutAPIView.as_view(), name='signout'),
     path('token/refresh/', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', jwt_views.TokenVerifyView.as_view(), name='token_verify'),
-    path('lang/', views.ChangeLanguageAPIView.as_view(), name='lang'),
     path('settings/', views.GetSettingsAPIView.as_view(), name='get-dyn-settings'),
 ]
 

@@ -24,7 +24,7 @@ export default function CartItems() {
     return (
         <section className={clsx(pathname === '/cart'
             ? 'min-h-screen'
-            : 'h-[20rem] lg:h-[25rem]',
+            : 'lg:h-[25rem]',
             'overflow-y-auto'
         )}>
             <div className={clsx(

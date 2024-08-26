@@ -1,29 +1,8 @@
-import dns
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.templatetags.static import static
 from rest_framework import serializers
-
-try:
-    from . import resolver
-except:
-    pass
-
-
-def check_email_domain(email):
-    domain = email.split('@')[1]
-    try:
-        records = dns.resolver.resolve(domain, 'MX')
-        return True
-    except dns.resolver.NoAnswer:
-        return False
-    except dns.resolver.NXDOMAIN:
-        return False
-    except dns.resolver.Timeout:
-        return False
-    except Exception as e:
-        return False
 
 
 class EmailDataSerializer(serializers.Serializer):

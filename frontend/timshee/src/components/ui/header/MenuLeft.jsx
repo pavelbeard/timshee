@@ -50,7 +50,7 @@ export default function MenuLeft() {
 
     return (
         <nav>
-            <ul className={clsx('w-full flex justify-start')}>{menuItems}</ul>
+            <ul className='w-full flex justify-start'>{menuItems}</ul>
         </nav>
     );
 }

@@ -1,0 +1,318 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-26 01:30+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: cart/models.py:31
+msgid "Cart"
+msgstr "Корзина"
+
+#: cart/models.py:32
+msgid "Carts"
+msgstr "Корзины"
+
+#: order/models.py:21
+msgid "Continent"
+msgstr "Континент"
+
+#: order/models.py:22
+msgid "Continents"
+msgstr "Континенты"
+
+#: order/models.py:34
+msgid "Country"
+msgstr "Страна"
+
+#: order/models.py:35
+msgid "Countries"
+msgstr "Страны"
+
+#: order/models.py:47
+msgid "Country Phone Code"
+msgstr "Телефонный код страны"
+
+#: order/models.py:48
+msgid "Country Phone Codes"
+msgstr "Телефонные коды стран"
+
+#: order/models.py:59
+msgid "Province"
+msgstr "Провинция"
+
+#: order/models.py:60
+msgid "Provinces"
+msgstr "Провинции"
+
+#: order/models.py:83
+msgid "Address"
+msgstr "Адрес"
+
+#: order/models.py:84
+msgid "Addresses"
+msgstr "Адреса"
+
+#: order/models.py:102
+msgid "CREATED"
+msgstr "СОЗДАННЫЙ"
+
+#: order/models.py:103
+msgid "PENDING_FOR_PAY"
+msgstr "ОЖИДАНИЕ_ПЛАТЫ"
+
+#: order/models.py:104
+msgid "PROCESSING"
+msgstr "ОБРАБОТКА"
+
+#: order/models.py:105
+msgid "DELIVERING"
+msgstr "ДОСТАВКА"
+
+#: order/models.py:106
+msgid "DELIVERED"
+msgstr "ДОСТАВЛЕННЫЙ"
+
+#: order/models.py:107
+msgid "COMPLETED"
+msgstr "ЗАВЕРШЕННЫЙ"
+
+#: order/models.py:108 payment/models.py:19
+msgid "PARTIAL_REFUNDED"
+msgstr "ЧАСТИЧНО_ВОЗВРАЩЕНО"
+
+#: order/models.py:109 payment/models.py:22
+msgid "CANCELLED"
+msgstr "ОТМЕНЕНО"
+
+#: order/models.py:110 payment/models.py:20
+msgid "REFUNDED"
+msgstr "ВОЗВРАЩЕНО"
+
+#: order/models.py:128
+msgid "Order"
+msgstr "Заказ"
+
+#: order/models.py:129
+msgid "Orders"
+msgstr "Заказы"
+
+#: order/models.py:187
+msgid "Order Item"
+msgstr "Заказать товар"
+
+#: order/models.py:188
+msgid "Order Items"
+msgstr "Заказать товары"
+
+#: order/models.py:202
+msgid "Returned Item"
+msgstr "Возвращенный товар"
+
+#: order/models.py:203
+msgid "Returned Items"
+msgstr "Возвращенные товары"
+
+#: order/models.py:215
+msgid "Shipping method"
+msgstr "Способ доставки"
+
+#: order/models.py:216
+msgid "Shipping methods"
+msgstr "Способы доставки"
+
+#: payment/models.py:17
+msgid "PENDING"
+msgstr "В ОЖИДАНИИ"
+
+#: payment/models.py:18
+msgid "WAITING_FOR_CAPTURE"
+msgstr "ОЖИДАНИЕ_ЗАХВАТА"
+
+#: payment/models.py:21
+msgid "SUCCEEDED"
+msgstr "УСПЕШНО"
+
+#: payment/models.py:36
+msgid "Payment"
+msgstr "Оплата"
+
+#: payment/models.py:37
+msgid "Payments"
+msgstr "Платежи"
+
+#: store/models.py:20
+msgid "Ссылка"
+msgstr "Ссылка"
+
+#: store/models.py:20
+msgid ""
+" не соответствует формату. Она должна состоять из двух слов, разделенных "
+"горизонтальной чертой, и одного или двух годов, также разделенных "
+"горизонтальной чертой, либо одного слова без черты но с годом/годами."
+msgstr ""
+
+#: store/models.py:24
+msgid "или"
+msgstr "или"
+
+#: store/models.py:35
+msgid "Size"
+msgstr "Размер"
+
+#: store/models.py:36
+msgid "Sizes"
+msgstr "Размеры"
+
+#: store/models.py:47
+msgid "Color"
+msgstr "Цвет"
+
+#: store/models.py:48
+msgid "Colors"
+msgstr "Цвета"
+
+#: store/models.py:53
+msgid "Коллекция"
+msgstr "Коллекция"
+
+#: store/models.py:56
+msgid "Изображение коллекции"
+msgstr "Изображение коллекции"
+
+#: store/models.py:63
+msgid "Ссылка на коллекцию"
+msgstr "Ссылка на коллекцию"
+
+#: store/models.py:104
+msgid "Collection"
+msgstr "Коллекция"
+
+#: store/models.py:105
+msgid "Collections"
+msgstr "Коллекции"
+
+#: store/models.py:109
+msgid "Имя категории"
+msgstr "Имя категории"
+
+#: store/models.py:110
+msgid "Код категории"
+msgstr "Код категории"
+
+#: store/models.py:114
+msgid "Изображение категории"
+msgstr "Изображение категории"
+
+#: store/models.py:148
+msgid "Category"
+msgstr "Категория"
+
+#: store/models.py:149
+msgid "Categories"
+msgstr "Категории"
+
+#: store/models.py:161
+msgid "Type"
+msgstr "Тип"
+
+#: store/models.py:162
+msgid "Types"
+msgstr "Типы"
+
+#: store/models.py:187
+msgid "Stock"
+msgstr "Вариация"
+
+#: store/models.py:188
+msgid "Stocks"
+msgstr "Вариации"
+
+#: store/models.py:206
+msgid "Carousel Image"
+msgstr "Карусель изображений"
+
+#: store/models.py:207
+msgid "Carousel Images"
+msgstr "Карусель изображений"
+
+#: store/models.py:216
+msgid "WOMEN"
+msgstr "ЖЕНЩИНЫ"
+
+#: store/models.py:217
+msgid "MEN"
+msgstr "МУЖЧИНЫ"
+
+#: store/models.py:219
+msgid "MISC"
+msgstr "РАЗНОЕ"
+
+#: store/models.py:233
+msgid "Изображение"
+msgstr "Изображение"
+
+#: store/models.py:247
+msgid "Item"
+msgstr "Элемент"
+
+#: store/models.py:248
+msgid "Items"
+msgstr "Предметы"
+
+#: store/models.py:261
+msgid "Wishlist"
+msgstr "Список пожеланий"
+
+#: store/models.py:262
+msgid "Wishlist items"
+msgstr "Элементы списка желаний"
+
+#: stuff/models.py:43 stuff/models.py:44
+msgid "Dynamic Settings"
+msgstr "Динамические настройки"
+
+#: stuff/models.py:54 stuff/models.py:55
+msgid "Owner Data"
+msgstr "Данные владельца"
+
+#: stuff/models.py:86
+#, fuzzy, python-brace-format
+#| msgid "Email verification token for"
+msgid "Email verification token for {self.user}"
+msgstr "Токен проверки электронной почты для"
+
+#: stuff/tests.py:86 stuff/tests.py:128
+msgid "Your order is in processing. Thank you for purchasing!"
+msgstr "Ваш заказ находится в обработке. Спасибо за покупку!"
+
+#: stuff/tests.py:100
+msgid "Your items"
+msgstr "Ваши товары"
+
+#: timshee/settings.py:164
+msgid "English"
+msgstr "Английский"
+
+#: timshee/settings.py:165
+msgid "Spanish"
+msgstr "Испанский"
+
+#: timshee/settings.py:166
+msgid "Russian"
+msgstr "Русский"

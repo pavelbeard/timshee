@@ -1,5 +1,10 @@
 {
-  "serverError": "[ERROR 500]: Что-то пошло не так",
-  "loginError400": "Неправильные логин/пароль. Попробуйте снова.",
-  "loginError404": "Пользователь не найден."
+  "serverError": "[ERROR 500]: Something went wrong",
+  "404": "Not found",
+  "400changeEmail": "There is already a user with this email.",
+  "500": "[ERROR 500]: Something went wrong",
+  "loginError400": "Incorrect login/password. Try again.",
+  "loginError404": "User not found.",
+  "addressFormError400": "The data has not been verified.",
+  "backToMain": "Return to home page"
 }

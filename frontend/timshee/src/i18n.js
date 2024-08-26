@@ -12,14 +12,24 @@ i18n
         react: {
             useSuspense: false,
         },
-        fallbackLng: "en",
-        lng: "ru",
+        // fallbackLng: "en",
+        // lng: "ru",
 
         ns: namespaces,
         backend: {
             loadPath: '/locales/{{lng}}/{{ns}}.json',
         },
-
+        fallbackLng: "en",
+        detection: {
+          order: ['querystring', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+          caches: ['localStorage'],
+          cookieMinutes: 10080,
+          lookupQuerystring: 'lng',
+          lookupCookie: 'server_language',
+          lookupLocalStorage: 'i18nextLng',
+          lookupSessionStorage: 'i18nextLng',
+          excludeCacheFor: ['cimode'],
+        },
         interpolation: {
             escapeValue: false
         }

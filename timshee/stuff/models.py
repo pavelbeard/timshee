@@ -1,10 +1,10 @@
-import uuid
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User, AbstractUser, Group, Permission
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from shortuuid.django_fields import ShortUUIDField
 
 
@@ -37,10 +37,11 @@ class UserProfile(models.Model):
 class DynamicSettings(Singleton):
     on_content_update = models.BooleanField(default=False)
     on_maintenance = models.BooleanField(default=False)
+    experimental = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'Dynamic Settings'
-        verbose_name_plural = 'Dynamic Settings'
+        verbose_name = _('Dynamic Settings')
+        verbose_name_plural = _('Dynamic Settings')
 
 
 class OwnerData(Singleton):
@@ -50,8 +51,8 @@ class OwnerData(Singleton):
     email = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name = 'Owner Data'
-        verbose_name_plural = 'Owner Data'
+        verbose_name = _('Owner Data')
+        verbose_name_plural = _('Owner Data')
 
 
 def get_until_time(hours=3):
@@ -68,7 +69,7 @@ class ResetPasswordCase(models.Model):
         return self.until
 
     def __str__(self):
-        return f"Reset password for {self.user}"
+        return f"{_('Reset password for')}{self.user}"
 
 
 class EmailToken(models.Model):
@@ -82,4 +83,4 @@ class EmailToken(models.Model):
         return self.until
 
     def __str__(self):
-        return f"Email verification token for {self.user}"
+        return _(f"Email verification token for {self.user}")
