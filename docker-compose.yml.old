@@ -13,7 +13,7 @@ services:
   django:
     build:
       context: timshee/
-      dockerfile: prod.Dockerfile
+      dockerfile: timshee/prod.Dockerfile.old
     restart: always
     env_file:
       - timshee/prod.env

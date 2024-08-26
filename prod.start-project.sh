@@ -9,5 +9,8 @@ git pull;
 cp timshee/prod.env.copy timshee/prod.env
 cp postgres-files/prod.env.copy postgres-files/prod.env
 
+docker pull pavelbeard/django:1.0.75-production;
+docker pull pavelbeard/frontend:1.0.75-production;
+
 docker-compose -f prod.images.docker-compose.yaml down;
-docker-compose -f prod.images.docker-compose.yaml up --build -d;
+docker-compose -f prod.images.docker-compose.yaml up -d;
