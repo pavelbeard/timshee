@@ -37,5 +37,6 @@
   "show": "show products",
   "hide": "hide products",
   "showReturnedItems": "show returned items",
-  "hideReturnedItems": "hide returned items"
+  "hideReturnedItems": "hide returned items",
+  "selfShipping": "Self shipping"
 }

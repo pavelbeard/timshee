@@ -1,7 +1,8 @@
 {
   "serverError": "[ERROR 500]: Algo salió mal",
   "404": "Extraviado",
-  "400changeEmail": "Ya existe un usuario con este correo electrónico.",
+  "400": "La solicitud inválida",
+  "400changeEmail": "El token se ha caducado o lo es inválido.",
   "500": "[ERROR 500]: Algo salió mal",
   "loginError400": "Inicio de sesión/contraseña incorrectos. Intentar otra vez.",
   "loginError404": "Usuario no encontrado.",

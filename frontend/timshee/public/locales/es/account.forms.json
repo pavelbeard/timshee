@@ -13,6 +13,7 @@
   "submit": "Enviar",
   "newEmail": "Nuevo correo electrónico:",
   "changeEmail": "Cambiar correo electrónico:",
+  "changeOrConfirmEmail": "Cambiar o validar tu correo electronico",
   "email": "correo electrónico:",
   "emailConfirmed": "Correo electrónico confirmado!",
   "confirmationMail": "Espere el enlace de confirmación de su correo electrónico, que debería llegar allí. Revisa tu carpeta de Spam por si acaso.",

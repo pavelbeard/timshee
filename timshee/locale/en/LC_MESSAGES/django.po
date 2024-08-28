@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-26 01:30+0300\n"
+"POT-Creation-Date: 2024-08-28 17:58+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cart/models.py:31
+#: cart/models.py:43
 msgid "Cart"
 msgstr "Cart"
 
-#: cart/models.py:32
+#: cart/models.py:44
 msgid "Carts"
 msgstr "Carts"
 
@@ -137,6 +137,51 @@ msgstr "Shipping method"
 #: order/models.py:216
 msgid "Shipping methods"
 msgstr "Shipping methods"
+
+#: order/order_logic.py:26 order/signals.py:60
+msgid "Your payment status is: "
+msgstr "Your payment status is:"
+
+#: order/order_logic.py:29
+msgid "The money will be transferred to your bank account during three days."
+msgstr "The money will be transferred to your bank account during three days."
+
+#: order/order_logic.py:30 order/signals.py:68
+msgid "Go to order"
+msgstr "Go to order"
+
+#: order/order_logic.py:47
+#, python-brace-format
+msgid "Order {order.order_number} status is: {order_status}."
+msgstr "Order {order.order_number} status is: {order_status}."
+
+#: order/signals.py:54
+#, python-brace-format
+msgid "Go to {name} page"
+msgstr "Go to {name} page"
+
+#: order/signals.py:63
+#, fuzzy
+#| msgid "Your items"
+msgid "Your items:"
+msgstr "Your items"
+
+#: order/signals.py:74
+msgid "Order {instance.order_number} status is: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+msgstr "Order {instance.order_number} status is: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+
+#: order/signals.py:82
+msgid "Your order has been delivered"
+msgstr "Your order has been delivered"
+
+#: order/signals.py:83
+msgid "See you until next purchases!"
+msgstr "See you until next purchases!"
+
+#: order/signals.py:89
+#, python-brace-format
+msgid "Order status is: {instance.status}"
+msgstr "Order status is: {instance.status}"
 
 #: payment/models.py:17
 msgid "PENDING"
@@ -293,27 +338,67 @@ msgstr "Dynamic Settings"
 msgid "Owner Data"
 msgstr "Owner Data"
 
-#: stuff/models.py:86
+#: stuff/models.py:82
 #, python-brace-format
 msgid "Email verification token for {self.user}"
 msgstr "Email verification token for {self.user}"
 
-#: stuff/tests.py:86 stuff/tests.py:128
+#: stuff/stuff_logic.py:45
+msgid "Email confirmation."
+msgstr "Email confirmation."
+
+#: stuff/stuff_logic.py:49
+msgid "Confirm your email by the link below 👇"
+msgstr "Confirm your email by the link below 👇"
+
+#: stuff/stuff_logic.py:50
+msgid "Go to the email confirmation"
+msgstr "Go to the email confirmation"
+
+#: stuff/stuff_logic.py:86
+msgid "Follow the link below to set a new password 👇"
+msgstr "Follow the link below to set a new password 👇"
+
+#: stuff/stuff_logic.py:87
+msgid "The link is valid for 1 hour!"
+msgstr "The link is valid for 1 hour!"
+
+#: stuff/stuff_logic.py:90
+msgid "Go to set a new password!"
+msgstr "Go to set a new password!"
+
+#: stuff/stuff_logic.py:95
+msgid "Change password."
+msgstr "Change password."
+
+#: stuff/stuff_logic.py:151
+msgid "Password has been changed successfully!"
+msgstr "Password has been changed successfully!"
+
+#: stuff/stuff_logic.py:152
+msgid "If it wasn't you, please, write us to support"
+msgstr "If it wasn't you, please, write us to support"
+
+#: stuff/stuff_logic.py:158
+msgid "Reset password."
+msgstr "Reset password."
+
+#: stuff/tests.py:135 stuff/tests.py:214
 msgid "Your order is in processing. Thank you for purchasing!"
 msgstr "Your order is in processing. Thank you for purchasing!"
 
-#: stuff/tests.py:100
+#: stuff/tests.py:149
 msgid "Your items"
 msgstr "Your items"
 
-#: timshee/settings.py:164
+#: timshee/settings.py:161
 msgid "English"
 msgstr "English"
 
-#: timshee/settings.py:165
+#: timshee/settings.py:162
 msgid "Spanish"
 msgstr "Spanish"
 
-#: timshee/settings.py:166
+#: timshee/settings.py:163
 msgid "Russian"
 msgstr "Russian"

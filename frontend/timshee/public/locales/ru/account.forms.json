@@ -13,6 +13,7 @@
   "submit": "Отправить",
   "newEmail": "Новый email:",
   "changeEmail": "Сменить email:",
+  "changeOrConfirmEmail": "Сменить либо потвердить ваш email",
   "email": "email:",
   "emailConfirmed": "Email подтвержден!",
   "confirmationMail": "Дождитесь ссылки потверждения вашей почты, которая должна приди туда. Проверьте папку 'Спам' на всякий случай.",

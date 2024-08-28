@@ -12,8 +12,8 @@ from . import serializers, models, cart_logic
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = models.Cart.objects.all()
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
         if self.action in ['list', 'get_items']:
@@ -25,7 +25,7 @@ class CartViewSet(viewsets.ModelViewSet):
         elif self.action in ['delete', 'remove']:
             return serializers.CartRemoveSerializer
 
-    @action(detail=False, methods=['POST'], authentication_classes=[JWTAuthentication], permission_classes=[AllowAny])
+    @action(detail=False, methods=['POST'])
     def add_item(self, request, *args, **kwargs):
         serializer = serializers.CartAddSerializer(request.data)
         item_has_added = cart_logic.add_to_cart(request, serializer.data)
@@ -73,7 +73,7 @@ class CartViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['DELETE'], authentication_classes=[])
+    @action(detail=False, methods=['DELETE'])
     def clear_cart(self, request):
         has_ordered = request.data.get('has_ordered', False)
         delete_result = cart_logic.clear_cart(request, has_ordered)

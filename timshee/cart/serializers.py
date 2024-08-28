@@ -26,6 +26,8 @@ class CartUpdateSerializer(serializers.Serializer):
 class CartResponseSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     cart_items = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+    total_items = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         user_obj = obj.user
@@ -49,6 +51,12 @@ class CartResponseSerializer(serializers.ModelSerializer):
             })
 
         return data
+
+    def get_total(self, obj):
+        return obj.get_total_price()
+
+    def get_total_items(self, obj):
+        return obj.get_total_items()
 
     class Meta:
         model = models.Cart

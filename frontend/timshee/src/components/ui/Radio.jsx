@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Radio({ htmlFor, labelText, ...rest }) {
     return (
-        <div className="flex relative items-center">
+        <div className="flex relative items-center" aria-checked={rest?.checked || rest?.defaultChecked}>
             <input
                 type="radio"
                 id={htmlFor}

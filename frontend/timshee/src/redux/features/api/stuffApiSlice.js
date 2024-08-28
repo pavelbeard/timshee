@@ -11,6 +11,16 @@ export const stuffApiSlice = apiSlice.injectEndpoints({
                 method: 'GET',
             })
         }),
+        getEmailConfirmationStatus: builder.query({
+            query: () => ({
+                url: '/stuff/profile/get_email_confirmation_status/',
+                method: 'GET',
+            }),
+            providesTags: [tags.CONFIRM_EMAIL],
+            transformResponse(baseQueryReturnValue, meta, arg) {
+                return baseQueryReturnValue?.confirmed || null
+            }
+        }),
         generateToken: builder.mutation({
             query: (data) => ({
                 url: '/stuff/profile/generate_verification_token/',
@@ -24,7 +34,7 @@ export const stuffApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: {...data}
             }),
-            invalidatesTags: [tags.CHANGE_EMAIL]
+            invalidatesTags: [tags.CHANGE_EMAIL, tags.CONFIRM_EMAIL]
         }),
         checkEmail: builder.query({
             query: (data) => ({
@@ -74,6 +84,7 @@ export const stuffApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetDynamicSettingsQuery,
     useChangeEmailMutation,
+    useGetEmailConfirmationStatusQuery,
     useGenerateTokenMutation,
     useLazyCheckEmailQuery,
     useCheckResetPasswordRequestQuery,

@@ -1,14 +1,19 @@
-from gettext import translation
+from idlelib.rpc import request_queue
 
+from auxiliaries.auxiliaries_methods import get_logger
+from cart import models as cart_models
 from django.conf import settings
 from django.contrib.auth import get_user_model, models, authenticate
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import JsonResponse
 from django.middleware import csrf
 from django.utils import timezone
-from django.utils.translation import activate, get_language_info, gettext as _, get_language
+from django.utils.translation import activate, get_language
+from order import models as order_models
+from order import serializers as order_serializers
+from requests import session
 from rest_framework import generics, status, permissions, viewsets
-from rest_framework import views
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.response import Response
@@ -16,11 +21,7 @@ from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
-from order import models as order_models
 from store import models as store_models
-from cart import models as cart_models
-from order import serializers as order_serializers
-from auxiliaries.auxiliaries_methods import get_logger
 
 from . import models, services, serializers, stuff_logic
 
@@ -30,13 +31,25 @@ User = get_user_model()
 logger = get_logger(__name__)
 
 
-class SignupAPIView(generics.GenericAPIView):
+def set_csrfmiddlewaretoken(rq, rs):
+    rs.set_cookie(
+        key='csrfmiddlewaretoken',
+        value=csrf.get_token(rq),
+        httponly=True,
+        samesite='Lax',
+
+    )
+    return rs
+
+
+class AuthViewSet(viewsets.ViewSet):
     authentication_classes = []
     permission_classes = []
     allowed_methods = ["post"]
-    serializer_class = serializers.SignupSerializer
+    serializer_class = serializers.SigninSerializer
 
-    def post(self, request):
+    @action(detail=False, methods=['POST'])
+    def sign_up(self, request):
         try:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -46,8 +59,8 @@ class SignupAPIView(generics.GenericAPIView):
                 return AuthenticationFailed('Failed to create user.')
 
             response = Response(status=status.HTTP_201_CREATED)
+            response = set_csrfmiddlewaretoken(rq=request, rs=response)
             response.data = {'detail': 'User created'}
-            response['X-CSRFToken'] = csrf.get_token(request)
 
             return response
         except IntegrityError:
@@ -56,29 +69,19 @@ class SignupAPIView(generics.GenericAPIView):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class SigninAPIView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = []
-    allowed_methods = ["post"]
-    serializer_class = serializers.SigninSerializer
-
-    def post(self, request, *args, **kwargs):
+    @action(detail=False, methods=['POST'])
+    def sign_in(self, request, *args, **kwargs):
         try:
             username = str(self.request.data['username']).strip()
             password = str(self.request.data['password']).strip()
 
             if username and password:
-                user = authenticate(email=username, password=password)
+                user = authenticate(request=request, email=username, password=password)
 
                 if isinstance(user, ValidationError) or user is None:
                     return Response(status=status.HTTP_404_NOT_FOUND)
 
                 if isinstance(user, User):
-                    session_key = self.request.COOKIES.get('sessionid')
-                    cart_models.Cart.objects.filter(session__session_key=session_key).update(user=user)
-                    order_models.Order.objects.filter(session__session_key=session_key).update(user=user)
-                    store_models.Wishlist.objects.filter(session__session_key=session_key).update(user=user)
                     _tokens = stuff_logic.get_token_for_user(user)
 
                     response = Response(status=status.HTTP_200_OK)
@@ -98,8 +101,8 @@ class SigninAPIView(generics.GenericAPIView):
                         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     )
+                    response = set_csrfmiddlewaretoken(rq=request, rs=response)
                     response.data = {'access': _tokens['access'], 'user': user.email}
-                    response['X-CSRFToken'] = csrf.get_token(request)
                     return response
 
                 response = Response(status=status.HTTP_400_BAD_REQUEST)
@@ -109,11 +112,13 @@ class SigninAPIView(generics.GenericAPIView):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class SignoutAPIView(views.APIView):
-    allowed_methods = ["post"]
-
-    def post(self, request):
+    @action(
+        detail=False,
+        methods=['POST'],
+        authentication_classes=[JWTAuthentication],
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def sign_out(self, request):
         try:
             refresh = request.COOKIES.get('refresh_token')
 
@@ -122,9 +127,8 @@ class SignoutAPIView(views.APIView):
             response = Response()
             response.delete_cookie(key=settings.SIMPLE_JWT['AUTH_ACCESS_COOKIE'])
             response.delete_cookie(key=settings.SIMPLE_JWT['AUTH_REFRESH_COOKIE'])
-            response.delete_cookie(key='csrftoken')
+            response.delete_cookie(key='csrfmiddlewaretoken')
             response.delete_cookie(key='X-CSRFToken')
-            response['X-CSRFToken'] = None
             response.data = {"detail": "You're logged out!"}
             response.status = status.HTTP_200_OK
             return response
@@ -163,7 +167,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.data['user'] = user.email
             del response.data['refresh']
 
-        response['X-CSRFToken'] = request.COOKIES.get('csrftoken')
+
         return super().finalize_response(request, response, *args, **kwargs)
 
 
@@ -174,26 +178,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.AllowAny]
 
-    @action(detail=False, methods=["GET"])
-    def get_email(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            user = self.request.user
-            return Response({"email": user.email}, status=status.HTTP_200_OK)
-
-        return Response(status=status.HTTP_403_FORBIDDEN)
+    @action(detail=False, methods=['GET'])
+    def get_email_confirmation_status(self, request):
+        result = stuff_logic.get_email_confirm_status(request)
+        return Response({'confirmed': result}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.IsAuthenticated])
     def generate_verification_token(self, request, *args, **kwargs):
         serializer = serializers.EmailVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        result, data = stuff_logic.generate_verification_token(request, serializer.validated_data)
-        if result == 1:
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
-        elif result == 2:
+        result = stuff_logic.generate_verification_token(request, serializer.validated_data)
+        if result == 2:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
     @action(
@@ -203,15 +201,15 @@ class ProfileViewSet(viewsets.ModelViewSet):
         authentication_classes=[JWTAuthentication]
     )
     def change_email(self, request):
-        user = self.request.user
         try:
             serializer = serializers.EmailTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             data = serializer.validated_data
-
             email_token = models.EmailToken.objects.filter(uuid=data['token']).first()
             if not email_token:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            user = email_token.user
 
             expired = (timezone.now() > email_token.until)
             if expired:
@@ -220,6 +218,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 return Response({'error': 'token has expired'}, status=status.HTTP_400_BAD_REQUEST)
 
             user.email = email_token.for_email
+            user.userprofile.email_confirmed = True
+            user.userprofile.save()
             user.save()
 
             return Response(status=status.HTTP_200_OK)
@@ -231,85 +231,40 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
     def check_email(self, request):
-        try:
-            if not request.data.get('email'):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            email = request.data.get('email').strip()
-            user = User.objects.get(email=email)
-            if user:
-                recent_cases = models.ResetPasswordCase.objects.filter(user=user)
-
-                if recent_cases.exists():
-                    recent_cases.update(is_active=False)
-
-                instance = models.ResetPasswordCase.objects.create(
-                    user=user,
-                )
-                return Response({'token': instance.uuid}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
+        result, error = stuff_logic.check_email(request)
+        if result == 2:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if result == 3:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e, exc_info=True)
+        if result == 4:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
     def is_reset_password_request_valid(self, request):
-        try:
-            if not request.data.get('uuid'):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            uuid = request.data.get('uuid').strip()
-            reset_password_case = models.ResetPasswordCase.objects.filter(uuid=uuid, is_active=True).first()
-
-            if not reset_password_case:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-
-            expired = (timezone.now() > reset_password_case.until)
-            if expired:
-                reset_password_case.is_active = False
-                reset_password_case.save()
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e, exc_info=True)
+        result, error = stuff_logic.is_reset_password_request_valid(request)
+        if result == 1:
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        elif result == 2:
+            return Response(error, status=status.HTTP_404_NOT_FOUND)
+        elif result == 3:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
     def change_password(self, request):
-        try:
-            if not request.data.get('uuid'):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            uuid = request.data.get('uuid').strip()
-
-            password1 = request.data.get('password1')
-            password2 = request.data.get('password2')
-
-            if password1 != password2:
-                return Response({"detail": "Passwords don't match."}, status=status.HTTP_400_BAD_REQUEST)
-
-            recent_case = models.ResetPasswordCase.objects.filter(uuid=uuid).first()
-
-            if not recent_case:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-
-            user = recent_case.user
-            user.set_password(password1)
-            user.save()
-
-            recent_case.is_active = False
-            recent_case.save()
-
-            return Response(status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e, exc_info=True)
+        result, error = stuff_logic.change_password(request)
+        if result == 2:
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        elif result == 3:
+            return Response(error, status=status.HTTP_404_NOT_FOUND)
+        elif result == 4:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(status=status.HTTP_200_OK)
+
 
 class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
@@ -365,7 +320,6 @@ class LanguageViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["GET"])
     def get_languages(self, request):
         lang_dict = [{'language': language, 'translation': translation_} for language, translation_ in settings.LANGUAGES]
-        print(lang_dict, get_language())
         return Response(data=lang_dict, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["GET"])

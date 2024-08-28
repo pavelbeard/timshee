@@ -1,5 +1,9 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
+from django.db.models import Sum, F, DecimalField
+from django.db.models.expressions import result
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
@@ -12,8 +16,6 @@ class Cart(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     session = models.ForeignKey(Session, blank=True, null=True, on_delete=models.CASCADE)
     cart_items = models.ManyToManyField(to="CartItem", related_name="stocks", blank=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    total_items = models.PositiveIntegerField(default=0)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     ordered = models.BooleanField(default=False)
@@ -26,6 +28,16 @@ class Cart(models.Model):
         else:
             cart_id = f"{_('Anonymous cart')}: {self.pk}"
         return f"[{_('Cart for')}: {cart_id}]"
+
+    def get_total_price(self):
+        result = self.cart_items.annotate(
+            total_price=F('stock_item__item__price') * F('quantity')).aggregate(
+            total=Sum('total_price', output_field=DecimalField()),
+        )['total']
+        return result
+
+    def get_total_items(self):
+        return self.cart_items.aggregate(total=Sum('quantity'))['total'] or 0
 
     class Meta:
         verbose_name = _('Cart')

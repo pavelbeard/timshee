@@ -56,6 +56,7 @@ export const paymentApiSlice = _apiSliceWithTags.injectEndpoints({
                 body: {...data}
             }),
             invalidatesTags: [tags.GET_ORDER]
+            // invalidatesTags: (result, error, arg, meta) => [{ type: 'ORDER', id: result.orderId }]
         }),
         refundPartial: builder.mutation({
             query: ({orderId, data}) => ({
@@ -64,6 +65,7 @@ export const paymentApiSlice = _apiSliceWithTags.injectEndpoints({
                 body: {...data}
             }),
             invalidatesTags: [tags.GET_ORDER]
+            // invalidatesTags: (result, error, arg, meta) => [{ type: 'ORDER', id: result.orderId }]
         })
     }),
 

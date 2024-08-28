@@ -1,15 +1,11 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
 import {cartTags} from "./tags";
 
-const tags = cartTags;
+const tags = { ...cartTags };
 
 const _apiSliceWithTags = apiSlice.enhanceEndpoints({
     addTagTypes: [
-        tags.ADD_ITEM_TO_CART,
-        tags.DELETE_ITEM_FROM_CART,
-        tags.REMOVE_ALL_CART,
-        tags.CHANGE_QUANTITY_OF_ITEM,
-        tags.GET_CART_ITEMS,
+        ...Object.values(tags)
     ],
 })
 
@@ -21,6 +17,7 @@ export const cartApiSlice = _apiSliceWithTags.injectEndpoints({
                 method: 'GET'
             }),
             providesTags: [
+                tags.GET_CART_ITEMS,
                 tags.ADD_ITEM_TO_CART,
                 tags.DELETE_ITEM_FROM_CART,
                 tags.REMOVE_ALL_CART,

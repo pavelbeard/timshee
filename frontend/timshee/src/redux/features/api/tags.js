@@ -15,6 +15,7 @@ export const cartTags = {
 
 export const orderTags = {
     UPDATE_ORDER: "UPDATE_ORDER",
+    EXP_UPDATE_ORDER: { type: 'ORDER', id: 'ORDER_OBJ' },
     GET_ORDER: "GET_ORDER"
 };
 
@@ -22,13 +23,19 @@ export const authTags = {
     SIGN_IN: "SIGN_IN",
     SIGN_OUT: "SIGN_OUT",
     CHANGE_EMAIL: "CHANGE_EMAIL",
+    CONFIRM_EMAIL: "CONFIRM_EMAIL"
 };
 
 export const stuffTags = {
-    CHANGE_LANGUAGE: "CHANGE_LANGUAGE"
+    CHANGE_LANGUAGE: "CHANGE_LANGUAGE",
 };
 
 export const paymentTags = {
     HAS_SUCCEEDED: "HAS_SUCCEEDED",
     HAS_FAILED: "HAS_FAILED"
+};
+
+export const accountTags = {
+    ADDRESSES_BY_USER: 'ADDRESSES_BY_USER',
+    EXP_ADDRESSES_BY_USER: { type: 'ADDRESSES', id: 'USER' }
 };

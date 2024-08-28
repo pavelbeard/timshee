@@ -1,0 +1,72 @@
+{% load mjml %}
+
+{% mjml %}
+    <mjml>
+        <mj-body background-color="white">
+            <mj-section>
+                <mj-column>
+                    <mj-image width="141px" src="{{ logo_url }}" />
+                </mj-column>
+            </mj-section>
+            <mj-section background-color="#e4e4e4">
+                <mj-column>
+                    <mj-text font-size="20px" align="center">
+                        {{ subject }}
+                    </mj-text>
+                    <mj-text font-size="16px">
+                        {{ text.p1 }} {{ text.status }}
+                    </mj-text>
+                    {% if your_items %}
+                    <mj-text font-size="16px">
+                        {{ your_items }}
+                    </mj-text>
+                    {% endif %}
+                    {% if refund_message %}
+                    <mj-text font-size="16px">
+                        {{ refund_message }}
+                    </mj-text>
+                    {% endif %}
+                </mj-column>
+            </mj-section>
+            <mj-section background-color="#e4e4e4" padding-top="5px" >
+                {% if order_items %}
+                {% for order_item in order_items %}
+                    <mj-column>
+                            <mj-divider border-width="1px" border-color="#7A7A7A" />
+                            <mj-image width="400px" src="{{ order_item.image }}" />
+                            <mj-text>{{ order_item.name }}</mj-text>
+                            <mj-text>{{ order_item.price }}</mj-text>
+                            <mj-text>{{ order_item.size }}</mj-text>
+                            <mj-text>{{ order_item.color }}</mj-text>
+                            <mj-text>{{ order_item.quantity }}</mj-text>
+                            <mj-button href="{{ order_item.link }}">
+                                {{ order_item.go_to_item }}
+                            </mj-button>
+                    </mj-column>
+                {% endfor %}
+                {% endif %}
+            </mj-section>
+            <mj-section>
+                <mj-column>
+                    {% if refunded_price %}
+                        <mj-text font-size="16px">
+                            {{ refunded_price }}
+                        </mj-text>
+                    {% endif %}
+                    {% if items_price and shipping_price and total_price %}
+                        <mj-text font-size="16px">
+                            {{ items_price }}
+                        </mj-text>
+                        <mj-text font-size="16px">
+                            {{ shipping_price }}
+                        </mj-text>
+                        <mj-text font-size="16px">
+                            {{ total_price }}
+                        </mj-text>
+                    {% endif %}
+                    <mj-button href="{{ order_link }}">{{ go_to_order }}</mj-button>
+                </mj-column>
+            </mj-section>
+        </mj-body>
+    </mjml>
+{% endmjml %}

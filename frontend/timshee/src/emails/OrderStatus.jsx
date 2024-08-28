@@ -1,12 +1,11 @@
 import {Body, Font, Head, Html, Img, Tailwind} from "@react-email/components";
-import ItemImage from "../components/ui/ItemImage";
-import {API_URL} from "../config";
 
-export default function OrderProcessing({
+export default function OrderStatus({
     orderText,
     yourItems,
     orderNumber,
-    orderItems
+    orderItems,
+    refundReason
 }) {
     const src = orderText ? "-IMAGE_SRC-" : `/static/logo.png`
     return (
@@ -37,12 +36,17 @@ export default function OrderProcessing({
                         <span className="py-2">
                             {orderText || `Your order ${orderNumber || 'XCV1234567890'} is in status: Proccessing`}
                         </span>
-                        <span className="py-2">
-                            {yourItems || 'Your items:'}
-                        </span>
-                        <div className="flex flex-col">
-                            {orderItems}
-                        </div>
+                        {refundReason && <span className="py-2">
+                            {refundReason}
+                        </span>}
+                        {orderItems && <>
+                            <span className="py-2">
+                                {yourItems || 'Your items:'}
+                            </span>
+                            <div className="flex flex-col">
+                                {orderItems}
+                            </div>
+                        </>}
                     </div>
                 </Body>
             </Html>

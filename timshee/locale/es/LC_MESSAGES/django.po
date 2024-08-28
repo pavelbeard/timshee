@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-26 01:31+0300\n"
+"POT-Creation-Date: 2024-08-28 17:58+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: cart/models.py:31
+#: cart/models.py:43
 msgid "Cart"
 msgstr "Carrito"
 
-#: cart/models.py:32
+#: cart/models.py:44
 msgid "Carts"
 msgstr "Carritos"
 
@@ -117,11 +117,11 @@ msgstr "Pedidos"
 
 #: order/models.py:187
 msgid "Order Item"
-msgstr "Pedir artículo"
+msgstr "Artículo del pedido"
 
 #: order/models.py:188
 msgid "Order Items"
-msgstr "Pedir artículos"
+msgstr "Artículos de los pedidos"
 
 #: order/models.py:202
 msgid "Returned Item"
@@ -138,6 +138,51 @@ msgstr "Método de envío"
 #: order/models.py:216
 msgid "Shipping methods"
 msgstr "Métodos de envío"
+
+#: order/order_logic.py:26 order/signals.py:60
+msgid "Your payment status is: "
+msgstr "Su estado de pago es:"
+
+#: order/order_logic.py:29
+msgid "The money will be transferred to your bank account during three days."
+msgstr "El dinero se transferirá a tu cuenta bancaria en un plazo de tres días."
+
+#: order/order_logic.py:30 order/signals.py:68
+msgid "Go to order"
+msgstr "Ir al pedido"
+
+#: order/order_logic.py:47
+#, python-brace-format
+msgid "Order {order.order_number} status is: {order_status}."
+msgstr "El estado del pedido {order.order_number} es: {order_status}."
+
+#: order/signals.py:54
+#, python-brace-format
+msgid "Go to {name} page"
+msgstr "Ir a la página {name}"
+
+#: order/signals.py:63
+#, fuzzy
+#| msgid "Your items"
+msgid "Your items:"
+msgstr "Tus articulos"
+
+#: order/signals.py:74
+msgid "Order {instance.order_number} status is: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+msgstr "El estado del pedido {instance.order_number} es: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+
+#: order/signals.py:82
+msgid "Your order has been delivered"
+msgstr "Su pedido ha sido entregado"
+
+#: order/signals.py:83
+msgid "See you until next purchases!"
+msgstr "¡Hasta la próxima compra!"
+
+#: order/signals.py:89
+#, python-brace-format
+msgid "Order status is: {instance.status}"
+msgstr "El estado del pedido es: {instance.status}"
 
 #: payment/models.py:17
 msgid "PENDING"
@@ -294,28 +339,68 @@ msgstr "Configuraciones dinámicas"
 msgid "Owner Data"
 msgstr "Datos del propietario"
 
-#: stuff/models.py:86
+#: stuff/models.py:82
 #, fuzzy, python-brace-format
 #| msgid "Email verification token for"
 msgid "Email verification token for {self.user}"
 msgstr "Token de verificación de correo electrónico para"
 
-#: stuff/tests.py:86 stuff/tests.py:128
+#: stuff/stuff_logic.py:45
+msgid "Email confirmation."
+msgstr "Confirmación de correo electrónico."
+
+#: stuff/stuff_logic.py:49
+msgid "Confirm your email by the link below 👇"
+msgstr "Confirma tu email mediante el siguiente enlace 👇"
+
+#: stuff/stuff_logic.py:50
+msgid "Go to the email confirmation"
+msgstr "Ir al correo electrónico de confirmación"
+
+#: stuff/stuff_logic.py:86
+msgid "Follow the link below to set a new password 👇"
+msgstr "Siga el enlace a continuación para establecer una nueva contraseña 👇"
+
+#: stuff/stuff_logic.py:87
+msgid "The link is valid for 1 hour!"
+msgstr "¡El enlace es válido por 1 hora!"
+
+#: stuff/stuff_logic.py:90
+msgid "Go to set a new password!"
+msgstr "¡Vaya a establecer una nueva contraseña!"
+
+#: stuff/stuff_logic.py:95
+msgid "Change password."
+msgstr "Cambiar la contraseña."
+
+#: stuff/stuff_logic.py:151
+msgid "Password has been changed successfully!"
+msgstr "¡La contraseña ha sido cambiada exitosamente!"
+
+#: stuff/stuff_logic.py:152
+msgid "If it wasn't you, please, write us to support"
+msgstr "Si no fuiste tú, por favor escríbenos para apoyarte."
+
+#: stuff/stuff_logic.py:158
+msgid "Reset password."
+msgstr "Restablecer contraseña."
+
+#: stuff/tests.py:135 stuff/tests.py:214
 msgid "Your order is in processing. Thank you for purchasing!"
 msgstr "Su pedido está en proceso. ¡Gracias por comprar!"
 
-#: stuff/tests.py:100
+#: stuff/tests.py:149
 msgid "Your items"
 msgstr "Tus articulos"
 
-#: timshee/settings.py:164
+#: timshee/settings.py:161
 msgid "English"
 msgstr "Inglés"
 
-#: timshee/settings.py:165
+#: timshee/settings.py:162
 msgid "Spanish"
 msgstr "Español"
 
-#: timshee/settings.py:166
+#: timshee/settings.py:163
 msgid "Russian"
 msgstr "Ruso"

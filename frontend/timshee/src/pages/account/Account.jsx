@@ -13,11 +13,14 @@ import PrimaryAddressSkeleton from "../../components/skeletons/account/PrimaryAd
 import LastOrderSkeleton from "../../components/skeletons/account/LastOrderSkeleton";
 import {selectCurrentUser} from "../../redux/features/store/authSlice";
 import Container from "../../components/ui/Container";
+import {useGetEmailConfirmationStatusQuery} from "../../redux/features/api/stuffApiSlice";
+import {useTranslation} from "react-i18next";
 
 
 const AccountDetails = () => {
     window.document.title = 'Account | Timshee store'
     const user = useSelector(selectCurrentUser);
+    const { t } = useTranslation();
     const { currentData: addresses,  isLoading: isAddressesLoading} = useGetAddressesByUserQuery();
     const { currentData: orders,  isLoading: isOrdersLoading} = useGetOrdersByUserQuery();
 

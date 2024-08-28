@@ -1,20 +1,18 @@
 import logging
 import sys
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.models import Session
 from django.db.models import Sum, Q
-from django.forms import model_to_dict
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from . import models, serializers, write_serializers, query_serializers, filters
+from . import models, serializers, write_serializers, filters
 
 User = get_user_model()
 
@@ -110,39 +108,34 @@ class StockImageViewSet(viewsets.ModelViewSet):
 class TypeViewSet(viewsets.ModelViewSet):
     queryset = models.Type.objects.all()
     serializer_class = serializers.TypeSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = models.Collection.objects.all().order_by('-id')
     serializer_class = serializers.CollectionSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class SizeViewSet(viewsets.ModelViewSet):
     queryset = models.Size.objects.all()
     serializer_class = serializers.SizeSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class ColorViewSet(viewsets.ModelViewSet):
     queryset = models.Color.objects.all()
     serializer_class = serializers.ColorSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class WishlistViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.WishlistItemFilter
     queryset = models.Wishlist.objects.all()
-    authentication_classes = []
-    permission_classes = []
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
         if self.action in ['list', 'get_wishlist_by_user', 'create', 'add_item']:
@@ -150,7 +143,7 @@ class WishlistViewSet(viewsets.ModelViewSet):
         elif self.action in ["retrieve", "update", "partial_update", "destroy"]:
             return write_serializers.WishlistSerializer
 
-    @action(detail=False, methods=['POST'], authentication_classes=[JWTAuthentication])
+    @action(detail=False, methods=['POST'])
     def add_item(self, request):
         try:
             session = Session.objects.filter(session_key=request.COOKIES.get('sessionid'))
@@ -200,10 +193,11 @@ class WishlistViewSet(viewsets.ModelViewSet):
             logger.error(msg=f"{e.args}", exc_info=e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['GET'], authentication_classes=[JWTAuthentication])
+    @action(detail=False, methods=['GET'])
     def get_wishlist_by_user(self, request, *args, **kwargs):
         user = None
         session_key = None
+        print(self.get_wishlist_by_user.__name__, request.user)
         if request.user.is_authenticated:
             user = request.user
         else:

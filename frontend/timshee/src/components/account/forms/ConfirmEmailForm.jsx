@@ -5,13 +5,13 @@ import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useSearchParameters} from "../../../lib/hooks";
 import {useChangeEmailMutation} from "../../../redux/features/api/stuffApiSlice";
-import {useDispatch} from "react-redux";
 
 export default function ConfirmEmailForm() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { get } = useSearchParameters();
-    const [changeEmailMut, { isError, error }] = useChangeEmailMutation();
+    const [changeEmailMut] = useChangeEmailMutation();
+    const [error, setError] = useState(null);
     const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
 
     useEffect(() => {
@@ -24,7 +24,11 @@ export default function ConfirmEmailForm() {
         e.preventDefault();
         changeEmailMut({ token: get('token') }).unwrap()
             .then(() => setIsEmailConfirmed(true))
-            .catch(err => null);
+            .catch(err => {
+                if (err?.status === 400) {
+                    setError(t('errors:400changeEmail'))
+                }
+            });
     }
 
     return(
@@ -34,7 +38,7 @@ export default function ConfirmEmailForm() {
                 <Button type="submit">{t('account.forms:submit')}</Button>
                 {isEmailConfirmed ?
                     (<div className="text-green-500">{t('account.forms:emailConfirmed')}</div>) :
-                    isError && (<div className="text-red-500">{error?.message}</div>)}
+                    error && (<div className="text-red-500">{error}</div>)}
             </form>
         </div>
     )

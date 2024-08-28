@@ -1,11 +1,10 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User, AbstractUser, Group, Permission
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shortuuid.django_fields import ShortUUIDField
+
+from auxiliaries.auxiliaries_methods import get_until_time
 
 
 class Singleton(models.Model):
@@ -27,6 +26,7 @@ class Singleton(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    email_confirmed = models.BooleanField(default=False)
     preferred_language = models.CharField(
         max_length=10,
         choices=settings.LANGUAGES,
@@ -55,10 +55,6 @@ class OwnerData(Singleton):
         verbose_name_plural = _('Owner Data')
 
 
-def get_until_time(hours=3):
-    return timezone.now() + timedelta(hours=hours)
-
-
 class ResetPasswordCase(models.Model):
     uuid = ShortUUIDField(primary_key=True, length=16, max_length=32, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -76,7 +72,7 @@ class EmailToken(models.Model):
     uuid = ShortUUIDField(length=16, max_length=128, editable=False)
     for_email = models.EmailField(unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    until = models.DateTimeField(default=get_until_time(hours=1))
+    until = models.DateTimeField(default=get_until_time(hours=3))
     is_active = models.BooleanField(default=True)
 
     def get_total_seconds(self):

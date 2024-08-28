@@ -251,7 +251,7 @@ class Item(models.Model):
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
-    stock = models.ForeignKey("Stock", on_delete=models.CASCADE)
+    stock = models.ForeignKey("Stock", on_delete=models.CASCADE, related_name="stock_set")
     stock_link = models.CharField(max_length=250, blank=False, null=False)
 
     def __str__(self):

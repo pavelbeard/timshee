@@ -14,6 +14,8 @@ import {selectCurrentToken, selectCurrentUser} from "../redux/features/store/aut
 import Loading from "../pages/Loading";
 import {useInput} from "../lib/hooks";
 import {useCreatePaymentMutation} from "../redux/features/api/paymentApiSlice";
+import {useRefreshQuery} from "../redux/features/api/authApiSlice";
+import {selectCurrentAddresses} from "../redux/features/store/accountSlice";
 
 export const CheckoutFormContext = createContext(null);
 
@@ -21,16 +23,18 @@ export const CheckoutFormProvider = ({ children }) => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const { orderId, step } = useParams();
+
     const user = useSelector(selectCurrentUser);
     const token = useSelector(selectCurrentToken);
     const { data: order } = useGetOrderQuery(orderId);
     const [updateOrder] = useUpdateOrderMutation();
     const [paymentMut] = useCreatePaymentMutation();
-    const { currentData: addressesByUser } = useGetAddressesByUserQuery();
     const { currentData: countries } = useGetCountriesQuery();
     const { currentData: provinces } = useGetProvincesQuery();
     const { currentData: phoneCodes}  = useGetPhoneCodesQuery();
     const { currentData: shippingMethods}  = useGetShippingMethodsQuery();
+    const { currentData: addressesByUser}  = useGetAddressesByUserQuery();
+    // const addressesByUser = useSelector(selectCurrentAddresses);
 
     const isDone = [
         countries,

@@ -1,22 +1,24 @@
 import re
 import string
 import uuid
+from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Q
-from django.utils import timezone
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.sites.shortcuts import get_current_site
 from django.db import Error
-from requests import session
-from rest_framework import status
-from rest_framework.response import Response
+from django.db.models import Q, QuerySet
+from django.templatetags.static import static
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from yookassa import Payment, Configuration, Refund
 
-from . import models
-from auxiliaries.auxiliaries_methods import get_logger
-from stuff import models as stuff_models
+from auxiliaries.auxiliaries_methods import get_logger, send_email
+from cart import models as cart_models
 from order import models as order_models
 from order import serializers as order_serializers
-from cart import models as cart_models
+from order.models import OrderItem
+from . import models
 
 Configuration.configure(settings.ACCOUNT_ID, settings.API_KEY)
 
@@ -139,13 +141,16 @@ def update_payment(rq, serializer_data, **kwargs):
         payment.status = serializer_data['payment_status']
         payment.save()
 
-        order = order_models.Order.objects.filter(second_id=store_order_id).first()
+        user_q = None if isinstance(rq.user, AnonymousUser) else rq.user
+
+        order: order_models.Order = order_models.Order.objects.filter(second_id=store_order_id).first()
         cart = cart_models.Cart.objects.filter(
-            Q(user=rq.user.id) | Q(session__session_key=rq.COOKIES.get('sessionid'))
+            Q(user=user_q) | Q(session__session_key=rq.COOKIES.get('sessionid'))
         ).first()
         if payment.status == models.SUCCEEDED:
             _update_order_status(order, 'processing')
             _update_cart_status(cart)
+
             return True, {'status': models.SUCCEEDED}
 
         return True, {'status': models.PENDING}
@@ -184,7 +189,7 @@ def get_only_succeeded_orders(qs, serializer):
         logger.error(msg=f"{e.args}", exc_info=e)
         return False
 
-def refund_whole_order(data, serializer, **kwargs):
+def refund_whole_order(rq, data, serializer, **kwargs):
     try:
         serializer = serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -192,7 +197,7 @@ def refund_whole_order(data, serializer, **kwargs):
         reason = data.get('reason', None)
         order_id = kwargs.get('store_order_id', None)
         if order_id:
-            order = order_models.Order.objects.filter(second_id=order_id).first()
+            order: order_models.Order = order_models.Order.objects.filter(second_id=order_id).first()
 
             if order and order.status == 'processing' or 'completed':
                 payment_data_from_backend = models.Payment.objects.filter(store_order_id=order_id).first()
@@ -200,7 +205,7 @@ def refund_whole_order(data, serializer, **kwargs):
 
                 refund = Refund.create({
                     "amount": {
-                        "value": order.total_price(),
+                        "value": Decimal(order.items_total_price()),
                         "currency": "RUB",
                     },
                     "payment_id": payment_id,
@@ -230,6 +235,7 @@ def refund_whole_order(data, serializer, **kwargs):
                     payment_data_from_backend.save()
 
                     data = order_serializers.OrderSerializer(order).data
+
                     return 0, data
                 else:
                     return 1, {"detail": "order didn't refund"}
@@ -239,7 +245,7 @@ def refund_whole_order(data, serializer, **kwargs):
         logger.error(msg=f"{e.args}", exc_info=e)
         return 4, None
 
-def refund_partial(data, serializer, **kwargs):
+def refund_partial(rq, data, serializer, **kwargs):
     try:
         serializer = serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -268,11 +274,12 @@ def refund_partial(data, serializer, **kwargs):
 
                 partial_refund = Refund.create({
                     "amount": {
-                        "value": stock_item_price * quantity,
+                        "value": Decimal(stock_item_price * quantity),
                         "currency": "RUB",
                     },
                     "payment_id": payment_id,
                 })
+
 
                 if partial_refund.status == 'succeeded':
                     order.refund_reason = reason
@@ -283,10 +290,14 @@ def refund_partial(data, serializer, **kwargs):
                     returned_item.save()
                     payment_data_from_backend.save()
                     order_item.save()
+
+
                     if order.order_item.count() == 0:
+                        payment_data_from_backend.status = 'refunded'
                         order.refund_reason = 'refunded'
                         order.status = 'refunded'
                         order.non_refundable = True
+
                     order.save()
                     data = order_serializers.OrderSerializer(order).data
                     return 0, data

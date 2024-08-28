@@ -3,22 +3,19 @@ import React, {useState} from "react";
 import {clsx} from "clsx";
 import CustomInput from "../../ui/forms/CustomInput";
 import Button from "../../ui/Button";
-import ConfirmEmail from "../../../emails/confirm-email";
 import CustomTitle from "../../ui/forms/CustomTitle";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {useTranslation} from "react-i18next";
-import {useSendEmail} from "../../../lib/hooks";
 import {useSelector} from "react-redux";
 import {selectCurrentUser} from "../../../redux/features/store/authSlice";
 import {useGenerateTokenMutation} from "../../../redux/features/api/stuffApiSlice";
-import ReactDOMServer from "react-dom/server";
 
 const ChangeEmailForm = ({ onClose }) => {
     const { t } = useTranslation();
     const [email, setEmail] = useState(useSelector(selectCurrentUser));
-    const [sendEmail, error] = useSendEmail();
     const [generateTokenMut, { error: genTokenErr, isError }] = useGenerateTokenMutation();
     const [msg, setMsg] = useState(null);
+    const [error, setError] = useState(null);
 
     const formContainer = clsx(
         'w-10/12',
@@ -28,19 +25,13 @@ const ChangeEmailForm = ({ onClose }) => {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        // const template = ReactDOMServer.renderToString()
         generateTokenMut({ email }).unwrap()
-            .then(res => sendEmail(
-                email,
-                `Timshee | ${t('account.forms:changeEmail')}:`,
-                <ConfirmEmail
-                    token={res.token}
-                    text={t('account.forms:linkEmailConfirmation')}
-                    text2={t('account.forms:linkEmailConfirmText2')}
-                />,
-                () => setMsg(t('account.forms:confirmationMail'))
-            ))
-            .catch(err => console.error(err));
+            .then(() => setMsg(t('account.forms:confirmationMail')))
+            .catch(err => {
+                if (err?.status === 400) {
+                    setError(400)
+                }
+            });
     };
 
     const btn = <XMarkIcon
@@ -66,7 +57,7 @@ const ChangeEmailForm = ({ onClose }) => {
                 className="flex bg-white w-10/12 lg:w-1/2 h-7/12 lg:h-3/4 flex-col items-center justify-center p-6"
                 onClick={e => e.stopPropagation()}
             >
-                <CustomTitle title={'Сменить email'}/>
+                <CustomTitle title={t('account.forms:changeOrConfirmEmail')}/>
                 <form onSubmit={handleSubmit} className={clsx('flex flex-col', formContainer)}>
                     <CustomInput
                         htmlFor="email"
@@ -82,8 +73,8 @@ const ChangeEmailForm = ({ onClose }) => {
                         </div>
                         {btn}
                     </div>
-                    {error?.status || isError && <div className="text-red-500">
-                        {t(`errors:${error?.status || genTokenErr?.status}changeEmail`)}
+                    {error || isError && <div className="text-red-500">
+                        {t(`errors:${error|| genTokenErr?.status}`)}
                     </div>}
                 </form>
             </div>

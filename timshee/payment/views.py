@@ -1,6 +1,8 @@
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from . import serializers, models, payment_logic
 
@@ -81,8 +83,8 @@ from . import serializers, models, payment_logic
 # Create your views here.
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = models.Payment.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = []
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
     lookup_field = 'store_order_id'
 
     def get_serializer_class(self):
@@ -157,7 +159,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def refund_whole_order(self, request, *args, **kwargs):
-        result, data = payment_logic.refund_whole_order(request.data, serializer=self.get_serializer, **kwargs)
+        result, data = payment_logic.refund_whole_order(
+            rq=request,
+            data=request.data,
+            serializer=self.get_serializer,
+            **kwargs
+        )
 
         # order didn't refund
         if result == 1:
@@ -176,7 +183,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def refund_partial(self, request, *args, **kwargs):
-        result, data = payment_logic.refund_partial(request.data, serializer=self.get_serializer, **kwargs)
+        result, data = payment_logic.refund_partial(
+            rq=request,
+            data=request.data,
+            serializer=self.get_serializer,
+            **kwargs
+        )
 
         # order not found
         if result == 1:

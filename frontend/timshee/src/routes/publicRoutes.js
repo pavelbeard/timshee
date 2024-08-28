@@ -1,6 +1,5 @@
 import About from "../pages/About";
 import House from "../pages/House";
-import CartModal from "../pages/cart/CartModal";
 import Wishlist from "../pages/Wishlist";
 import PrivacyInfo from "../pages/PrivacyInfo";
 import Offer from "../pages/Offer";
@@ -18,10 +17,11 @@ import OrderPaid from "../pages/orders/status/OrderPaid";
 import OrderIsNotPaid from "../pages/orders/status/OrderIsNotPaid";
 import WelcomePage from "../pages/WelcomePage";
 import Cart from "../pages/cart/Cart";
-import Checkout from "../pages/orders/checkout/Checkout";
+// import TestComponent from "../TestComponent";
 
 const publicRoutes = [
     { path: '', element: <WelcomePage /> },
+    // { path: 'test/:testId', element: <TestComponent /> },
     { path: 'about', element: <About /> },
     { path: 'house', element: <House /> },
     { path: 'cart', element: <Cart /> },
@@ -33,7 +33,7 @@ const publicRoutes = [
     { path: 'account/signin', element: <SignIn /> },
     { path: 'account/signup', element: <SignUp /> },
     { path: 'account/password/reset/request', element: <Request /> },
-    { path: 'account/password/reset/:token', element: <Reset /> },
+    { path: 'account/password/reset', element: <Reset /> },
     { path: 'orders/:orderId/detail', element: <OrderDetail /> },
     { path: 'orders/:orderId/refund', element: <OrderRefund /> },
     { path: 'orders/:orderId/status/check', element: <OrderCheckPayment /> },

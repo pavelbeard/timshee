@@ -2,9 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 
 import {useTranslation} from "react-i18next";
-import {useMutation, useQuery} from "react-query";
 import BackButton from "../../../ui/BackButton";
-import {privateApi} from "../../../../lib/api";
 import CustomTitle from "../../../ui/forms/CustomTitle";
 import CustomInput from "../../../ui/forms/CustomInput";
 import Button from "../../../ui/Button";
@@ -13,18 +11,23 @@ import RefundFormSkeleton from "../../../skeletons/orders/forms/RefundFormSkelet
 import {useRefundPartialMutation, useRefundWholeMutation} from "../../../../redux/features/api/paymentApiSlice";
 import {useGetOrderQuery} from "../../../../redux/features/api/orderApiSlice";
 import Radio from "../../../ui/Radio";
-import {useSearchParameters} from "../../../../lib/hooks";
+import {useSearchParameters, useSendEmail} from "../../../../lib/hooks";
 import Container from "../../../ui/Container";
+import {useSelector} from "react-redux";
+import {selectCurrentUser} from "../../../../redux/features/store/authSlice";
+import OrderStatus from "../../../../emails/OrderStatus";
+import Range from "../../../ui/Range";
 
 const RefundForm = ({stockId=0, stockQuantity=0}) => {
     const { t } = useTranslation();
-    const { replace } = useSearchParameters();
+    const { replace, get } = useSearchParameters();
     const { orderId } = useParams();
+    const userFromState = useSelector(selectCurrentUser);
+    const [sendEmail] = useSendEmail();
     const [reason, setReason] = useState({id: 0, reason: "It didn't like"});
     const [quantity, setQuantity] = useState(1);
     const [checkedPartial, setCheckedPartial] = useState(false);
     const [checked, setChecked] = useState(false);
-
     const [refundWhole, { error: refundWholeErr, isError: isRefundWholeErr, isSuccess: hasRefundedWhole }] = useRefundWholeMutation();
     const [refundPartial, { error: refundPartialErr, isError: isRefundPartialErr,  isSuccess: hasRefundedPartial }] = useRefundPartialMutation();
     const { isLoading, data: order, error } = useGetOrderQuery(orderId);
@@ -33,26 +36,44 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
         if (order) {
             // CHECKING ORDER FOR EXISTING ITEMS IN HIM
             // IF NOT THEN WHOLE ORDER WILL BE RETURNED
-            const checkOrderNumber = order.second_id === orderId;
+            console.log('LOG')
+            const checkOrderNumber = order?.second_id === orderId;
             const checkQuantity = order?.order_item?.find(o =>
                 o.quantity === parseInt(stockQuantity) && o.item.id === parseInt(stockId)
             );
             const checkPartial = checkOrderNumber && checkQuantity;
 
-            if (checkPartial) {
-                setCheckedPartial(checkPartial)
+            if (checkPartial !== undefined && checkPartial !== null) {
+                setCheckedPartial(true)
             } else {
-                setChecked(checkOrderNumber)
+                setChecked(true)
             }
         }
     }, [order]);
 
     useEffect(() => {
         replace('reason', reason.id)
-    }, [reason])
+    }, [reason]);
+
+    const refundEmail = (refundReason) => {
+        const user = userFromState || order?.shipping_address?.email;
+        sendEmail(
+            user,
+            `Timshee store | Order ${order?.order_number}`,
+            <OrderStatus
+                orderText={t('account.refundForm:orderReturnedStatus', { orderNumber: order?.order_number})}
+                refundReason={t('account.refundForm:reason') + ' ' + refundReason}
+            />,
+            null
+        );
+    };
 
     const handleSubmit = e => {
         e.preventDefault();
+        const refundReason = e.currentTarget
+            ?.querySelector('[aria-checked="true"]')
+            ?.querySelector('label.ml-2')
+            ?.innerHTML;
 
         let data;
         if (checkedPartial) {
@@ -63,14 +84,18 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                 "reason": reason.reason,
             };
 
-            refundPartial({ orderId, data });
+            refundPartial({ orderId, data }).unwrap()
+                .then(() => refundEmail(refundReason))
+                .catch(err => null);
         } else if (checked) {
             data = {
                 "quantity": parseInt(stockQuantity),
                 "reason": reason.reason,
             };
 
-            refundWhole({ orderId, data });
+            refundWhole({ orderId, data }).unwrap()
+                .then(() => refundEmail(refundReason))
+                .catch(err => null);
         }
     };
 
@@ -162,7 +187,7 @@ const RefundForm = ({stockId=0, stockQuantity=0}) => {
                                     <span>{t('account.refundForm:max')} {stockQuantity}</span>
                                     <span>{t('account.refundForm:current')} {quantity}</span>
                                 </div>
-                                <CustomInput
+                                <Range
                                     htmlFor="wrong-quantity-counter"
                                     type="range"
                                     value={quantity}

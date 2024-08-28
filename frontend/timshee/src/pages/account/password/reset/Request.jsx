@@ -3,14 +3,11 @@ import {useTranslation} from "react-i18next";
 import CustomInput from "../../../../components/ui/forms/CustomInput";
 import Button from "../../../../components/ui/Button";
 import {clsx} from "clsx";
-import ToChangePassword from "../../../../emails/to-change-password";
-import {useSendEmail} from "../../../../lib/hooks";
 import Container from "../../../../components/ui/Container";
 import {useLazyCheckEmailQuery} from "../../../../redux/features/api/stuffApiSlice";
 
 const Request = () => {
     const { t } = useTranslation();
-    const [sendEmail] = useSendEmail();
     const [checkEmail] = useLazyCheckEmailQuery();
     const [email, setEmail] = useState('');
     const [success, setSuccess] = useState(false);
@@ -21,20 +18,12 @@ const Request = () => {
         e.preventDefault();
 
         checkEmail({ email }).unwrap()
-            .then(res => sendEmail(
-                email,
-                `Timshee | ${t('stuff.forms:recoverAccessEmail')}`,
-                <ToChangePassword
-                    link={`-SITE_URL-account/password/reset/${res.token}`}
-                    h2={t('stuff.forms:recoverAccessChangePassEmail')}
-                    text={{p1: t('stuff.forms:recoverAccessTextEmail'), p2: t('stuff.forms:recoverAccessAttentionEmail')}}
-                    linkLabel={t('stuff.forms:recoverAccessLinkLabelEmail')}
-                />,
-                () => {
+            .then(res => {
+                if (res?.status === 200)
                     setIsButtonActive(false);
                     setSuccess(true);
                 }
-            ))
+            )
             .catch(() => setErrorMessage(t(`stuff.forms:recoverAccessEmailNotExists`)));
     };
 

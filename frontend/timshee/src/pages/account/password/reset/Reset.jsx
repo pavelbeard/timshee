@@ -10,15 +10,16 @@ import {
     useCheckResetPasswordRequestQuery
 } from "../../../../redux/features/api/stuffApiSlice";
 import Container from "../../../../components/ui/Container";
+import {useSearchParameters} from "../../../../lib/hooks";
 
 const Reset = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const { token } = useParams();
+    const { get } = useSearchParameters();
     const [password1, setPassword1] = React.useState('');
     const [password2, setPassword2] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState(null);
-    const { isSuccess, isError} = useCheckResetPasswordRequestQuery({ uuid: token });
+    const { isSuccess, isError} = useCheckResetPasswordRequestQuery({ token: get('token') });
     const [changePassword, { isSuccess: isChangePasswordSuccess }] = useChangePasswordMutation();
     const [isButtonActive, setIsButtonActive] = React.useState(true);
 
@@ -28,7 +29,7 @@ const Reset = () => {
         const data = {
             password1: password1,
             password2: password2,
-            uuid: token,
+            token: get('token'),
         };
 
         if (password1 === password2) {

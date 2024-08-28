@@ -5,12 +5,14 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {toggleChangeEmail} from "../../redux/features/store/uiControlsSlice";
 import {useDispatch} from "react-redux";
+import {useGetEmailConfirmationStatusQuery} from "../../redux/features/api/stuffApiSlice";
 
 export default function EmailBlock({ user, userError}) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";
+    const { data: confirmationStatus } = useGetEmailConfirmationStatusQuery();
     const { signout } = useSignOut();
     const { t } = useTranslation();
     const [logoutError, setLogoutError] = useState(null);
@@ -32,18 +34,27 @@ export default function EmailBlock({ user, userError}) {
                     className="tracking-widest flex items-center justify-start max-sm:justify-center w-16 h-8 text-center max-sm:mr-0 mr-2">
                     {t('account:account')}
                 </span>
-                <span className={clsx(
-                        'tracking-widest',
-                        'flex items-center justify-center w-48 h-8 text-center border-black border-[1px] cursor-pointer',
-                        'hover:bg-black hover:text-white'
-                    )} onClick={() => dispatch(toggleChangeEmail())}
+                <button className={clsx(
+                    'tracking-widest',
+                    'flex items-center justify-center w-48 h-8 text-center border-black border-[1px]',
+                    'hover:bg-black hover:text-white'
+                )} onClick={() => dispatch(toggleChangeEmail())}
                 >
                     {user}
-                </span>
+                </button>
+                <button className={clsx(
+                    confirmationStatus ? 'text-green-500 pointer-events-none' : 'text-red-500',
+                    'flex items-center justify-center ml-2',
+                    'hover:opacity-75'
+                )} onClick={() => dispatch(toggleChangeEmail())}>
+                {confirmationStatus
+                    ? t('account:emailConfirmedTrue')
+                    : t('account:emailConfirmedFalse')}
+                </button>
                 <button
                     className="underlined-button-set tracking-widest flex items-center justify-end max-sm:justify-center w-28 h-8 text-center ml-2 max-sm:ml-0"
                     onClick={signOut}>
-                {t('account:logout')}
+                    {t('account:logout')}
                 </button>
             </section>
         </div>

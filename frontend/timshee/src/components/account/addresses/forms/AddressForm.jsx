@@ -153,7 +153,7 @@ const AddressForm = ({ onClose }) => {
                             value={address?.province?.country?.id || 0}
                             onChange={changeCountry}
                         >
-                            {Array.isArray(countries) && countries.map((item, index) => (
+                            {countries?.map((item, index) => (
                                 <option key={index + 1} value={item?.id}>{item.name}</option>
                             )).concat([
                                 (<option key={0} value={0}>------</option>)
@@ -174,7 +174,7 @@ const AddressForm = ({ onClose }) => {
                             required={true}
                             value={address?.province?.id || 0}
                             onChange={e => dispatch(
-                                setAddress({...address, province: provinces.find(p => p.id === parseInt(e.target.value))})
+                                setAddress({...address, province: provinces?.find(p => p.id === parseInt(e.target.value))})
                             )}
                         >
                             {[...tmpProvinces.filter(

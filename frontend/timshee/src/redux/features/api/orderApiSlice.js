@@ -1,7 +1,7 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
-import {orderTags} from "./tags";
+import {accountTags, orderTags} from "./tags";
 
-const tags = orderTags;
+const tags = { ...orderTags, ...accountTags };
 
 const _apiSliceWithTags = apiSlice.enhanceEndpoints({
     addTagTypes: [
@@ -16,7 +16,9 @@ export const orderApiSlice = _apiSliceWithTags.injectEndpoints({
                 url: `/order/orders/${orderId}/`,
                 method: 'GET',
             }),
-            providesTags: [tags.UPDATE_ORDER, tags.GET_ORDER]
+            providesTags: [tags.UPDATE_ORDER, tags.GET_ORDER],
+            // providesTags: (result, error, arg) => [{ type: 'ORDER', id: arg.orderId }],
+            invalidatesTags: [tags.EXP_ADDRESSES_BY_USER]
         }),
         updateOrder: builder.mutation({
             query: (args) => {
@@ -28,6 +30,7 @@ export const orderApiSlice = _apiSliceWithTags.injectEndpoints({
                 }
             },
             invalidatesTags: [tags.UPDATE_ORDER]
+            // invalidatesTags: (result, error, arg, meta) => [{ type: 'ORDER', id: arg.orderId }]
         }),
     })
 });

@@ -1,11 +1,12 @@
+from auxiliaries import auxiliaries_methods
 from django.contrib.sessions.models import Session
 from django.db import IntegrityError, transaction
-from django.db.models import Q, Sum
+from django.db.models import Q
 from order import models as order_models
 from store import models as store_models
+
 from . import models
 
-from auxiliaries import auxiliaries_methods
 logger = auxiliaries_methods.get_logger(__name__)
 
 
@@ -63,10 +64,14 @@ class CartManager:
         # TO CREATE ORDER!
         # if isn't there an order - create it
         if not order and not has_ordered:
-            order = order_models.Order(
-                user=self.user,
-                session=self.session,
-            )
+            if self.request.user.is_authenticated:
+                order = order_models.Order(
+                    user=self.user,
+                )
+            else:
+                order = order_models.Order(
+                    session=self.session,
+                )
             order.save()
 
         return order
@@ -95,7 +100,7 @@ def add_to_cart(rq, serializer_data) -> bool:
         cart = models.Cart.objects.create(
             user=user,
             session=session,
-            total=0,
+            # total=0,
         )
 
     try:
@@ -114,7 +119,7 @@ def add_to_cart(rq, serializer_data) -> bool:
 
     # if we're having some order_item - add him to cart and decrease stock
     # and if cart total items <= 10
-    if cart.total_items <= 10:
+    if cart.get_total_items() <= 10:
         # if created one - add to cart
         if created:
             cart.cart_items.add(cart_item)
@@ -122,8 +127,8 @@ def add_to_cart(rq, serializer_data) -> bool:
         else:
             cart_item.quantity += quantity
         cart_item.stock_item.decrease_stock(quantity)
-        cart.total_items += quantity
-        cart.total += cart_item.stock_item.item.price * cart_item.quantity
+        # cart.total_items += quantity
+        # cart.total += cart_item.stock_item.item.price * cart_item.quantity
         cart_item.save()
         cart.save()
         return True
@@ -146,19 +151,19 @@ def change_quantity(rq, serializer_data) -> int:
     cart = cart_manager.get_cart()
     cart_item = cart.cart_items.filter(stock_item__id=stock_id).first()
 
-    if increase and cart.total_items + quantity <= 10:
+    if increase and cart.get_total_items() + quantity <= 10:
         cart_item.quantity += quantity
         cart_item.stock_item.decrease_stock(quantity)
-        cart.total_items += quantity
-        cart.total += cart_item.stock_item.item.price * quantity
-    elif not increase and cart.total_items - quantity >= 0:
+        # cart.total_items += quantity
+        # cart.total += cart_item.stock_item.item.price * quantity
+    elif not increase and cart.get_total_items() - quantity >= 0:
         cart_item.quantity -= quantity
         cart_item.stock_item.increase_stock(quantity)
-        cart.total_items -= quantity
-        cart.total -= cart_item.stock_item.item.price * quantity
-    elif increase and cart.total_items + quantity > 10:
+        # cart.total_items -= quantity
+        # cart.total -= cart_item.stock_item.item.price * quantity
+    elif increase and cart.get_total_items() + quantity > 10:
         return 1
-    elif not increase and cart.total_items - quantity < 0:
+    elif not increase and cart.get_total_items() - quantity < 0:
         return 2
 
     cart_item.save()
@@ -179,12 +184,12 @@ def remove_item(rq, serializer_data) -> bool:
     cart_item = cart.cart_items.filter(stock_item=serializer_data['stock_id']).first()
     quantity = cart_item.quantity
 
-    if cart.total_items - quantity >= 0:
+    if cart.get_total_items() - quantity >= 0:
         # deleting cart item
         cart.cart_items.remove(cart_item)
-        # decreasing total items in cart
-        cart.total_items -= quantity
-        cart.total -= cart_item.stock_item.item.price * quantity
+        ## decreasing total items in cart
+        # cart.total_items -= quantity
+        # cart.total -= cart_item.stock_item.item.price * quantity
         # decreasing order item quantity
         cart_item.quantity -= quantity
         cart_item.save()
@@ -209,8 +214,8 @@ def clear_cart(rq, has_ordered=False) -> int:
         cart = cart_manager.get_cart()
         order = cart_manager.get_or_create_order(has_ordered=has_ordered)
         cart_items = cart.cart_items.all()
-        cart.total_items = 0
-        cart.total = 0
+        # cart.total_items = 0
+        # cart.total = 0
 
         for cart_item in cart_items:
             if not has_ordered:

@@ -32,7 +32,8 @@ export default function CartItem({ cartItem }) {
         const stockId = e.currentTarget?.closest('[data-cart-item-id]')?.getAttribute('data-cart-item-id');
         removeFromCart({
             stock_id: stockId,
-        }).unwrap();
+        }).unwrap()
+            .catch(err => null);
     };
 
     const itemLink = (stock_item) =>

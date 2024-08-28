@@ -33,5 +33,7 @@
   "returnToOrders": "Вернуться в 'Заказы'",
   "quantity": "Количество:",
   "to": "Доставка в:",
-  "orderNumber": "Номер заказа:"
+  "orderNumber": "Номер заказа:",
+  "emailConfirmedFalse": "Email не подтвержден.",
+  "emailConfirmedTrue": "Email подтвержден."
 }

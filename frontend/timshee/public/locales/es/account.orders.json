@@ -37,5 +37,6 @@
   "show": "mostrar productos",
   "hide": "ocultar productos",
   "showReturnedItems": "mostrar artículos devueltos",
-  "hideReturnedItems": "ocultar artículos devueltos"
+  "hideReturnedItems": "ocultar artículos devueltos",
+  "selfShipping": "Recogida por sí mismo"
 }

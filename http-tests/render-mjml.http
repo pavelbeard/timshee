@@ -1,0 +1,8 @@
+### GET request to example server
+POST localhost:15500/v1/render
+Content-Type: text/html
+
+{
+    {"mjml":"<mjml>...</mjml>"}
+}
+###

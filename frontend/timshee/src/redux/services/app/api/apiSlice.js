@@ -1,20 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_URL, CSRF_TOKEN } from "../../../../config";
+import { API_URL } from "../../../../config";
 import { setToken, setUser, signOut } from "../../../features/store/authSlice";
 import { Mutex } from 'async-mutex';
 
 const mutex = new Mutex();
-
 const baseQuery = fetchBaseQuery({
     baseUrl: `${API_URL}/api`,
     credentials: 'include',
-    prepareHeaders: (headers, { getState }) => {
-        const token = getState().auth.token;
-        if (token) {
-            headers.set("Authorization", `Bearer ${token}`);
-        }
+    prepareHeaders: (headers) => {
         headers.set("Content-Type", "application/json");
-        headers.set("X-CSRFToken", CSRF_TOKEN);
         return headers;
     }
 });

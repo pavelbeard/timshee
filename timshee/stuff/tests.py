@@ -1,7 +1,9 @@
 import json
 
+from cart.models import Cart
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sessions.models import Session
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -9,11 +11,12 @@ from django.templatetags.static import static
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from order import models as order_models
+from order.models import Order, Address, Country, Province, CountryPhoneCode, ShippingMethod
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
+from store.models import Item, Stock, Size, Color, Type, Category, Collection, CarouselImage, Wishlist
 
 from . import models as stuff_models
 
@@ -30,13 +33,59 @@ current_site = CurrentSite()
 
 
 class EmailTest(TestCase):
-    databases = {"default"}
-    fixtures = ['db.sqlite.json']
-
     def setUp(self):
-        self.factory = RequestFactory()
-        self.users = User.objects.all()
-        self.orders = order_models.Order.objects.all()
+
+        new_collection = Collection.objects.create(name='TEST COLLECTION', collection_image='test.jpg',
+                                                   link='test-collection-2024-2025')
+        new_category = Category.objects.create(name='TEST CATEGORY', category_image='test.jpg', code='test-category')
+        new_size = Size.objects.create(value='40-50')
+        new_size2 = Size.objects.create(value='42-50')
+        new_color = Color.objects.create(name='TEST COLOR', hex='#FFFFFF')
+        new_color2 = Color.objects.create(name='TEST COLOR1', hex='#FFFF00')
+        new_type = Type.objects.create(name='TEST TYPE', code='test-type', category=new_category)
+        new_item = Item(
+            name='TEST ITEM',
+            description='TEST ITEM',
+            gender='M',
+            collection=new_collection,
+            type=new_type,
+            image='test_jpg',
+            price=999.99,
+        )
+        new_item.save()
+        self.new_stock = Stock.objects.create(item=new_item, size=new_size, color=new_color, in_stock=10)
+        self.new_stock2 = Stock.objects.create(item=new_item, size=new_size2, color=new_color2, in_stock=10)
+        new_item.sizes.set([new_size, new_size2])
+        new_item.colors.set([new_color, new_color2])
+        new_item.save()
+
+        new_carousel_images = CarouselImage.objects.create(image='test.jpg', item=new_item)
+        # new_item.carousel_images.set([new_carousel_images])
+        # new_item.save()
+
+        new_country = Country.objects.create(name='United States')
+        new_province = Province.objects.create(name='Washington DC', country=new_country)
+        new_phone_code = CountryPhoneCode.objects.create(phone_code="1", country=new_country)
+        self.new_shipping_method = ShippingMethod.objects.create(shipping_name='Shipping', price=15.00)
+        self.new_shipping_address = Address.objects.create(
+            first_name='John',
+            last_name='Doe',
+            address1='C/ Test, 1',
+            address2='2',
+            postal_code='12345',
+            as_primary=True,
+            province=new_province,
+            phone_code=new_phone_code,
+            email='test@test.com',
+
+        )
+        user = User(
+            username='testuser@testuser.com',
+            email='testuser@testuser.com',
+        )
+        user.set_password('Rt3$YiOO')
+        user.save()
+        self.user = user
 
     def check_fixtures_loaded(self):
         if not order_models.Address.objects.exists():
@@ -113,6 +162,43 @@ class EmailTest(TestCase):
         result = email.send()
 
         self.assertEqual(result, 1)
+
+    def test_transfer_data_from_anon_user(self):
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        new_cart = Cart.objects.create(session=session)
+        new_cart.cart_items.set([self.new_stock.id, self.new_shipping_method.id])
+
+        new_order = Order(
+            shipping_address=self.new_shipping_address,
+            shipping_method=self.new_shipping_method,
+            session=session,
+        )
+        new_order.save()
+        new_order.order_item.set([self.new_stock.id, self.new_stock2.id])
+        new_order.save()
+
+        new_wishlist1 = Wishlist(
+            stock=self.new_stock,
+            session=session
+        )
+        new_wishlist1.save()
+        new_wishlist2 = Wishlist(
+            stock=self.new_stock2,
+            session=session
+        )
+        new_wishlist2.save()
+
+        data = {
+            'username': self.user.username,
+            'password': 'Rt3$YiOO'
+        }
+        signin = reverse('auth-sign-in')
+        self.client.post(path=signin, data=data, format='json')
+
+        user_cart = Cart.objects.get(user=self.user)
+        user_wishlist = Wishlist.objects.filter(user=self.user)
+        orders = Order.objects.filter(user=self.user)
+        print(user_cart, orders, user_wishlist)
 
 
 class TemplateTestCase(TestCase):
@@ -416,7 +502,7 @@ class ChangePasswordTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_token(self):
-        url = reverse('signin')
+        url = reverse('auth-sign_in')
         data = {
             'username': 'testuser@testuser.com',
             'password': 'Rt3$YiOO'
@@ -440,3 +526,5 @@ class ChangePasswordTestCase(TestCase):
         headers = {'X-CSRFToken': csrftoken, 'Authorization': 'Bearer {0}'.format(authorization)}
         response = self.client.put(url, data=json.dumps(data), content_type='application/json', headers=headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+

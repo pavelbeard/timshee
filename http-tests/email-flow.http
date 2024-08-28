@@ -1,0 +1,37 @@
+### SIGNIN
+POST http://localhost:8113/api/stuff/auth/sign_in/
+Content-Type: application/json
+
+{
+  "username": "heavycream9090@icloud.com",
+  "password": "Rt3$YiOO"
+}
+
+### SEND CONFIRMATION EMAIL
+POST http://localhost:8113/api/stuff/profile/generate_verification_token/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NzU1ODQ3LCJpYXQiOjE3MjQ3NTQ5NDcsImp0aSI6IjY2ZjRiMWRjY2EyNDQyMTk5ZDk3OTliMGRmOGNkMWY0IiwidXNlcl9pZCI6MX0.gpqeMlDUL5tP63RiCZKImJIumlUtKGP653SrMRvpSwM
+Content-Type: application/json
+
+{
+  "email": "heavycream9090@icloud.com"
+}
+### CHECK EMAIL
+
+POST http://localhost:8113/api/stuff/profile/check_email/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NzYwNTg3LCJpYXQiOjE3MjQ3NTk2ODcsImp0aSI6ImVmY2EzZjgyMzYzNTQ3YzM4MmIwZTdmOTI3ZWVjOWQ4IiwidXNlcl9pZCI6MX0.SCeUKMZpOfgDFXpVVtdM8goz5YuqNAteccJySkoMHG0
+Content-Type: application/json
+
+{
+  "email": "heavycream9090@icloud.com"
+}
+
+### UPDATE PAYMENT
+PUT http://localhost:8113/api/payment/payment-manage/MYERT5G6761PI8SW/update_payment/
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0ODQ0OTI4LCJpYXQiOjE3MjQ4NDQwMjgsImp0aSI6ImJhZWYzMmFhMjRjZTRhYzA4YzViMzU5NDI1MjhlNGRhIiwidXNlcl9pZCI6MX0.NmtOx_0HZ11-NNGYAkAKgDc9lX9wLwDvv2H88VIwJhw
+Content-Type: application/json
+
+{
+  "payment_status": "succeeded"
+}
+
+###

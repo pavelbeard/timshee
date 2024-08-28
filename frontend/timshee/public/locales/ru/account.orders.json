@@ -37,5 +37,6 @@
   "show": "показать товары",
   "hide": "скрыть товары",
   "showReturnedItems": "показать возвращенные товары",
-  "hideReturnedItems": "скрыть возвращенные товары"
+  "hideReturnedItems": "скрыть возвращенные товары",
+  "selfShipping": "Самовывоз"
 }

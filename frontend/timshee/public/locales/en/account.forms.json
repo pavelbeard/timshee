@@ -13,6 +13,7 @@
   "submit": "Send",
   "newEmail": "New email:",
   "changeEmail": "Change email:",
+  "changeOrConfirmEmail": "Change or confirm your email",
   "email": "email:",
   "emailConfirmed": "Email confirmed!",
   "confirmationMail": "Wait for the confirmation link to your email, which should arrive there. Check your 'Spam' folder just in case.",

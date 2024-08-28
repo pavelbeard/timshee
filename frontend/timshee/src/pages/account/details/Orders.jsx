@@ -15,9 +15,8 @@ const Orders = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const ordersList = useSelector(selectCurrentOrders);
-    const { currentData } = useGetOrdersByUserQuery();
-    const orders = ordersList;
-    console.log(orders)
+    const { data: orders_ } = useGetOrdersByUserQuery();
+    const orders = ordersList || orders_;
     return(
         <Container data-orders-container="">
             <section className={clsx(

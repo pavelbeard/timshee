@@ -50,7 +50,7 @@ const OrderDetail = () => {
                         {order?.shipping_method?.price === 0
                             ? <>
                                 <span className="roboto-light">{t('account:to')}</span>
-                                <span className="roboto-light">Самовывоз</span>
+                                <span className="roboto-light">{t('acccount.orders:selfShipping')}</span>
                             </>
                             : <>
                                 <span className="roboto-light border-t-2 border-gray-300 my-3">{t('account:to')}</span>

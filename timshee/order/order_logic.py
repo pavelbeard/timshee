@@ -1,13 +1,54 @@
 import copy
 
-from django.contrib.sessions.models import Session
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q
 from django.utils import timezone
-from auxiliaries.auxiliaries_methods import get_logger
+from django.utils.translation import gettext_lazy as _
+from django.contrib.sessions.models import Session
+from auxiliaries.auxiliaries_methods import get_logger, send_email
 
 from . import models
 
 logger = get_logger(__name__)
+
+def _refund_context(
+        order,
+        payment_status,
+        order_status,
+        refunded_items=None,
+        refunded_price=None,
+        rq=None,
+        current_site=None,
+):
+    context = {
+        'text': {
+            'p1': _('Your payment status is: '),
+            'status': payment_status,
+        },
+        'refund_message': _('The money will be transferred to your bank account during three days.'),
+        'go_to_order': _('Go to order'),
+        'order_items:': refunded_items,
+        'refunded_price': refunded_price,
+        'order_link': f'{settings.CLIENT_REDIRECT}orders/{order.second_id}/detail',
+    }
+
+
+    if rq and rq.user.is_authenticated:
+        usrid = rq.user.email
+    elif not rq:
+        usrid = order.user.email
+    else:
+        usrid = order.shipping_address.email
+
+    send_email(
+        rq=rq,
+        current_site=current_site,
+        subject=_(f'Order {order.order_number} status is: {order_status}.'),
+        template='templates/order_mjml/templates/order_status.mjml',
+        to=usrid,
+        context=context,
+    )
 
 def update_shipping_info(rq, get_serializer, **kwargs):
     try:
@@ -26,16 +67,15 @@ def update_shipping_info(rq, get_serializer, **kwargs):
 
         if shipping_data := data.get('shipping_data', None):
             if shipping_data.get('first_name', None):
-                province = models.Province.objects.filter(
-                    id=shipping_data.pop('province')).first()
-                country_phone_code = models.CountryPhoneCode.objects.filter(
-                    country_id=shipping_data.pop('phone_code')).first()
+                province = models.Province.objects.filter(id=shipping_data.pop('province')).first()
+                country_phone_code = models.CountryPhoneCode.objects.filter(country_id=shipping_data.pop('phone_code')).first()
                 shipping_address_id = shipping_data.get('id')
                 address = models.Address.objects.filter(Q(id=shipping_address_id) | Q(session=session_obj) | Q(user=user))
                 if address.exists():
-                    shipping_data_session = shipping_data.pop('session')
+                    shipping_data_session = shipping_data.pop('session', None)
                     updated_address = address.first()
-                    updated_address.session = Session.objects.filter(session_key=shipping_data_session['session_key']).first()
+                    if not user:
+                        updated_address.session = Session.objects.filter(session_key=shipping_data_session['session_key']).first()
                     updated_address.province = province
                     updated_address.country_phone_code = country_phone_code
                     for k, v in shipping_data.items():

@@ -1,7 +1,12 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
-import {authTags, cartTags, storeTags} from "./tags";
+import {accountTags, authTags, cartTags, storeTags} from "./tags";
 
-const tags = { ...cartTags, ...storeTags, ...authTags };
+const tags = {
+    ...cartTags,
+    ...storeTags,
+    ...authTags,
+    ...accountTags,
+};
 
 const _apiSliceWithTags = apiSlice.enhanceEndpoints({
     addTagTypes: [
@@ -29,7 +34,7 @@ export const authApiSlice = _apiSliceWithTags.injectEndpoints({
         }),
         signIn: builder.mutation({
             query: (credentials) => ({
-                url: '/stuff/signin/',
+                url: '/stuff/auth/sign_in/',
                 method: 'POST',
                 body: {...credentials}
             }),
@@ -37,17 +42,21 @@ export const authApiSlice = _apiSliceWithTags.injectEndpoints({
         }),
         signUp: builder.mutation({
             query: (credentials) => ({
-                url: '/stuff/signup/',
+                url: '/stuff/auth/sign_up/',
                 method: 'POST',
                 body: {...credentials}
             }),
         }),
         signOut: builder.mutation({
             query: () => ({
-                url: '/stuff/signout/',
+                url: '/stuff/auth/sign_out/',
                 method: 'POST',
             }),
-            invalidatesTags: [tags.SIGN_OUT, tags.GET_CART_ITEMS, tags.GET_WISHLIST_BY_USER]
+            invalidatesTags: [
+                tags.SIGN_OUT,
+                tags.GET_CART_ITEMS,
+                tags.GET_WISHLIST_BY_USER
+            ]
         }),
         refresh: builder.query({
             query: () => ({
@@ -55,18 +64,21 @@ export const authApiSlice = _apiSliceWithTags.injectEndpoints({
                 method: 'POST',
             }),
             providesTags: [tags.CHANGE_EMAIL],
-            invalidatesTags: [tags.SIGN_IN, tags.SIGN_OUT, tags.GET_CART_ITEMS, tags.GET_WISHLIST_BY_USER]
+            invalidatesTags: [
+                tags.SIGN_IN,
+                tags.SIGN_OUT,
+                tags.GET_CART_ITEMS,
+                tags.GET_WISHLIST_BY_USER,
+                tags.ADDRESSES_BY_USER
+            ]
         }),
     })
 });
 
 export const {
     // profile
-    useGetUserQuery,
-    useChangeUsernameMutation,
     useSignInMutation,
     useSignUpMutation,
     useSignOutMutation,
-    useLazyRefreshQuery,
     useRefreshQuery,
 } = authApiSlice;

@@ -1,11 +1,8 @@
 import React from "react";
-import {useLocation, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import Loading from "../../Loading";
 import Error from "../../Error";
-
 import RefundForm from "../../../components/orders/refund/forms/RefundForm";
-import {useQuery} from "react-query";
-import {privateApi} from "../../../lib/api";
 import Nothing from "../../Nothing";
 import {useSearchParameters} from "../../../lib/hooks";
 import {useGetOrderQuery} from "../../../redux/features/api/orderApiSlice";
@@ -13,8 +10,8 @@ import {useGetOrderQuery} from "../../../redux/features/api/orderApiSlice";
 const OrderRefund = () => {
     const { orderId } = useParams();
     const { get } = useSearchParameters();
-    const stockItemId = get('item_id') || 0;
-    const stockItemQuantity = get('item_q') || 0;
+    const stockItemId = parseInt(get('item_id')) || 0;
+    const stockItemQuantity = parseInt(get('item_q')) || 0;
     const { isLoading, data: order, error } = useGetOrderQuery(orderId);
 
     if (isLoading) {

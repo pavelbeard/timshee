@@ -14,5 +14,7 @@
   "otherReasons": "Другие причины:",
   "refundItem": "Вернуть вещь/заказ",
   "max": "макс:",
-  "current": "тек:"
+  "current": "тек:",
+  "orderReturnedStatus": "Заказ {{orderNumber}} был возвращен.",
+  "reason": "По причине:"
 }

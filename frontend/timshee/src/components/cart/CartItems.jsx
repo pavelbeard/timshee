@@ -18,7 +18,8 @@ export default function CartItems() {
     const [ClearCartMut] = useClearCartMutation();
 
     const clear = () => {
-        ClearCartMut().unwrap();
+        ClearCartMut().unwrap()
+            .catch(err => null);
     }
 
     return (

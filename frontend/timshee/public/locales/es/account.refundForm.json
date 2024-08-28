@@ -14,5 +14,7 @@
   "otherReasons": "Otras razones:",
   "refundItem": "Devolver artículo/pedido",
   "max": "máximo:",
-  "current": "solo:"
+  "current": "solo:",
+  "orderReturnedStatus": "El pedido {{orderNumber}} se ha devuelto.",
+  "reason": "Por razón:"
 }

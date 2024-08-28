@@ -14,5 +14,7 @@
   "otherReasons": "Other reasons:",
   "refundItem": "Return item/order",
   "max": "max:",
-  "current": "only:"
+  "current": "current:",
+  "orderReturnedStatus": "Order {{orderNumber}} has been refunded.",
+  "reason": "By reason:"
 }

@@ -1,12 +1,14 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
+import {accountTags} from "./tags";
 
 
-const tags = {
-    ADDRESSES_BY_USER: 'ADDRESSES_BY_USER'
-};
+const tags = { ...accountTags };
 const _apiSliceWithTags = apiSlice.enhanceEndpoints({
-    addTagTypes: [tags.ADDRESSES_BY_USER]
+    addTagTypes: [
+        ...Object.values(tags)
+    ]
 });
+
 export const accountApiSlice = _apiSliceWithTags.injectEndpoints({
     endpoints: builder => ({
         // location
@@ -14,7 +16,7 @@ export const accountApiSlice = _apiSliceWithTags.injectEndpoints({
             query: () => ({
                 url: '/order/countries/',
                 method: 'GET',
-            })
+            }),
         }),
         // location
         getCountryByLanguage: builder.query({
@@ -41,7 +43,11 @@ export const accountApiSlice = _apiSliceWithTags.injectEndpoints({
                 url: '/order/addresses/get_addresses_by_user/',
                 method: 'GET',
             }),
-            providesTags: [tags.ADDRESSES_BY_USER]
+            // providesTags: (result) =>
+                // result
+                //     ? [tags.ADDRESSES_BY_USER, tags.EXP_ADDRESSES_BY_USER]
+                //     : [result?.map(({ id }) => ({ type: 'ADDRESSES', id }))]
+            providesTags: [tags.ADDRESSES_BY_USER, tags.EXP_ADDRESSES_BY_USER]
         }),
         postAddress: builder.mutation({
             query: (address) => ({
