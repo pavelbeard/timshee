@@ -1,13 +1,11 @@
 #!/bin/bash
 
-cp timshee/prod.env timshee/prod.env.copy;
-cp postgres-files/prod.env postgres-files/prod.env.copy;
+cp .env .env.copy;
 
 git stash;
 git pull;
 
-cp timshee/prod.env.copy timshee/prod.env
-cp postgres-files/prod.env.copy postgres-files/prod.env
+cp .env.copy .env
 
 docker-compose -f unstable.docker-compose.yaml down;
-docker-compose -f unstable.docker-compose.yaml up --build -d;
+docker-compose -f unstable.docker-compose.yaml --env-file .env up --build -d;

@@ -11,17 +11,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mjml:
+    image: danihodovic/mjml-server
+    platform: linux/amd64
+
   django:
     build:
       context: timshee/
-      dockerfile: unstable.Dockerfile
+      dockerfile: prod.Dockerfile
+    platform: linux/amd64
     environment:
-      - ALLOWED_ORIGINS=http://77.238.243.142:8112
+      - ALLOWED_ORIGINS=http://89.104.68.172:8111,https://timshee.ru,http://timshee.ru
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_EMAIL=heavycream9090@icloud.com
       - DJANGO_SETTINGS_DEBUG_MODE=0
-      - DJANGO_SETTINGS_UNSTABLE_MODE=1
-      - DJANGO_SETTINGS_PRODUCTION_MODE=0
+      - DJANGO_SETTINGS_UNSTABLE_MODE=0
+      - DJANGO_SETTINGS_PRODUCTION_MODE=1
       - SERVER_ADDRESS=0.0.0.0
       - SERVER_PORT=8111
       - POSTGRES_DB_NAME=timshee_store
@@ -38,33 +43,33 @@ services:
       - MJML_APP_ID=${MJML_APP_ID}
       - MJML_APP_KEY=${MJML_APP_KEY}
       - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
-      - CLIENT_REDIRECT=https://77.238.243.142/
-    env_file:
-      - timshee/unstable.env
+      - CLIENT_REDIRECT=https://timshee.ru/
     volumes:
-      - unstable.volume:/home/timshee_store_app/app/staticfiles
-      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
     command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
     depends_on:
+      - mjml
       - postgresql
     restart: on-failure
 
   frontend:
     build:
       context: frontend/
-      dockerfile: unstable.Dockerfile
+      dockerfile: prod.certs.Dockerfile
+    platform: linux/amd64
     ports:
-      - "8112:80"
       - "443:443"
     volumes:
-      - unstable.volume:/home/timshee_store_app/app/staticfiles
-      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+      - /home/timshee/certbot/live/timshee.ru:/etc/letsencrypt/certs/
     command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - django
     restart: on-failure
 
 volumes:
-  unstable.volume:
-  unstable-image.volume:
+  prod.volume:
+  prod-image.volume:
   postgres_data:

@@ -301,12 +301,12 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ## MJML
 MJML_BACKEND_MODE = 'httpserver'
 MJML_HTTPSERVERS = [
-    # {
-    #     'URL': 'https://api.mjml.io/v1/render',  # official MJML API
-    #     'HTTP_AUTH': ('<Application ID>', '<Secret Key>'),
-    # },
     {
-        'URL': 'http://localhost:15500/v1/render',  # your own HTTP-server
+        'URL': 'https://api.mjml.io/v1/render',  # official MJML API
+        'HTTP_AUTH': (os.getenv('MJML_APP_ID'), os.getenv('MJML_APP_KEY')),
+    },
+    {
+        'URL': os.getenv('MJML_OWN_SERVER_URL', 'http://localhost:15500/v1/render'),  # your own HTTP-server
     },
 ]
 
