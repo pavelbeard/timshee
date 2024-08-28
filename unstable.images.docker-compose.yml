@@ -19,7 +19,7 @@ services:
     image: pavelbeard/django:unstable
     platform: linux/amd64
     environment:
-      - ALLOWED_ORIGINS=http://77.238.243.142:8112
+      - ALLOWED_ORIGINS=https://77.238.243.142
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_EMAIL=heavycream9090@icloud.com
       - DJANGO_SETTINGS_DEBUG_MODE=0
