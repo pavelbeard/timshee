@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   django:
-    image: pavelbeard/django:production
+    image: pavelbeard/django.production:latest
     platform: linux/amd64
     env_file:
       - timshee/prod.env
@@ -23,7 +23,7 @@ services:
     restart: on-failure
 
   frontend:
-    image: pavelbeard/frontend:production
+    image: pavelbeard/frontend.production:latest
     platform: linux/amd64
     ports:
       - "8112:80"

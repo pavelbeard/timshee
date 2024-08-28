@@ -131,20 +131,6 @@ export const useInput = (key, initialValue) => {
     return [value, reset, setNewValue, attributeObj];
 };
 
-export const useSendEmail = () => {
-    const [sendEmail, {error, isSuccess }] = useSendEmailMutation();
-    const [err, setError] = useState(null);
-
-    const sendemail = (to, subject, template, cb) => {
-        const html_message = render(template);
-        sendEmail({ to, subject, html_message }).unwrap()
-            .then(cb)
-            .catch(err => setError(err?.message));
-    }
-
-    return [sendemail, error || err, isSuccess];
-};
-
 export const useSearchParameters = () => {
     const [search, setSearch] = useSearchParams();
 
