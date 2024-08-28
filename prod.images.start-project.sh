@@ -10,5 +10,5 @@ cp .env.copy .env
 docker pull pavelbeard/django.production:latest;
 docker pull pavelbeard/frontend.production:latest;
 
-docker-compose -f prod.images.docker-compose.yaml down;
-docker-compose -f prod.images.docker-compose.yaml --env-file .env up -d;
+docker-compose -f prod.images.docker-compose.yml down;
+docker-compose -f prod.images.docker-compose.yml --env-file .env up -d;

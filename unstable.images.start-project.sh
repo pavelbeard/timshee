@@ -10,5 +10,5 @@ cp .env.copy .env
 docker pull pavelbeard/django:unstable;
 docker pull pavelbeard/frontend:unstable;
 
-docker-compose -f unstable.images.docker-compose.yaml down;
-docker-compose -f unstable.images.docker-compose.yaml --env-file .env up --build -d;
+docker-compose -f unstable.images.docker-compose.yml down;
+docker-compose -f unstable.images.docker-compose.yml --env-file .env up --build -d;

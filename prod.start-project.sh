@@ -7,5 +7,5 @@ git pull;
 
 cp .env.copy .env
 
-docker-compose -f prod.docker-compose.yaml down;
-docker-compose -f prod.docker-compose.yaml --env-file .env up -d;
+docker-compose -f prod.docker-compose.yml down;
+docker-compose -f prod.docker-compose.yml --env-file .env up -d;
