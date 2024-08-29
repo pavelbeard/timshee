@@ -1,5 +1,5 @@
 {
-  "country": "Page:",
+  "country": "Country:",
   "firstname": "Name:",
   "lastname": "Surname:",
   "streetAddress": "Address:",
@@ -10,7 +10,7 @@
   "phoneCode": "Phone code:",
   "phoneNumber": "Phone number:",
   "asPrimary": "Set as Primary Address",
-  "submit": "Send",
+  "submit": "Submit",
   "newEmail": "New email:",
   "changeEmail": "Change email:",
   "changeOrConfirmEmail": "Change or confirm your email",

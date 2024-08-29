@@ -214,8 +214,6 @@ def clear_cart(rq, has_ordered=False) -> int:
         cart = cart_manager.get_cart()
         order = cart_manager.get_or_create_order(has_ordered=has_ordered)
         cart_items = cart.cart_items.all()
-        # cart.total_items = 0
-        # cart.total = 0
 
         for cart_item in cart_items:
             if not has_ordered:

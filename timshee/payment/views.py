@@ -126,19 +126,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
         }
         return Response(data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['PUT'])
-    def update_payment(self, request, *args, **kwargs):
-        serializer = self.get_serializer(request.data)
-        ok, status_ = payment_logic.update_payment(request, serializer.data, **kwargs)
-
-        if not ok:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status_, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def get_status(self, request, *args, **kwargs):
-        result, data = payment_logic.get_status(**kwargs)
+        result, data = payment_logic.get_flow_status(request, **kwargs)
 
         if result == 1:
             return Response(data, status=status.HTTP_404_NOT_FOUND)

@@ -7,11 +7,12 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.db import Error
 from django.db.models import Q, QuerySet
+from django.http import HttpRequest
 from django.utils import timezone
 from yookassa import Payment, Configuration, Refund
 
 from auxiliaries.auxiliaries_methods import get_logger
-from cart import models as cart_models
+from cart import models as cart_models, cart_logic
 from order import models as order_models
 from order import serializers as order_serializers
 from order.models import OrderItem
@@ -29,7 +30,7 @@ def _update_order_status(order, status):
     order.status = status
     order.save()
 
-def create_payment(rq, instance):
+def create_payment(rq: HttpRequest, instance):
     order: order_models.Order = order_models.Order.objects.filter(second_id=instance['order_id']).first()
     customer_email = rq.user.email if rq.user.is_authenticated else f"{order.shipping_address.email}"
 
@@ -102,7 +103,6 @@ def create_payment(rq, instance):
                 "items": items
             },
         }
-        print(params)
         payment = Payment.create(
             params=params,
             idempotency_key=idempotency_key
@@ -128,35 +128,37 @@ def create_payment(rq, instance):
         logger.error(msg=f"{e.args}", exc_info=e)
         return 2, None, None
 
-def update_payment(rq, serializer_data, **kwargs):
-    if store_order_id := kwargs.get('store_order_id'):
-        payment = models.Payment.objects.get(store_order_id=store_order_id)
-        payment.status = serializer_data['payment_status']
-        payment.save()
-
-        user_q = None if isinstance(rq.user, AnonymousUser) else rq.user
-
-        order: order_models.Order = order_models.Order.objects.filter(second_id=store_order_id).first()
-        cart = cart_models.Cart.objects.filter(
-            Q(user=user_q) | Q(session__session_key=rq.COOKIES.get('sessionid'))
-        ).first()
-        if payment.status == models.SUCCEEDED:
-            _update_order_status(order, 'processing')
-            _update_cart_status(cart)
-
-            return True, {'status': models.SUCCEEDED}
-
-        return True, {'status': models.PENDING}
-    return False, None
-
-def get_status(**kwargs):
+def get_flow_status(rq: HttpRequest, **kwargs):
     try:
         order_id = kwargs.get('store_order_id')
+        user_q = None if isinstance(rq.user, AnonymousUser) else rq.user
+
         if order_id:
             payment = models.Payment.objects.filter(store_order_id=order_id).first()
-            dt = payment.created_at.isoformat()
-            filtered_objects = Payment.list(params={"created_at": dt, "limit": 1}).items[-1]
-            return 0, {"status": filtered_objects.status}
+            created_at = payment.created_at
+            payment_from_yookassa = Payment.list({'created_at': created_at, 'limit': 1}).items[-1]
+            payment_status = payment_from_yookassa.status
+
+            payment.status = payment_status
+            payment.save()
+
+            order_id = payment.store_order_id
+            order = order_models.Order.objects.get(second_id=order_id)
+
+            if payment.status == models.SUCCEEDED:
+                cart = cart_models.Cart.objects.filter(
+                    Q(user=user_q) |
+                    Q(session__session_key=rq.COOKIES.get('sessionid'))
+                ).first()
+                # UPDATE ORDER STATUS
+                _update_order_status(order, order_models.Order.PROCESSING)
+                # CART HAS ORDERED
+                _update_cart_status(cart)
+                # CLEAR CART
+                cart_logic.clear_cart(rq=rq, has_ordered=True)
+                return 0, {"status": models.SUCCEEDED}
+            else:
+                return 0, {"status": models.PENDING}
         return 1, {"detail": "order not found"}
     except Exception as e:
         logger.error(msg=f"{e.args}", exc_info=e)
@@ -182,7 +184,7 @@ def get_only_succeeded_orders(qs, serializer):
         logger.error(msg=f"{e.args}", exc_info=e)
         return False
 
-def refund_whole_order(rq, data, serializer, **kwargs):
+def refund_whole_order(rq: HttpRequest, data, serializer, **kwargs):
     try:
         serializer = serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -238,7 +240,7 @@ def refund_whole_order(rq, data, serializer, **kwargs):
         logger.error(msg=f"{e.args}", exc_info=e)
         return 4, None
 
-def refund_partial(rq, data, serializer, **kwargs):
+def refund_partial(rq: HttpRequest, data, serializer, **kwargs):
     try:
         serializer = serializer(data=data)
         serializer.is_valid(raise_exception=True)
