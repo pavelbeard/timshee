@@ -134,9 +134,9 @@ def get_flow_status(rq: HttpRequest, **kwargs):
         user_q = None if isinstance(rq.user, AnonymousUser) else rq.user
 
         if order_id:
-            payment = models.Payment.objects.filter(store_order_id=order_id).first()
-            created_at = payment.created_at
-            payment_from_yookassa = Payment.list({'created_at': created_at, 'limit': 1}).items[-1]
+            payment: models.Payment = models.Payment.objects.filter(store_order_id=order_id).first()
+            payment_id = payment.payment_id
+            payment_from_yookassa = Payment.find_one(payment_id=str(payment_id))
             payment_status = payment_from_yookassa.status
 
             payment.status = payment_status

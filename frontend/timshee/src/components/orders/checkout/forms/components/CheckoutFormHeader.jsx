@@ -41,12 +41,12 @@ export default function CheckoutFormHeader({ ...rest }) {
         return (
             <section className="checkout-form-header">
                 <div>{user}</div>
-                <button
-                    type="button"
-                    onClick={signout}
-                    className="underlined-button-set">
-                    {t('account:logout')}
-                </button>
+                {/*<button*/}
+                {/*    type="button"*/}
+                {/*    onClick={signout}*/}
+                {/*    className="underlined-button-set">*/}
+                {/*    {t('account:logout')}*/}
+                {/*</button>*/}
             </section>
     )
         ;
