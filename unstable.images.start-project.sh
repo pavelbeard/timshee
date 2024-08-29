@@ -12,4 +12,4 @@ docker pull pavelbeard/load_balancer:unstable;
 docker pull pavelbeard/frontend:unstable;
 
 docker-compose -f unstable.images.docker-compose.yml down;
-docker-compose -f unstable.images.docker-compose.yml --env-file .env up --build -d;
+docker-compose -f unstable.images.docker-compose.yml --env-file .env up -d;
