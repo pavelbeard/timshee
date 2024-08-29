@@ -58,6 +58,8 @@ services:
       context: load_balancer/
       dockerfile: prod.certs.Dockerfile
     platform: linux/amd64
+    ports:
+      - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
