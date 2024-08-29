@@ -76,7 +76,7 @@ def create_payment(rq, instance):
         customer_full_name = f"{order.shipping_address.first_name} {order.shipping_address.last_name}"
         chars = re.escape(string.punctuation)
         phone_number = f"{order.shipping_address.phone_code.phone_code}{order.shipping_address.phone_number}"
-        refined_phone_number = re.sub(f'[{chars}]', '', phone_number).replace(' ', '').replace('34', '7')
+        refined_phone_number = re.sub(f'[{chars}]', '', phone_number).replace(' ', '')
         redirect_url = f"orders/{order.second_id}/status/check?order_number={order.order_number}"
         idempotency_key = str(uuid.uuid4())
         params = {
