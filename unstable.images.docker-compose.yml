@@ -51,6 +51,16 @@ services:
       - postgresql
     restart: on-failure
 
+  load_balancer:
+    image: pavelbeard/load_balancer:unstable
+    volumes:
+      - unstable.volume:/home/timshee_store_app/app/staticfiles
+      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - django
+    restart: on-failure
+
   frontend:
     image: pavelbeard/frontend:unstable
     platform: linux/amd64
@@ -60,9 +70,9 @@ services:
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["nginx", "-g", "daemon off;"]
+    command: [ "node", "react.start.js" ]
     depends_on:
-      - django
+      - load_balancer
     restart: on-failure
 
 volumes:

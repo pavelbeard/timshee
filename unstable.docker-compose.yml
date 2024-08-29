@@ -11,6 +11,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mjml:
+    image: danihodovic/mjml-server
+    platform: linux/amd64
+
   django:
     build:
       context: timshee/
@@ -23,7 +27,7 @@ services:
       - DJANGO_SETTINGS_UNSTABLE_MODE=1
       - DJANGO_SETTINGS_PRODUCTION_MODE=0
       - SERVER_ADDRESS=0.0.0.0
-      - SERVER_PORT=8111
+      - SERVER_PORT=8112
       - POSTGRES_DB_NAME=timshee_store
       - POSTGRES_DB_USER=main
       - POSTGRES_DB_PORT=5432
@@ -47,9 +51,9 @@ services:
       - postgresql
     restart: on-failure
 
-  frontend:
+  nginx:
     build:
-      context: frontend/
+      context: load_balancer/
       dockerfile: unstable.Dockerfile
     ports:
       - "8112:80"
@@ -60,6 +64,18 @@ services:
     command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - django
+    restart: on-failure
+
+  frontend:
+    build:
+      context: frontend/
+      dockerfile: unstable.Dockerfile
+    volumes:
+      - unstable.volume:/home/timshee_store_app/app/staticfiles
+      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    command: ["node", "react.start.js"]
+    depends_on:
+      - nginx
     restart: on-failure
 
 volumes:

@@ -5,7 +5,6 @@ test.docker-compose.yml
 frontend/timshee/node_modules
 frontend/timshee/.env
 frontend/timshee/.env.development.testing
-frontend/server*
 frontend/timshee/src/media/product_images
 postgres-files/test.*
 timshee/settings.py
@@ -29,3 +28,5 @@ unstable.images*.env
 unstable.creator*.yml
 translator
 sftp
+*alpine*
+.env.unstable

@@ -1,27 +1,39 @@
-FROM node:latest
+FROM node:22-alpine3.19 as base
 
-WORKDIR /usr/src/app
+FROM base as builder
 
-COPY ./timshee/package*.json ./
-
-RUN npm install --save-dev @babel/plugin-proposal-private-property-in-object
-RUN npm install
+WORKDIR /app
 
 COPY ./timshee .
 
-RUN npm run build:unstable
+RUN \
+   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+   elif [ -f package-lock.json ]; then npm ci; \
+   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
+   else echo "Lockfile not found." && exit 1; \
+   fi
 
-#########
-# FINAL #
-#########
-FROM nginx:1.19.10-alpine
+RUN \
+   if [ -f yarn.lock ]; then yarn build; \
+   elif [ -f package-lock.json ]; then npm run build:unstable; \
+   elif [ -f pnpm-lock.yaml ]; then pnpm build; \
+   else npm run build:unstable; \
+   fi
 
-COPY --from=0 /usr/src/app/build /usr/share/nginx/html
 
-RUN rm /etc/nginx/conf.d/default.conf
-COPY test.nginx.conf /etc/nginx/conf.d/nginx.conf
-COPY certs/server.crt /etc/nginx/certs/server.crt
-COPY certs/server.key /etc/nginx/certs/server.key
 
-EXPOSE 80
-EXPOSE 443
+FROM base as runner
+
+WORKDIR /app
+
+RUN \
+   addgroup --system --gid 1001 nodejs; \
+   adduser --system --uid 1001 reactjs;
+
+COPY react.start.js .
+
+COPY --from=builder /app /app
+COPY --from=builder --chown=nextjs:reactjs /app /app
+COPY --from=builder --chown=nextjs:reactjs /app /app
+
+EXPOSE 3000

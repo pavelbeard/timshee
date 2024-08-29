@@ -51,6 +51,19 @@ services:
       - postgresql
     restart: on-failure
 
+  load_balancer:
+    image: pavelbeard/load_balancer.production:latest
+    platform: linux/amd64
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+      - /home/timshee/certbot/live/timshee.ru:/etc/letsencrypt/certs/
+    depends_on:
+      - django
+    ports:
+      - "443:443"
+    command: ["nginx", "-g", "daemon off;"]
+
   frontend:
     image: pavelbeard/frontend.production:latest
     platform: linux/amd64
@@ -59,10 +72,9 @@ services:
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
-      - /home/timshee/certbot/live/timshee.ru:/etc/letsencrypt/certs/
-    command: ["nginx", "-g", "daemon off;"]
     depends_on:
-      - django
+      - load_balancer
+    command: ["node", "react.start.js"]
     restart: on-failure
 
 volumes:
