@@ -1,16 +1,19 @@
 import json
+import uuid
 from pprint import pprint
 
 from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.test import TestCase
-
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
+from yookassa import Configuration
+
+from cart.models import Cart, CartItem
 from order.models import Order, Address, Country, Province, CountryPhoneCode, ShippingMethod
 from store.models import Item, Stock, Size, Color, Type, Category, Collection, CarouselImage
 from stuff.models import OwnerData
-from yookassa import Configuration
-
 from . import models
 
 
@@ -18,6 +21,7 @@ from . import models
 
 class PaymentTests(TestCase):
     def setUp(self):
+        self.session = Session.objects.filter(session_key=self.client.session.session_key).first()
         new_collection = Collection.objects.create(name='TEST COLLECTION', collection_image='test.jpg',
                                                    link='test-collection-2024-2025')
         new_category = Category.objects.create(name='TEST CATEGORY', category_image='test.jpg', code='test-category')
@@ -43,6 +47,14 @@ class PaymentTests(TestCase):
         new_item.save()
 
         CarouselImage.objects.create(image='test.jpg', item=new_item)
+
+        cart = Cart.objects.create(
+            session=self.session,
+        )
+        CartItem.objects.create(cart=cart, stock_item=new_stock, quantity=2)
+        CartItem.objects.create(cart=cart, stock_item=new_stock_2, quantity=2)
+        cart.ordered = True
+        cart.save()
 
         new_country = Country.objects.create(name='United States')
         new_province = Province.objects.create(name='Washington DC', country=new_country)
@@ -84,31 +96,45 @@ class PaymentTests(TestCase):
         self.order = new_order
 
     def test_payment(self):
-        # STEP 1, CREATE A PAYMENT
+        # STEP 1, CREATE A PAYMENT - MOCK
         data = {
-            "store_order_id": self.order.second_id,
-            "store_order_number": self.order.order_number,
+            "order_id": self.order.second_id,
+            "order_status": 'pending_for_payment',
         }
 
-        url = reverse('payment-list')
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        print(response.json())
-        input('Press Enter to continue...')
+        payment_id = str(uuid.uuid4())
+        models.Payment.objects.create(
+            store_order_id=self.order.second_id,
+            payment_id=payment_id,
+            status='succeeded',
+            created_at=timezone.now(),
+            captured_at=timezone.now()
+        )
 
-        # STEP 2, CHECK IT
-        url = reverse('payment-get-status', kwargs={'store_order_id': self.order.second_id})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('status', response.json())
-        print(response.json())
-        data = response.json()
+        # url = reverse('payment-create-payment')
+        # response = self.client.post(url, data, format='json')
+        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # print(response.json())
+        # input('Press Enter to continue...')
+
+        # STEP 2, CHECK IT - MOCK
+        # url = reverse('payment-get-status', kwargs={'store_order_id': self.order.second_id})
+        # response = self.client.get(url)
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertIn('status', response.json())
+        # print(response.json())
+        # data = response.json()
+        payment = models.Payment.objects.filter(store_order_id=self.order.second_id).first()
+        status_ = payment.status
+
+
 
         # STEP 3, UPDATE PAYMENT
-        if data['status'] == 'success':
-            url = reverse('payment-detail', kwargs={'store_order_id': self.order.second_id})
-            data = {'status': data['status']}
-            response = self.client.put(url, data, format='json')
+        if status_ == 'succeeded':
+            self.client.cookies['sessionid'] = self.session.session_key
+            url = reverse('payment-update-payment', kwargs={'store_order_id': self.order.second_id})
+            data = {'payment_status': status_, 'store_order_id': self.order.second_id}
+            response = self.client.put(url, data, content_type='application/json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             # STEP 4, UPDATE ORDER
@@ -127,7 +153,7 @@ class PaymentTests(TestCase):
                 "stock_item_id": 1,
                 "reason": "It didnt like",
             }
-            url = reverse('payment-refund-whole-order', kwargs={'store_order_id': self.order.second_id})
+            url = reverse('refund-whole-order', kwargs={'store_order_id': self.order.second_id})
             response = self.client.put(path=url, data=json.dumps(data), format='json', headers={'Content-Type': 'application/json'})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             pprint(response.json(), indent=4)

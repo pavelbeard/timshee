@@ -1,18 +1,15 @@
-import copy
 import logging
 
-from django.contrib.auth.models import AnonymousUser
-from django.forms import model_to_dict
-from django.utils import timezone
+from django.contrib.sessions.models import Session
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from . import models, serializers, write_serializers, filters
-
-from order import models as order_models
+from . import models, serializers, write_serializers, filters, order_logic
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +17,17 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 class CountryViewSet(viewsets.ModelViewSet):
+    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = filters.CountryFilter
 
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
+    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.CountryPhoneCode.objects.all()
     serializer_class = serializers.CountryPhoneCodeSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -32,6 +35,8 @@ class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
 
 
 class ProvinceViewSet(viewsets.ModelViewSet):
+    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Province.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ProvinceFilter
@@ -59,17 +64,16 @@ class AddressViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
 
+        request.data['session_id'] = Session.objects.filter(session_key=request.COOKIES.get('sessionid'))
+
         serializer = self.get_serializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         instance = serializer.save()
 
-        second_order_id = request.data.get('order_id', None)
-        if second_order_id:
-            order = order_models.Order.objects.get(second_id=second_order_id)
+        if request.data.get('order_id'):
+            order = models.Order.objects.get(pk=request.data['order_id'])
             order.shipping_address = self.queryset.get(pk=instance.id)
-            if self.request.user.is_authenticated:
-                order.user = self.request.user
             order.save()
             del request.data['order_id']
 
@@ -78,6 +82,7 @@ class AddressViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
+        request.data['session_key'] = request.COOKIES.get('sessionid')
 
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -85,27 +90,25 @@ class AddressViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        second_order_id = request.data.get('order_id', None)
-        if second_order_id:
-            order = order_models.Order.objects.get(second_id=second_order_id)
+        if request.data.get('order_id'):
+            order = models.Order.objects.get(pk=request.data['order_id'])
             order.shipping_address = self.queryset.get(pk=kwargs.get('pk'))
-            if self.request.user.is_authenticated:
-                order.user = self.request.user
             order.save()
             del request.data['order_id']
 
         return Response(serializers.AddressSerializer(instance).data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["GET"], authentication_classes=[JWTAuthentication])
+    @action(detail=False, methods=["GET"])
     def get_addresses_by_user(self, request):
         try:
             user = self.request.user
             session_key = request.COOKIES.get('sessionid')
+
             qs = None
             if user.is_authenticated:
-                qs = models.Address.objects.filter(user=user)
+                qs = models.Address.objects.filter(Q(user=user))
             elif user.is_anonymous:
-                qs = models.Address.objects.filter(session__session_key=session_key)
+                qs = models.Address.objects.filter(Q(session__session_key=session_key))
 
             if not qs.exists():
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -117,16 +120,16 @@ class AddressViewSet(viewsets.ModelViewSet):
             logger.exception(msg=f"{e.args}", exc_info=e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=["GET"], authentication_classes=[JWTAuthentication])
+    @action(detail=False, methods=["GET"])
     def get_address_as_primary(self, request, *args, **kwargs):
         try:
             user = self.request.user
             session_key = request.COOKIES.get('sessionid')
             qs = None
             if user.is_authenticated:
-                qs = models.Address.objects.filter(user=user, as_primary=True)
+                qs = models.Address.objects.filter(Q(user=user) & Q(as_primary=True))
             elif user.is_anonymous:
-                qs = models.Address.objects.filter(session__session_key=session_key, as_primary=True)
+                qs = models.Address.objects.filter(Q(session__session_key=session_key) & Q(as_primary=True))
 
             response = Response()
 
@@ -147,7 +150,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = models.Order.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.OrderFilter
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
     lookup_field = 'second_id'
 
     def get_serializer_class(self):
@@ -155,30 +159,31 @@ class OrderViewSet(viewsets.ModelViewSet):
             return serializers.OrderSerializer
         elif self.action in ["create", "update", "partial_update", "destroy"]:
             return write_serializers.OrderSerializer
+        elif self.action in ["update_shipping_info"]:
+            return write_serializers.OrderUpdateShippingInfoSerializer
 
     def retrieve(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             request.data['user'] = request.user.id
+        response = super().retrieve(request, *args, **kwargs)
+        return response
 
-        return super().retrieve(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        data = copy.copy(request.data)
-        if request.user.is_authenticated:
-            data["user"] = request.user.id
-        data["updated_at"] = timezone.now()
-
-        return super().update(request, *args, **kwargs)
+    @action(detail=True, methods=["PATCH"])
+    def update_shipping_info(self, request, *args, **kwargs):
+        data = order_logic.update_shipping_info(request, self.get_serializer, **kwargs)
+        response = Response(data, status=status.HTTP_200_OK)
+        return response
 
     @action(detail=False, methods=["GET"])
     def get_last_order_by_user(self, request, *args, **kwargs):
         try:
             user = self.request.user
+            session_key = request.COOKIES.get('sessionid')
             qs = None
             if user.is_authenticated:
-                qs = models.Order.objects.filter(user=user).order_by('updated_at')
+                qs = models.Order.objects.filter(user=user)
             elif user.is_anonymous:
-                qs = models.Order.objects.filter(session__session_key=request.COOKIES.get('sessionid')).order_by('updated_at')
+                qs = models.Order.objects.filter(session__session_key=session_key)
 
             if not qs.exists():
                 response = Response(status=status.HTTP_404_NOT_FOUND)
@@ -196,11 +201,18 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_orders_by_user(self, request, *args, **kwargs):
         try:
             user = self.request.user
+            session_key = request.COOKIES.get('sessionid')
+            o = models.Order
+            included_statuses = [o.CANCELLED, o.PROCESSING, o.DELIVERED, o.COMPLETED, o.REFUNDED, o.PARTIAL_REFUNDED]
             qs = None
             if user.is_authenticated:
-                qs = models.Order.objects.filter(user=user).exclude(status="created").order_by('-created_at')
+                qs = models.Order.objects.filter(
+                    Q(user=user) & Q(status__in=included_statuses)
+                ).order_by('-created_at')
             elif user.is_anonymous:
-                qs = models.Order.objects.filter(session__session_key=request.COOKIES.get('sessionid')).order_by('-created_at')
+                qs = models.Order.objects.filter(
+                    Q(session__session_key=session_key) & Q(status__in=included_statuses)
+                ).order_by('-created_at')
 
             response = Response()
 

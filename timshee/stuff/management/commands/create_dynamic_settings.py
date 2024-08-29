@@ -7,9 +7,9 @@ class Command(BaseCommand):
     help = 'Create dynamic settings before start the app'
 
     def handle(self, *args, **kwargs):
-        dyn_settings, not_created = models.DynamicSettings.objects.get_or_create(pk=1)
+        dyn_settings = models.DynamicSettings.objects.filter(pk=1)
 
-        if not_created:
+        if not dyn_settings.exists():
             models.DynamicSettings.objects.create(
                 on_content_update=False,
                 on_maintenance=False

@@ -1,0 +1,22 @@
+{
+  "country": "Страна:",
+  "firstname": "Имя:",
+  "lastname": "Фамилия:",
+  "streetAddress": "Адрес:",
+  "apartment": "Квартира (по желанию):",
+  "postalCode": "Почтовый индекс:",
+  "city": "Город:",
+  "province": "Регион:",
+  "phoneCode": "Код телефона:",
+  "phoneNumber": "Номер телефона:",
+  "asPrimary": "Установить как главный адрес",
+  "submit": "Отправить",
+  "newEmail": "Новый email:",
+  "changeEmail": "Сменить email:",
+  "changeOrConfirmEmail": "Сменить либо потвердить ваш email",
+  "email": "email:",
+  "emailConfirmed": "Email подтвержден!",
+  "confirmationMail": "Дождитесь ссылки потверждения вашей почты, которая должна приди туда. Проверьте папку 'Спам' на всякий случай.",
+  "linkEmailConfirmation": "Потдвердить email",
+  "linkEmailConfirmText2": "Ваша ссылка на подтверждение email \uD83D\uDC47"
+}

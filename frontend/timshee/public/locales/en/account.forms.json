@@ -1,0 +1,22 @@
+{
+  "country": "Country:",
+  "firstname": "Name:",
+  "lastname": "Surname:",
+  "streetAddress": "Address:",
+  "apartment": "Apartment (optional):",
+  "postalCode": "Postal code:",
+  "city": "City:",
+  "province": "Region:",
+  "phoneCode": "Phone code:",
+  "phoneNumber": "Phone number:",
+  "asPrimary": "Set as Primary Address",
+  "submit": "Submit",
+  "newEmail": "New email:",
+  "changeEmail": "Change email:",
+  "changeOrConfirmEmail": "Change or confirm your email",
+  "email": "email:",
+  "emailConfirmed": "Email confirmed!",
+  "confirmationMail": "Wait for the confirmation link to your email, which should arrive there. Check your 'Spam' folder just in case.",
+  "linkEmailConfirmation": "Confirm email",
+  "linkEmailConfirmText2": "Your email confirmation link 👇"
+}

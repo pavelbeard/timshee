@@ -16,3 +16,9 @@ class StrictStockSerializer(serializers.ModelSerializer):
         model = models.Stock
         fields = "__all__"
         depth = 2
+
+
+class StrictTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Type
+        fields = '__all__'

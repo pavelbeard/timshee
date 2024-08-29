@@ -6,6 +6,36 @@
         <priority>1.0</priority>
     </url>
     <url>
+        <loc>https://timshee.ru/account/signin</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/account/signup</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/about</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/house</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/wishlist</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/privacy</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
         <loc>https://timshee.ru/offer</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
@@ -16,17 +46,22 @@
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://timshee.ru/shipping-methods</loc>
+        <loc>https://timshee.ru/shipping</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://timshee.ru/account/login</loc>
+        <loc>https://timshee.ru/woman/shop</loc>
         <changefreq>weekly</changefreq>
         <priority>1</priority>
     </url>
     <url>
-        <loc>https://timshee.ru/account/register</loc>
+        <loc>https://timshee.ru/men/shop</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://timshee.ru/unisex/shop</loc>
         <changefreq>weekly</changefreq>
         <priority>1</priority>
     </url>

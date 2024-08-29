@@ -1,0 +1,21 @@
+{
+  "byNameAZ": "Sort A-Z",
+  "byNameZA": "Sort Z-A",
+  "orderBy": "Sort by:",
+  "dash": "---",
+  "ascending": "by price ascending",
+  "descending": "by price descending",
+  "price": "$",
+  "size": "size",
+  "color": "color",
+  "type": "type",
+  "collection": "collection",
+  "category": "category",
+  "reset": "reset",
+  "filters": "filters:",
+  "filtersAndSort": "filters and sorting",
+  "totalItems": "Total items:",
+  "apply": "apply",
+  "selected": "selected:",
+  "close": "Close"
+}

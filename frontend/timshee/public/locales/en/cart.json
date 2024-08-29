@@ -1,0 +1,9 @@
+{
+  "yourCart": "Your cart",
+  "checkout": "Place an order",
+  "taxesAndShipping": "Shipping and taxes will be calculated at checkout.",
+  "remove": "Delete",
+  "removeAll": "Delete all",
+  "cartIsEmpty": "Cart is empty",
+  "toMain": "Return to home page"
+}

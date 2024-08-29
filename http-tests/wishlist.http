@@ -1,0 +1,11 @@
+###
+POST http://localhost:8113/api/store/wishlist/add_item/
+Content-Type: application/json
+
+{
+  "stock__item_id": 2,
+  "stock__size__value": "M",
+  "stock__color__name": "MAGNIFICANT PURPLE"
+}
+
+###

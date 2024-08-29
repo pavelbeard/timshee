@@ -1,0 +1,19 @@
+[
+  "account.forms",
+  "account",
+  "account.orders",
+  "account.refundForm",
+  "cart",
+  "errors",
+  "footer",
+  "header",
+  "orders.checkout",
+  "privacy",
+  "shop.itemCardDetail",
+  "shop",
+  "stuff.forms",
+  "stuff",
+  "techPages.orderPaid",
+  "wishlist",
+  "techPages.OrderPaid"
+]

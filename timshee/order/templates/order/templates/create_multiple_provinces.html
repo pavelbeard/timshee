@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .formWrapper, .buttons > input {
+            width: 25%;
+            padding: 1rem 0 1rem 0;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+        }
+        input:not([type=submit]):not([type=button]), select {
+            width: -webkit-fill-available;
+        }
+        section.formWrapper > div:has(input[type='checkbox']) {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        section.formWrapper > div > input[type='checkbox'] {
+            width: 1rem;
+        }
+    </style>
+    <h1>Add Multiple Provinces</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        <div id="form_set">
+            {% for form in formset.forms %}
+                <section class="formWrapper">
+                    {{ form }}
+                </section>
+            {% endfor %}
+        </div>
+        <div class="buttons">
+            <input type="submit" value="Add Provinces">
+            <input type="button" value="Add More" id="add_more">
+            <div id="empty_form" style="display: none">
+                {{ formset.empty_form }}
+            </div>
+        </div>
+    </form>
+    <script>
+        document.getElementById('add_more').addEventListener('click', () => {
+            const formIdx = document.getElementById('id_form-TOTAL_FORMS').value;
+            const emptyForm = document.getElementById('empty_form').innerHTML.replace(/__prefix__/g, formIdx);
+            const section = document.createElement('section');
+            section.classList.add('formWrapper');
+            section.insertAdjacentHTML('beforeend', emptyForm);
+            document.getElementById('form_set').appendChild(section);
+            document.getElementById('id_form-TOTAL_FORMS').value = parseInt(formIdx) + 1;
+        });
+    </script>
+{% endblock %}

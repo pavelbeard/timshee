@@ -1,6 +1,4 @@
 from django.contrib.auth import get_user_model
-from parler_rest.fields import TranslatedFieldsField
-from parler_rest.serializers import TranslatableModelSerializer
 from rest_framework import serializers
 
 from . import models, strict_serializers
@@ -21,7 +19,7 @@ class ContinentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CountrySerializer(TranslatableModelSerializer):
+class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Country
         fields = "__all__"
@@ -48,17 +46,17 @@ class AddressSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         return strict_serializers.StrictUserSerializer(obj.user).data
 
+    class Meta:
+        model = models.Address
+        fields = "__all__"
+        depth = 2
+
     def get_fields(self, *args, **kwargs):
         fields = super().get_fields(*args, **kwargs)
         request = self.context.get('request')
         if request is not None and not request.parser_context.get('kwargs'):
             fields.pop('session')
         return fields
-
-    class Meta:
-        model = models.Address
-        fields = "__all__"
-        depth = 2
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -86,16 +84,6 @@ class OrderSerializer(serializers.ModelSerializer):
     shipping_price = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
 
-    def get_shipping_address(self, obj):
-        return None if obj.shipping_address is None else strict_serializers.StrictAddressSerializer(
-            obj.shipping_address).data
-
-    def get_shipping_method(self, obj):
-        return None if obj.shipping_method is None else ShippingMethodSerializer(obj.shipping_method).data
-
-    def get_user(self, obj):
-        return None if obj.user is None else UserSerializer(obj.user).data
-
     def get_order_item(self, obj):
         data = models.OrderItem.objects.filter(order_id=obj.id)
         return OrderItemSerializer(data, many=True).data
@@ -113,10 +101,27 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price()
 
+    def get_shipping_address(self, obj):
+        return None if obj.shipping_address is None else strict_serializers.StrictAddressSerializer(
+            obj.shipping_address).data
+
+    def get_shipping_method(self, obj):
+        return None if obj.shipping_method is None else ShippingMethodSerializer(obj.shipping_method).data
+
+    def get_user(self, obj):
+        return None if obj.user is None else UserSerializer(obj.user).data
+
     class Meta:
         model = models.Order
-        exclude = ('session', )
+        fields = "__all__"
         depth = 3
+
+    def get_fields(self, *args, **kwargs):
+        fields = super().get_fields(*args, **kwargs)
+        request = self.context.get('request')
+        if request is not None and not request.parser_context.get('kwargs'):
+            fields.pop('session')
+        return fields
 
 
 class ShippingMethodSerializer(serializers.ModelSerializer):

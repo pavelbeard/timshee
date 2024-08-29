@@ -1,10 +1,11 @@
 import re
+from decimal import Decimal
 
 from colorfield import fields
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
-
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
@@ -13,13 +14,14 @@ from django.core.validators import FileExtensionValidator
 
 
 def validation_link(value):
-    pattern = r'^\w+-\w+-\d{4}(?:-\d{4})?$'
+    pattern = r'^\w+-?\w+-?\d{4}(?:-\d{4})?$'
     if not re.match(pattern, value):
         raise ValidationError(
-            f'Ссылка "{value}" не соответствует формату. '
-            f'Она должна состоять из двух слов, разделенных горизонтальной чертой, '
-            f'и одного или двух годов, также разделенных горизонтальной чертой. '
-            f'Например: "autumn-winter-2024-2025".'
+            _(f'Ссылка') + f"{value}" + _(' не соответствует формату. ' +
+            'Она должна состоять из двух слов, разделенных горизонтальной чертой, ' +
+            'и одного или двух годов, также разделенных горизонтальной чертой, ' +
+            'либо одного слова без черты но с годом/годами.') +
+            f"{_('Например: ')}" + "home2024" + _('или') + "autumn-winter-2024-2025."
         )
 
 
@@ -28,6 +30,10 @@ class Size(models.Model):
 
     def __str__(self):
         return self.value
+
+    class Meta:
+        verbose_name = _('Size')
+        verbose_name_plural = _('Sizes')
 
 
 class Color(models.Model):
@@ -38,47 +44,109 @@ class Color(models.Model):
         return f"[{self.name}]"
 
     class Meta:
+        verbose_name = _('Color')
+        verbose_name_plural = _('Colors')
         unique_together = (('name', 'hex'),)
 
 
 class Collection(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Коллекция", unique=True, null=False, blank=False)
+    name = models.CharField(max_length=100, verbose_name=_("Коллекция"), unique=True, null=False, blank=False)
     collection_image = models.ImageField(
         upload_to="product_images/collection_images/",
-        verbose_name="Изображение коллекции",
+        verbose_name=_("Изображение коллекции"),
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
         null=True,
     )
     link = models.CharField(
         max_length=256,
         validators=[validation_link],
-        verbose_name="Ссылка на коллекцию",
+        verbose_name=_("Ссылка на коллекцию"),
         null=True,
     )
+    show_in_welcome_page = models.BooleanField(default=True)
 
     def __str__(self):
         return f"[{self.name}]"
 
+    def __collection_link_builder(self):
+        S = 's'
+        A = 'a'
+        W = 'w'
+        collection_code = {
+            S: ['spring', 'summer'],
+            A: 'autumn',
+            W: 'winter'
+        }
+        link = ''
+        match_ = re.findall(r'\w+\d{4}\/\d{4}|\w+\d{4}', self.name)
+        if self.name[0] == S:
+            link += collection_code[S][0]
+        if self.name[1] == S:
+            link += f"-{collection_code[S][1]}-"
+        if self.name[0] == A:
+            link += collection_code[A]
+        if self.name[1] == W:
+            link += f"-{collection_code[W]}-"
+        if match_:
+            link += f"{'-'.join(re.split(r'\/|\+s', match_[0]))}"
+
+        if link == '':
+            return self.name.replace(' ', '-').lower()
+
+        return link
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.link = self.__collection_link_builder()
+        super().save(*args, **kwargs)
+
     class Meta:
-        verbose_name = "Collection"
-        verbose_name_plural = "Collections"
+        verbose_name = _("Collection")
+        verbose_name_plural = _("Collections")
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Имя категории", unique=True, null=False, blank=False)
-    code = models.CharField(max_length=100, verbose_name="Код категории", unique=True, blank=False, null=False)
+    name = models.CharField(max_length=100, verbose_name=_("Имя категории"), unique=True, null=False, blank=False)
+    code = models.CharField(max_length=100, verbose_name=_("Код категории"), unique=True, blank=False, null=False)
+    types = models.ManyToManyField("Type", related_name="category_types")
     category_image = models.ImageField(
         upload_to="product_images/category_images/",
-        verbose_name="Изображение категории",
+        verbose_name=_("Изображение категории"),
         validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
     )
+    category_image_women = models.ImageField(
+        upload_to="product_images/category_images/women",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+    )
+    category_image_men = models.ImageField(
+        upload_to="product_images/category_images/men",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+    )
+    category_image_unisex = models.ImageField(
+        upload_to="product_images/category_images/unisex",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+    )
+    # it needs for causes, when we have some products for home or smth
+    apply_gender = models.BooleanField(default=True)
 
     def __str__(self):
         return f"[{self.name}]"
 
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.code = "-".join([w.lower() for w in self.name.split()])
+
+        super().save(*args, **kwargs)
+
     class Meta:
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
 
 
 class Type(models.Model):
@@ -90,19 +158,19 @@ class Type(models.Model):
         return f"[{self.name}]"
 
     class Meta:
-        verbose_name = 'Type'
-        verbose_name_plural = 'Types'
+        verbose_name = _('Type')
+        verbose_name_plural = _('Types')
 
 
 class Stock(models.Model):
     item = models.ForeignKey("Item", on_delete=models.CASCADE)
     size = models.ForeignKey("Size", on_delete=models.CASCADE)
     color = models.ForeignKey("Color", on_delete=models.CASCADE)
-    in_stock = models.PositiveIntegerField(default=1)
+    in_stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return (f"[Stock: {self.item}] [Size: {self.size}] [Color: {self.color}] "
-                f"[InStock: {self.in_stock}]")
+        return (f"[{_('Stock')}: {self.item}] [Size: {self.size}] [Color: {self.color}] "
+                f"[{_('InStock')}: {self.in_stock}]")
 
     def decrease_stock(self, quantity=1):
         if self.in_stock >= quantity:
@@ -116,8 +184,8 @@ class Stock(models.Model):
         self.save()
 
     class Meta:
-        verbose_name = 'Stock'
-        verbose_name_plural = 'Stocks'
+        verbose_name = _('Stock')
+        verbose_name_plural = _('Stocks')
         unique_together = (("item", "size", "color"),)
 
 
@@ -135,19 +203,24 @@ class CarouselImage(models.Model):
         return self.image.name
 
     class Meta:
-        verbose_name = "Carousel Image"
-        verbose_name_plural = "Carousel Images"
+        verbose_name = _("Carousel Image")
+        verbose_name_plural = _("Carousel Images")
 
 
 class Item(models.Model):
-    GENDER_CHOICES = (
-        ("M", "Male"),
-        ("F", "Female"),
-        ("U", "Unisex"),
-    )
+    WOMEN = 'women'
+    MEN = 'men'
+    UNISEX = 'unisex'
+    MISC = 'misc'
+    GENDER_CHOICES = {
+        WOMEN: _('WOMEN'),
+        MEN: _('MEN'),
+        UNISEX: '_(UNISEX)',
+        MISC: _('MISC'),
+    }
 
     name = models.CharField(max_length=50)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=6, blank=True, null=True, choices=GENDER_CHOICES)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     sizes = models.ManyToManyField("Size", through='Stock')
     colors = models.ManyToManyField("Color", through='Stock')
@@ -157,27 +230,33 @@ class Item(models.Model):
     discount = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
     image = models.ImageField(
         upload_to="product_images/item_images/",
-        verbose_name="Изображение",
+        verbose_name=_("Изображение"),
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])]
     )
 
     def __str__(self):
-        return f"[Item: {self.name}] [ID: {self.id}] [Price: {self.price}] [Discount: {self.discount}] "
+        return f"[{_('Item')}: {self.name}] [ID: {self.id}] [{_('Price')}: {self.price}] [{_('Discount')}: {self.discount}] "
+
+    def calculate_discount(self):
+        if self.discount > 0.0:
+            return f"{Decimal((self.price - (self.price / 100 * self.discount))):.2f}"
+
+        return None
 
     class Meta:
-        verbose_name = "Item"
-        verbose_name_plural = "Items"
+        verbose_name = _("Item")
+        verbose_name_plural = _("Items")
 
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     session = models.ForeignKey(Session, on_delete=models.CASCADE, blank=True, null=True)
-    stock = models.ForeignKey("Stock", on_delete=models.CASCADE)
+    stock = models.ForeignKey("Stock", on_delete=models.CASCADE, related_name="stock_set")
     stock_link = models.CharField(max_length=250, blank=False, null=False)
 
     def __str__(self):
         return f"[Item: {self.stock}]"
 
     class Meta:
-        verbose_name = "Wishlist"
-        verbose_name_plural = "Wishlist items"
+        verbose_name = _("Wishlist")
+        verbose_name_plural = _("Wishlist items")

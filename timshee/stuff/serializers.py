@@ -51,3 +51,11 @@ class CookieTokenRefreshSerializer(jwt_serializers.TokenRefreshSerializer):
             return super().validate(attrs)
         else:
             raise InvalidToken("There isn't a refresh token in the cookies.")
+
+
+class EmailVerifySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class EmailTokenSerializer(serializers.Serializer):
+    token = serializers.CharField()

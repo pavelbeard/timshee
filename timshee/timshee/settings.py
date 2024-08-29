@@ -16,6 +16,7 @@ from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
 from corsheaders.defaults import default_headers
+from mjml.settings import MJML_BACKEND_MODE, MJML_HTTPSERVERS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,8 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change_me")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = bool(int(os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 1)))
-TESTING = bool(int(os.getenv("DJANGO_SETTINGS_TESTING_MODE", 0)))
+UNSTABLE = bool(int(os.getenv("DJANGO_SETTINGS_UNSTABLE_MODE", 0)))
+PRODUCTION = bool(int(os.getenv("DJANGO_SETTINGS_PRODUCTION_MODE", 0)))
 
 ALLOWED_HOSTS = ["*"]
 
@@ -48,14 +50,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
-    # 'oauth2_provider',
-    # 'social_django',
-    # 'drf_social_oauth2',
     'colorfield',
     'django_filters',
-    # "debug_toolbar" if (DEBUG or TESTING) else "",
-    "parler",
-    "parler_rest",
+    'mjml',
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -65,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'stuff.middleware.AuthSubstitutionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,11 +74,9 @@ MIDDLEWARE = [
     # custom
     'corsheaders.middleware.CorsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware' if (DEBUG or TESTING) else "",
-    # my
-    'stuff.middleware.LanguageMiddleware'
 ]
 
-if DEBUG or TESTING:
+if DEBUG:
     INTERNAL_IPS = [
         "localhost",
         "127.0.0.1",
@@ -92,7 +88,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'stuff'
+            BASE_DIR / 'mjml_templates',
+            BASE_DIR / 'stuff',
+            BASE_DIR / 'order'
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -118,18 +116,11 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3.new',
+            'NAME': BASE_DIR / 'db.sqlite3',
         },
-        'secondary': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'test_timshee_db',
-            'USER': 'test_timshee',
-            'PASSWORD': 'admin@123',
-            'HOST': 'localhost',
-            'PORT': 5432,
-        }
+
     }
-elif TESTING or not DEBUG:
+elif UNSTABLE or PRODUCTION:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -162,13 +153,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+# LANGUAGE_CODE = 'ru'
+
+LANGUAGE_COOKIE_NAME = 'server_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 30
+LANGUAGES = (
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('ru', _('Russian')),
+)
 
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_TZ = True
+
+LOCALE_PATHS = (
+    BASE_DIR / 'locale',
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -196,7 +197,7 @@ if DEBUG:
 else:
     MEDIA_URL = "/backend/media/"
 
-if DEBUG or TESTING:
+if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:8112",
         "http://localhost:8113",
@@ -221,7 +222,7 @@ if DEBUG or TESTING:
         "http://127.0.0.1:3002",
         "https://127.0.0.1",
     ]
-else:
+elif PRODUCTION or UNSTABLE:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
 
@@ -229,8 +230,6 @@ CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 
 # settings.py
-
-# AUTH_USER_MODEL = 'stuff.UUIDUser'
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -244,6 +243,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
+    # 'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 9,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -251,24 +251,13 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    # 'drf_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'stuff.authentication.EmailAuthenticationBackend',
-    # custom
-    # 'social_core.backends.google.GoogleOAuth2',
 )
 
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
-#
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     'https://www.googleapis.com/auth/userinfo.email',
-#     'https://www.googleapis.com/auth/userinfo.profile',
-# ]
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 
-CART_SESSION_ID = "cart"
-
-SESSION_COOKIE_AGE = 60 * 60 * 24
+# YOOKASSA
 
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 API_KEY = os.getenv("SECRET_KEY")
@@ -293,7 +282,7 @@ SIMPLE_JWT = {
     'AUTH_ACCESS_COOKIE': 'access_token',
     'AUTH_REFRESH_COOKIE': 'refresh_token',
     'AUTH_COOKIE_DOMAIN': None,
-    'AUTH_COOKIE_SECURE': True,
+    'AUTH_COOKIE_SECURE': False,
     'AUTH_COOKIE_HTTP_ONLY': True,
     'AUTH_COOKIE_PATH': '/',
     'AUTH_COOKIE_SAMESITE': 'Lax',
@@ -302,43 +291,24 @@ SIMPLE_JWT = {
 # MAIL
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = os.getenv('EMAIL_PORT', 2525)
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", '183c7aef5afc10')
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", '7b49b74b51cbce')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# LANGUAGE
-
-LANGUAGE_COOKIE_NAME = 'server_language'
-LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 30
-
-LANGUAGES = (
-    ('en', _('English')),
-    ('fr', _('French')),
-    ('it', _('Italian')),
-    ('gr', _('Greek')),
-    ('de', _('Deutch')),
-    ('es', _('Spanish')),
-    ('ru', _('Russian')),
-)
-
-# PARLER
-
-PARLER_LANGUAGES = {
-    None: (
-        {'code': 'en', },
-        {'code': 'es', },
-        {'code': 'fr', },
-        {'code': 'it', },
-        {'code': 'ru', },
-    ),
-    'default': {
-        'fallbacks': ['en'],
-        'hide_untranslated': False,
-    }
-}
+## MJML
+MJML_BACKEND_MODE = 'httpserver'
+MJML_HTTPSERVERS = [
+    {
+        'URL': 'https://api.mjml.io/v1/render',  # official MJML API
+        'HTTP_AUTH': (os.getenv('MJML_APP_ID'), os.getenv('MJML_APP_KEY')),
+    },
+    {
+        'URL': os.getenv('MJML_OWN_SERVER_URL', 'http://localhost:15500/v1/render'),  # your own HTTP-server
+    },
+]
 
 # FIXTURES
 
@@ -350,3 +320,12 @@ FIXTURE_DIRS = (
 # messages
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# SITE ID
+
+if DEBUG:
+    SITE_NAME = 'http://localhost:8113'
+elif UNSTABLE:
+    SITE_NAME = 'https://77.238.243.142'
+elif PRODUCTION:
+    SITE_NAME = 'https://89.104.68.172'

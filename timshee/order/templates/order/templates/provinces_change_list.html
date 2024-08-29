@@ -1,0 +1,37 @@
+{% extends 'admin/change_list.html' %}
+{% block object-tools %}
+    <style>
+        .new-action-button {
+            outline: none;
+            background: white;
+            border: 1px solid black;
+            border-radius: 1rem;
+            height: 2rem;
+            cursor: pointer;
+        }
+        .new-action-button:hover {
+            background: black;
+            color: white;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .new-action-button {
+                background: #5e5d5d;
+                color: white;
+                border: 1px solid #8c8b8b;
+            }
+            .new-action-button:hover {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+    <div>
+        <form action="add-multiple/" method="GET">
+            {% csrf_token %}
+                <button class="new-action-button" type="submit">Add multiple provinces</button>
+        </form>
+    </div>
+    <br />
+    {{ block.super }}
+{% endblock %}

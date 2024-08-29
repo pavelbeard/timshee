@@ -1,13 +1,6 @@
-from django.db.models import Sum
 from rest_framework import serializers
 from . import models, strict_serializers
 from order import strict_serializers as order_strict_serializers
-
-
-class CategoryNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Category
-        fields = ["name"]
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -47,10 +40,24 @@ class CarouselImageSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    types = serializers.SerializerMethodField()
+
+    def get_types(self, obj):
+        return strict_serializers.StrictTypeSerializer(obj.types.distinct(), many=True).data
+
+    class Meta:
+        model = models.Category
+        fields = "__all__"
+        depth = 2
+
+
 class ItemSerializer(serializers.ModelSerializer):
     sizes = serializers.SerializerMethodField()
     colors = serializers.SerializerMethodField()
     carousel_images = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
 
     def get_sizes(self, obj):
         return SizeSerializer(obj.sizes.distinct(), many=True).data
@@ -62,16 +69,16 @@ class ItemSerializer(serializers.ModelSerializer):
         carousel_images = models.CarouselImage.objects.filter(item=obj.pk)
         return CarouselImageSerializer(carousel_images, many=True).data
 
+    def get_type(self, obj):
+        return strict_serializers.StrictTypeSerializer(obj.type).data
+
+    def get_discount(self, obj):
+        return obj.calculate_discount()
+
     class Meta:
         model = models.Item
         fields = "__all__"
         depth = 2
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Category
-        fields = "__all__"
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -82,11 +89,16 @@ class CollectionSerializer(serializers.ModelSerializer):
 
 class WishlistSerializer(serializers.ModelSerializer):
     stock = strict_serializers.StrictStockSerializer()
-    user = order_strict_serializers.StrictUserSerializer()
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        if obj.user:
+            return order_strict_serializers.StrictUserSerializer(obj.user, many=False).data
+        return None
 
     class Meta:
         model = models.Wishlist
-        fields = "__all__"
+        exclude = ('session',)
         depth = 2
 
     def get_fields(self, *args, **kwargs):

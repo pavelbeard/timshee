@@ -12,6 +12,4 @@ router.register(r'addresses', views.AddressViewSet)
 router.register(r'orders', views.OrderViewSet)
 router.register(r'shipping-methods', views.ShippingMethodViewSet)
 
-urlpatterns = [
-    path("", include(router.urls))
-]
+urlpatterns = router.urls

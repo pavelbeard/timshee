@@ -1,0 +1,406 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-28 17:58+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+
+#: cart/models.py:43
+msgid "Cart"
+msgstr "Carrito"
+
+#: cart/models.py:44
+msgid "Carts"
+msgstr "Carritos"
+
+#: order/models.py:21
+msgid "Continent"
+msgstr "Continente"
+
+#: order/models.py:22
+msgid "Continents"
+msgstr "Continentes"
+
+#: order/models.py:34
+msgid "Country"
+msgstr "País"
+
+#: order/models.py:35
+msgid "Countries"
+msgstr "Países"
+
+#: order/models.py:47
+msgid "Country Phone Code"
+msgstr "Código telefónico del país"
+
+#: order/models.py:48
+msgid "Country Phone Codes"
+msgstr "Códigos telefónicos de países"
+
+#: order/models.py:59
+msgid "Province"
+msgstr "Provincia"
+
+#: order/models.py:60
+msgid "Provinces"
+msgstr "Provincias"
+
+#: order/models.py:83
+msgid "Address"
+msgstr "DIRECCIÓN"
+
+#: order/models.py:84
+msgid "Addresses"
+msgstr "Direcciones"
+
+#: order/models.py:102
+msgid "CREATED"
+msgstr "CREADO"
+
+#: order/models.py:103
+msgid "PENDING_FOR_PAY"
+msgstr "PENDIENTE DE PAGO"
+
+#: order/models.py:104
+msgid "PROCESSING"
+msgstr "TRATAMIENTO"
+
+#: order/models.py:105
+msgid "DELIVERING"
+msgstr "ENTREGANDO"
+
+#: order/models.py:106
+msgid "DELIVERED"
+msgstr "ENTREGADO"
+
+#: order/models.py:107
+msgid "COMPLETED"
+msgstr "TERMINADO"
+
+#: order/models.py:108 payment/models.py:19
+msgid "PARTIAL_REFUNDED"
+msgstr "REEMBOLSO PARCIAL"
+
+#: order/models.py:109 payment/models.py:22
+msgid "CANCELLED"
+msgstr "CANCELADO"
+
+#: order/models.py:110 payment/models.py:20
+msgid "REFUNDED"
+msgstr "REINTEGRADO"
+
+#: order/models.py:128
+#, fuzzy
+#| msgid "Order Item"
+msgid "Order"
+msgstr "Pedido"
+
+#: order/models.py:129
+#, fuzzy
+#| msgid "Order Items"
+msgid "Orders"
+msgstr "Pedidos"
+
+#: order/models.py:187
+msgid "Order Item"
+msgstr "Artículo del pedido"
+
+#: order/models.py:188
+msgid "Order Items"
+msgstr "Artículos de los pedidos"
+
+#: order/models.py:202
+msgid "Returned Item"
+msgstr "Artículo devuelto"
+
+#: order/models.py:203
+msgid "Returned Items"
+msgstr "Artículos devueltos"
+
+#: order/models.py:215
+msgid "Shipping method"
+msgstr "Método de envío"
+
+#: order/models.py:216
+msgid "Shipping methods"
+msgstr "Métodos de envío"
+
+#: order/order_logic.py:26 order/signals.py:60
+msgid "Your payment status is: "
+msgstr "Su estado de pago es:"
+
+#: order/order_logic.py:29
+msgid "The money will be transferred to your bank account during three days."
+msgstr "El dinero se transferirá a tu cuenta bancaria en un plazo de tres días."
+
+#: order/order_logic.py:30 order/signals.py:68
+msgid "Go to order"
+msgstr "Ir al pedido"
+
+#: order/order_logic.py:47
+#, python-brace-format
+msgid "Order {order.order_number} status is: {order_status}."
+msgstr "El estado del pedido {order.order_number} es: {order_status}."
+
+#: order/signals.py:54
+#, python-brace-format
+msgid "Go to {name} page"
+msgstr "Ir a la página {name}"
+
+#: order/signals.py:63
+#, fuzzy
+#| msgid "Your items"
+msgid "Your items:"
+msgstr "Tus articulos"
+
+#: order/signals.py:74
+msgid "Order {instance.order_number} status is: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+msgstr "El estado del pedido {instance.order_number} es: {models.Order.STATUS_CHOICES.get(models.Order.PROCESSING)}."
+
+#: order/signals.py:82
+msgid "Your order has been delivered"
+msgstr "Su pedido ha sido entregado"
+
+#: order/signals.py:83
+msgid "See you until next purchases!"
+msgstr "¡Hasta la próxima compra!"
+
+#: order/signals.py:89
+#, python-brace-format
+msgid "Order status is: {instance.status}"
+msgstr "El estado del pedido es: {instance.status}"
+
+#: payment/models.py:17
+msgid "PENDING"
+msgstr "PENDIENTE"
+
+#: payment/models.py:18
+msgid "WAITING_FOR_CAPTURE"
+msgstr "ESPERANDO_LA_CAPTURA"
+
+#: payment/models.py:21
+msgid "SUCCEEDED"
+msgstr "EXITOSO"
+
+#: payment/models.py:36
+msgid "Payment"
+msgstr "Pago"
+
+#: payment/models.py:37
+msgid "Payments"
+msgstr "Pagos"
+
+#: store/models.py:20
+msgid "Ссылка"
+msgstr "Enlace"
+
+#: store/models.py:20
+msgid ""
+" не соответствует формату. Она должна состоять из двух слов, разделенных "
+"горизонтальной чертой, и одного или двух годов, также разделенных "
+"горизонтальной чертой, либо одного слова без черты но с годом/годами."
+msgstr ""
+
+#: store/models.py:24
+msgid "или"
+msgstr "o"
+
+#: store/models.py:35
+msgid "Size"
+msgstr "Tamaño"
+
+#: store/models.py:36
+msgid "Sizes"
+msgstr "Tallas"
+
+#: store/models.py:47
+msgid "Color"
+msgstr "Color"
+
+#: store/models.py:48
+msgid "Colors"
+msgstr "Bandera"
+
+#: store/models.py:53
+msgid "Коллекция"
+msgstr "Recopilación"
+
+#: store/models.py:56
+msgid "Изображение коллекции"
+msgstr "Imagen de colección"
+
+#: store/models.py:63
+msgid "Ссылка на коллекцию"
+msgstr "Enlace de colección"
+
+#: store/models.py:104
+msgid "Collection"
+msgstr "Recopilación"
+
+#: store/models.py:105
+msgid "Collections"
+msgstr "Colecciones"
+
+#: store/models.py:109
+msgid "Имя категории"
+msgstr "Nombre de categoría"
+
+#: store/models.py:110
+msgid "Код категории"
+msgstr "Código de categoría"
+
+#: store/models.py:114
+msgid "Изображение категории"
+msgstr "Imagen de categoría"
+
+#: store/models.py:148
+msgid "Category"
+msgstr "Categoría"
+
+#: store/models.py:149
+msgid "Categories"
+msgstr "Categorías"
+
+#: store/models.py:161
+msgid "Type"
+msgstr "Tipo"
+
+#: store/models.py:162
+msgid "Types"
+msgstr "Tipos"
+
+#: store/models.py:187
+msgid "Stock"
+msgstr "Variación de articulo"
+
+#: store/models.py:188
+msgid "Stocks"
+msgstr "Variaciones de articulo"
+
+#: store/models.py:206
+msgid "Carousel Image"
+msgstr "Imagen de carrusel"
+
+#: store/models.py:207
+msgid "Carousel Images"
+msgstr "Imágenes de carrusel"
+
+#: store/models.py:216
+msgid "WOMEN"
+msgstr "MUJER"
+
+#: store/models.py:217
+msgid "MEN"
+msgstr "HOMBRES"
+
+#: store/models.py:219
+msgid "MISC"
+msgstr "MISC"
+
+#: store/models.py:233
+msgid "Изображение"
+msgstr "Imagen"
+
+#: store/models.py:247
+msgid "Item"
+msgstr "Artículo"
+
+#: store/models.py:248
+msgid "Items"
+msgstr "Articulos"
+
+#: store/models.py:261
+msgid "Wishlist"
+msgstr "Lista de deseos"
+
+#: store/models.py:262
+msgid "Wishlist items"
+msgstr "Artículos de la lista de deseos"
+
+#: stuff/models.py:43 stuff/models.py:44
+msgid "Dynamic Settings"
+msgstr "Configuraciones dinámicas"
+
+#: stuff/models.py:54 stuff/models.py:55
+msgid "Owner Data"
+msgstr "Datos del propietario"
+
+#: stuff/models.py:82
+#, fuzzy, python-brace-format
+#| msgid "Email verification token for"
+msgid "Email verification token for {self.user}"
+msgstr "Token de verificación de correo electrónico para"
+
+#: stuff/stuff_logic.py:45
+msgid "Email confirmation."
+msgstr "Confirmación de correo electrónico."
+
+#: stuff/stuff_logic.py:49
+msgid "Confirm your email by the link below 👇"
+msgstr "Confirma tu email mediante el siguiente enlace 👇"
+
+#: stuff/stuff_logic.py:50
+msgid "Go to the email confirmation"
+msgstr "Ir al correo electrónico de confirmación"
+
+#: stuff/stuff_logic.py:86
+msgid "Follow the link below to set a new password 👇"
+msgstr "Siga el enlace a continuación para establecer una nueva contraseña 👇"
+
+#: stuff/stuff_logic.py:87
+msgid "The link is valid for 1 hour!"
+msgstr "¡El enlace es válido por 1 hora!"
+
+#: stuff/stuff_logic.py:90
+msgid "Go to set a new password!"
+msgstr "¡Vaya a establecer una nueva contraseña!"
+
+#: stuff/stuff_logic.py:95
+msgid "Change password."
+msgstr "Cambiar la contraseña."
+
+#: stuff/stuff_logic.py:151
+msgid "Password has been changed successfully!"
+msgstr "¡La contraseña ha sido cambiada exitosamente!"
+
+#: stuff/stuff_logic.py:152
+msgid "If it wasn't you, please, write us to support"
+msgstr "Si no fuiste tú, por favor escríbenos para apoyarte."
+
+#: stuff/stuff_logic.py:158
+msgid "Reset password."
+msgstr "Restablecer contraseña."
+
+#: stuff/tests.py:135 stuff/tests.py:214
+msgid "Your order is in processing. Thank you for purchasing!"
+msgstr "Su pedido está en proceso. ¡Gracias por comprar!"
+
+#: stuff/tests.py:149
+msgid "Your items"
+msgstr "Tus articulos"
+
+#: timshee/settings.py:161
+msgid "English"
+msgstr "Inglés"
+
+#: timshee/settings.py:162
+msgid "Spanish"
+msgstr "Español"
+
+#: timshee/settings.py:163
+msgid "Russian"
+msgstr "Ruso"

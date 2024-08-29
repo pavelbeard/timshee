@@ -1,11 +1,10 @@
-import uuid
-from datetime import timedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User, AbstractUser, Group, Permission
 from django.db import models
-from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from shortuuid.django_fields import ShortUUIDField
+
+from auxiliaries.auxiliaries_methods import get_until_time
 
 
 class Singleton(models.Model):
@@ -27,6 +26,7 @@ class Singleton(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    email_confirmed = models.BooleanField(default=False)
     preferred_language = models.CharField(
         max_length=10,
         choices=settings.LANGUAGES,
@@ -37,10 +37,11 @@ class UserProfile(models.Model):
 class DynamicSettings(Singleton):
     on_content_update = models.BooleanField(default=False)
     on_maintenance = models.BooleanField(default=False)
+    experimental = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'Dynamic Settings'
-        verbose_name_plural = 'Dynamic Settings'
+        verbose_name = _('Dynamic Settings')
+        verbose_name_plural = _('Dynamic Settings')
 
 
 class OwnerData(Singleton):
@@ -50,12 +51,8 @@ class OwnerData(Singleton):
     email = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name = 'Owner Data'
-        verbose_name_plural = 'Owner Data'
-
-
-def get_until_time():
-    return timezone.now() + timedelta(hours=3)
+        verbose_name = _('Owner Data')
+        verbose_name_plural = _('Owner Data')
 
 
 class ResetPasswordCase(models.Model):
@@ -68,4 +65,18 @@ class ResetPasswordCase(models.Model):
         return self.until
 
     def __str__(self):
-        return f"Reset password for {self.user}"
+        return f"{_('Reset password for')}{self.user}"
+
+
+class EmailToken(models.Model):
+    uuid = ShortUUIDField(length=16, max_length=128, editable=False)
+    for_email = models.EmailField(unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    until = models.DateTimeField(default=get_until_time(hours=3))
+    is_active = models.BooleanField(default=True)
+
+    def get_total_seconds(self):
+        return self.until
+
+    def __str__(self):
+        return _(f"Email verification token for {self.user}")

@@ -6,7 +6,8 @@ from store import models as store_models
 class ItemFilter(django_filters.FilterSet):
     o = django_filters.OrderingFilter(
         fields=(
-            ('price', 'price',)
+            ('price', 'price',),
+            ('name', 'name')
         )
     )
 
@@ -19,6 +20,7 @@ class ItemFilter(django_filters.FilterSet):
             'gender': ['exact'],
             'sizes__value': ['in', 'exact'],
             'colors__name': ['in', 'exact', 'icontains', 'istartswith'],
+            'colors__hex': ['in', 'exact', 'icontains', 'istartswith'],
             'collection__name': ['in', 'exact', 'icontains', 'istartswith'],
             'collection__link': ['in', 'exact', 'icontains', 'istartswith'],
             'type__name': ['in', 'exact', 'icontains', 'istartswith'],
@@ -35,6 +37,13 @@ class ItemFilter(django_filters.FilterSet):
 
 
 class StockFilter(django_filters.FilterSet):
+    o = django_filters.OrderingFilter(
+        fields=(
+            ('item__price', 'price',),
+            ('item__name', 'name')
+        )
+    )
+
     class Meta:
         model = store_models.Stock
         fields = {
@@ -42,19 +51,32 @@ class StockFilter(django_filters.FilterSet):
             'item__id': ["exact"],
             'item__name': ['exact', 'icontains', 'istartswith'],
             'item__description': ['exact', 'icontains', 'istartswith'],
+            'item__price': ['gte', 'lte', 'gt', 'lt', 'exact', ],
             'item__gender': ['exact'],
             'item__collection__name': ['exact', 'icontains', 'istartswith'],
+            'item__collection__link': ['in', 'exact', 'icontains', 'istartswith'],
             'item__type__name': ['in', 'exact', 'icontains', 'istartswith'],
             'item__type__code': ['in', 'exact', 'icontains', 'istartswith'],
-            'item__type__category__name': ['exact', 'icontains', 'istartswith'],
+            'item__type__category__name': ['in', 'exact', 'icontains', 'istartswith'],
+            'item__type__category__code': ['in', 'exact', 'icontains', 'istartswith'],
             'in_stock': ['gte', 'lte', 'gt', 'lt', 'exact'],
-            'size__id': ['exact'],
-            'size__value': ['exact'],
-            'color__id': ['exact'],
-            'color__name': ['exact', 'icontains', 'istartswith'],
+            'size__id': ['exact', 'in'],
+            'size__value': ['exact', 'in'],
+            'color__id': ['exact', 'in'],
+            'color__name': ['exact', 'in', 'icontains', 'istartswith'],
+            'color__hex': ['exact', 'in', 'icontains', 'istartswith'],
         }
 
-    # @property
-    # def qs(self, *args, **kwargs):
-    #     parent = super().qs
-    #     return parent.distinct()
+
+class WishlistItemFilter(django_filters.FilterSet):
+    class Meta:
+        model = store_models.Wishlist
+        fields = {
+            'stock__item_id': ['exact'],
+            'stock__size_id': ['exact'],
+            'stock__size__value': ['exact'],
+            'stock__color_id': ['exact'],
+            'stock__color__name': ['exact'],
+            'stock__color__hex': ['exact'],
+        }
+

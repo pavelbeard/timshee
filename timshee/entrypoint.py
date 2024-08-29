@@ -5,9 +5,6 @@ import sys
 
 SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "0.0.0.0")
 SERVER_PORT = os.getenv("SERVER_PORT", 8112)
-DJANGO_SETTINGS_DEBUG_MODE = os.getenv("DJANGO_SETTINGS_DEBUG_MODE", 0)
-DJANGO_SETTINGS_TESTING_MODE = os.getenv("DJANGO_SETTINGS_TESTING_MODE", 0)
-
 
 def call_django_functions(args, post_args: list | tuple) -> None:
     _args = args + post_args

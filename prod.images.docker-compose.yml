@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  postgresql:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=main
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=timshee_store
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mjml:
+    image: danihodovic/mjml-server
+    platform: linux/amd64
+
+  django:
+    image: pavelbeard/django.production:latest
+    platform: linux/amd64
+    environment:
+      - ALLOWED_ORIGINS=http://89.104.68.172:8111,https://timshee.ru,http://timshee.ru
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=heavycream9090@icloud.com
+      - DJANGO_SETTINGS_DEBUG_MODE=0
+      - DJANGO_SETTINGS_UNSTABLE_MODE=0
+      - DJANGO_SETTINGS_PRODUCTION_MODE=1
+      - SERVER_ADDRESS=0.0.0.0
+      - SERVER_PORT=8111
+      - POSTGRES_DB_NAME=timshee_store
+      - POSTGRES_DB_USER=main
+      - POSTGRES_DB_PORT=5432
+      - ACCOUNT_ID=${ACCOUNT_ID}
+      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_DB_PASSWORD=${POSTGRES_DB_PASSWORD}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - MJML_APP_ID=${MJML_APP_ID}
+      - MJML_APP_KEY=${MJML_APP_KEY}
+      - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
+      - CLIENT_REDIRECT=https://timshee.ru/
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+    command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
+    depends_on:
+      - mjml
+      - postgresql
+    restart: on-failure
+
+  load_balancer:
+    image: pavelbeard/load_balancer.production:latest
+    platform: linux/amd64
+    ports:
+      - "443:443"
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+      - /home/timshee/certbot/live/timshee.ru:/etc/letsencrypt/certs/
+    depends_on:
+      - django
+    command: ["nginx", "-g", "daemon off;"]
+
+  frontend:
+    image: pavelbeard/frontend.production:latest
+    platform: linux/amd64
+    ports:
+      - "443:443"
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+    depends_on:
+      - load_balancer
+    command: ["node", "react.start.js"]
+    restart: on-failure
+
+volumes:
+  prod.volume:
+  prod-image.volume:
+  postgres_data:
