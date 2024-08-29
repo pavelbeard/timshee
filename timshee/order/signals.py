@@ -30,7 +30,13 @@ def set_orders_as_non_refundable(sender, instance, **kwargs):
 @receiver(pre_save, sender=models.Order)
 def order_status_for_mail(sender, instance: models.Order, **kwargs):
     current_site = settings.SITE_NAME
-    usrid = instance.user.email if instance.user else instance.shipping_address.email
+
+    usrid = None
+    if instance.user and hasattr(instance.user, 'email'):
+        usrid = instance.user.email
+    elif instance.shipping_address and hasattr(instance.shipping_address, 'email'):
+        usrid = instance.shipping_address.user.email
+
 
     if instance.status == models.Order.PROCESSING:
         order_items_annotated: QuerySet[models.OrderItem] = instance.orderitem_set.all()

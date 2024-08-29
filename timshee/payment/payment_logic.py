@@ -5,15 +5,12 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.sites.shortcuts import get_current_site
 from django.db import Error
 from django.db.models import Q, QuerySet
-from django.templatetags.static import static
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from yookassa import Payment, Configuration, Refund
 
-from auxiliaries.auxiliaries_methods import get_logger, send_email
+from auxiliaries.auxiliaries_methods import get_logger
 from cart import models as cart_models
 from order import models as order_models
 from order import serializers as order_serializers
@@ -33,21 +30,22 @@ def _update_order_status(order, status):
     order.save()
 
 def create_payment(rq, instance):
-    order = order_models.Order.objects.filter(second_id=instance['order_id']).first()
+    order: order_models.Order = order_models.Order.objects.filter(second_id=instance['order_id']).first()
+    customer_email = rq.user.email if rq.user.is_authenticated else f"{order.shipping_address.email}"
 
     if not order:
         return 3, {"detail": "order does not exist"}
 
-    ordered_items = order.orderitem_set.all()
+    ordered_items: QuerySet[OrderItem] = order.orderitem_set.all()
 
     items = []
 
     for ordered_item in ordered_items:
         items.append({
-            "description": ordered_item.item.item.name + "\n" + ordered_item.item.item.description,
+            "description": f'{ordered_item.item.item.name} {ordered_item.item.size.value} {ordered_item.item.color.name}',
             "quantity": ordered_item.quantity,
             "amount": {
-                "value": str(ordered_item.item.item.price),
+                "value": float(ordered_item.item.item.price),
                 "currency": "RUB"
             },
             # NEEDS INN RUSSIAN
@@ -57,61 +55,56 @@ def create_payment(rq, instance):
             "country_of_origin_code": "RU",
         })
 
-    # items = [
-    #     {
-    #         "description": "Переносное зарядное устройство Хувей",
-    #         "quantity": "1.00",
-    #         "amount": {
-    #             "value": 1000,
-    #             "currency": "RUB"
-    #         },
-    #         "vat_code": "2",
-    #         "payment_mode": "full_prepayment",
-    #         "payment_subject": "commodity",
-    #         "country_of_origin_code": "CN",
-    #         "product_code": "44 4D 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00",
-    #         "customs_declaration_number": "10714040/140917/0090376",
-    #         "excise": "20.00",
-    #         "supplier": {
-    #             "name": "string",
-    #             "phone": "string",
-    #             "inn": "string"
-    #         }
-    #     },
-    # ]
+    items += [
+        {
+            "description": f'Shipping for {customer_email}',
+            "quantity": 1,
+            "amount": {
+                "value": float(order.shipping_method.price),
+                "currency": "RUB"
+            },
+            "vat_code": "4",
+            "payment_mode": "full_payment",
+            "payment_subject": "service",
+            "country_of_origin_code": "RU",
+        }
+    ]
 
     try:
+        amount_value = str(order.total_price())
+
         customer_full_name = f"{order.shipping_address.first_name} {order.shipping_address.last_name}"
-        customer_email = rq.user.email if rq.user.is_authenticated else f"{order.shipping_address.email}"
         chars = re.escape(string.punctuation)
         phone_number = f"{order.shipping_address.phone_code.phone_code}{order.shipping_address.phone_number}"
-        customer_phone = re.sub('[' + chars + ']', '', phone_number).replace(' ', '')
+        refined_phone_number = re.sub(f'[{chars}]', '', phone_number).replace(' ', '').replace('34', '7')
         redirect_url = f"orders/{order.second_id}/status/check?order_number={order.order_number}"
         idempotency_key = str(uuid.uuid4())
-        payment = Payment.create(
-            {
-                "amount": {
-                    "value": str(order.total_price()),
-                    "currency": "RUB"
-                },
-                "confirmation": {
-                    "type": "redirect",
-                    "return_url": settings.CLIENT_REDIRECT + redirect_url,
-                },
-                "capture": True,
-                "description": f"Order number: {order.order_number} | Timshee store. For {customer_email}",
-                "metadata": {
-                    'orderNumber': order.order_number
-                },
-                "receipt": {
-                    "customer": {
-                        "full_name": customer_full_name,
-                        "email": customer_email,
-                        "phone": customer_phone,
-                    },
-                    "items": items
-                },
+        params = {
+            "amount": {
+                "value": amount_value,
+                "currency": "RUB"
             },
+            "confirmation": {
+                "type": "redirect",
+                "return_url": settings.CLIENT_REDIRECT + redirect_url,
+            },
+            "capture": True,
+            "description": f"Order number: {order.order_number} | Timshee store. For {customer_email}",
+            "metadata": {
+                'orderNumber': order.order_number
+            },
+            "receipt": {
+                "customer": {
+                    "full_name": customer_full_name,
+                    "email": customer_email,
+                    "phone": refined_phone_number,
+                },
+                "items": items
+            },
+        }
+        print(params)
+        payment = Payment.create(
+            params=params,
             idempotency_key=idempotency_key
         )
 

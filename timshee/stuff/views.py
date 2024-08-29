@@ -1,29 +1,23 @@
-from idlelib.rpc import request_queue
-
-from auxiliaries.auxiliaries_methods import get_logger
-from cart import models as cart_models
 from django.conf import settings
 from django.contrib.auth import get_user_model, models, authenticate
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import JsonResponse
 from django.middleware import csrf
 from django.utils import timezone
-from django.utils.translation import activate, get_language
-from order import models as order_models
-from order import serializers as order_serializers
-from requests import session
+from django.utils.translation import activate
 from rest_framework import generics, status, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
-from store import models as store_models
 
-from . import models, services, serializers, stuff_logic
+from auxiliaries.auxiliaries_methods import get_logger
+from order import serializers as order_serializers
+from . import models, serializers, stuff_logic
 
 # Create your views here.
 User = get_user_model()
@@ -268,7 +262,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     allowed_methods = ["GET"]
 
     def get(self, request):
@@ -279,6 +273,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
 
         if not dyn_settings:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
         response = JsonResponse({
             "onContentUpdate": dyn_settings.on_content_update,
             "onMaintenance": dyn_settings.on_maintenance,
@@ -294,23 +289,6 @@ class GetSettingsAPIView(generics.GenericAPIView):
                 samesite=settings.SESSION_COOKIE_SAMESITE,
             )
         return response
-
-
-class EmailViewSet(viewsets.ViewSet):
-    authentication_classes = []
-    permission_classes = []
-
-    @action(detail=False, methods=["POST"])
-    def send_email(self, request):
-        try:
-            result = services.send_email(request)
-
-            if result == 1:
-                return Response(status=status.HTTP_200_OK)
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=e)
 
 
 class LanguageViewSet(viewsets.ViewSet):

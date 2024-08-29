@@ -5,7 +5,7 @@ from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class CountryViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
     filter_backends = (DjangoFilterBackend,)
@@ -27,7 +27,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.CountryPhoneCode.objects.all()
     serializer_class = serializers.CountryPhoneCodeSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -36,7 +36,7 @@ class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
 
 class ProvinceViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Province.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ProvinceFilter

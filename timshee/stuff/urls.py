@@ -6,7 +6,6 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'profile', views.ProfileViewSet)
-router.register(r'email', views.EmailViewSet, basename='email')
 router.register(r'lang', views.LanguageViewSet, basename='lang')
 router.register(r'auth', views.AuthViewSet, basename='auth')
 

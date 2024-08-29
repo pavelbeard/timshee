@@ -1,13 +1,12 @@
 import secrets
 
-from auxiliaries.auxiliaries_methods import get_logger, send_email, get_until_time
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt import tokens
 
+from auxiliaries.auxiliaries_methods import get_logger, send_email, get_until_time
 from . import models
 
 User = get_user_model()
