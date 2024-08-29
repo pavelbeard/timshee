@@ -38,5 +38,8 @@
   "hide": "hide products",
   "showReturnedItems": "show returned items",
   "hideReturnedItems": "hide returned items",
-  "selfShipping": "Self shipping"
+  "selfShipping": "Self shipping",
+  "itemsPrice": "Items price:",
+  "shippingPrice": "Shipping price",
+  "totalPrice":  "Total:"
 }

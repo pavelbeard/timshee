@@ -143,16 +143,24 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def items_total_price(self):
-        if self.order_item:
+        if self.orderitem_set.count() > 0:
             items_total_price = self.orderitem_set.aggregate(
                 total=Sum(F('quantity') * F('item__item__price'))
             )['total']
-            return items_total_price
-        return 0
+        else:
+            items_total_price = self.returneditem_set.aggregate(
+                total=Sum(F('quantity') * F('item__item__price'))
+            )['total']
+        return items_total_price
 
     def shipping_price(self):
         if self.shipping_method:
-            shipping_method_price = self.orderitem_set.values('order__shipping_method__price').distinct()
+            shipping_method_price = None
+            if self.orderitem_set.count() > 0:
+                shipping_method_price = self.orderitem_set.values('order__shipping_method__price').distinct()
+            elif self.returneditem_set.count() > 0:
+                shipping_method_price = self.returneditem_set.values('order__shipping_method__price').distinct()
+
             if shipping_method_price:
                 shipping_price = shipping_method_price[0]['order__shipping_method__price']
                 return shipping_price

@@ -198,7 +198,7 @@ def refund_whole_order(rq, data, serializer, **kwargs):
 
                 refund = Refund.create({
                     "amount": {
-                        "value": Decimal(order.items_total_price()),
+                        "value": Decimal(order.total_price()),
                         "currency": "RUB",
                     },
                     "payment_id": payment_id,
@@ -246,7 +246,6 @@ def refund_partial(rq, data, serializer, **kwargs):
 
         stock_item_id = data.get('stock_item_id', None)
         quantity = data.get('quantity', None)
-        quantity_total = data.get('quantity_total', None)
         reason = data.get('reason', None)
         order_id = kwargs.get('store_order_id', None)
         if order_id:

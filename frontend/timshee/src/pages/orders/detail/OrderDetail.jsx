@@ -16,7 +16,6 @@ const OrderDetail = () => {
     const [showHideItems, setShowHideItems] = useState(true);
     const [showHideReturnedItems, setShowHideReturnedItems] = useState(true);
 
-
     const shippingAddress = (address) => {
         if (address) return (
             <div className="flex flex-col">
@@ -68,9 +67,21 @@ const OrderDetail = () => {
                     <div className="group">
                         <ShowHideButton showHideItems={showHideReturnedItems}
                                         setShowHideItems={setShowHideReturnedItems}>
-                            {t(`account.orders:${showHideItems ? 'showReturnedItems' : 'hideReturnedItems'}`)}
+                            {t(`account.orders:${showHideReturnedItems ? 'showReturnedItems' : 'hideReturnedItems'}`)}
                         </ShowHideButton>
                         <ReturnedItem order={order} showHideItems={showHideReturnedItems}/>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="roboto-medium">{t('account.orders:itemsPrice')}</span>
+                        <span className="roboto-medium ml-2">{order?.items_total_price}{t('shop:price')}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="roboto-medium">{t('account.orders:shippingPrice')}</span>
+                        <span className="roboto-medium ml-2">{order?.shipping_price}{t('shop:price')}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="roboto-medium">{t('account.orders:totalPrice')}</span>
+                        <span className="roboto-medium ml-2">{order?.total_price}{t('shop:price')}</span>
                     </div>
                 </div>
             }

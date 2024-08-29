@@ -38,5 +38,8 @@
   "hide": "ocultar productos",
   "showReturnedItems": "mostrar artículos devueltos",
   "hideReturnedItems": "ocultar artículos devueltos",
-  "selfShipping": "Recogida por sí mismo"
+  "selfShipping": "Recogida por sí mismo",
+  "itemsPrice": "El costo de los articulos:",
+  "shippingPrice": "El costo de la entrega",
+  "totalPrice":  "Total:"
 }
