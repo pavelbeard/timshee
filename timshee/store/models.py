@@ -152,7 +152,7 @@ class Category(models.Model):
 class Type(models.Model):
     name = models.CharField(max_length=50, unique=True, null=False, blank=False)
     code = models.CharField(max_length=50, unique=True, null=False, blank=False)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return f"[{self.name}]"

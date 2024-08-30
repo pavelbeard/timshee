@@ -2,6 +2,14 @@ from django import forms
 
 from . import models
 
+class TypeForm(forms.ModelForm):
+    class Meta:
+        model = models.Type
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(TypeForm, self).__init__(*args, **kwargs)
+        self.fields['category'].required = False
 
 class CollectionForm(forms.ModelForm):
     class Meta:
