@@ -19,7 +19,7 @@ class CollectionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CollectionForm, self).__init__(*args, **kwargs)
         self.fields['link'].required = False
-        self.fields['link'].disabled = True
+        # self.fields['link'].disabled = True
 
 
 class StockForm(forms.ModelForm):
