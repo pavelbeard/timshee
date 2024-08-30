@@ -52,7 +52,7 @@ class Color(models.Model):
 class Collection(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Коллекция"), unique=True, null=False, blank=False)
     collection_image = models.ImageField(
-        upload_to="product_images/collection_images/",
+        upload_to="product_images/1/collection_images/",
         verbose_name=_("Изображение коллекции"),
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
         null=True,
@@ -107,27 +107,28 @@ class Collection(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Имя категории"), unique=True, null=False, blank=False)
-    code = models.CharField(max_length=100, verbose_name=_("Код категории"), unique=True, blank=False, null=False)
+    code = models.CharField(max_length=100, verbose_name=_("Код категории"), unique=True, null=False, blank=False)
     types = models.ManyToManyField("Type", related_name="category_types")
     category_image = models.ImageField(
-        upload_to="product_images/category_images/",
+        upload_to="product_images/1/category_images/",
         verbose_name=_("Изображение категории"),
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        null=True, blank=True,
     )
     category_image_women = models.ImageField(
-        upload_to="product_images/category_images/women",
+        upload_to="product_images/1/category_images/women",
         blank=True,
         null=True,
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     category_image_men = models.ImageField(
-        upload_to="product_images/category_images/men",
+        upload_to="product_images/1/category_images/men",
         blank=True,
         null=True,
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     category_image_unisex = models.ImageField(
-        upload_to="product_images/category_images/unisex",
+        upload_to="product_images/1/category_images/unisex",
         blank=True,
         null=True,
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
@@ -193,7 +194,7 @@ class CarouselImage(models.Model):
     """It needs for make merry-go-round of images in an internet-store"""
     item = models.ForeignKey("Item", on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to="product_images/1/",
+        upload_to="product_images/1/carousel_images/",
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
         null=False,
         blank=False,
@@ -229,7 +230,7 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     discount = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
     image = models.ImageField(
-        upload_to="product_images/item_images/",
+        upload_to="product_images/1/item_images/",
         verbose_name=_("Изображение"),
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])]
     )
