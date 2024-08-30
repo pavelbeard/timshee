@@ -59,7 +59,7 @@ services:
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
-      - /home/timshee/certbot/live/timshee.ru:/etc/letsencrypt/certs/
+      - /home/timshee/timshee-certs/timshee.ru:/etc/letsencrypt/certs/
     depends_on:
       - django
     command: ["nginx", "-g", "daemon off;"]

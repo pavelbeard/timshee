@@ -42,7 +42,7 @@
     "start": "env-cmd -f .env react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "build:unstable": "env-cmd -f .env.unstable react-scripts build",
-    "build:stagging": "env-cmd -f .env.production react-scripts build",
+    "build:prod": "env-cmd -f .env.production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
