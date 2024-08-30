@@ -67,8 +67,6 @@ services:
   frontend:
     image: pavelbeard/frontend.production:latest
     platform: linux/amd64
-    ports:
-      - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
