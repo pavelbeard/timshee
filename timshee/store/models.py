@@ -54,7 +54,7 @@ class Collection(models.Model):
     collection_image = models.ImageField(
         upload_to="product_images/collection_images/",
         verbose_name=_("Изображение коллекции"),
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
         null=True,
     )
     link = models.CharField(
@@ -112,25 +112,25 @@ class Category(models.Model):
     category_image = models.ImageField(
         upload_to="product_images/category_images/",
         verbose_name=_("Изображение категории"),
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     category_image_women = models.ImageField(
         upload_to="product_images/category_images/women",
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     category_image_men = models.ImageField(
         upload_to="product_images/category_images/men",
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     category_image_unisex = models.ImageField(
         upload_to="product_images/category_images/unisex",
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
     # it needs for causes, when we have some products for home or smth
     apply_gender = models.BooleanField(default=True)
@@ -194,7 +194,7 @@ class CarouselImage(models.Model):
     item = models.ForeignKey("Item", on_delete=models.CASCADE)
     image = models.ImageField(
         upload_to="product_images/1/",
-        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
         null=False,
         blank=False,
     )
@@ -215,7 +215,7 @@ class Item(models.Model):
     GENDER_CHOICES = {
         WOMEN: _('WOMEN'),
         MEN: _('MEN'),
-        UNISEX: '_(UNISEX)',
+        UNISEX: _('UNISEX'),
         MISC: _('MISC'),
     }
 
@@ -231,7 +231,7 @@ class Item(models.Model):
     image = models.ImageField(
         upload_to="product_images/item_images/",
         verbose_name=_("Изображение"),
-        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])]
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])]
     )
 
     def __str__(self):
