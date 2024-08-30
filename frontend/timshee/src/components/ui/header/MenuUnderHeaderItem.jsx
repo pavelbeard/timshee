@@ -47,7 +47,7 @@ export default function MenuUnderHeaderItem({ apply_gender=null, item=null, with
                 >
                     {disabled
                         ? <span>{item?.name}</span>
-                        : <Link to={url}>{item?.name}</Link>
+                        : <Link to={url}>{item?.code}</Link>
                     }
                 </button>
                 {isOpen && <MenuTypes
