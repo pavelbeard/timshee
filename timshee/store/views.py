@@ -197,7 +197,6 @@ class WishlistViewSet(viewsets.ModelViewSet):
     def get_wishlist_by_user(self, request, *args, **kwargs):
         user = None
         session_key = None
-        print(self.get_wishlist_by_user.__name__, request.user)
         if request.user.is_authenticated:
             user = request.user
         else:

@@ -14,7 +14,6 @@ def get_product_counts():
 
     # Подсчет цветов
     for product in products:
-        print(product)
         for color in product.colors.all():
             color_count[color.name] += 1
 
