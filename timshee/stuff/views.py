@@ -40,12 +40,12 @@ class AuthViewSet(viewsets.ViewSet):
     authentication_classes = []
     permission_classes = []
     allowed_methods = ["post"]
-    serializer_class = serializers.SigninSerializer
+
 
     @action(detail=False, methods=['POST'])
     def sign_up(self, request):
         try:
-            serializer = self.serializer_class(data=request.data)
+            serializer = serializers.SignupSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             instance = serializer.save()
 
@@ -66,8 +66,14 @@ class AuthViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['POST'])
     def sign_in(self, request, *args, **kwargs):
         try:
-            username = str(self.request.data['username']).strip()
-            password = str(self.request.data['password']).strip()
+            print(request.data)
+            serializer = serializers.SigninSerializer(data=request.data)
+            # username = str(self.request.data['username']).strip()
+            # password = str(self.request.data['password']).strip()
+            serializer.is_valid(raise_exception=True)
+            data = serializer.validated_data
+            username = data['username']
+            password = data['password']
 
             if username and password:
                 user = authenticate(request=request, email=username, password=password)

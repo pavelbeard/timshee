@@ -44,7 +44,7 @@ const SignUp = () => {
             return;
         }
 
-        signUp({...formData, password, password2: confirmPassword }).unwrap()
+        signUp({...formData, username: formData.email, password, password2: confirmPassword }).unwrap()
             .then(() => {
                 // reset();
                 navigate(`/account/signin`);
@@ -79,8 +79,8 @@ const SignUp = () => {
                     required={true}
                 />
                 <CustomInput
-                    htmlFor="username"
-                    name="username"
+                    htmlFor="email"
+                    name="email"
                     type="email"
                     labelText="email:"
                     value={formData.email}

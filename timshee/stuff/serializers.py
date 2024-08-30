@@ -37,7 +37,7 @@ class SignupSerializer(serializers.ModelSerializer):
         return user
 
 
-class SigninSerializer(serializers.ModelSerializer):
+class SigninSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(style={'input_type': 'password'})
 

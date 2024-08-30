@@ -9,6 +9,8 @@ from stuff import models as stuff_models
 
 def get_experimental_feature() -> bool:
     dynamic_settings: stuff_models.DynamicSettings = stuff_models.DynamicSettings.objects.first()
+    if not dynamic_settings:
+        return True
     return dynamic_settings.experimental
 
 
@@ -17,12 +19,10 @@ class ItemAdmin(admin.ModelAdmin):
     class StockInLine(admin.TabularInline):
         model = models.Stock
         form = forms.StockForm
-        formset = forms.StockFormSet
 
     class CarouselImageInline(admin.TabularInline):
         model = models.CarouselImage
         form = forms.CarouselImageForm
-        formset = forms.CarouselImageFormSet
 
     inlines = [StockInLine, CarouselImageInline]
 

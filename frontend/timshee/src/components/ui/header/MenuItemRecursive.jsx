@@ -35,12 +35,12 @@ export default function MenuItemRecursive({ item }) {
             >
                 {item.title}
             </Link>
-            // : <div onClick={toggleOpen} className={clsx(
-            //     titleStyle.div, titleStyle.both, liStyle.both, item.disabled && titleStyle.disabled
-            // )}>{item.title}</div>;
-            : !item.disabled && <div onClick={toggleOpen} className={clsx(
-                        titleStyle.div, titleStyle.both, liStyle.both, item.disabled && titleStyle.disabled
-                    )}>{item.title}</div>;
+            : <div onClick={toggleOpen} className={clsx(
+                titleStyle.div, titleStyle.both, liStyle.both, item.disabled && titleStyle.disabled
+            )}>{item.title}</div>;
+            // : !item.disabled && <div onClick={toggleOpen} className={clsx(
+            //             titleStyle.div, titleStyle.both, liStyle.both, item.disabled && titleStyle.disabled
+            //         )}>{item.title}</div>;
 
     const subMenu = isOpen && Array.isArray(item?.subMenu) &&
             <ul className={clsx(ulStyle)} data-sub-menu="">

@@ -159,7 +159,7 @@ class Category(models.Model):
         return f"[{self.name}]"
 
     def save(self, *args, **kwargs):
-        if self.name:
+        if self.name and self.code is None or self.code == '':
             self.code = "-".join([w.lower() for w in self.name.split()])
 
         super().save(*args, **kwargs)

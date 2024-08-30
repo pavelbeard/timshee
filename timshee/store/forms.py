@@ -27,23 +27,11 @@ class StockForm(forms.ModelForm):
         model = models.Stock
         fields = '__all__'
 
-    # def __init__(self, *args, **kwargs):
-    #     super(StockForm, self).__init__(*args, **kwargs)
-    #     self.fields['size'].required = True
-    #     self.fields['color'].required = True
-    #     self.fields['in_stock'].required = True
-
-
-class StockFormSet(forms.BaseInlineFormSet):
-    def clean(self):
-        super().clean()
-        for form in self.forms:
-            size = form.cleaned_data.get('size')
-            color = form.cleaned_data.get('color')
-            in_stock = form.cleaned_data.get('in_stock')
-
-            if not any([size, color, in_stock]):
-                raise forms.ValidationError('At least one of the fields (size, color, in stock) must be filled out.')
+    def __init__(self, *args, **kwargs):
+        super(StockForm, self).__init__(*args, **kwargs)
+        self.fields['size'].required = False
+        self.fields['color'].required = False
+        self.fields['in_stock'].required = False
 
 
 class CarouselImageForm(forms.ModelForm):
@@ -51,14 +39,6 @@ class CarouselImageForm(forms.ModelForm):
         model = models.Stock
         fields = '__all__'
 
-    # def __init__(self, *args, **kwargs):
-    #     super(CarouselImageForm, self).__init__(*args, **kwargs)
-    #     self.fields['image'].required = True
-
-
-class CarouselImageFormSet(forms.BaseInlineFormSet):
-    def clean(self):
-        super().clean()
-        for form in self.forms:
-            if not form.cleaned_data.get('image'):
-                raise forms.ValidationError('Please select an image')
+    def __init__(self, *args, **kwargs):
+        super(CarouselImageForm, self).__init__(*args, **kwargs)
+        self.fields['image'].required = False
