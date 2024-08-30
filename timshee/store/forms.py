@@ -27,11 +27,11 @@ class StockForm(forms.ModelForm):
         model = models.Stock
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        super(StockForm, self).__init__(*args, **kwargs)
-        self.fields['size'].required = True
-        self.fields['color'].required = True
-        self.fields['in_stock'].required = True
+    # def __init__(self, *args, **kwargs):
+    #     super(StockForm, self).__init__(*args, **kwargs)
+    #     self.fields['size'].required = True
+    #     self.fields['color'].required = True
+    #     self.fields['in_stock'].required = True
 
 
 class StockFormSet(forms.BaseInlineFormSet):
@@ -51,9 +51,9 @@ class CarouselImageForm(forms.ModelForm):
         model = models.Stock
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        super(CarouselImageForm, self).__init__(*args, **kwargs)
-        self.fields['image'].required = True
+    # def __init__(self, *args, **kwargs):
+    #     super(CarouselImageForm, self).__init__(*args, **kwargs)
+    #     self.fields['image'].required = True
 
 
 class CarouselImageFormSet(forms.BaseInlineFormSet):
