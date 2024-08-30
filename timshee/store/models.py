@@ -12,6 +12,51 @@ from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 
+import re
+
+
+class CollectionNameBuilder:
+    def __init__(self, name):
+        self.name = name.lower()
+
+    def collection_link_builder(self):
+        S = 's'
+        A = 'a'
+        W = 'w'
+        collection_code = {
+            S: ['spring', 'summer'],
+            A: 'autumn',
+            W: 'winter'
+        }
+
+        link = ''
+
+        match_ = re.findall(r'\d{4}', self.name)
+
+        if self.name[0] == S:
+            link += '-'.join(collection_code[S])
+        elif self.name[0] == A:
+            link += collection_code[A]
+        elif self.name[0] == W:
+            link += collection_code[W]
+
+        if len(self.name) > 1:
+            if self.name[1] == S:
+                link += f"-{collection_code[S][1]}"
+
+            elif self.name[1] == W:
+                link += f"-{collection_code[W]}"
+
+        if match_:
+            if len(match_) == 2:
+                link += f"-{match_[0]}-{match_[1]}"
+            elif len(match_) == 1:
+                link += f"-{match_[0]}"
+
+        if not link:
+            return self.name.replace(' ', '-')
+
+        return link
 
 def validation_link(value):
     pattern = r'^\w+-?\w+-?\d{4}(?:-\d{4})?$'
@@ -68,36 +113,10 @@ class Collection(models.Model):
     def __str__(self):
         return f"[{self.name}]"
 
-    def __collection_link_builder(self):
-        S = 's'
-        A = 'a'
-        W = 'w'
-        collection_code = {
-            S: ['spring', 'summer'],
-            A: 'autumn',
-            W: 'winter'
-        }
-        link = ''
-        match_ = re.findall(r'\w+\d{4}\/\d{4}|\w+\d{4}', self.name)
-        if self.name[0] == S:
-            link += collection_code[S][0]
-        if self.name[1] == S:
-            link += f"-{collection_code[S][1]}-"
-        if self.name[0] == A:
-            link += collection_code[A]
-        if self.name[1] == W:
-            link += f"-{collection_code[W]}-"
-        if match_:
-            link += f"{'-'.join(re.split(r'\/|\+s', match_[0]))}"
-
-        if link == '':
-            return self.name.replace(' ', '-').lower()
-
-        return link
-
     def save(self, *args, **kwargs):
         if self.name:
-            self.link = self.__collection_link_builder()
+            link_builder = CollectionNameBuilder(self.name)
+            self.link = link_builder.collection_link_builder()
         super().save(*args, **kwargs)
 
     class Meta:
