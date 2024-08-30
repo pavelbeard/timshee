@@ -135,6 +135,8 @@ def get_flow_status(rq: HttpRequest, **kwargs):
 
         if order_id:
             payment: models.Payment = models.Payment.objects.filter(store_order_id=order_id).first()
+            # WEAK CODE
+            # check the status
             payment_id = payment.payment_id
             payment_from_yookassa = Payment.find_one(payment_id=str(payment_id))
             payment_status = payment_from_yookassa.status

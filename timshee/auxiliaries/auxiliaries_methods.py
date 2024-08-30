@@ -15,6 +15,10 @@ def get_logger(__name__):
     logger = logging.getLogger(__name__)
     return logger
 
+
+logger_ = get_logger(__name__)
+
+
 def get_logo_url(current_site):
     if settings.DEBUG:
         return f"http://{current_site}{static('static/stuff/static/img/img.png')}"
@@ -41,9 +45,11 @@ def send_email(subject, template, to, context, rq=None, current_site=None):
             recipient_list=[to],
             html_message=html_message,
         )
-    except SMTPServerDisconnected as e:
-        logger = get_logger(__name__)
-        logger.error(e, exc_info=True)
+    except (SMTPServerDisconnected, TimeoutError) as e:
+        logger_.error(e, exc_info=True)
+    except Exception as e:
+        logger_.error(e, exc_info=True)
+    finally:
         return 1
 
 def get_until_time(hours=1):
