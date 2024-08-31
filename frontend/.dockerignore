@@ -1,2 +1,3 @@
 *Dockerfile
 timshee/src/media/*
+timshee/.env
