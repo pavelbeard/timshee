@@ -2,22 +2,19 @@ import {useLocation} from "react-router-dom";
 import {clsx} from "clsx";
 import MenuUnderHeaderItem from "./MenuUnderHeaderItem";
 import {useCategories} from "../../../lib/hooks";
-import {useMemo} from "react";
+import {useCallback, useMemo} from "react";
 
 export default function MenuUnderHeader() {
     const updatedCategories = useCategories();
     const { pathname } = useLocation();
-    const visible =
+    const visible = useMemo(() =>
         pathname === "/" ||
-        pathname.includes("/shop");
+        pathname.includes("/shop"),
+        [pathname]
+    );
 
-    const headerItems = useMemo(() => Array.isArray(updatedCategories)
-        && updatedCategories.map((item, index) =>
-            <MenuUnderHeaderItem
-                key={index}
-                item={item}
-            />
-        ),[updatedCategories]);
+    const renderMenuItem = useCallback((item) => <MenuUnderHeaderItem key={item.id} item={item}/>, []);
+    const headerItems = useMemo(() => updatedCategories?.map(renderMenuItem),[updatedCategories, renderMenuItem]);
 
     return(
         <nav className={clsx(visible ? "lg:flex justify-center border-gray-200 border-y-[1px]" : 'hidden')}>

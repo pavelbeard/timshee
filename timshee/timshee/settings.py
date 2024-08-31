@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'colorfield',
     'django_filters',
     'mjml',
+    'dragndrop_related',
     # my
     "store.apps.StoreConfig",
     "cart.apps.CartConfig",
@@ -226,6 +227,8 @@ elif PRODUCTION or UNSTABLE:
     CSRF_TRUSTED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
     CORS_ALLOWED_ORIGINS = re.split(r",|\s", os.getenv("ALLOWED_ORIGINS", ""))
 
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_NAME = 'csrfmiddlewaretoken'
 CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "OPTIONS", "DELETE"]
 CORS_ALLOW_CREDENTIALS = True
 

@@ -211,7 +211,7 @@ class Stock(models.Model):
 
 class CarouselImage(models.Model):
     """It needs for make merry-go-round of images in an internet-store"""
-    item = models.ForeignKey("Item", on_delete=models.CASCADE)
+    item = models.ForeignKey("Item", on_delete=models.CASCADE, related_name="carousel_images")
     image = models.ImageField(
         upload_to="product_images/1/carousel_images/",
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],

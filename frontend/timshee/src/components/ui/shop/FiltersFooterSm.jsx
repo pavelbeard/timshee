@@ -11,7 +11,7 @@ export default function FiltersFooterSm({ onClose }) {
     const resetAll = useResetFiltersAll();
     const { t } = useTranslation();
     const style = clsx(
-        'flex mb-1 justify-between border-t-[1px] border-gray-200',
+        'flex mb-24 justify-between border-t-[1px] border-gray-200',
     );
     const apply = () => {
         dispatch(setOpenBlock(null));

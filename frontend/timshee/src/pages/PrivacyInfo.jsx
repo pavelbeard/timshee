@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {clsx} from "clsx";
 import {Link} from "react-router-dom";
 import {useFocus} from "../lib/hooks";
+import Cookies from "js-cookie";
 
 const PrivacyInfo = () => {
     const { i18n } = useTranslation();
@@ -19,12 +20,11 @@ const PrivacyInfo = () => {
         'underline underline-offset-2'
     );
 
-    const ref = <span tabIndex="-1" ref={containerRef}></span>
-
-    switch (i18n.language) {
-        case "en":
+    switch (Cookies.get('server_language')) {
+        case "en": case "en-US": case "en-us":
             return (
-                <div autoFocus={true} className={clsx(privacyInfoTextStyle)}>
+                <div className={clsx(privacyInfoTextStyle)}>
+                    <span autoFocus={true} tabIndex="-1" ref={containerRef}></span>
                     <h1 className={clsx(privacyInfoHeaderStyle)}>Privacy policy</h1>
                     <h2 className={clsx(privacyInfoHeaderStyle)}>Date of last change: 12/06/2024</h2>
                     <div style={{wordBreak: "break-word"}}>
@@ -111,7 +111,7 @@ const PrivacyInfo = () => {
         case "ru":
             return (
                 <div className={clsx(privacyInfoTextStyle)}>
-                    {ref}
+                    <span autoFocus={true} tabIndex="-1" ref={containerRef}></span>
                     <h1 className={clsx(privacyInfoHeaderStyle)}>Политика конфиденциальности </h1>
                     <h2 className={clsx(privacyInfoHeaderStyle)}>Дата последнего изменения: 12/06/2024</h2>
                     <div style={{wordBreak: "break-word"}}>
@@ -186,7 +186,8 @@ const PrivacyInfo = () => {
                         <p>Для реализации этих прав свяжитесь с нами по адресу электронной почты:
                             <Link
                                 className={clsx(emailUnderline)}
-                                to="mailto:timsheestore@gmail.com?Subject=Privacy%20rights">timsheestore@gmail.com.</Link></p>
+                                to="mailto:timsheestore@gmail.com?Subject=Privacy%20rights">timsheestore@gmail.com.</Link>
+                        </p>
                         <h3>7. Изменения в Политике конфиденциальности</h3>
                         <p>
                             Мы оставляем за собой право изменять данную Политику конфиденциальности в любое время.
@@ -197,7 +198,6 @@ const PrivacyInfo = () => {
                 </div>
             )
     }
-
 };
 
 export default PrivacyInfo;

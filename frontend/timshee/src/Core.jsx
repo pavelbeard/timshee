@@ -16,7 +16,7 @@ import Redirect from "./pages/Redirect";
 
 export default function Core() {
     const dispatch = useDispatch();
-    const { t } = useTranslation();
+    const { i18n, t } = useTranslation();
     const [triggerWishlist] = useLazyGetWishlistByUserQuery();
     const [triggerCartItems] = useLazyGetCartItemsQuery();
 
@@ -38,9 +38,9 @@ export default function Core() {
     };
 
     useEffect(() => {
-        initOrderByArr();
+        if(i18n.isInitialized) initOrderByArr();
         callByTrigger();
-    }, []);
+    }, [i18n.isInitialized]);
 
     return (
         <BrowserRouter>

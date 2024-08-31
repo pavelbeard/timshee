@@ -4,6 +4,7 @@ import MenuItemFlat from "./MenuItemFlat";
 import {clsx} from "clsx";
 import {useSelector} from "react-redux";
 import {selectCollections, selectFilters, selectGenders} from "../../../redux/features/store/storeSlice";
+import {useMemo} from "react";
 
 export default function MenuLeft() {
     const { t } = useTranslation();
@@ -11,7 +12,7 @@ export default function MenuLeft() {
     const g = gender === undefined ? "women" : gender;
     const genders = useSelector(selectGenders);
     const collections = useSelector(selectCollections);
-    const menuLeft = [
+    const menuLeft = useMemo(() => [
         {
             title: t('header:women'),
             url: `/${genders.women}/shop`
@@ -42,11 +43,11 @@ export default function MenuLeft() {
                 }
             ]
         }
-    ];
+    ], [genders, collections, g]);
 
-    const menuItems = menuLeft.map((item, index) =>
-        <MenuItemFlat key={index} item={item} />
-    );
+    const menuItems = useMemo(() => menuLeft.map((item) =>
+        <MenuItemFlat key={item.title} item={item} />
+    ), [menuLeft]);
 
     return (
         <nav>

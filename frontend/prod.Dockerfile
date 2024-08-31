@@ -15,9 +15,9 @@ RUN \
 
 RUN \
    if [ -f yarn.lock ]; then yarn build; \
-   elif [ -f package-lock.json ]; then npm run build:prod; \
+   elif [ -f package-lock.json ]; then npm run build; \
    elif [ -f pnpm-lock.yaml ]; then pnpm build; \
-   else npm run build:prod; \
+   else npm run build; \
    fi
 
 

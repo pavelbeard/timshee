@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {memo, useEffect} from 'react';
 import {useParams} from "react-router-dom";
 import {useFetchItems, usePagination, useWindowSize} from "../../lib/hooks";
 import Error from "../Error"
@@ -14,13 +14,56 @@ import SelectedFilters from "../../components/ui/shop/SelectedFilters";
 import FiltersSelectContainerLg from "../../components/ui/shop/FiltersSelectContainerLg";
 import ItemsTotal from "../../components/ui/shop/ItemsTotal";
 
+const FiltersContainer = memo(({ width }) => (
+  <>
+    {width <= 768 ? <FiltersAdjustmentsSmallScreen /> : (
+      <FiltersBigScreen>
+        <FiltersGroupLg />
+        <FiltersSelectContainerLg />
+        <ItemsTotal className="roboto-text flex justify-end" />
+      </FiltersBigScreen>
+    )}
+    {width > 768 && <SelectedFilters />}
+  </>
+));
+
+const ConditionalRender = memo(({
+   isLoading,
+   isSuccess,
+   itemsObject,
+   error,
+   currentPage,
+   setCurrentPage,
+   prevPage,
+   nextPage
+}) => (
+    <>
+        {isLoading && <ItemCardsSkeleton />}
+        {isSuccess && itemsObject?.items?.length > 0 && <ItemCards itemsObject={itemsObject} />}
+        {isSuccess && itemsObject?.items?.length > 9 && (
+          <Pagination
+            totalPages={itemsObject?.pagesCount || 1}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            prevPage={prevPage}
+            nextPage={nextPage}
+          />
+        )}
+        {isSuccess && itemsObject?.items?.length === 0 && <Nothing />}
+        {error?.status === 404 && <Error />}
+    </>
+));
+
 
 export default function Shop() {
-    window.document.title = "Shop | Timshee";
     const params = useParams();
     const { width } = useWindowSize();
     const { applyFilters, itemsObject, isLoading, isSuccess, error } = useFetchItems();
     const [ currentPage, setCurrentPage, prevPage, nextPage ] = usePagination(itemsObject);
+
+    useEffect(() => {
+        document.title = "Shop | Timshee";
+    }, []);
 
     useEffect(() => {
         applyFilters('/store/stocks/get_items_detail/?')
@@ -32,28 +75,17 @@ export default function Shop() {
                 error={error}
                 params={params}
             />
-
-            {width <= 768 && <FiltersAdjustmentsSmallScreen />}
-            {width > 768 && <FiltersBigScreen>
-                <FiltersGroupLg />
-                <FiltersSelectContainerLg />
-                <ItemsTotal className="roboto-text flex justify-end"/>
-            </FiltersBigScreen>}
-            {width > 768 && <SelectedFilters />}
-            {isLoading && <ItemCardsSkeleton />}
-            {isSuccess && itemsObject?.items?.length > 0 && <>
-                <ItemCards itemsObject={itemsObject}/>
-            </>}
-            {isSuccess && itemsObject?.items?.length > 9 &&
-                <Pagination
-                    totalPages={itemsObject?.pagesCount || 1}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    prevPage={prevPage}
-                    nextPage={nextPage}
-                />}
-            {isSuccess && itemsObject?.items?.length === 0 && <Nothing />}
-            {error?.status && error?.status === 404 && <Error />}
+            <FiltersContainer width={width} />
+            <ConditionalRender
+                isLoading={isLoading}
+                isSuccess={isSuccess}
+                itemsObject={itemsObject}
+                error={error}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                prevPage={prevPage}
+                nextPage={nextPage}
+            />
         </div>
     )
 }

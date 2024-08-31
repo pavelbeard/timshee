@@ -2,10 +2,11 @@ import {Link, useLocation, useParams} from "react-router-dom";
 import MenuFlatLeaf from "./MenuFlatLeaf";
 import {clsx} from "clsx";
 import UnderlineDynamic from "../UnderlineDynamic";
+import {useMemo} from "react";
 
 export default function MenuItemFlat({ item }) {
     const { pathname } = useLocation();
-    const underline = pathname.startsWith(item.url);
+    const underline = useMemo(() => pathname.startsWith(item.url), [pathname])
     return (
         <li className={clsx("p-2")}>
             {item?.url

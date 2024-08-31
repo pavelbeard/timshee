@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
+from dragndrop_related.views import DragAndDropRelatedImageMixin
 
 from . import models, forms, store_logic
 from stuff import models as stuff_models
@@ -15,7 +16,9 @@ def get_experimental_feature() -> bool:
 
 
 @admin.register(models.Item)
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
+    related_manager_field_name = 'carousel_images'
+
     class StockInLine(admin.TabularInline):
         model = models.Stock
         form = forms.StockForm

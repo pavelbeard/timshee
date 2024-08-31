@@ -10,7 +10,7 @@ i18n
     .use(Backend)
     .init({
         react: {
-            useSuspense: false,
+            useSuspense: true,
         },
         // fallbackLng: "en",
         // lng: "ru",

@@ -3,6 +3,7 @@ import React from "react";
 import {clsx} from "clsx";
 import {useTranslation} from "react-i18next";
 import ItemImage from "../ui/ItemImage";
+import OptimizedImage from "../ui/OptimizedImage";
 
 export default function ItemCard({ item }) {
     const { gender } = useParams();
@@ -23,6 +24,7 @@ export default function ItemCard({ item }) {
             >
                 <ItemImage
                     src={item.image}
+                    // addBaseUrl={false}
                     alt="alt-item-image"
                     className={'h-48 md:h-72 lg:h-[22rem]'}
                 />

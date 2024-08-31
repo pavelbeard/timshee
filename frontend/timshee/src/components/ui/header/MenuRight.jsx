@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {selectCurrentToken} from "../../../redux/features/store/authSlice";
@@ -19,7 +19,7 @@ export default function MenuRight() {
     const wishlistItemsTotal = useSelector(selectWishlistLength);
     const { width } = useWindowSize();
 
-    const menuRight = [
+    const menuRight = useMemo(() =>[
         {
             title: t('header:shippingMethods'),
             url: '/shipping',
@@ -66,11 +66,12 @@ export default function MenuRight() {
             url: (width > 1024 || pathname === '/cart') ? null : '/cart',
             action: () => dispatch(toggleCartMenu())
         }
-    ];
+    ], [wishlistItemsTotal, cartItemsTotal]);
 
-    const menuItems = menuRight.map((item, index) =>
+    const menuItems = useMemo(() => menuRight.map((item, index) =>
         <MenuItemFlat key={index} item={item} />
-    );
+    ), [menuRight]);
+
     return (
         <nav>
             <ul className={clsx('w-full flex justify-end')}>{menuItems}</ul>

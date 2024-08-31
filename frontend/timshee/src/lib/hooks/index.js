@@ -1,13 +1,11 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {api} from "../api";
 import {useDispatch, useSelector} from "react-redux";
 import {setToken, setUser} from "../../redux/features/store/authSlice";
 import {useSignInMutation, useSignOutMutation} from "../../redux/features/api/authApiSlice";
-import {useSendEmailMutation} from "../../redux/features/api/sendEmailApiSlice";
 import {CheckoutFormContext} from "../../providers/CheckoutFormProvider";
-import {render} from "@react-email/components";
 import {
     resetCategories,
     resetCollections,
@@ -24,7 +22,6 @@ import {
     setItemsObject,
     setLoading, uncheckAll,
 } from "../../redux/features/store/storeSlice";
-
 
 export const useWindowSize = () => {
     const [windowSize, setWindowSize] = useState({
@@ -171,28 +168,51 @@ export const useFetchItems = () => {
     const error = useSelector(selectErrorObj);
     const itemsObject = useSelector(selectItemsObject);
 
-    let filters = {
-        item__gender: gender,
+    const buildFilters = () => {
+        const filters = { item__gender: gender };
+        const params = [
+            {
+                key: 'sizes',
+                filter: 'size__value__in',
+            },
+            {
+                key: 'colors',
+                filter: 'color__hex__in',
+            },
+            {
+                key: 'types',
+                filter: 'item__type__code__in',
+            },
+            {
+                key: 'collections',
+                filter: 'item__collection__link__in',
+            },
+            {
+                key: 'categories',
+                filter: 'item__type__category__code__in',
+            },
+            {
+                key: 'o',
+                filter: 'o',
+            },
+            {
+                key: 'page',
+                filter: 'page',
+            }
+        ];
+
+        params.forEach(p => {
+            const values = searchParams.getAll(p.key);
+            if (values?.length > 0) {
+                filters[`${p.filter}`] = values;
+            }
+        });
+
+        return filters;
     };
 
-    const size = searchParams.getAll('sizes')
-    const color = searchParams.getAll('colors')
-    const type = searchParams.getAll('types');
-    const collection = searchParams.getAll('collections');
-    const category = searchParams.getAll('categories');
-    const orderBy = searchParams.getAll('o');
-    const page = searchParams.getAll('page');
-
-    if (size?.length > 0) filters['size__value__in'] = size;
-    if (color?.length > 0) filters['color__hex__in'] = color;
-    if (type?.length > 0) filters['item__type__code__in'] = type;
-    if (collection?.length > 0) filters['item__collection__link__in'] = collection;
-    if (category?.length > 0) filters['item__type__category__code__in'] = category;
-    if (orderBy?.length > 0) filters['o'] = orderBy;
-    if (page?.length > 0) filters['page'] = page;
-
-
-    const applyFilters = (apiEndpoint) => {
+    const applyFilters = useCallback((apiEndpoint) => {
+        const filters = buildFilters();
         const url = `${apiEndpoint}${new URLSearchParams(filters).toString()}`;
         api.get(url)
             .then(res => {
@@ -216,7 +236,7 @@ export const useFetchItems = () => {
             .finally(() =>
                 dispatch(setLoading(false))
             );
-    };
+    }, [dispatch, gender, searchParams]);
 
     return { applyFilters, itemsObject, isLoading, isError, error, isSuccess };
 };
@@ -330,7 +350,7 @@ export const useFocus = (pathnameExt) => {
 
     useEffect(() => {
         if (pathnameExt === pathname) {
-            ref.current.focus();
+            ref?.current?.focus();
         }
 
     }, [pathname]);

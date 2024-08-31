@@ -272,7 +272,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
     allowed_methods = ["GET"]
 
     def get(self, request):
-        dyn_settings = models.DynamicSettings.objects.filter(pk=1).first()
+        dyn_settings = models.DynamicSettings.objects.first()
         session = None
         if not request.COOKIES.get('sessionid'):
             session = request.session.create()
