@@ -18,7 +18,7 @@ export default function ItemImage({ src, alt, className }) {
             className={clsx(
                 'img-container',
                 'flex justify-center items-center',
-                !loaded && 'bg-gray-400 blur transition opacity ease-in-out',
+                // !loaded && 'bg-gray-400 blur transition opacity ease-in-out',
                 className
             )}
              data-blur-container="">
@@ -26,8 +26,11 @@ export default function ItemImage({ src, alt, className }) {
                 ref={imageRef}
                 src={src}
                 alt={alt}
-                className={clsx('object-contain max-w-full max-h-full', !loaded && 'opacity-0')}
-                loading="lazy"
+                className={clsx(
+                    'object-contain max-w-full max-h-full',
+                    // !loaded && 'opacity-0'
+                )}
+                // loading="lazy"
             />
         </div>
     )
