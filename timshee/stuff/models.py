@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from shortuuid.django_fields import ShortUUIDField
 
 from auxiliaries.auxiliaries_methods import get_until_time
+# from order import models as order_models
 
 
 class Singleton(models.Model):
@@ -32,12 +33,15 @@ class UserProfile(models.Model):
         choices=settings.LANGUAGES,
         default=settings.LANGUAGE_CODE
     )
+    # country = models.ForeignKey(order_models.Country, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class DynamicSettings(Singleton):
     on_content_update = models.BooleanField(default=False)
     on_maintenance = models.BooleanField(default=False)
     experimental = models.BooleanField(default=False)
+    international = models.BooleanField(default=False)
+    compress_pics_on_server = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _('Dynamic Settings')

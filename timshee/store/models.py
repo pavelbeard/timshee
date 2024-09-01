@@ -5,14 +5,14 @@ from colorfield import fields
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-from django.db import models
 from django.core.validators import FileExtensionValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from stuff.models import Singleton
 
 
 # Create your models here.
-
-import re
 
 
 class CollectionNameBuilder:
@@ -226,6 +226,9 @@ class CarouselImage(models.Model):
         verbose_name = _("Carousel Image")
         verbose_name_plural = _("Carousel Images")
 
+class CurrencyMultiplication(Singleton):
+    euro = models.DecimalField(max_digits=8, decimal_places=2, default=1)
+    dollar = models.DecimalField(max_digits=8, decimal_places=2, default=1)
 
 class Item(models.Model):
     WOMEN = 'women'
@@ -263,9 +266,23 @@ class Item(models.Model):
 
         return None
 
+    def calculate_international_price(self, user):
+        """Method converts prices depend on location"""
+        country_name = user.userprofile.country.name
+        match country_name:
+            case "Russia":
+                return self.price
+            case "USA" | "United States":
+                return self.price / CurrencyMultiplication.objects.first().dollar
+            case "Spain" | "Poland" :
+                return self.price / CurrencyMultiplication.objects.first().euro
+
+        pass
+
     class Meta:
         verbose_name = _("Item")
         verbose_name_plural = _("Items")
+
 
 
 class Wishlist(models.Model):

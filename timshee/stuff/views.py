@@ -311,7 +311,11 @@ class LanguageViewSet(viewsets.ViewSet):
         if request.user.is_authenticated:
             lang = User.objects.get(id=request.user.id).userprofile.preferred_language
         elif request.COOKIES.get('server_language') is None:
-            lang = settings.LANGUAGE_CODE
+            dyn_settings: models.DynamicSettings = models.DynamicSettings.objects.first()
+            if dyn_settings and dyn_settings.international:
+                lang = settings.LANGUAGE_CODE
+            else:
+                lang = 'ru'
         else:
             lang = request.COOKIES.get('server_language')
 

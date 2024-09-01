@@ -36,7 +36,7 @@ export default function Footer() {
                 <nav className="m-1 flex items-center p-2">
                     <span>{t('stuff:paymentOptions')}</span>
                     <CreditCardIcon className="mx-2 size-4" strokeWidth="0.5" />
-                    {dynSetts?.experimental && <>
+                    {dynSetts?.international && <>
                         <span className="border-l-[1px] border-gray-200 pl-2">{t('stuff:languages')}</span>
                         <LanguageIcon strokeWidth="0.5" className="ml-2 size-4"/>
                         <ul className="flex flex-row">{languagesMenu}</ul>
@@ -59,9 +59,9 @@ export default function Footer() {
                 {/*</nav>*/}
                 <nav className="px-2">
                     <ul className="flex flex-col lg:flex-row">
-                        <li className="m-1"><Link to={'/privacy'}>Privacy&Cookie</Link></li>
-                        <li className="m-1"><Link to={'/offer'}>{t('stuff:offer')}</Link></li>
-                        <li className="m-1"><Link to={'/contacts'}>{t('stuff:contacts')}</Link></li>
+                        <li className="m-1"><Link to='/privacy'>Privacy&Cookie</Link></li>
+                        <li className="m-1"><Link to='/offer'>{t('stuff:offer')}</Link></li>
+                        <li className="m-1"><Link to='/contacts'>{t('stuff:contacts')}</Link></li>
                         {/*<li className="nav-item"><Link to="">Twi</Link></li>*/}
                         {/*<li className="nav-item"><Link to="">Telegram</Link></li>*/}
                     </ul>

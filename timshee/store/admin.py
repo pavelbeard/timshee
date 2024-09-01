@@ -8,11 +8,11 @@ from stuff import models as stuff_models
 
 # Register your models here.
 
-def get_experimental_feature() -> bool:
+def compress_pics_on_server() -> bool:
     dynamic_settings: stuff_models.DynamicSettings = stuff_models.DynamicSettings.objects.first()
     if not dynamic_settings:
-        return True
-    return dynamic_settings.experimental
+        return False
+    return dynamic_settings.compress_pics_on_server
 
 
 @admin.register(models.Item)
@@ -30,7 +30,7 @@ class ItemAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
     inlines = [StockInLine, CarouselImageInline]
 
     def save_model(self, request, obj, form, change):
-        if not get_experimental_feature():
+        if compress_pics_on_server():
             if obj.image:
                 obj.image = store_logic.compress_image(obj.image)
         super().save_model(request, obj, form, change)
@@ -39,7 +39,7 @@ class ItemAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
 @admin.register(models.CarouselImage)
 class StockImageAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
-        if not get_experimental_feature():
+        if compress_pics_on_server():
             if obj.image:
                 obj.image = store_logic.compress_image(obj.image)
         super().save_model(request, obj, form, change)
@@ -73,7 +73,7 @@ class CategoryAdmin(admin.ModelAdmin):
     inlines = [TypeInline]
 
     def save_model(self, request, obj, form, change):
-        if not get_experimental_feature():
+        if compress_pics_on_server():
             if obj.category_image:
                 obj.category_image = store_logic.compress_image(obj.category_image)
         super().save_model(request, obj, form, change)
@@ -84,7 +84,7 @@ class CollectionAdmin(admin.ModelAdmin):
     form = forms.CollectionForm
 
     def save_model(self, request, obj, form, change):
-        if not get_experimental_feature():
+        if compress_pics_on_server():
             if obj.collection_image:
                 obj.collection_image = store_logic.compress_image(obj.collection_image)
         super().save_model(request, obj, form, change)
