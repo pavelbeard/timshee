@@ -105,5 +105,6 @@ class WishlistSerializer(serializers.ModelSerializer):
         fields = super().get_fields(*args, **kwargs)
         request = self.context.get('request')
         if request is not None and not request.parser_context.get('kwargs'):
-            fields.pop('session')
+            if hasattr(fields, 'session'):
+                fields.pop('session')
         return fields

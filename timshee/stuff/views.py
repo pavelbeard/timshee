@@ -284,6 +284,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
             "onContentUpdate": dyn_settings.on_content_update,
             "onMaintenance": dyn_settings.on_maintenance,
             "experimental": dyn_settings.experimental,
+            "international": dyn_settings.international,
         }, status=status.HTTP_200_OK)
         if session:
             response.set_cookie(
