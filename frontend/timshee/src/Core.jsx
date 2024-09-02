@@ -34,8 +34,8 @@ export default function Core() {
     };
 
     const callByTrigger = () => {
-        triggerWishlist().unwrap().catch((err) => console.error(err));
-        triggerCartItems().unwrap().catch((err) => console.error(err));
+        triggerWishlist().unwrap().catch((err) => null);
+        triggerCartItems().unwrap().catch((err) => null);
     };
 
     const changeLang = async () => {

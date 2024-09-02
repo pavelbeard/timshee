@@ -134,7 +134,7 @@ export const CheckoutFormProvider = ({ children }) => {
                 shippingAddress['email'] = user;
             }
 
-            if (!('as_primary' in formData)) {
+            if (!('as_primary' in formData) && !token) {
                 shippingAddress['as_primary'] = true;
             }
 
