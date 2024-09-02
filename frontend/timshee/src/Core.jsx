@@ -43,7 +43,6 @@ export default function Core() {
     }
 
     useEffect(() => {
-        console.log('change_lang')
         changeLang();
     }, [i18n.isInitialized, Cookies.get('server_language')]);
 

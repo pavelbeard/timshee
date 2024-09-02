@@ -132,16 +132,18 @@ export default function ShippingAddress() {
                     value={formData?.shipping_address?.phone_number || ""}
                     onChange={setFormData}
                 />
-                <CustomInput
-                    labelClassName={'w-1/3'}
-                    htmlFor="as_primary"
-                    name="as_primary"
-                    type="checkbox"
-                    labelText={t('account.forms:asPrimary')}
-                    required={false}
-                    checked={formData?.shipping_address?.as_primary || false}
-                    onChange={setFormData}
-                />
+                {token &&
+                    <CustomInput
+                        labelClassName={'w-1/3'}
+                        htmlFor="as_primary"
+                        name="as_primary"
+                        type="checkbox"
+                        labelText={t('account.forms:asPrimary')}
+                        required={false}
+                        checked={formData?.shipping_address?.as_primary || false}
+                        onChange={setFormData}
+                    />
+                }
             </section>
         </>
     )

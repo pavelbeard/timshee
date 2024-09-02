@@ -134,9 +134,12 @@ export const CheckoutFormProvider = ({ children }) => {
                 shippingAddress['email'] = user;
             }
 
+            if (!('as_primary' in formData)) {
+                shippingAddress['as_primary'] = true;
+            }
+
             updateOrder({orderId, data: shippingAddress}).unwrap()
                 .then(res => {
-                    console.log(res)
                     if (res?.shipping_address) {
                         reset('shipping_address')
                         setPage(2)

@@ -67,6 +67,7 @@ export const cartApiSlice = _apiSliceWithTags.injectEndpoints({
 });
 
 export const {
+    useGetCartItemsQuery,
     useLazyGetCartItemsQuery,
     useAddCartItemMutation,
     useChangeQuantityMutation,
