@@ -1,5 +1,6 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
 import {authTags, stuffTags} from "./tags";
+import i18n from "../../../i18n";
 
 const tags = { ...authTags, ...stuffTags };
 
@@ -68,7 +69,7 @@ export const stuffApiSlice = apiSlice.injectEndpoints({
             query: () => ({
                 url: '/stuff/lang/get_current_language/',
                 method: 'GET'
-            })
+            }),
         }),
         changeLanguage: builder.mutation({
             query: (data) => ({

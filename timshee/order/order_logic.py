@@ -1,13 +1,12 @@
 import copy
 
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sessions.models import Session
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.contrib.sessions.models import Session
-from auxiliaries.auxiliaries_methods import get_logger, send_email
 
+from auxiliaries.auxiliaries_methods import get_logger, send_email
 from . import models
 
 logger = get_logger(__name__)
@@ -60,7 +59,7 @@ def update_shipping_info(rq, get_serializer, **kwargs):
             data["user"] = rq.user.id
             user = rq.user
         else:
-            session_obj = Session.objects.get(session_key=rq.COOKIES['sessionid'])
+            session_obj = Session.objects.get(session_key=rq.COOKIES.get('sessionid'))
 
         data["updated_at"] = timezone.now()
         order = models.Order.objects.get(second_id=kwargs.get('second_id'))
@@ -72,10 +71,9 @@ def update_shipping_info(rq, get_serializer, **kwargs):
                 shipping_address_id = shipping_data.get('id')
                 address = models.Address.objects.filter(Q(id=shipping_address_id) | Q(session=session_obj) | Q(user=user))
                 if address.exists():
-                    shipping_data_session = shipping_data.pop('session', None)
                     updated_address = address.first()
                     if not user:
-                        updated_address.session = Session.objects.filter(session_key=shipping_data_session['session_key']).first()
+                        updated_address.session = session_obj
                     updated_address.province = province
                     updated_address.country_phone_code = country_phone_code
                     for k, v in shipping_data.items():

@@ -182,7 +182,7 @@ def remove_item(rq, serializer_data) -> bool:
     cart_manager = CartManager(rq)
     cart = cart_manager.get_cart()
     cart_item = cart.cart_items.filter(stock_item=serializer_data['stock_id']).first()
-    quantity = cart_item.quantity
+    quantity = cart_item.quantity if hasattr(cart_item, 'quantity') else 0
 
     if cart.get_total_items() - quantity >= 0:
         # deleting cart item

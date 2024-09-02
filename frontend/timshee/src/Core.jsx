@@ -13,6 +13,7 @@ import {initOrderBy} from "./redux/features/store/storeSlice";
 import {useLazyGetWishlistByUserQuery} from "./redux/features/api/storeApiSlice";
 import {useLazyGetCartItemsQuery} from "./redux/features/api/cartApiSlice";
 import Redirect from "./pages/Redirect";
+import Cookies from "js-cookie";
 
 export default function Core() {
     const dispatch = useDispatch();
@@ -37,8 +38,19 @@ export default function Core() {
         triggerCartItems().unwrap().catch((err) => console.error(err));
     };
 
+    const changeLang = async () => {
+        await i18n.changeLanguage(Cookies.get('server_language'))
+    }
+
     useEffect(() => {
-        if(i18n.isInitialized) initOrderByArr();
+        console.log('change_lang')
+        changeLang();
+    }, [i18n.isInitialized, Cookies.get('server_language')]);
+
+    useEffect(() => {
+        if(i18n.isInitialized) {
+            initOrderByArr();
+        }
         callByTrigger();
     }, [i18n.isInitialized]);
 

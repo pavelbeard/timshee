@@ -309,16 +309,19 @@ class LanguageViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["GET"])
     def get_current_language(self, request):
+        dyn_settings: models.DynamicSettings = models.DynamicSettings.objects.first()
         if request.user.is_authenticated:
             lang = User.objects.get(id=request.user.id).userprofile.preferred_language
         elif request.COOKIES.get('server_language') is None:
-            dyn_settings: models.DynamicSettings = models.DynamicSettings.objects.first()
             if dyn_settings and dyn_settings.international:
                 lang = settings.LANGUAGE_CODE
             else:
                 lang = 'ru'
         else:
-            lang = request.COOKIES.get('server_language')
+            if dyn_settings and dyn_settings.international:
+                lang = request.COOKIES.get('server_language')
+            else:
+                lang = 'ru'
 
         response = Response()
         response.set_cookie(

@@ -35,7 +35,7 @@ def order_status_for_mail(sender, instance: models.Order, **kwargs):
     if instance.user and hasattr(instance.user, 'email'):
         usrid = instance.user.email
     elif instance.shipping_address and hasattr(instance.shipping_address, 'email'):
-        usrid = instance.shipping_address.user.email
+        usrid = instance.shipping_address.email
 
 
     if instance.status == models.Order.PROCESSING:
