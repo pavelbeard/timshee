@@ -1,11 +1,13 @@
 import React from 'react';
+import Container from "../components/ui/Container";
+import {useTranslation} from "react-i18next";
 
 const OnContentUpdate = () => {
+    const { t } = useTranslation();
     return (
-        <div style={{ paddingTop: "10px", display: "flex", justifyContent: "center" }}>
-            {/*<h3>{t.stuff.nothing[language]}</h3>*/}
-            <h3>Магазин закрыт на обновление коллекции. Скоро вернемся.</h3>
-        </div>
+        <Container>
+            <h3>{t('stuff:nothing')}</h3>
+        </Container>
     )
 };
 

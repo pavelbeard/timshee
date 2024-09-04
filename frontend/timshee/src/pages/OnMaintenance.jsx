@@ -1,14 +1,14 @@
 import React from 'react';
-import t from "../main/translate(old)/TranslateService";
+import {useTranslation} from "react-i18next";
+import Container from "../components/ui/Container";
 
 const OnMaintenance = () => {
-    const language = t.language();
+    const { t } = useTranslation();
 
     return (
-        <div style={{ paddingTop: "10px", display: "flex", justifyContent: "center" }}>
-            {/*<h3>{t.stuff.nothing[language]}</h3>*/}
-            <h3>Магазин находится на техническом обслуживании. Скоро вернемся.</h3>
-        </div>
+        <Container>
+            <h3>{t('stuff:nothing')}</h3>
+        </Container>
     )
 };
 

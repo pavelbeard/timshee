@@ -1,5 +1,4 @@
 import React from "react";
-import t from "../main/translate(old)/TranslateService";
 import {useTranslation} from "react-i18next";
 
 const Loading = () => {

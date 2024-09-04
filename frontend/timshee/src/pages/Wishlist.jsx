@@ -1,3 +1,5 @@
+// noinspection JSFileReferences
+
 import React from "react";
 import Nothing from "./Nothing";
 import {Link} from "react-router-dom";
@@ -79,7 +81,7 @@ function WishlistEmpty() {
             <Nothing />
             <div className="w-1/3">
                 <Button>
-                    <Link className="w-full h-full" to={'/women/shop'}>{t('wishlist:addItemsToWL')}</Link>
+                    <Link className="w-full h-full" to='/women/shop'>{t('wishlist:addItemsToWL')}</Link>
                 </Button>
             </div>
         </Container>
