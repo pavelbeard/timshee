@@ -1,6 +1,5 @@
 import {createSlice, current} from "@reduxjs/toolkit";
 import {apiSlice} from "../../services/app/api/apiSlice";
-import state from "../../../main/translate(old)/TranslateService";
 
 const accountSlice = createSlice({
     name: 'account',
