@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 
 import {clsx} from "clsx";
-import CustomInput from "../../ui/forms/CustomInput";
+import CustomInput from "../../ui/forms/CustomInputNew";
 import Button from "../../ui/Button";
 import CustomTitle from "../../ui/forms/CustomTitle";
 import {XMarkIcon} from "@heroicons/react/24/outline";
@@ -54,7 +54,7 @@ const ChangeEmailForm = ({ onClose }) => {
     } else {
         return (
             <div
-                className="flex bg-white w-10/12 lg:w-1/2 h-7/12 lg:h-3/4 flex-col items-center justify-center p-6"
+                className="flex bg-white w-10/12 lg:w-1/2 h-7/12 lg:h-3/4 flex-col items-center justify-center"
                 onClick={e => e.stopPropagation()}
             >
                 <CustomTitle title={t('account.forms:changeOrConfirmEmail')}/>

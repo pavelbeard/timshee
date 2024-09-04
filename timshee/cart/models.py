@@ -1,3 +1,4 @@
+import math
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -30,11 +31,13 @@ class Cart(models.Model):
         return f"[{_('Cart for')}: {cart_id}]"
 
     def get_total_price(self):
-        result = self.cart_items.annotate(
+        result: Decimal = self.cart_items.annotate(
             total_price=F('stock_item__item__price') * F('quantity')).aggregate(
             total=Sum('total_price', output_field=DecimalField()),
         )['total']
-        return result
+        if result:
+            return math.floor(result * 100) / 100
+        return 0
 
     def get_total_items(self):
         return self.cart_items.aggregate(total=Sum('quantity'))['total'] or 0

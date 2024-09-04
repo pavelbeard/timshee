@@ -1,5 +1,5 @@
 import React from 'react';
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import NotFound from "../../../NotFound";
 import {useTranslation} from "react-i18next";
 import Button from "../../../../components/ui/Button";
@@ -11,6 +11,7 @@ import {
 } from "../../../../redux/features/api/stuffApiSlice";
 import Container from "../../../../components/ui/Container";
 import {useSearchParameters} from "../../../../lib/hooks";
+import CustomPassword from "../../../../components/ui/forms/CustomPassword";
 
 const Reset = () => {
     const navigate = useNavigate();
@@ -61,7 +62,7 @@ const Reset = () => {
         return (
             <Container className="flex justify-center">
                 <form className="flex flex-col w-2/6" onSubmit={handleChangePassword}>
-                    <CustomInput
+                    <CustomPassword
                         htmlFor="password1"
                         type="password"
                         labelText={t('stuff.forms:recoverAccessNewPass')}
@@ -72,7 +73,7 @@ const Reset = () => {
                         }}
                         required={true}
                     />
-                    <CustomInput
+                    <CustomPassword
                         htmlFor="password2"
                         type="password"
                         labelText={t('stuff.forms:passwordConfirm')}

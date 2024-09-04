@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useTranslation} from "react-i18next";
-import CustomInput from "../../../../components/ui/forms/CustomInput";
+import CustomInput from "../../../../components/ui/forms/CustomInputNew";
 import Button from "../../../../components/ui/Button";
 import {clsx} from "clsx";
 import Container from "../../../../components/ui/Container";
@@ -36,7 +36,7 @@ const Request = () => {
     } else {
         return(
             <Container className="flex justify-center">
-                <form className="flex flex-col" onSubmit={handleCheckEmail}>
+                <form className="flex flex-col mt-3" onSubmit={handleCheckEmail}>
                     <CustomInput
                         htmlFor="email"
                         type="email"

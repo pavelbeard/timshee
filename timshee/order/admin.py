@@ -66,12 +66,38 @@ class ContinentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Address)
 class AddressAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('province__country__name', 'province__name', 'city', 'postal_code', 'address1', 'address2', )
 
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ["order_number", "order_item", "returned_item"]
+    list_display = ('usrid', 'second_id', 'shipping_address', 'shipping_method',
+                    'status', 'refund_reason', 'created_at', 'updated_at')
+
+    def shipping_address(self, obj: models.Order):
+        if obj.shipping_address:
+            return obj.shipping_address
+
+        return 'NULL'
+
+    def shipping_method(self, obj: models.Order):
+        if obj.shipping_method:
+            return obj.shipping_method
+
+        return 'NULL'
+
+    def created_at_str(self, obj: models.Order):
+        return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    def updated_at_str(self, obj: models.Order):
+        return obj.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    def usrid(self, obj: models.Order):
+        if obj.shipping_address:
+            return obj.shipping_address.first_name + ' ' + obj.shipping_address.last_name
+        else:
+            return 'N/A'
 
     class OrderItem(admin.TabularInline):
         model = models.OrderItem
@@ -84,14 +110,15 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(models.OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('order__second_id', 'item__item__name', 'item__item__price', 'item__size', 'item__color', 'quantity')
 
 
 @admin.register(models.ReturnedItem)
 class ReturnedItemAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('order__second_id', 'item__item__name', 'item__item__price',
+                    'item__size', 'item__color', 'quantity', 'refund_reason')
 
 
 @admin.register(models.ShippingMethod)
 class ShippingMethodAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('shipping_name', 'price')

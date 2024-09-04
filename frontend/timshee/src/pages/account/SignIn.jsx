@@ -32,7 +32,6 @@ const SignIn = () => {
 
     return (
         <SignFormContainer>
-            <div></div>
             {isLoading
                 ? <Loading/>
                 : <SignInForm
@@ -44,7 +43,6 @@ const SignIn = () => {
                     error={error}
                 />
             }
-            <div></div>
         </SignFormContainer>
     )
 };

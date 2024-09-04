@@ -1,15 +1,13 @@
 import React, {useEffect} from "react";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import CustomInput from "../../components/ui/forms/CustomInput";
+import CustomInput from "../../components/ui/forms/CustomInputNew";
 import Button from "../../components/ui/Button";
-import {clsx} from "clsx";
 import CustomTitle from "../../components/ui/forms/CustomTitle";
 import {useTranslation} from "react-i18next";
-import {useInput} from "../../lib/hooks";
 import {useSignUpMutation} from "../../redux/features/api/authApiSlice";
-import {changePassword} from "../../main/api(old)/actions";
 import SignFormContainer from "../../components/account/SignFormContainer";
+import CustomPassword from "../../components/ui/forms/CustomPassword";
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -57,8 +55,7 @@ const SignUp = () => {
 
     return (
         <SignFormContainer>
-            <div></div>
-            <form className="flex flex-col md:w-4/12 lg:w-4/12 pb-6" onSubmit={handleSubmit}>
+            <form className="flex flex-col w-full pb-6" onSubmit={handleSubmit}>
                 <CustomTitle title={t('stuff.forms:signUpTitle')} />
                 <CustomInput
                     htmlFor="first_name"
@@ -87,19 +84,17 @@ const SignUp = () => {
                     onChange={setData}
                     required={true}
                 />
-                <CustomInput
+                <CustomPassword
                     htmlFor="password"
                     name="password"
-                    type="password"
                     labelText={t('stuff.forms:password')}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required={true}
                 />
-                <CustomInput
+                <CustomPassword
                     htmlFor="password2"
                     name="password2"
-                    type="password"
                     labelText={t('stuff.forms:passwordConfirm')}
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
@@ -108,7 +103,6 @@ const SignUp = () => {
                 <Button type="submit" className="h-6">{t('stuff.forms:register')}</Button>
                 {(error || passwordError) && (<div className="text-red-500">{error || passwordError}</div>)}
             </form>
-            <div></div>
         </SignFormContainer>
     )
 };

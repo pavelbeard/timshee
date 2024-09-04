@@ -1,10 +1,11 @@
-import CustomInput from "../../../ui/forms/CustomInput";
+import CustomInput from "../../../ui/forms/CustomInputNew";
 import {useCheckoutFormContext} from "../../../../lib/hooks";
 import React from "react";
 import {useTranslation} from "react-i18next";
 import CustomSelect from "../../../ui/forms/CustomSelect";
 import {useSelector} from "react-redux";
 import {selectIsSignInAtCheckoutChecked} from "../../../../redux/features/store/uiControlsSlice";
+import CustomCheckbox from "../../../ui/forms/CustomCheckbox";
 
 export default function ShippingAddress() {
     const { t } = useTranslation();
@@ -32,11 +33,11 @@ export default function ShippingAddress() {
                         required
                     />
                 </section>}
-            <section className="p-2">
+            <section className="">
                 <CustomSelect
                     htmlFor="country"
                     labelText={t('account.forms:country')}
-                    className={'mb-3'}
+                    className={'mb-3 p-2'}
                     name="country"
                     type="select"
                     value={formData?.shipping_address?.province?.country?.id || 0}
@@ -85,7 +86,7 @@ export default function ShippingAddress() {
                         onChange={setFormData}
                     />
             </section>
-            <section className="flex flex-col p-2 lg:flex-row lg:justify-between" data-location-container="">
+            <section className="flex flex-col lg:flex-row lg:justify-between" data-location-container="">
                 <CustomInput
                     htmlFor="postal_code"
                     name="postal_code"
@@ -120,7 +121,7 @@ export default function ShippingAddress() {
                     )).concat([<option key={0} value={0}>------</option>])}
                 </CustomSelect>
             </section>
-            <section className="flex flex-col p-2 lg:flex-row lg:justify-between" data-contacts-container="">
+            <section className="flex flex-col lg:flex-row lg:justify-between" data-contacts-container="">
                 <CustomInput
                     htmlFor="phone_number"
                     name="phone_number"
@@ -133,7 +134,7 @@ export default function ShippingAddress() {
                     onChange={setFormData}
                 />
                 {token &&
-                    <CustomInput
+                    <CustomCheckbox
                         labelClassName={'w-1/3'}
                         htmlFor="as_primary"
                         name="as_primary"

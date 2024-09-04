@@ -7,4 +7,4 @@ from . import models
 
 @admin.register(models.Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('payment_id', 'store_order_number', 'status', 'created_at')

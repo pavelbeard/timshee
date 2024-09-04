@@ -1,15 +1,16 @@
 import CustomTitle from "../../ui/forms/CustomTitle";
-import CustomInput from "../../ui/forms/CustomInput";
+import CustomInput from "../../ui/forms/CustomInputNew";
 import Button from "../../ui/Button";
 import React from "react";
 import {useTranslation} from "react-i18next";
 import {useNavigate} from "react-router-dom";
+import CustomPassword from "../../ui/forms/CustomPassword";
 
 export default function SignInForm({ submit, ...rest }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     return (
-        <form className="flex flex-col md:w-4/12 lg:w-4/12 pb-6" onSubmit={submit}>
+        <form className="flex flex-col w-full pb-6" onSubmit={submit}>
             <CustomTitle title={t('stuff.forms:signInTitle')}/>
             <CustomInput
                 htmlFor="email"
@@ -20,10 +21,9 @@ export default function SignInForm({ submit, ...rest }) {
                 onChange={(e) => rest?.setUsername(e.target.value)}
                 required={true}
             />
-            <CustomInput
+            <CustomPassword
                 htmlFor="password"
                 name="password"
-                type="password"
                 labelText={t('stuff.forms:password')}
                 value={rest?.password}
                 onChange={e => rest.setPassword(e.target.value)}

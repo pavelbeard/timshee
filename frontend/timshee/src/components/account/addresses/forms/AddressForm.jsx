@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-import CustomInput from "../../../ui/forms/CustomInput";
+import CustomInput from "../../../ui/forms/CustomInputNew";
 import {clsx} from "clsx";
 import CustomSelect from "../../../ui/forms/CustomSelect";
 import Button from "../../../ui/Button";
@@ -19,10 +19,8 @@ import {
     setAddress,
     selectCurrentAddress,
 } from "../../../../redux/features/store/accountSlice";
-import {toggleAddressForm} from "../../../../redux/features/store/uiControlsSlice";
 import Loading from "../../../../pages/Loading";
-
-
+import CustomCheckbox from "../../../ui/forms/CustomCheckbox";
 
 const AddressForm = ({ onClose }) => {
     const formContainer = clsx(
@@ -203,7 +201,7 @@ const AddressForm = ({ onClose }) => {
                         value={address?.email}
                         onChange={changeAddressFormData}
                     />
-                    <CustomInput
+                    <CustomCheckbox
                         htmlFor="as_primary"
                         name="as_primary"
                         type="checkbox"

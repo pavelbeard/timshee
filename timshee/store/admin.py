@@ -44,6 +44,8 @@ class ItemAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
 
 @admin.register(models.CarouselImage)
 class StockImageAdmin(admin.ModelAdmin):
+    list_display = ('item__name', 'image')
+
     def save_model(self, request, obj, form, change):
         if compress_pics_on_server():
             if obj.image:
@@ -53,7 +55,7 @@ class StockImageAdmin(admin.ModelAdmin):
 
 @admin.register(models.Type)
 class TypeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'category__name')
 
 
 @admin.register(models.Size)
@@ -68,7 +70,7 @@ class ColorAdmin(admin.ModelAdmin):
 
 @admin.register(models.Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('item__name', 'size', 'color', 'in_stock')
+    list_display = ('item__name', 'item__price', 'size', 'color', 'in_stock')
 
 
 @admin.register(models.Category)
@@ -98,7 +100,14 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('usrid', 'stock__item__name', 'stock__item__price', 'stock__size', 'stock__color')
+
+    def usrid(self, obj: models.Wishlist) -> str:
+        if obj.user:
+            return obj.user.email
+        elif obj.session:
+            return obj.session.session_key
+
 
 
 auth_admin.UserAdmin.raw_id_fields = ["groups"]

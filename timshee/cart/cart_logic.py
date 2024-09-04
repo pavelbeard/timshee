@@ -181,11 +181,17 @@ def remove_item(rq, serializer_data) -> bool:
     """
     cart_manager = CartManager(rq)
     cart = cart_manager.get_cart()
-    cart_item = cart.cart_items.filter(stock_item=serializer_data['stock_id']).first()
+    cart_item: models.CartItem = cart.cart_items.filter(stock_item=serializer_data['stock_id']).first()
     quantity = cart_item.quantity if hasattr(cart_item, 'quantity') else 0
+    difference = cart.get_total_items() - quantity
 
-    if cart.get_total_items() - quantity >= 0:
+    if difference >= 0:
         # deleting cart item
+        # if left cart items 1
+        if cart.get_total_items() == 1:
+            if order:= cart_manager.get_order():
+                order.delete()
+
         cart.cart_items.remove(cart_item)
         ## decreasing total items in cart
         # cart.total_items -= quantity
@@ -220,7 +226,8 @@ def clear_cart(rq, has_ordered=False) -> int:
                 cart_item.stock_item.increase_stock(cart_item.quantity)
 
             cart.cart_items.remove(cart_item)
-            cart_item.delete()
+            cart_item.quantity = 0
+            cart_item.save()
             cart.save()
 
             if not has_ordered and order:
