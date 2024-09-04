@@ -8,8 +8,8 @@ export function toCamelCase(str) {
 }
 
 export function safeArrElAccess (arr, index) {
-    const normalizedIndex = index < 0 ? arr.length + index : index;
-    const value = (Array.isArray(arr) && normalizedIndex >= 0 && normalizedIndex < arr.length) ? arr[normalizedIndex] : undefined
+    const normalizedIndex = index < 0 ? arr?.length + index : index;
+    const value = (Array.isArray(arr) && normalizedIndex >= 0 && normalizedIndex < arr?.length) ? arr[normalizedIndex] : undefined
     process.env.NODE_ENV !== 'production' && console.log(value);
     return value;
 }

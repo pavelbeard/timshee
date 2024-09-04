@@ -2,7 +2,6 @@ import Select from "../Select";
 import {useDispatch, useSelector} from "react-redux";
 import {selectOrderBy, setOrderBy} from "../../../redux/features/store/storeSlice";
 import {useTranslation} from "react-i18next";
-import {useSearchParams} from "react-router-dom";
 import {useSearchParameters} from "../../../lib/hooks";
 import {useEffect} from "react";
 

@@ -21,8 +21,8 @@ import {safeArrElAccess} from "../../lib/stuff";
 const AccountDetails = () => {
     window.document.title = 'Account | Timshee store'
     const user = useSelector(selectCurrentUser);
-    const { currentData: addresses,  isLoading: isAddressesLoading} = useGetAddressesByUserQuery();
-    const { currentData: orders,  isLoading: isOrdersLoading} = useGetOrdersByUserQuery();
+    const { currentData: addresses,  isLoading: isAddressesLoading } = useGetAddressesByUserQuery();
+    const { currentData: orders,  isLoading: isOrdersLoading } = useGetOrdersByUserQuery();
 
     const secondBlock = clsx(
         "items-center justify-items-center pb-[50px]",

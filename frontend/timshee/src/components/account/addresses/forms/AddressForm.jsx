@@ -21,6 +21,7 @@ import {
 } from "../../../../redux/features/store/accountSlice";
 import Loading from "../../../../pages/Loading";
 import CustomCheckbox from "../../../ui/forms/CustomCheckbox";
+import Select from "../../../ui/Select";
 
 const AddressForm = ({ onClose }) => {
     const formContainer = clsx(
@@ -144,6 +145,15 @@ const AddressForm = ({ onClose }) => {
                         onChange={changeAddressFormData}
                     />
                     <div className="flex flex-col justify-between lg:flex-row">
+                        {/*<Select*/}
+                        {/*    htmlFor="country"*/}
+                        {/*    labelText={t('account.forms:country')}*/}
+                        {/*    value={address?.province?.country?.id || 0}*/}
+                        {/*    values={countries}*/}
+                        {/*    onChange={changeCountry}*/}
+                        {/*    accessValue={'id'}*/}
+                        {/*    valueLabel={'name'}*/}
+                        {/*/>*/}
                         <CustomSelect
                             htmlFor="country"
                             labelText={t('account.forms:country')}

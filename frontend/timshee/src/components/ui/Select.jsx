@@ -4,8 +4,16 @@ import {CheckIcon, ChevronUpDownIcon} from "@heroicons/react/24/outline";
 import {useRef, useState} from "react";
 import {useClickOutside} from "../../lib/hooks";
 
-export default function Select({ htmlFor, labelText, value, accessValue, valueLabel, values, onChange, disabled=false }) {
-    const { t } = useTranslation();
+export default function Select({
+   htmlFor,
+   labelText,
+   value,
+   accessValue,
+   valueLabel,
+   values,
+   onChange,
+   disabled=false
+}) {
     const selectRef = useRef(null);
     const [showList, toggleShowList] = useClickOutside(selectRef);
     const _onChange = (e) => {
