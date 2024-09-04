@@ -4,6 +4,7 @@ import {clsx} from "clsx";
 import {useTranslation} from "react-i18next";
 import ItemImage from "../ui/ItemImage";
 import OptimizedImage from "../ui/OptimizedImage";
+import {safeArrElAccess} from "../../lib/stuff";
 
 export default function ItemCard({ item }) {
     const { gender } = useParams();
@@ -16,11 +17,13 @@ export default function ItemCard({ item }) {
     const itemPropsContainer = clsx(
         'h-6 w-full mt-1 flex justify-between',
     );
+    const size = safeArrElAccess(item?.sizes, 0)?.value;
+    const color = safeArrElAccess(item?.colors, 0)?.name;
     return (
         <div className={itemContainer}>
             <Link
                 className={'w-full'}
-                to={`/${gender}/shop/products/${item?.id}?size=${item?.sizes?.at(0)?.value}&color=${item?.colors?.at(0)?.name}`}
+                to={`/${gender}/shop/products/${item?.id}?size=${size}&color=${color}`}
             >
                 <ItemImage
                     src={item.image}

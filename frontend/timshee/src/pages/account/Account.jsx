@@ -15,12 +15,12 @@ import {selectCurrentUser} from "../../redux/features/store/authSlice";
 import Container from "../../components/ui/Container";
 import {useGetEmailConfirmationStatusQuery} from "../../redux/features/api/stuffApiSlice";
 import {useTranslation} from "react-i18next";
+import {safeArrElAccess} from "../../lib/stuff";
 
 
 const AccountDetails = () => {
     window.document.title = 'Account | Timshee store'
     const user = useSelector(selectCurrentUser);
-    const { t } = useTranslation();
     const { currentData: addresses,  isLoading: isAddressesLoading} = useGetAddressesByUserQuery();
     const { currentData: orders,  isLoading: isOrdersLoading} = useGetOrdersByUserQuery();
 
@@ -29,6 +29,7 @@ const AccountDetails = () => {
         'max-sm:flex max-sm:flex-col',
         'lg:grid lg:grid-cols-2 lg:gap-x-1'
     );
+    const lastOrder = safeArrElAccess(orders, -1);
 
     return (
         <Container>
@@ -39,7 +40,7 @@ const AccountDetails = () => {
                     : <PrimaryAddress primaryAddress={addresses?.find(a => a.as_primary)} />}
                 {isOrdersLoading
                     ? <LastOrderSkeleton />
-                    : <LastOrder lastOrder={orders?.at(-1)} deliveredAt={"lastOrder"} />
+                    : <LastOrder lastOrder={lastOrder} deliveredAt={"lastOrder"} />
                 }
             </div>
         </Container>

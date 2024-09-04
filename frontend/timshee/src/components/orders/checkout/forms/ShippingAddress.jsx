@@ -6,6 +6,7 @@ import CustomSelect from "../../../ui/forms/CustomSelect";
 import {useSelector} from "react-redux";
 import {selectIsSignInAtCheckoutChecked} from "../../../../redux/features/store/uiControlsSlice";
 import CustomCheckbox from "../../../ui/forms/CustomCheckbox";
+import {safeArrElAccess} from "../../../../lib/stuff";
 
 export default function ShippingAddress() {
     const { t } = useTranslation();
@@ -115,7 +116,7 @@ export default function ShippingAddress() {
                 >
                     {_provinces.filter(
                         province => province?.country?.id
-                            === formData?.shipping_address?.province?.country?.id || countries?.at(0)?.id
+                            === formData?.shipping_address?.province?.country?.id || safeArrElAccess(countries, 0)?.id
                     ).map((item, index) => (
                         <option key={index + 1} value={item?.id}>{item?.name}</option>
                     )).concat([<option key={0} value={0}>------</option>])}

@@ -1,4 +1,5 @@
 import {clsx} from "clsx";
+import {safeArrElAccess} from "../../lib/stuff";
 
 export default function Modal({ open, close, children }) {
     const style = {
@@ -7,7 +8,7 @@ export default function Modal({ open, close, children }) {
         forSideMenuLeft: 'w-full',
         forSideMenuRight: 'w-8/12'
     }
-    const childrenName = children?.at(2)?.type?.name;
+    const childrenName = safeArrElAccess(children, 2)?.type?.name;
     return(
         <div
             onClick={close}

@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice, current} from "@reduxjs/toolkit";
 import {api} from "../../../lib/api";
 import i18n from "../../../i18n";
 import {apiSlice} from "../../services/app/api/apiSlice";
+import {safeArrElAccess} from "../../../lib/stuff";
 
 const mergeCheckboxData = (arr1, arr2, k, v, lookupForMerge) => {
     const map = new Map([...arr1].map(item => [item[k], item[v]]));
@@ -31,11 +32,11 @@ export const getStoreData = createAsyncThunk('store/getStoreData', (arg, thunkAP
             ])
             .then((res) => {
                 return {
-                    sizes: res?.at(0).value?.data.map(i => ({ ...i, checked: false })),
-                    colors: res?.at(1).value?.data.map(i => ({ ...i, checked: false })),
-                    types: res?.at(2).value?.data.map(i => ({ ...i, checked: false })),
-                    collections: res?.at(3).value?.data.map(i => ({ ...i, checked: false })),
-                    categories: res?.at(4).value?.data.map(i => ({ ...i, checked: false })),
+                    sizes: safeArrElAccess(res, 0)?.value?.data.map(i => ({ ...i, checked: false })),
+                    colors: safeArrElAccess(res, 1)?.value?.data.map(i => ({ ...i, checked: false })),
+                    types: safeArrElAccess(res, 2)?.value?.data.map(i => ({ ...i, checked: false })),
+                    collections: safeArrElAccess(res, 3)?.value?.data.map(i => ({ ...i, checked: false })),
+                    categories: safeArrElAccess(res, 4)?.value?.data.map(i => ({ ...i, checked: false })),
                 }
             })
             .catch(err => thunkAPI.rejectWithValue(err?.message))

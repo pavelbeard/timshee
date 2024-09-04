@@ -20,6 +20,7 @@ import {selectStocks} from "../../../redux/features/store/storeSlice";
 import {useSearchParameters} from "../../../lib/hooks";
 import {useAddCartItemMutation} from "../../../redux/features/api/cartApiSlice"
 import {clsx} from "clsx";
+import {safeArrElAccess} from "../../../lib/stuff";
 
 const ItemDetail = () => {
     const { pathname } = useLocation();
@@ -62,14 +63,14 @@ const ItemDetail = () => {
 
     const toggleWishlistButton = () => {
         if (isThereItemInWL?.length > 0) {
-            deleteItemFromWL(isThereItemInWL?.at(0).id).unwrap();
+            deleteItemFromWL(safeArrElAccess(isThereItemInWL, 0)?.id).unwrap();
         } else {
             addItemToWL({
                 "stock__item_id": itemId,
                 "stock__size__value": get('size'),
                 "stock__color__name": get('color'),
                 "stock__link": `${pathname}?${search.toString()}`,
-            }).unwrap().catch(err => console.error(err));
+            }).unwrap().catch(err => null);
         }
     };
 

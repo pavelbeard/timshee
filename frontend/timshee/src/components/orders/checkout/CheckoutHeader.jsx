@@ -3,6 +3,7 @@ import {Link, useParams} from "react-router-dom";
 import {useCheckoutFormContext} from "../../../lib/hooks";
 import {clsx} from "clsx";
 import {ChevronRightIcon} from "@heroicons/react/24/outline";
+import {safeArrElAccess} from "../../../lib/stuff";
 
 export default function CheckoutHeader() {
     const { orderId, step } = useParams();
@@ -14,7 +15,7 @@ export default function CheckoutHeader() {
         3: `/checkout/${orderId}/payment`,
     };
 
-    const currentStage = (stage) => stages[stage].split('/').at(-1);
+    const currentStage = (stage) => safeArrElAccess(stages[stage].split('/'), -1);
 
     return(
         <section className="flex flex-col items-center p-6">

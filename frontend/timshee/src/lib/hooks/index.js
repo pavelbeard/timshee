@@ -22,6 +22,7 @@ import {
     setItemsObject,
     setLoading, uncheckAll,
 } from "../../redux/features/store/storeSlice";
+import {safeArrElAccess} from "../stuff";
 
 export const useWindowSize = () => {
     const [windowSize, setWindowSize] = useState({
@@ -133,7 +134,7 @@ export const useSearchParameters = () => {
 
     const get = (key) => {
         const all = search.getAll(key);
-        return all?.at(0) || null;
+        return safeArrElAccess(all, 0) || null;
     };
 
     const set = (key, value) => {
