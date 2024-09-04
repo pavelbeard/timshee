@@ -50,6 +50,8 @@
       "defaults",
       "last 4 versions",
       ">0.5%",
+      "ios >= 12",
+      "safari >= 12",
       "not op_mini all",
       "not dead"
     ],

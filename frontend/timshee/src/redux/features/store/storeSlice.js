@@ -15,10 +15,14 @@ const mergeCheckboxData = (arr1, arr2, k, v, lookupForMerge) => {
 const modifyFilters = (arr1, arr2, checked, accessKey) => {
     const copy1 = arr1.slice();
     const modArr = arr2.slice().filter(i => i.checked === checked).map(i => i[accessKey]);
+    const set1 = new Set(copy1);
+    const set2 = new Set(modArr);
     if (checked) {
-        return [...new Set(copy1).union(new Set(modArr))];
+        // Union
+        return [...new Set([...set1, ...set2])];
     } else {
-        return [...new Set(copy1).difference(new Set(modArr))];
+        // Difference
+        return [...new Set([...set1].filter(x => !set2.has(x)))];
     }
 };
 
