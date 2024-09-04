@@ -249,6 +249,7 @@ class Item(models.Model):
     colors = models.ManyToManyField("Color", through='Stock')
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
     description = models.TextField()
+    add_info = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     discount = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
     image = models.ImageField(

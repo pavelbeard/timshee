@@ -19,6 +19,7 @@ import {useSelector} from "react-redux";
 import {selectStocks} from "../../../redux/features/store/storeSlice";
 import {useSearchParameters} from "../../../lib/hooks";
 import {useAddCartItemMutation} from "../../../redux/features/api/cartApiSlice"
+import {clsx} from "clsx";
 
 const ItemDetail = () => {
     const { pathname } = useLocation();
@@ -36,6 +37,8 @@ const ItemDetail = () => {
     const [deleteItemFromWL] = useDeleteWishlistItemMutation();
     const [addItemToCart] = useAddCartItemMutation();
     const [inCart, setInCart] = useState(false);
+    const [isAddInfoOpen, setIsAddInfoOpen] = useState(false);
+    const toggleAddInfo = () => setIsAddInfoOpen(!isAddInfoOpen);
     const stocks = useSelector(selectStocks);
     const inStock = stocks.find(s => s.size === get('size') && s.color === get('color'))?.inStock > 0;
 
@@ -85,10 +88,23 @@ const ItemDetail = () => {
                         <span className="roboto-medium" >{item?.price}{t('shop:price')}</span>
                     </div>
                     <div className="bg-gray-100 p-6" data-description="">
-                        <p className="tracking-wide roboto-text text-wrap">
+                        <pre className="tracking-wide roboto-text text-wrap">
                             {item?.description}
-                        </p>
+                        </pre>
                     </div>
+                    {item?.add_info && <div className={clsx(
+                        isAddInfoOpen ? 'bg-gray-200' : 'bg-gray-100',
+                        'mt-2 p-6 cursor-pointer'
+                    )} data-add-info="" onClick={toggleAddInfo}>
+                        <pre className={clsx(
+                            "tracking-wide roboto-text max-w-fit",
+                            isAddInfoOpen
+                                ? 'text-wrap'
+                                : 'truncate'
+                        )}>
+                            {item?.add_info}
+                        </pre>
+                    </div>}
                     <div data-stock-selection="">
                         {isLoading
                             ? <SizesSkeleton />

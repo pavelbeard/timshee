@@ -20,14 +20,14 @@ const Carousel = ({ images }) => {
 
     const style = clsx(
         'group',
-        'absolute z-10',
+        'absolute z-10 top-1/2',
         'size-8',
         'lg:size-10',
         'hover:text-gray-200',
     );
 
     return(
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-start">
             <div className="relative z-0 flex items-center">
                 <button className={clsx(style, 'left-2')} onClick={prevImage}>
                     <ArrowLeftIcon strokeWidth="0.5" className="group-hover:stroke-1"/>

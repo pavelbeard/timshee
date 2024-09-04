@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
+from django.db.models import Sum
 from dragndrop_related.views import DragAndDropRelatedImageMixin
 
 from . import models, forms, store_logic
@@ -18,6 +19,11 @@ def compress_pics_on_server() -> bool:
 @admin.register(models.Item)
 class ItemAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
     related_manager_field_name = 'carousel_images'
+    list_display = ('name', 'gender', 'price', 'discount', 'type__name', 'type__category__name', 'quantity')
+
+    def quantity(self, obj: models.Item) -> int:
+        q = obj.stock_set.aggregate(quantity=Sum('in_stock'))
+        return q['quantity']
 
     class StockInLine(admin.TabularInline):
         model = models.Stock
@@ -62,7 +68,7 @@ class ColorAdmin(admin.ModelAdmin):
 
 @admin.register(models.Stock)
 class StockAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('item__name', 'size', 'color', 'in_stock')
 
 
 @admin.register(models.Category)
