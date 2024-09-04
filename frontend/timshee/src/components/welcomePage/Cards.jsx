@@ -23,8 +23,7 @@ export default function Cards({ data=[] }) {
                                 className="flex flex-col items-center"
                             >
                                 <ItemImage
-                                    // src={category[`category_image_${gender}`]}
-                                    src={category[`category_image`]}
+                                    src={category[`category_image_${gender}`]}
                                     className="lg:h-[400px] lg:w-full"
                                     alt={`alt-${index}`}
                                 />

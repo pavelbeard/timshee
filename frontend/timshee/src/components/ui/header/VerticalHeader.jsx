@@ -1,9 +1,8 @@
 import MenuLeftRecursive from "./MenuLeftRecursive";
 import MenuRightRecursive from "./MenuRightRecursive";
 import {XMarkIcon} from "@heroicons/react/24/outline";
-import React from "react";
+import React, {useState} from "react";
 import {clsx} from "clsx";
-import {useMenuLeft} from "../../../lib/hooks";
 
 export default function VerticalHeader({ onClose }) {
     const verticalMenuStyle = clsx(
@@ -12,6 +11,13 @@ export default function VerticalHeader({ onClose }) {
     const verticalHeader = clsx(
         "pb-6 flex flex-col bg-white h-screen overflow-y-auto md:w-1/2",
     );
+    const [openMenus, setOpenMenus] = useState({});
+    const handleClickMenu = (menuTitle, level) => {
+        setOpenMenus(prev => ({
+            ...prev,
+            [level]: prev[level] === menuTitle ? null : menuTitle
+        }))
+    };
     return(
         <header className={verticalHeader} onClick={e => e.stopPropagation()} data-vertical-header="">
             <div className="relative">
@@ -22,8 +28,18 @@ export default function VerticalHeader({ onClose }) {
                         onClick={onClose}
                     />
                 </div>
-                <MenuLeftRecursive className={clsx(verticalMenuStyle)} />
-                <MenuRightRecursive className={clsx(verticalMenuStyle)} />
+                <MenuLeftRecursive
+                    level={0}
+                    openMenus={openMenus}
+                    setOpenMenus={handleClickMenu}
+                    className={clsx(verticalMenuStyle)}
+                />
+                <MenuRightRecursive
+                    level={0}
+                    openMenus={openMenus}
+                    setOpenMenus={handleClickMenu}
+                    className={clsx(verticalMenuStyle)}
+                />
             </div>
         </header>
     )

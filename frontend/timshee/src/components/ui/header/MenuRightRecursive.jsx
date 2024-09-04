@@ -7,7 +7,7 @@ import {toggleBurgerMenu} from "../../../redux/features/store/uiControlsSlice";
 import {selectWishlistLength} from "../../../redux/features/store/storeSlice";
 import {selectTotalQuantity} from "../../../redux/features/store/cartSlice";
 
-export default function MenuRightRecursive({ className }) {
+export default function MenuRightRecursive({ level, className, openMenus, setOpenMenus }) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const token = useSelector(selectCurrentToken);
@@ -16,16 +16,19 @@ export default function MenuRightRecursive({ className }) {
 
     const menuRight = [
         {
+            code: 'shipping-methods',
             title: t('header:shippingMethods'),
             url: '/shipping',
             closeMenu: () => dispatch(toggleBurgerMenu(false)),
         },
         {
+            code: 'account',
             title: t('header:account'),
             url: null,
             subMenu: token
                 ? [
                     {
+                        code: 'account-details',
                         title: t('header:details'),
                         url: '/account/details',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -33,6 +36,7 @@ export default function MenuRightRecursive({ className }) {
                         roboto: true
                     },
                     {
+                        code: 'account-address-book',
                         title: t('header:addressBook'),
                         url: '/account/details/addresses',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -40,6 +44,7 @@ export default function MenuRightRecursive({ className }) {
                         roboto: true
                     },
                     {
+                        code: 'account-orders',
                         title: t('header:orders'),
                         url: '/account/details/orders',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -47,6 +52,7 @@ export default function MenuRightRecursive({ className }) {
                         roboto: true
                     },
                     {
+                        code: 'wishlist',
                         title: `${t('header:wishlist')} (${wishlistItemsTotal})`,
                         url: '/wishlist',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -57,6 +63,7 @@ export default function MenuRightRecursive({ className }) {
                 :
                 [
                     {
+                        code: 'account-signin',
                         title: t('header:signin'),
                         url: '/account/signin',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -64,6 +71,7 @@ export default function MenuRightRecursive({ className }) {
                         roboto: true
                     },
                     {
+                        code: 'account-signup',
                         title: t('header:signup'),
                         url: '/account/signup',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -71,6 +79,7 @@ export default function MenuRightRecursive({ className }) {
                         roboto: true
                     },
                     {
+                        code: 'wishlist',
                         title: t('header:wishlist'),
                         url: '/wishlist',
                         closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -80,6 +89,7 @@ export default function MenuRightRecursive({ className }) {
                 ]
         },
         {
+            code: 'cart',
             title: `${t('header:cart')} (${cartItemsTotal})`,
             url: '/cart',
             closeMenu: () => dispatch(toggleBurgerMenu(false)),
@@ -87,7 +97,13 @@ export default function MenuRightRecursive({ className }) {
     ];
 
     const menuItems = menuRight.map((item, index) =>
-        <MenuItemRecursive key={index} item={item} />
+        <MenuItemRecursive
+            level={level + 1}
+            key={index}
+            item={item}
+            openMenus={openMenus}
+            setOpenMenus={setOpenMenus}
+        />
     );
     return <nav className={className}>
         <ul className={clsx('w-full')}>{menuItems}</ul>

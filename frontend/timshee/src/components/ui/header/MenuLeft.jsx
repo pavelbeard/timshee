@@ -12,6 +12,17 @@ export default function MenuLeft() {
     const g = gender === undefined ? "women" : gender;
     const genders = useSelector(selectGenders);
     const collections = useSelector(selectCollections);
+    const subMenu = useMemo(() => collections?.map((item) => ({
+        title: item.name,
+        url:  `/${g}/shop?collections=${item.link}`
+    })), [collections]);
+
+        // {
+        //     // COMMENT THIS
+        //     title: t('header:unisex'),
+        //     url: `/${genders.unisex}/shop`
+        // },
+
     const menuLeft = useMemo(() => [
         {
             title: t('header:women'),
@@ -22,16 +33,9 @@ export default function MenuLeft() {
             url: `/${genders.men}/shop`
         },
         {
-            title: t('header:unisex'),
-            url: `/${genders.unisex}/shop`
-        },
-        {
             title: t('header:collections'),
             url: null,
-            subMenu: Array.isArray(collections) && collections?.map((item) => ({
-                title: item.name,
-                url:  `/${g}/shop?collections=${item.link}`
-            }))
+            subMenu: subMenu
         },
         {
             title: t('header:house'),

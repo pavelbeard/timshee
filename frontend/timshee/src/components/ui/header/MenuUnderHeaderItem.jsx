@@ -54,7 +54,7 @@ export default function MenuUnderHeaderItem({ apply_gender=null, item=null, with
                     id={id}
                     url={url}
                     types={item?.types}
-                    categoryImg={apply_gender ? item[`category_image_${gender}`] : item?.category_image}
+                    categoryImg={item[`category_image_${gender}`]}
                 />}
             </div>
         );

@@ -24,13 +24,13 @@ export default function MenuTypes({ id, url, types, categoryImg }) {
             'overflow-hidden',
             types?.length > 0 ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         )}>
-            <div className="bg-gray-100 h-96 mx-64 py-6 grid grid-cols-2">
+            <div className="bg-gray-100 h-96 xl:mx-52 mx-32 py-6 grid grid-cols-2">
                 <div className="flex flex-col mx-6">{typesData}</div>
                 <div className="px-3 border-l-gray-400 border-l-2">
                     <ItemImage
                         src={categoryImg}
                         alt={`category-img-${id}`}
-                        className={'w-60 h-[22rem] '}
+                        className={'w-60 h-[22rem]'}
                     />
                 </div>
             </div>
