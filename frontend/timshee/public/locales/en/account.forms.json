@@ -1,4 +1,6 @@
 {
+  "editAddress": "Edit address",
+  "addAddress": "Add address",
   "country": "Country:",
   "firstname": "Name:",
   "lastname": "Surname:",

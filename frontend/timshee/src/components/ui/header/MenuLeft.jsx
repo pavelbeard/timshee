@@ -14,7 +14,7 @@ export default function MenuLeft() {
     const collections = useSelector(selectCollections);
     const subMenu = useMemo(() => collections?.map((item) => ({
         title: item.name,
-        url:  `/${g}/shop?collections=${item.link}`
+        url:  `/collection?name=${item.link}`
     })), [collections]);
 
         // {

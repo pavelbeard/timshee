@@ -88,8 +88,15 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Collection)
-class CollectionAdmin(admin.ModelAdmin):
+class CollectionAdmin(DragAndDropRelatedImageMixin, admin.ModelAdmin):
     form = forms.CollectionForm
+    related_manager_field_name = 'collection_carousel_images'
+
+    class CarouselImageInline(admin.TabularInline):
+        model = models.CollectionCarouselImage
+
+    inlines = [CarouselImageInline]
+    list_display = ('name', )
 
     def save_model(self, request, obj, form, change):
         if compress_pics_on_server():

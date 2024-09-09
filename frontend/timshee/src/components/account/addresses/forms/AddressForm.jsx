@@ -99,7 +99,7 @@ const AddressForm = ({ onClose }) => {
                         formContainer
                     )}>
                     <CustomTitle
-                        title={address?.first_name ? 'Редактирование адреса' : 'Добавление адреса'}/>
+                        title={address?.first_name ? t('account.forms:editAddress') : t('account.forms:addAddress')}/>
                     <CustomInput
                         htmlFor="first_name"
                         name="first_name"
@@ -160,6 +160,7 @@ const AddressForm = ({ onClose }) => {
                             required={true}
                             value={address?.province?.country?.id || 0}
                             onChange={changeCountry}
+                            selectClassName="my-4"
                         >
                             {countries?.map((item, index) => (
                                 <option key={index + 1} value={item?.id}>{item.name}</option>
@@ -184,6 +185,7 @@ const AddressForm = ({ onClose }) => {
                             onChange={e => dispatch(
                                 setAddress({...address, province: provinces?.find(p => p.id === parseInt(e.target.value))})
                             )}
+                            selectClassName="my-4"
                         >
                             {[...tmpProvinces.filter(
                                 province => province.country.id === address?.province?.country?.id

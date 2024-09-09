@@ -89,7 +89,7 @@ const ItemDetail = () => {
                         <span className="roboto-medium" >{item?.price}{t('shop:price')}</span>
                     </div>
                     <div className="bg-gray-100 p-6" data-description="">
-                        <pre className="tracking-wide roboto-text text-wrap">
+                        <pre className="tracking-wide roboto-text text-wrap max-w-fit">
                             {item?.description}
                         </pre>
                     </div>

@@ -39,6 +39,11 @@ class CarouselImageSerializer(serializers.ModelSerializer):
         model = models.CarouselImage
         fields = "__all__"
 
+class CollectionCarouselImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollectionCarouselImage
+        fields = ('image',)
+
 
 class CategorySerializer(serializers.ModelSerializer):
     types = serializers.SerializerMethodField()
@@ -82,6 +87,12 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class CollectionSerializer(serializers.ModelSerializer):
+    carousel_images = serializers.SerializerMethodField()
+
+    def get_carousel_images(self, obj):
+        carousel_images = models.CollectionCarouselImage.objects.filter(collection=obj.pk)
+        return CollectionCarouselImageSerializer(carousel_images, many=True).data
+
     class Meta:
         model = models.Collection
         fields = "__all__"

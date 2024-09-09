@@ -116,6 +116,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = filters.CollectionFilter
     queryset = models.Collection.objects.all().order_by('-id')
     serializer_class = serializers.CollectionSerializer
 

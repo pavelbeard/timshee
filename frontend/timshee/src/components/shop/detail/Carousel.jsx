@@ -24,6 +24,7 @@ const Carousel = ({ images }) => {
         'size-8',
         'lg:size-10',
         'hover:text-gray-200',
+        'outline-none'
     );
 
     return(

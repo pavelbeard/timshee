@@ -16,10 +16,14 @@ from stuff.models import Singleton
 
 
 class CollectionNameBuilder:
-    def __init__(self, name):
+    def __init__(self, name, link):
         self.name = name.lower()
+        self.link = link
 
     def collection_link_builder(self):
+        if self.link:
+            return self.link
+
         S = 's'
         A = 'a'
         W = 'w'
@@ -102,6 +106,24 @@ class Collection(models.Model):
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
         null=True,
     )
+    collection_image_men = models.ImageField(
+        upload_to="product_images/1/collection_images/men",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        blank=True,
+        null=True,
+    )
+    collection_image_women = models.ImageField(
+        upload_to="product_images/1/collection_images/women",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        blank=True,
+        null=True,
+    )
+    collection_image_unisex = models.ImageField(
+        upload_to="product_images/1/collection_images/unisex",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        blank=True,
+        null=True,
+    )
     link = models.CharField(
         max_length=256,
         validators=[validation_link],
@@ -115,7 +137,7 @@ class Collection(models.Model):
 
     def save(self, *args, **kwargs):
         if self.name:
-            link_builder = CollectionNameBuilder(self.name)
+            link_builder = CollectionNameBuilder(self.name, self.link)
             self.link = link_builder.collection_link_builder()
         super().save(*args, **kwargs)
 
@@ -152,7 +174,7 @@ class Category(models.Model):
         null=True,
         validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
     )
-    # it needs for causes, when we have some products for home or smth
+    # it needs causes, when we have some products for home or smth
     apply_gender = models.BooleanField(default=True)
 
     def __str__(self):
@@ -210,7 +232,7 @@ class Stock(models.Model):
 
 
 class CarouselImage(models.Model):
-    """It needs for make merry-go-round of images in an internet-store"""
+    """That needs it for make merry-go-round of images in an internet-store"""
     item = models.ForeignKey("Item", on_delete=models.CASCADE, related_name="carousel_images")
     image = models.ImageField(
         upload_to="product_images/1/carousel_images/",
@@ -225,6 +247,15 @@ class CarouselImage(models.Model):
     class Meta:
         verbose_name = _("Carousel Image")
         verbose_name_plural = _("Carousel Images")
+
+class CollectionCarouselImage(models.Model):
+    collection = models.ForeignKey("Collection", on_delete=models.CASCADE, related_name="collection_carousel_images")
+    image = models.ImageField(
+        upload_to="product_images/1/collection_carousel_images/",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        null=False,
+        blank=False,
+    )
 
 class CurrencyMultiplication(Singleton):
     euro = models.DecimalField(max_digits=8, decimal_places=2, default=1)

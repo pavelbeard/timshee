@@ -48,6 +48,12 @@ export const storeApiSlice = _apiSliceWithTags.injectEndpoints({
                 method: 'DELETE',
             }),
             invalidatesTags: [tags.GET_WISHLIST_ITEM, tags.GET_WISHLIST_BY_USER]
+        }),
+        getCollectionImages: builder.query({
+            query: (link) => ({
+                url: `/store/collections/?link=${link}`,
+                method: 'GET'
+            }),
         })
     })
 });
@@ -58,4 +64,5 @@ export const {
     useGetWishlistItemQuery,
     useAddWishlistItemMutation,
     useDeleteWishlistItemMutation,
+    useGetCollectionImagesQuery
 } = storeApiSlice;

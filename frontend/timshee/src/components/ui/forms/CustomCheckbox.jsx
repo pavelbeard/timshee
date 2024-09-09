@@ -17,7 +17,8 @@ export default function CustomCheckbox({ htmlFor, labelText, labelClassName, cla
                     'flex-none',
                     'appearance-none',
                     'relative peer shrink-0 border size-4 mt-0.5',
-                    'border-gray-400 hover:bg-gray-200 hover:border-none',
+                    'border-gray-400 hover:bg-gray-200 hover:border-none hover:outline-none',
+                    'peer-checked:outline-none'
                 )}
             />
             <svg
@@ -25,7 +26,7 @@ export default function CustomCheckbox({ htmlFor, labelText, labelClassName, cla
                     "size-4 mt-0.5",
                     "absolute right-0 hidden",
                     "pointer-events-none",
-                    'hover:text-white',
+                    'hover:text-white hover:outline-none',
                     'peer-checked:block stroke-black peer-checked:bg-gray-200'
                 )}
                 xmlns="http://www.w3.org/2000/svg"

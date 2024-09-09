@@ -86,7 +86,7 @@ export default function MenuLeftRecursive({ level, className, openMenus, setOpen
             subMenu: Array.isArray(collections) && collections?.map((item, idx) => ({
                 code: `coll-${item.link}-${idx}`,
                 title: item.name,
-                url: `/${gender}/shop?collections=${item.link}`,
+                url: `/collection?name=${item.link}`,
                 closeMenu: () => dispatch(toggleBurgerMenu(false)),
                 close: true,
                 roboto: true

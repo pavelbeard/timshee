@@ -68,6 +68,14 @@ class StockFilter(django_filters.FilterSet):
         }
 
 
+class CollectionFilter(django_filters.FilterSet):
+    class Meta:
+        model = store_models.Collection
+        fields = {
+            'link': ['exact', 'icontains', 'istartswith'],
+        }
+
+
 class WishlistItemFilter(django_filters.FilterSet):
     class Meta:
         model = store_models.Wishlist

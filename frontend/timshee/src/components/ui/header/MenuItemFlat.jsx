@@ -8,7 +8,7 @@ export default function MenuItemFlat({ item }) {
     const { pathname } = useLocation();
     const underline = useMemo(() => pathname.startsWith(item.url), [pathname])
     return (
-        <li className={clsx("p-2")}>
+        <li className='p-2 relative z-10'>
             {item?.url
                 ? <Link className="group text-lg" to={item.url}>
                     {item.title}

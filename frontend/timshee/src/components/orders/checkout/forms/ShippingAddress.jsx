@@ -44,6 +44,7 @@ export default function ShippingAddress() {
                     value={formData?.shipping_address?.province?.country?.id || 0}
                     onChange={setCountries}
                     required
+                    selectClassName="my-4"
                 >
                     {Array.isArray(countries) && countries.map((item, index) => (
                         <option key={index + 1} value={item?.id}>{item.name}</option>
@@ -113,6 +114,7 @@ export default function ShippingAddress() {
                     required={true}
                     value={formData?.shipping_address?.province?.id || 0}
                     onChange={setNewProvince}
+                    selectClassName="my-4"
                 >
                     {_provinces.filter(
                         province => province?.country?.id

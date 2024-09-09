@@ -15,8 +15,8 @@
   "total": "Итог:",
   "toPayment": "Перейти к оплате",
   "toInformation": "Вернуться к заполнению информации",
-  "showOrderItems": "Показать товары",
-  "hideOrderItems": "Скрыть товары",
+  "showOrderItems": "Показать вещи",
+  "hideOrderItems": "Скрыть вещи",
   "yookassa": "Банковской картой через Yookassa",
   "failed": "Оплата для заказа {{orderNumber}} не прошла. Попробуйте оплатить еще раз.",
   "succeeded": "Заказ {{orderNumber}} оплачен!",
@@ -24,5 +24,5 @@
   "orderInProcessing": "Спасибо за покупку! Заказ {{orderNumber}} находится в обработке",
   "orderInDelivering": "Заказ {{orderNumber}} находится в доставке",
   "orderDelivered": "Заказ {{orderNumber}} доставлен",
-  "yourItems": "Ваши товары:"
+  "yourItems": "Ваши вещи:"
 }

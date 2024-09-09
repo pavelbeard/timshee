@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {clsx} from "clsx";
 
-export default function ItemImage({ src, alt, className }) {
+export default function ItemImage({ src, alt, className, ...rest }) {
     const [loaded, setLoaded] = useState(false);
     const hasLoaded = () => setLoaded(true);
 
@@ -15,6 +15,7 @@ export default function ItemImage({ src, alt, className }) {
             )}
              data-blur-container="">
             <img
+                {...rest}
                 onLoad={hasLoaded}
                 src={src}
                 alt={alt}

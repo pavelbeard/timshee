@@ -1,4 +1,6 @@
 {
+  "editAddress": "Редактирование адреса",
+  "addAddress": "Добавление адреса",
   "country": "Страна:",
   "firstname": "Имя:",
   "lastname": "Фамилия:",

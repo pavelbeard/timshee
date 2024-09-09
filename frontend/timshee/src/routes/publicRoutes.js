@@ -17,11 +17,13 @@ import OrderPaid from "../pages/orders/status/OrderPaid";
 import OrderIsNotPaid from "../pages/orders/status/OrderIsNotPaid";
 import WelcomePage from "../pages/WelcomePage";
 import Cart from "../pages/cart/Cart";
+import Collection from "../pages/collection/Collection";
 // import TestComponent from "../TestComponent";
 
 const publicRoutes = [
     { path: '', element: <WelcomePage /> },
     // { path: 'test/:testId', element: <TestComponent /> },
+    { path: 'collection', element: <Collection /> },
     { path: 'about', element: <About /> },
     { path: 'house', element: <House /> },
     { path: 'cart', element: <Cart /> },

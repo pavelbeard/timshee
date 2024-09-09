@@ -34,12 +34,12 @@
   "to": "Доставка в:",
   "orderNumber": "Номер заказа",
   "ordersFor": "Заказы для:",
-  "show": "показать товары",
-  "hide": "скрыть товары",
-  "showReturnedItems": "показать возвращенные товары",
-  "hideReturnedItems": "скрыть возвращенные товары",
+  "show": "показать предметы",
+  "hide": "скрыть предметы",
+  "showReturnedItems": "показать возвращенные вещи",
+  "hideReturnedItems": "скрыть возвращенные вещи",
   "selfShipping": "Самовывоз",
-  "itemsPrice": "Стоимость товаров:",
+  "itemsPrice": "Стоимость вещей:",
   "shippingPrice": "Стоимость доставки:",
   "totalPrice":  "Итого:"
 }
