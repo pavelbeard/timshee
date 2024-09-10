@@ -6,17 +6,20 @@ import {useThrottle} from "../../lib/hooks";
 
 export default function CarouselCollection({ collName, images }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [imageCurrentNumber, setImageCurrentNumber] = useState(1)
     const [loaded, setLoaded] = useState(false);
     const hasLoaded = () => setLoaded(true);
 
     const nextImage = useThrottle(() => {
         const newIndex = currentImageIndex >= images.length - 1 ? 0 : currentImageIndex + 1;
         setCurrentImageIndex(newIndex);
+        setImageCurrentNumber(newIndex + 1);
     }, 500);
 
     const prevImage = useThrottle(() => {
         const newIndex = currentImageIndex <= 0 ? images.length - 1 : currentImageIndex - 1;
-        setCurrentImageIndex(newIndex)
+        setCurrentImageIndex(newIndex);
+        setImageCurrentNumber(newIndex + 1);
     }, 500);
 
     const style = clsx(
@@ -45,7 +48,7 @@ export default function CarouselCollection({ collName, images }) {
                 <button className={clsx(style)} onClick={prevImage}>
                     <ArrowLeftIcon strokeWidth="0.5" className="group-hover:stroke-1"/>
                 </button>
-                <span className="roboto-light">{collName} / {currentImageIndex + 1}</span>
+                <span className="roboto-light">{collName} / {imageCurrentNumber}</span>
                 <button className={clsx(style)} onClick={nextImage}>
                     <ArrowRightIcon strokeWidth="0.5" className="group-hover:stroke-1"/>
                 </button>
