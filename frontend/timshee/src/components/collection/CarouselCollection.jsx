@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ArrowLeftIcon, ArrowRightIcon} from "@heroicons/react/24/outline";
 import {clsx} from "clsx";
 import {API_URL} from "../../config";
@@ -13,13 +13,11 @@ export default function CarouselCollection({ collName, images }) {
     const nextImage = useThrottle(() => {
         const newIndex = currentImageIndex >= images.length - 1 ? 0 : currentImageIndex + 1;
         setCurrentImageIndex(newIndex);
-        setImageCurrentNumber(newIndex + 1);
     }, 500);
 
     const prevImage = useThrottle(() => {
         const newIndex = currentImageIndex <= 0 ? images.length - 1 : currentImageIndex - 1;
         setCurrentImageIndex(newIndex);
-        setImageCurrentNumber(newIndex + 1);
     }, 500);
 
     const style = clsx(
@@ -28,6 +26,10 @@ export default function CarouselCollection({ collName, images }) {
         'hover:text-gray-200',
         'outline-none'
     );
+
+    useEffect(() => {
+        setImageCurrentNumber(currentImageIndex + 1);
+    }, [currentImageIndex]);
 
     return (
         <div className="min-w-[200px] relative min-h-[400px] md:min-w-[400px] xl:min-w-[600px] flex flex-col items-center justify-center">
