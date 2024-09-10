@@ -32,3 +32,6 @@ sftp
 .env.unstable
 for_timshee
 *local*
+ssh-github
+ssh-github.pub
+load_balancer/certs/*
