@@ -55,14 +55,24 @@ services:
     image: pavelbeard/load_balancer.production:latest
     platform: linux/amd64
     ports:
+      - "80:80"
       - "443:443"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
-      - /home/timshee/timshee-certs/timshee.ru:/etc/letsencrypt/certs/
+      - ./nginx/conf:/etc/nginx/conf.d/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - django
+    restart: always
     command: ["nginx", "-g", "daemon off;"]
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
   frontend:
     image: pavelbeard/frontend.production:latest
