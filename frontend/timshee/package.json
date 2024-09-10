@@ -31,6 +31,9 @@
     "sort-by": "^0.0.2",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  },
   "scripts": {
     "start": "env-cmd -f .env react-scripts --openssl-legacy-provider start",
     "build": "env-cmd -f .env.production react-scripts build",

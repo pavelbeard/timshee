@@ -2,7 +2,7 @@ import Container from "../components/ui/Container";
 import {useTranslation} from "react-i18next";
 import Error from "./Error";
 import founderMobile from '../assets/founder.webp';
-import founderDesktop from '../assets/founder.jpg';
+// import founderDesktop from '../assets/founder.jpg';
 
 export default function About() {
     const { i18n } = useTranslation();
@@ -80,7 +80,7 @@ export default function About() {
             <div className="flex flex-col xl:flex-row xl:justify-between">
                 <section className="max-w-[800px]">{about()}</section>
                 <img
-                    srcSet={`${founderMobile} 480w, ${founderMobile} 768w, ${founderMobile} 1024w, ${founderDesktop} 1280w`}
+                    // srcSet={`${founderMobile} 480w, ${founderMobile} 768w, ${founderMobile} 1024w, ${founderDesktop} 1280w`}
                     className="mt-4 xl:mt-0 xl:w-1/3"
                     src={founderMobile}
                     alt="founder-img"
