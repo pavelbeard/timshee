@@ -332,6 +332,21 @@ export const useClickOutside = (ref) => {
     return [showDialog, toggleDialog];
 };
 
+export const useThrottle = (fn, delay) => {
+    const lastCallRef = useRef(0);
+
+    const throttle = useCallback((...args) => {
+        const now = Date.now();
+
+        if(now - lastCallRef.current >= delay) {
+            fn(...args);
+            lastCallRef.current = now;
+        }
+    }, [fn, delay]);
+
+    return throttle;
+};
+
 export const useDebounce = (value, delay=500) => {
     const [debouncedValue, setDebouncedValue] = useState(null);
     const timerRef = useRef();

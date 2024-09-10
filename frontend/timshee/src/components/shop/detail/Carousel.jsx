@@ -1,22 +1,22 @@
 import React, {useState} from "react";
 import {clsx} from "clsx";
 import {ArrowLeftIcon, ArrowRightIcon} from "@heroicons/react/24/outline";
-import Image from "../../ui/Image";
 import {API_URL} from "../../../config";
 import ItemImage from "../../ui/ItemImage";
+import {useThrottle} from "../../../lib/hooks";
 
 const Carousel = ({ images }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const nextImage = () => {
+    const nextImage = useThrottle(() => {
         const newIndex = currentImageIndex >= images.length - 1 ? 0 : currentImageIndex + 1;
         setCurrentImageIndex(newIndex);
-    };
+    }, 500);
 
-    const prevImage = () => {
+    const prevImage = useThrottle(() => {
         const newIndex = currentImageIndex <= 0 ? images.length - 1 : currentImageIndex - 1;
         setCurrentImageIndex(newIndex)
-    };
+    }, 500);
 
     const style = clsx(
         'group',
