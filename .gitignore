@@ -10,8 +10,6 @@ test-psql/test.*
 timshee/settings.py
 timshee/test.*
 timshee/media
-nginx/test*
-nginx/server*
 db.sqlite3*
 sensible-flies
 .idea
@@ -35,3 +33,5 @@ for_timshee
 ssh-github
 ssh-github.pub
 load_balancer/certs/*
+nginx
+certbot
