@@ -39,8 +39,6 @@ def set_csrfmiddlewaretoken(rq, rs):
 class AuthViewSet(viewsets.ViewSet):
     authentication_classes = []
     permission_classes = []
-    allowed_methods = ["post"]
-
 
     @action(detail=False, methods=['POST'])
     def sign_up(self, request):
@@ -174,9 +172,7 @@ class CookieTokenRefreshView(TokenRefreshView):
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = order_serializers.UserSerializer
-    allowed_methods = ["GET", "get_email"]
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['GET'])
     def get_email_confirmation_status(self, request):
@@ -229,7 +225,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
             logger.exception(msg='Something went wrong...', exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
+    @action(
+        detail=False,
+        methods=["POST"],
+        permission_classes=[permissions.AllowAny],
+        authentication_classes=[]
+    )
     def check_email(self, request):
         result, error = stuff_logic.check_email(request)
         if result == 2:
@@ -241,7 +242,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
+    @action(
+        detail=False,
+        methods=["POST"],
+        permission_classes=[permissions.AllowAny],
+        authentication_classes=[]
+    )
     def is_reset_password_request_valid(self, request):
         result, error = stuff_logic.is_reset_password_request_valid(request)
         if result == 1:
@@ -253,7 +259,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["POST"], permission_classes=[permissions.AllowAny], authentication_classes=[])
+    @action(
+        detail=False, methods=["POST"],
+        permission_classes=[permissions.AllowAny],
+        authentication_classes=[]
+    )
     def change_password(self, request):
         result, error = stuff_logic.change_password(request)
         if result == 2:
