@@ -1,6 +1,6 @@
-FROM node:22-alpine3.19 as base
+FROM node:22-alpine3.19 AS base
 
-FROM base as builder
+FROM base AS builder
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ RUN \
 
 
 
-FROM base as runner
+FROM base AS runner
 
 WORKDIR /app
 

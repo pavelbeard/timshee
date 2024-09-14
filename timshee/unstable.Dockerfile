@@ -1,4 +1,4 @@
-FROM python:3.12.5-alpine3.20 as builder
+FROM python:3.12.5-alpine3.20 AS builder
 
 RUN apk add --no-cache nodejs npm build-base libffi-dev postgresql-dev; \
     npm install -g mjml
