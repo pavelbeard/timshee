@@ -6,7 +6,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 require('dotenv').config();
 
 app.use('/api', createProxyMiddleware({
-    target: process.env.DRF_API_URL,
+    target: `${process.env.DRF_API_URL}/api`,
     changeOrigin: true,
     onProxyReq: (proxyReq) => {
         proxyReq.setHeader('X-Api-Key', process.env.DRF_API_KEY)
