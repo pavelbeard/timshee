@@ -1,7 +1,6 @@
 import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {api} from "../api";
 import {useDispatch, useSelector} from "react-redux";
 import {setToken, setUser} from "../../redux/features/store/authSlice";
 import {useSignInMutation, useSignOutMutation} from "../../redux/features/api/authApiSlice";
@@ -23,6 +22,8 @@ import {
     setLoading, uncheckAll,
 } from "../../redux/features/store/storeSlice";
 import {safeArrElAccess} from "../stuff";
+import axios from "axios";
+import {API_URL} from "../../config";
 
 export const useWindowSize = () => {
     const [windowSize, setWindowSize] = useState({
@@ -214,8 +215,8 @@ export const useFetchItems = () => {
 
     const applyFilters = useCallback((apiEndpoint) => {
         const filters = buildFilters();
-        const url = `${apiEndpoint}${new URLSearchParams(filters).toString()}`;
-        api.get(url)
+        const url = `${API_URL}${apiEndpoint}${new URLSearchParams(filters).toString()}`;
+        axios.get(url, { headers: { 'Content-Type': 'application/json' }})
             .then(res => {
                 const data = res.data;
                 dispatch(setIsSuccess(true));

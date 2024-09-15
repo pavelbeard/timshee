@@ -2,6 +2,7 @@ timshee.store
 timshee.store.pub
 ЛОГОТИП.eps
 test.docker-compose.yml
+frontend/build
 frontend/timshee/node_modules
 frontend/timshee/.env
 frontend/timshee/.env.development.testing

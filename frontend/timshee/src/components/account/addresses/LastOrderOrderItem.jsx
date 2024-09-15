@@ -1,5 +1,4 @@
 import {clsx} from "clsx";
-import Image from "../../ui/Image";
 import {API_URL} from "../../../config";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
