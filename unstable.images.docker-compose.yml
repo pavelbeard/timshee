@@ -73,7 +73,7 @@ services:
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["/bin/sh", "-c" " ./env.sh && node -r dotenv/config react.start.js dotenv_config_file=./config/.env" ]
+    command: ["/bin/sh", "-c" " ./env.sh && node -r dotenv/config react.start.js dotenv_config_file=./config/.env"]
     depends_on:
       - load_balancer
     restart: on-failure
