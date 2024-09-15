@@ -66,7 +66,7 @@ export default function Shop() {
     }, []);
 
     useEffect(() => {
-        applyFilters('/store/stocks/get_items_detail/?')
+        applyFilters('/api/store/stocks/get_items_detail/?')
     }, [params]);
 
     return (

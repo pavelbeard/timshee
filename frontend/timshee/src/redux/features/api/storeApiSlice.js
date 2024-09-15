@@ -1,5 +1,6 @@
 import {apiSlice} from "../../services/app/api/apiSlice";
 import {storeTags} from "./tags";
+import {safeArrElAccess} from "../../../lib/stuff";
 
 const tags = storeTags;
 
@@ -49,6 +50,32 @@ export const storeApiSlice = _apiSliceWithTags.injectEndpoints({
             }),
             invalidatesTags: [tags.GET_WISHLIST_ITEM, tags.GET_WISHLIST_BY_USER]
         }),
+        getStoreData: builder.query({
+            queryFn: async (arg, api, extraOptions, baseQuery) => {
+                const responses = await Promise.allSettled([
+                    baseQuery('/store/sizes/'),
+                    baseQuery('/store/colors/'),
+                    baseQuery('/store/types/'),
+                    baseQuery('/store/collections/'),
+                    baseQuery('/store/categories/'),
+                ])
+
+                return {
+                    data: {
+                        sizes: responses[0].status === 'fulfilled'
+                            ? responses[0]?.value?.data?.map(i => ({ ...i, checked: false })) : [],
+                        colors: responses[1].status === 'fulfilled'
+                            ? responses[1]?.value?.data?.map(i => ({ ...i, checked: false })) : [],
+                        types: responses[2].status === 'fulfilled'
+                            ? responses[2]?.value?.data?.map(i => ({ ...i, checked: false })) : [],
+                        collections: responses[3].status === 'fulfilled'
+                            ? responses[3]?.value?.data?.map(i => ({ ...i, checked: false })) : [],
+                        categories: responses[4].status === 'fulfilled'
+                            ? responses[4]?.value?.data?.map(i => ({ ...i, checked: false })) : [],
+                    }
+                };
+            }
+        })
     })
 });
 
@@ -58,4 +85,5 @@ export const {
     useGetWishlistItemQuery,
     useAddWishlistItemMutation,
     useDeleteWishlistItemMutation,
+    useGetStoreDataQuery,
 } = storeApiSlice;

@@ -1,8 +1,5 @@
-import {createAsyncThunk, createSlice, current} from "@reduxjs/toolkit";
-import {api} from "../../../lib/api";
-import i18n from "../../../i18n";
+import {createSlice, current} from "@reduxjs/toolkit";
 import {apiSlice} from "../../services/app/api/apiSlice";
-import {safeArrElAccess} from "../../../lib/stuff";
 
 const mergeCheckboxData = (arr1, arr2, k, v, lookupForMerge) => {
     const map = new Map([...arr1].map(item => [item[k], item[v]]));
@@ -25,26 +22,6 @@ const modifyFilters = (arr1, arr2, checked, accessKey) => {
         return [...new Set([...set1].filter(x => !set2.has(x)))];
     }
 };
-
-export const getStoreData = createAsyncThunk('store/getStoreData', (arg, thunkAPI) => {
-    return Promise.allSettled([
-                api.get('/store/sizes/', { signal:  thunkAPI.signal }),
-                api.get('/store/colors/', { signal:  thunkAPI.signal }),
-                api.get('/store/types/', { signal:  thunkAPI.signal }),
-                api.get('/store/collections/', { signal:  thunkAPI.signal }),
-                api.get('/store/categories/', { signal:  thunkAPI.signal }),
-            ])
-            .then((res) => {
-                return {
-                    sizes: safeArrElAccess(res, 0)?.value?.data.map(i => ({ ...i, checked: false })),
-                    colors: safeArrElAccess(res, 1)?.value?.data.map(i => ({ ...i, checked: false })),
-                    types: safeArrElAccess(res, 2)?.value?.data.map(i => ({ ...i, checked: false })),
-                    collections: safeArrElAccess(res, 3)?.value?.data.map(i => ({ ...i, checked: false })),
-                    categories: safeArrElAccess(res, 4)?.value?.data.map(i => ({ ...i, checked: false })),
-                }
-            })
-            .catch(err => thunkAPI.rejectWithValue(err?.message))
-})
 
 const storeSlice = createSlice({
     name: "store",
@@ -251,13 +228,7 @@ const storeSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getStoreData.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-                state.isSuccess = false;
-                state.error = null;
-            })
-            .addCase(getStoreData.fulfilled, (state, action) => {
+            .addMatcher(apiSlice.endpoints.getStoreData.matchFulfilled, (state, action) => {
                 state.isLoading = false;
                 state.sizes = action?.payload?.sizes || [];
                 state.colors = action?.payload?.colors || [];
@@ -265,11 +236,6 @@ const storeSlice = createSlice({
                 state.collections = action?.payload?.collections || [];
                 state.categories = action?.payload?.categories || [];
                 state.isSuccess = true;
-            })
-            .addCase(getStoreData.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-                state.isError = true;
             })
             // setting up item detail selections
             .addMatcher(apiSlice.endpoints.getItem.matchFulfilled, (state, action) => {

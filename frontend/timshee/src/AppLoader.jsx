@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import App from "./App";
 import {useTranslation} from "react-i18next";
 import {useGetCurrentLanguageQuery, useGetDynamicSettingsQuery} from "./redux/features/api/stuffApiSlice";
@@ -6,13 +6,17 @@ import Loading from "./pages/Loading";
 import OnContentUpdate from "./pages/OnContentUpdate";
 import OnMaintenance from "./pages/OnMaintenance";
 import {useRefreshQuery} from "./redux/features/api/authApiSlice";
+import {useGetStoreDataQuery} from "./redux/features/api/storeApiSlice";
 
 export default function AppLoader() {
     const { i18n } = useTranslation();
+
+    const { isLoading: areStoreDataLoading } = useGetStoreDataQuery();
     const { isLoading: isTokenLoading } = useRefreshQuery();
     const { isLoading: isServerLangLoading } = useGetCurrentLanguageQuery();
     const { currentData: dynamicSettings, isLoading: areDynamicSettingsLoading } = useGetDynamicSettingsQuery();
     const isLoading =
+        areStoreDataLoading &&
         areDynamicSettingsLoading &&
         isTokenLoading &&
         isServerLangLoading &&
