@@ -28,6 +28,8 @@ app.use('/api', proxy);
 
 app.use(express.static(path.join(__dirname, 'build')));
 
+app.use('/backend/media', express.static('/home/timshee_store_app/app/media/product_images'))
+
 app.get('*', (rq, rs) => {
     rs.sendFile(path.join(__dirname, 'build', 'index.html'))
 });
