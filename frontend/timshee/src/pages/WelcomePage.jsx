@@ -8,7 +8,6 @@ import {safeArrElAccess} from "../lib/stuff";
 
 const WelcomePage = () => {
     const { collections, categories, isLoading } = useSelector(s => s.store);
-    process.env.NODE_ENV !== 'production' && console.log(collections)
     const data = safeArrElAccess(collections?.filter(c => c.show_in_welcome_page), 0);
 
     if (isLoading) {

@@ -4,7 +4,6 @@ import Image from "../ui/Image";
 import ItemImage from "../ui/ItemImage";
 
 const MainCollection = ({ data }) => {
-    process.env.NODE_ENV !== 'production' && console.log(data)
     return (
         <div className="flex flex-col items-center justify-center p-4 lg:p-2">
             <Link to={data ? `/collection?name=${data?.link}` : '/'}

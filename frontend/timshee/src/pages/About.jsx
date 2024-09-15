@@ -61,7 +61,6 @@ export default function About() {
     );
 
     const about = () => {
-        process.env.NODE_ENV !== 'production' && console.log(i18n.language)
         switch (i18n.language) {
             case 'ru':
                 return textRu;

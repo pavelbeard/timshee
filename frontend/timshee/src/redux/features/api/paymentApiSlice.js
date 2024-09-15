@@ -34,7 +34,6 @@ export const paymentApiSlice = _apiSliceWithTags.injectEndpoints({
                 return baseQueryReturnValue?.status;
             },
             invalidatesTags: (result, error, arg) => {
-                console.log(result)
                 if (result.status === paymentStatusDict.succeeded) {
                     return [tags.REMOVE_ALL_CART]
                 }
