@@ -54,3 +54,10 @@ def send_email(subject, template, to, context, rq=None, current_site=None):
 
 def get_until_time(hours=1):
     return datetime.now() + timedelta(hours=hours)
+
+def get_image(context, obj):
+    request = context.get('request')
+    if request:
+        image_url = obj.image.url
+        return request.build_absolute_uri(image_url)
+    return obj.image.url

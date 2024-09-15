@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from auxiliaries.auxiliaries_methods import get_image
 from . import models, strict_serializers
 from order import strict_serializers as order_strict_serializers
 
@@ -26,7 +28,10 @@ class StockSerializer(serializers.ModelSerializer):
     item = serializers.SerializerMethodField()
 
     def get_item(self, obj):
-        return strict_serializers.StrictItemSerializer(obj.item, many=False).data
+        rq = self.context.get('request')
+        if not rq:
+            return None
+        return strict_serializers.StrictItemSerializer(obj.item, many=False, context={'request': rq}).data
 
     class Meta:
         model = models.Stock
@@ -39,10 +44,16 @@ class CarouselImageSerializer(serializers.ModelSerializer):
         model = models.CarouselImage
         fields = "__all__"
 
+
 class CollectionCarouselImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = models.CollectionCarouselImage
         fields = ('image',)
+
+    def get_image(self, obj):
+        return get_image(self.context, obj)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -58,11 +69,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     sizes = serializers.SerializerMethodField()
     colors = serializers.SerializerMethodField()
     carousel_images = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     discount = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        return get_image(self.context, obj)
 
     def get_sizes(self, obj):
         return SizeSerializer(obj.sizes.distinct(), many=True).data
@@ -71,8 +86,11 @@ class ItemSerializer(serializers.ModelSerializer):
         return ColorSerializer(obj.colors.distinct(), many=True).data
 
     def get_carousel_images(self, obj):
+        rq = self.context.get('request')
+        if not rq:
+            return []
         carousel_images = models.CarouselImage.objects.filter(item=obj.pk)
-        return CarouselImageSerializer(carousel_images, many=True).data
+        return CarouselImageSerializer(carousel_images, many=True, context={'request': rq}).data
 
     def get_type(self, obj):
         return strict_serializers.StrictTypeSerializer(obj.type).data
@@ -90,8 +108,11 @@ class CollectionSerializer(serializers.ModelSerializer):
     carousel_images = serializers.SerializerMethodField()
 
     def get_carousel_images(self, obj):
+        rq = self.context.get('request')
+        if not rq:
+            return []
         carousel_images = models.CollectionCarouselImage.objects.filter(collection=obj.pk)
-        return CollectionCarouselImageSerializer(carousel_images, many=True).data
+        return CollectionCarouselImageSerializer(carousel_images, many=True, context={'request': rq}).data
 
     class Meta:
         model = models.Collection
@@ -99,8 +120,15 @@ class CollectionSerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    stock = strict_serializers.StrictStockSerializer()
+    stock = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
+
+    def get_stock(self, obj: models.Wishlist):
+        rq = self.context.get('request')
+        stock = models.Stock.objects.filter(id=obj.stock_id)
+        if not rq:
+            return None
+        return strict_serializers.StrictStockSerializer(stock.first(), context={'request': rq}, many=False).data
 
     def get_user(self, obj):
         if obj.user:

@@ -23,7 +23,6 @@ import {
 } from "../../redux/features/store/storeSlice";
 import {safeArrElAccess} from "../stuff";
 import axios from "axios";
-import {API_URL} from "../../config";
 
 export const useWindowSize = () => {
     const [windowSize, setWindowSize] = useState({
@@ -215,7 +214,7 @@ export const useFetchItems = () => {
 
     const applyFilters = useCallback((apiEndpoint) => {
         const filters = buildFilters();
-        const url = `${API_URL}${apiEndpoint}${new URLSearchParams(filters).toString()}`;
+        const url = `${apiEndpoint}${new URLSearchParams(filters).toString()}`;
         axios.get(url, { headers: { 'Content-Type': 'application/json' }})
             .then(res => {
                 const data = res.data;

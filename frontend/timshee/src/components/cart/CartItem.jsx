@@ -1,6 +1,4 @@
 import {Link, useParams} from "react-router-dom";
-import Image from "../ui/Image";
-import {API_URL} from "../../config";
 import {MinusCircleIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 import {
     useChangeQuantityMutation,
@@ -50,7 +48,7 @@ export default function CartItem({ cartItem }) {
                 >
                     <ItemImage
                         className="lg:h-80 lg:w-full"
-                        src={`${API_URL}${cartItem?.stock_item?.item?.image}`}
+                        src={`${cartItem?.stock_item?.item?.image}`}
                         alt={`cart-item-${cartItem.id}`}
                     />
                 </Link>

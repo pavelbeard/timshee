@@ -3,7 +3,6 @@
 import React from "react";
 import Nothing from "./Nothing";
 import {Link} from "react-router-dom";
-import { API_URL } from '../config';
 import {clsx} from "clsx";
 import Container from "../components/ui/Container";
 import {useTranslation} from "react-i18next";
@@ -34,7 +33,7 @@ export default function Wishlist() {
                         <div className={clsx('flex lg:items-center flex-col',)}>
                             <Link className="w-full" to={`${w.stock_link}`}>
                                 <ItemImage
-                                    src={`${API_URL}${w.stock?.item?.image}`}
+                                    src={`${w.stock?.item?.image}`}
                                     alt={`alt-wishlist-${index}`}
                                     className='lg:h-[650px]'
                                 />

@@ -1,6 +1,4 @@
 import {clsx} from "clsx";
-import Image from "../../ui/Image";
-import {API_URL} from "../../../config";
 import RefundButton from "../../ui/RefundButton";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
@@ -22,7 +20,7 @@ export default function OrderItem({ order, showHideItems }) {
                         'xl:w-40 xl:h-[600px]'
                     )} key={index}>
                         <ItemImage
-                            src={`${API_URL}${item.item.item.image}`}
+                            src={`${item.item.item.image}`}
                             alt={`alt-image-${index}`}
                         />
                         <div

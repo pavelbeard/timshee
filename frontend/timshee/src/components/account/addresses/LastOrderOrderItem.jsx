@@ -1,5 +1,4 @@
 import {clsx} from "clsx";
-import {API_URL} from "../../../config";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
 import ItemImage from "../../ui/ItemImage";
@@ -18,7 +17,7 @@ export default function LastOrderOrderItem({ lastOrder }) {
                         )}>
 
                         <ItemImage
-                            src={`${API_URL}/${item.item.item.image}`}
+                            src={`${item.item.item.image}`}
                             alt={`alt-img-${index}`}
                         />
                     </div>)

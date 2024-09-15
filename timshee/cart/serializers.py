@@ -41,13 +41,16 @@ class CartResponseSerializer(serializers.ModelSerializer):
         return None
 
     def get_cart_items(self, obj):
+        rq = self.context.get('request')
+        if not rq:
+            return []
         cart_items = obj.cart_items.all()
         data = []
         for cart_item in cart_items:
             data.append({
                 'id': cart_item.id,
                 'quantity': cart_item.quantity,
-                'stock_item': store_serializers.StockSerializer(cart_item.stock_item).data,
+                'stock_item': store_serializers.StockSerializer(cart_item.stock_item, context={'request': rq}).data,
             })
 
         return data

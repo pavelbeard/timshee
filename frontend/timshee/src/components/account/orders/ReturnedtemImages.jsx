@@ -1,6 +1,4 @@
 import {clsx} from "clsx";
-import Image from "../../ui/Image";
-import {API_URL} from "../../../config";
 import React from "react";
 import ItemImage from "../../ui/ItemImage";
 
@@ -15,7 +13,7 @@ export default function ReturnedItemImages({ order }) {
                         className={clsx(
                             item.refund_reason !== null && 'brightness-50',
                         )}
-                        src={`${API_URL}${item.item.item.image}`}
+                        src={`${item.item.item.image}`}
                         alt={`alt-img-${index}`}
                     />
                 </div>

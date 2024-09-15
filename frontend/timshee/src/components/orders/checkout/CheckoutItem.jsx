@@ -1,5 +1,3 @@
-import Image from "../../ui/Image";
-import {API_URL} from "../../../config";
 import {useTranslation} from "react-i18next";
 import ItemImage from "../../ui/ItemImage";
 
@@ -10,7 +8,7 @@ export default function CheckoutItem({ item }) {
             <section className="w-1/5 md:w-2/6 lg:w-3/12" data-checkout-item-img="">
                 <ItemImage
                     className={'h-24 md:h-32 lg:h-40'}
-                    src={`${API_URL}${item?.item?.item?.image}`}
+                    src={`${item?.item?.item?.image}`}
                     alt={`alt-checkout-item-${item?.id}`}
                 />
             </section>

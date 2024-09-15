@@ -1,7 +1,4 @@
 import {clsx} from "clsx";
-import Image from "../../ui/Image";
-import {API_URL} from "../../../config";
-import RefundButton from "../../ui/RefundButton";
 import ImageSkeleton from "../../skeletons/ui/ImageSkeleton";
 import React from "react";
 import {useTranslation} from "react-i18next";
@@ -25,7 +22,7 @@ export default function ReturnedItem({ order, showHideItems }) {
                             className={clsx(
                                 item.refund_reason !== null && "brightness-50",
                             )}
-                            src={`${API_URL}${item.item.item.image}`}
+                            src={`${item.item.item.image}`}
                             alt={`alt-image-${index}`}
                         />
                         <div

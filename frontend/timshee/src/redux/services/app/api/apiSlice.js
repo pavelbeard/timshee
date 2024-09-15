@@ -1,11 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_URL } from "../../../../config";
 import { setToken, setUser, signOut } from "../../../features/store/authSlice";
 import { Mutex } from 'async-mutex';
 
 const mutex = new Mutex();
 const baseQuery = fetchBaseQuery({
-    baseUrl: `${API_URL}/api`,
+    baseUrl: `/api`,
     credentials: 'include',
     prepareHeaders: (headers) => {
         headers.set("Content-Type", "application/json");

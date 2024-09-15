@@ -62,14 +62,14 @@ class AddressSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderItem
-        exclude = ("order",)
+        exclude = ("order", )
         depth = 2
 
 
 class ReturnedItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ReturnedItem
-        exclude = ("order",)
+        exclude = ("order", )
         depth = 2
 
 
@@ -85,12 +85,18 @@ class OrderSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
 
     def get_order_item(self, obj):
+        rq = self.context.get('request')
+        if not rq:
+            return []
         data = models.OrderItem.objects.filter(order_id=obj.id)
-        return OrderItemSerializer(data, many=True).data
+        return OrderItemSerializer(data, many=True, context={'request': rq}).data
 
     def get_returned_item(self, obj):
+        rq = self.context.get('request')
+        if not rq:
+            return []
         data = models.ReturnedItem.objects.filter(order_id=obj.id)
-        return ReturnedItemSerializer(data, many=True).data
+        return ReturnedItemSerializer(data, many=True, context={'request': rq}).data
 
     def get_items_total_price(self, obj):
         return obj.items_total_price()

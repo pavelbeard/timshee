@@ -1,8 +1,15 @@
 from rest_framework import serializers
+
+from auxiliaries.auxiliaries_methods import get_image
 from . import models
 
 
 class StrictItemSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        return get_image(self.context, obj)
+
     class Meta:
         model = models.Item
         exclude = ["sizes", "colors"]

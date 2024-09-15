@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {clsx} from "clsx";
 import {ArrowLeftIcon, ArrowRightIcon} from "@heroicons/react/24/outline";
-import {API_URL} from "../../../config";
 import ItemImage from "../../ui/ItemImage";
 import {useThrottle} from "../../../lib/hooks";
 
@@ -34,7 +33,7 @@ const Carousel = ({ images }) => {
                     <ArrowLeftIcon strokeWidth="0.5" className="group-hover:stroke-1"/>
                 </button>
                 <ItemImage
-                    src={`${API_URL}${images[currentImageIndex]?.image}`}
+                    src={`${images[currentImageIndex]?.image}`}
                     alt={`alt-img-${images[currentImageIndex]?.id || 1}`}
                     className='lg:h-[650px]'
                 />

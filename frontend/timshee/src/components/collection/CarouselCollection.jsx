@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {ArrowLeftIcon, ArrowRightIcon} from "@heroicons/react/24/outline";
 import {clsx} from "clsx";
-import {API_URL} from "../../config";
 import {useThrottle} from "../../lib/hooks";
 
 export default function CarouselCollection({ collName, images }) {
@@ -40,7 +39,7 @@ export default function CarouselCollection({ collName, images }) {
                 )} data-image="">
                 <img
                     onLoad={hasLoaded}
-                    src={`${API_URL}${images[currentImageIndex]?.image}`}
+                    src={`${images[currentImageIndex]?.image}`}
                     alt={`alt-img-${images[currentImageIndex]?.id || 1}`}
                     className='lg:h-[650px]'
                     loading="lazy"
