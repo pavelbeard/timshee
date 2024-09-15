@@ -67,6 +67,9 @@ services:
   frontend:
     image: pavelbeard/frontend:unstable
     platform: linux/amd64
+    environment:
+      - DRF_API_URL=https://77.238.243.142
+      - DRF_API_KEY=${DRF_API_KEY}
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
