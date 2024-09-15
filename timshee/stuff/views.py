@@ -169,9 +169,7 @@ class CookieTokenRefreshView(TokenRefreshView):
         return super().finalize_response(request, response, *args, **kwargs)
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = models.User.objects.all()
-    serializer_class = order_serializers.UserSerializer
+class ProfileViewSet(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=['GET'])

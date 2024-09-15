@@ -5,7 +5,7 @@ from rest_framework_simplejwt import views as jwt_views
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'profile', views.ProfileViewSet)
+router.register(r'profile', views.ProfileViewSet, basename='profile')
 router.register(r'lang', views.LanguageViewSet, basename='lang')
 router.register(r'auth', views.AuthViewSet, basename='auth')
 
