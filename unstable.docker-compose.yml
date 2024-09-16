@@ -51,17 +51,18 @@ services:
       - postgresql
     restart: on-failure
 
-  nginx:
+  load_balancer:
     build:
       context: load_balancer/
       dockerfile: unstable.Dockerfile
+    environment:
+      - DRF_API_KEY=${DRF_API_KEY}
     ports:
       - "8112:80"
       - "443:443"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - django
     restart: on-failure
@@ -70,13 +71,9 @@ services:
     build:
       context: frontend/
       dockerfile: unstable.Dockerfile
-    environment:
-      - DRF_API_URL=https://77.238.243.142
-      - DRF_API_KEY=${DRF_API_KEY}
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["node", "react.start.js"]
     depends_on:
       - nginx
     restart: on-failure

@@ -65,6 +65,8 @@ services:
 
   load_balancer:
     image: pavelbeard/load_balancer:unstable
+    environment:
+      - DRF_API_KEY=${DRF_API_KEY}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
@@ -73,7 +75,6 @@ services:
     ports:
       - "8112:80"
       - "443:443"
-    command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - django
     restart: on-failure
@@ -81,15 +82,11 @@ services:
   frontend:
     image: pavelbeard/frontend:unstable
     platform: linux/amd64
-    environment:
-      - DRF_API_URL=https://77.238.243.142
-      - DRF_API_KEY=${DRF_API_KEY}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["/bin/sh", "-c", " ./env.sh && node -r dotenv/config react.start.js dotenv_config_file=./config/.env"]
     depends_on:
       - load_balancer
     restart: on-failure

@@ -32,7 +32,7 @@ RUN \
 
 COPY react.start.js .
 COPY env.sh .
-RUN chmod +x env.sh; mkdir -p ./config; chown -R reactjs:nodejs ./config
+RUN chmod +x env.sh; mkdir -p ./config; chown -R reactjs:nodejs ./config;
 
 COPY --from=builder /app /app
 COPY --from=builder --chown=reactjs:nodejs /app /app
@@ -40,3 +40,4 @@ COPY --from=builder --chown=reactjs:nodejs /app /app
 
 EXPOSE 3000
 USER reactjs
+CMD ["node", "react.start.js"]

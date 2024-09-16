@@ -40,3 +40,4 @@ COPY --from=builder --chown=reactjs:nodejs /app /app
 
 EXPOSE 3000
 USER reactjs
+CMD ["node", "react.start.js"]

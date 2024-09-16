@@ -10,6 +10,7 @@ app.use((err, req, res, next) => {
 app.use('/api', createProxyMiddleware({
     target: "http://localhost:8113/api",
     changeOrigin: true,
+    secure: false,
     on: {
         proxyReq: (proxyReq) => {
             console.log('setting header...')
