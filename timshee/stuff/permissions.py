@@ -5,6 +5,8 @@ from rest_framework_api_key import permissions as api_key_permissions
 
 class HasAPIKey(permissions.BasePermission):
     def has_permission(self, request, view):
+        if settings.UNSTABLE:
+            print(request.headers)
         if request.headers.get('X-Api-Key') == settings.SECRET_KEY:
             return True
 

@@ -4,8 +4,6 @@ This project is a fully functional online store.
 
 **After starting the project:**
 
-Don't forget in the file **.env and .env.production** to fill environments!
-
 - **ALLOWED_ORIGINS:** responses for your URL
 - **DJANGO_SUPERUSER_PASSWORD:** admin password
 - **DJANGO_SECRET_KEY:** generate it with next command: `openssl rand --hex 32`
@@ -27,9 +25,12 @@ Otherwise, fill the value which corresponds to your own rendering server:
 
 - **MJML_OWN_SERVER_URL:**
 
-frontend/timshee/.env.production
+For frontend:
 
-- **REACT_APP_API_URL:** one must be the same with env **ALLOWED_ORIGINS**
+- **DRF_API_URL:** one must be the same with **public IP address**
+- **DRF_API_KEY:** one must be the same with **DJANGO_SECRET_KEY**
+
+Check the **.env**. This file contains secrets. 
 
 Also remember to apply **chmod** to `prod.start-project.sh` or `prod.images.start-project.sh`
 
