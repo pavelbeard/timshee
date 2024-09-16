@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # custom
     "rest_framework",
     'rest_framework.authtoken',
+    'rest_framework_api_key',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
@@ -254,7 +255,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'stuff.permissions.HasAPIKey',
     ),
     # 'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 9,
@@ -274,7 +275,7 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 API_KEY = os.getenv("SECRET_KEY")
-CLIENT_REDIRECT = os.getenv("CLIENT_REDIRECT", "http://localhost:3000/")
+CLIENT_REDIRECT = os.getenv("CLIENT_REDIRECT", "http://localhost:3000")
 
 # JWT
 
@@ -343,3 +344,14 @@ elif UNSTABLE:
     SITE_NAME = 'https://77.238.243.142'
 elif PRODUCTION:
     SITE_NAME = 'https://89.104.68.172'
+
+# REST FRAMEWORK API KEY
+API_KEY_CUSTOM_HEADER = 'HTTP_X_API_KEY'
+CORS_ALLOWED_HEADERS = (
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "X-CSRF-Token",
+    "X-Requested-With",
+    "X-Api-Key",
+)

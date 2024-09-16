@@ -41,7 +41,7 @@ services:
       - MJML_APP_ID=${MJML_APP_ID}
       - MJML_APP_KEY=${MJML_APP_KEY}
       - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
-      - CLIENT_REDIRECT=https://77.238.243.142/
+      - CLIENT_REDIRECT=https://77.238.243.142
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images

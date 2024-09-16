@@ -8,6 +8,7 @@ from rest_framework_simplejwt import tokens
 
 from auxiliaries.auxiliaries_methods import get_logger, send_email, get_until_time
 from . import models
+from .models import UserProfile
 
 User = get_user_model()
 logger = get_logger(__name__)
@@ -22,7 +23,11 @@ def get_token_for_user(user):
 
 def get_email_confirm_status(rq):
     user = rq.user
-    confirmation = user.userprofile.email_confirmed
+    try:
+        confirmation = user.userprofile.email_confirmed
+    except User.userprofile.RelatedObjectDoesNotExist:
+        UserProfile.objects.create(user=user, email_confirmed=False)
+        confirmation = user.userprofile.email_confirmed
     return confirmation
 
 def generate_verification_token(rq, data):

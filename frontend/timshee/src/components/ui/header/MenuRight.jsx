@@ -18,7 +18,6 @@ export default function MenuRight() {
     const cartItemsTotal = useSelector(selectTotalQuantity);
     const wishlistItemsTotal = useSelector(selectWishlistLength);
     const { width } = useWindowSize();
-
     const menuRight = useMemo(() =>[
         {
             title: t('header:shippingMethods'),
@@ -66,7 +65,7 @@ export default function MenuRight() {
             url: (width > 1024 || pathname === '/cart') ? null : '/cart',
             action: () => dispatch(toggleCartMenu())
         }
-    ], [wishlistItemsTotal, cartItemsTotal]);
+    ], [t, width, dispatch, token, pathname, wishlistItemsTotal, cartItemsTotal]);
 
     const menuItems = useMemo(() => menuRight.map((item, index) =>
         <MenuItemFlat key={index} item={item} />

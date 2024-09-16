@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from stuff.permissions import HasAPIKey
 from . import models, serializers, write_serializers, filters, order_logic
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class CountryViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [HasAPIKey]
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
     filter_backends = (DjangoFilterBackend,)
@@ -27,7 +28,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [HasAPIKey]
     queryset = models.CountryPhoneCode.objects.all()
     serializer_class = serializers.CountryPhoneCodeSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -36,7 +37,7 @@ class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
 
 class ProvinceViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [HasAPIKey]
     queryset = models.Province.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ProvinceFilter
@@ -49,10 +50,11 @@ class ProvinceViewSet(viewsets.ModelViewSet):
 
 
 class AddressViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [HasAPIKey]
     queryset = models.Address.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AddressFilter
-    permission_classes = (permissions.AllowAny,)
 
     def get_serializer_class(self):
         if self.action in ['list', "retrieve", "get_addresses_by_user", "get_address_as_primary"]:
@@ -147,11 +149,11 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
+    permission_classes = [HasAPIKey]
+    authentication_classes = [JWTAuthentication]
     queryset = models.Order.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.OrderFilter
-    permission_classes = [AllowAny]
-    authentication_classes = [JWTAuthentication]
     lookup_field = 'second_id'
 
     def get_serializer_class(self):
@@ -230,9 +232,9 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class ShippingMethodViewSet(viewsets.ModelViewSet):
-    queryset = models.ShippingMethod.objects.all()
-    permission_classes = (permissions.AllowAny,)
     authentication_classes = []
+    permission_classes = [HasAPIKey]
+    queryset = models.ShippingMethod.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ShippingMethodFilter
     serializer_class = serializers.ShippingMethodSerializer

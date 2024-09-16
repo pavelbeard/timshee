@@ -5,10 +5,10 @@ from django.http import JsonResponse
 from django.middleware import csrf
 from django.utils import timezone
 from django.utils.translation import activate
-from rest_framework import generics, status, permissions, viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -16,8 +16,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from auxiliaries.auxiliaries_methods import get_logger
-from order import serializers as order_serializers
 from . import models, serializers, stuff_logic
+from .permissions import HasAPIKey
 
 # Create your views here.
 User = get_user_model()
@@ -38,9 +38,8 @@ def set_csrfmiddlewaretoken(rq, rs):
 
 class AuthViewSet(viewsets.ViewSet):
     authentication_classes = []
-    permission_classes = []
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'], permission_classes=[HasAPIKey])
     def sign_up(self, request):
         try:
             serializer = serializers.SignupSerializer(data=request.data)
@@ -61,10 +60,9 @@ class AuthViewSet(viewsets.ViewSet):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'], permission_classes=[HasAPIKey])
     def sign_in(self, request, *args, **kwargs):
         try:
-            print(request.data)
             serializer = serializers.SigninSerializer(data=request.data)
             # username = str(self.request.data['username']).strip()
             # password = str(self.request.data['password']).strip()
@@ -114,7 +112,7 @@ class AuthViewSet(viewsets.ViewSet):
         detail=False,
         methods=['POST'],
         authentication_classes=[JWTAuthentication],
-        permission_classes=[permissions.IsAuthenticated]
+        permission_classes=[IsAuthenticated, HasAPIKey],
     )
     def sign_out(self, request):
         try:
@@ -177,7 +175,7 @@ class ProfileViewSet(viewsets.ViewSet):
         result = stuff_logic.get_email_confirm_status(request)
         return Response({'confirmed': result}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["POST"], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=["POST"], permission_classes=[IsAuthenticated])
     def generate_verification_token(self, request, *args, **kwargs):
         serializer = serializers.EmailVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -191,8 +189,8 @@ class ProfileViewSet(viewsets.ViewSet):
     @action(
         detail=False,
         methods=["PUT"],
-        permission_classes=[permissions.IsAuthenticated],
-        authentication_classes=[JWTAuthentication]
+        authentication_classes=[JWTAuthentication],
+        permission_classes=[IsAuthenticated],
     )
     def change_email(self, request):
         try:
@@ -226,8 +224,8 @@ class ProfileViewSet(viewsets.ViewSet):
     @action(
         detail=False,
         methods=["POST"],
-        permission_classes=[permissions.AllowAny],
-        authentication_classes=[]
+        authentication_classes=[JWTAuthentication],
+        permission_classes=[IsAuthenticated],
     )
     def check_email(self, request):
         result, error = stuff_logic.check_email(request)
@@ -243,8 +241,8 @@ class ProfileViewSet(viewsets.ViewSet):
     @action(
         detail=False,
         methods=["POST"],
-        permission_classes=[permissions.AllowAny],
-        authentication_classes=[]
+        authentication_classes=[],
+        permission_classes=[HasAPIKey],
     )
     def is_reset_password_request_valid(self, request):
         result, error = stuff_logic.is_reset_password_request_valid(request)
@@ -259,8 +257,8 @@ class ProfileViewSet(viewsets.ViewSet):
 
     @action(
         detail=False, methods=["POST"],
-        permission_classes=[permissions.AllowAny],
-        authentication_classes=[]
+        authentication_classes=[],
+        permission_classes=[HasAPIKey],
     )
     def change_password(self, request):
         result, error = stuff_logic.change_password(request)
@@ -276,7 +274,7 @@ class ProfileViewSet(viewsets.ViewSet):
 
 class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [HasAPIKey, IsAuthenticatedOrReadOnly]
     allowed_methods = ["GET"]
 
     def get(self, request):
@@ -308,7 +306,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
 
 class LanguageViewSet(viewsets.ViewSet):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [HasAPIKey]
 
     @action(detail=False, methods=["GET"])
     def get_languages(self, request):

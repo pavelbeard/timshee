@@ -1,9 +1,9 @@
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from stuff.permissions import HasAPIKey
 from . import serializers, models, payment_logic
 
 
@@ -82,9 +82,9 @@ from . import serializers, models, payment_logic
 # }
 # Create your views here.
 class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = models.Payment.objects.all()
-    permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
+    permission_classes = [HasAPIKey]
+    queryset = models.Payment.objects.all()
     lookup_field = 'store_order_id'
 
     def get_serializer_class(self):
