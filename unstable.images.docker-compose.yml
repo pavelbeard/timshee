@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+
   postgresql:
     image: postgres:latest
     restart: always
@@ -42,6 +52,8 @@ services:
       - MJML_APP_KEY=${MJML_APP_KEY}
       - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
       - CLIENT_REDIRECT=https://77.238.243.142
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
@@ -53,6 +65,8 @@ services:
 
   load_balancer:
     image: pavelbeard/load_balancer:unstable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
@@ -70,6 +84,8 @@ services:
     environment:
       - DRF_API_URL=https://77.238.243.142
       - DRF_API_KEY=${DRF_API_KEY}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
