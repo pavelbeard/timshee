@@ -5,9 +5,9 @@ const port = 3000;
 const { createProxyMiddleware } = require('http-proxy-middleware');
 require('dotenv').config();
 
-const url = process.env.DRF_API_URL + '/api'
-const proxy = createProxyMiddleware({
-    target: url,
+const apiUrl = process.env.DRF_API_URL + '/api';
+const proxyApi = createProxyMiddleware({
+    target: apiUrl,
     changeOrigin: true,
     onError: (err, req, res) => {
         console.error('Proxy error:', err);
@@ -21,14 +21,12 @@ const proxy = createProxyMiddleware({
     onProxyRes: (proxyRes, req, res) => {
         console.log(`Received response with status: ${proxyRes.statusCode}`);
     }
-})
-console.log('DRF_API_URL=', url);
+});
 
-app.use('/api', proxy);
+app.use('/api', proxyApi);
 
 app.use(express.static(path.join(__dirname, 'build')));
 
-app.use('/backend/media', express.static('/home/timshee_store_app/app/media/product_images'))
 
 app.get('*', (rq, rs) => {
     rs.sendFile(path.join(__dirname, 'build', 'index.html'))

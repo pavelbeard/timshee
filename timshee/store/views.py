@@ -74,8 +74,6 @@ class StockViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["GET"])
     def get_items_detail(self, request):
-
-
         gender = request.query_params.get('item__gender', 'women')
         qs = self.filter_queryset(self.get_queryset())
         qs_general = self.get_queryset().filter(item__gender=gender)

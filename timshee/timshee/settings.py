@@ -194,7 +194,7 @@ STATICFILES_DIRS = [
 ]
 
 if DEBUG:
-    MEDIA_URL = "timshee/media/"
+    MEDIA_URL = "/timshee/media/"
 else:
     MEDIA_URL = "/backend/media/"
 

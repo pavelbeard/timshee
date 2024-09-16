@@ -55,7 +55,6 @@ class CollectionCarouselImageSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         return get_image(self.context, obj)
 
-
 class CategorySerializer(serializers.ModelSerializer):
     types = serializers.SerializerMethodField()
 
