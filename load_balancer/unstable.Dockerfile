@@ -8,4 +8,4 @@ COPY certs/server.key /etc/nginx/certs/server.key
 EXPOSE 80
 EXPOSE 443
 
-CMD envsubst '${DRF_API_KEY}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+CMD envsubst '${DRF_API_KEY}' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf; nginx -g 'daemon off;'
