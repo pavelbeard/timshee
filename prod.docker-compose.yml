@@ -1,21 +1,32 @@
 version: "3.9"
 
 services:
+  reverse_proxy:
+    image: traefik:v3.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+
   watchtower:
     image: containrrr/watchtower
     volumes:
-      - /var/docker/docker.sock:/var/docker/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - "--label-enable"
       - "--interval"
       - "30"
       - "--rolling-restart"
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
 
   postgresql:
     image: postgres:latest
@@ -35,16 +46,15 @@ services:
     build:
       context: timshee/
       dockerfile: prod.Dockerfile
-    platform: linux/amd64
     environment:
-      - ALLOWED_ORIGINS=http://89.104.68.172:8111,https://timshee.ru,http://timshee.ru
+      - ALLOWED_ORIGINS=https://77.238.243.142
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_EMAIL=heavycream9090@icloud.com
       - DJANGO_SETTINGS_DEBUG_MODE=0
-      - DJANGO_SETTINGS_UNSTABLE_MODE=0
-      - DJANGO_SETTINGS_PRODUCTION_MODE=1
+      - DJANGO_SETTINGS_UNSTABLE_MODE=1
+      - DJANGO_SETTINGS_PRODUCTION_MODE=0
       - SERVER_ADDRESS=0.0.0.0
-      - SERVER_PORT=8111
+      - SERVER_PORT=8112
       - POSTGRES_DB_NAME=timshee_store
       - POSTGRES_DB_USER=main
       - POSTGRES_DB_PORT=5432
@@ -59,53 +69,63 @@ services:
       - MJML_APP_ID=${MJML_APP_ID}
       - MJML_APP_KEY=${MJML_APP_KEY}
       - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
-      - CLIENT_REDIRECT=https://timshee.ru
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - CLIENT_REDIRECT=https://77.238.243.142
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
+    labels:
+      # reverse proxy
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`timshee.ru`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
+      - "traefik.http.routers.django.entrypoints=websecure"
+      - "traefik.http.routers.django.tls.certresolver=myresolver"
+      # watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
     command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
     depends_on:
-      - mjml
       - postgresql
-    restart: on-failure
-
-  load_balancer:
-    build:
-      context: load_balancer/
-      dockerfile: prod.certs.Dockerfile
-    platform: linux/amd64
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - prod.volume:/home/timshee_store_app/app/staticfiles
-      - prod-image.volume:/home/timshee_store_app/app/media/product_images
-      - ./nginx/conf:/etc/nginx/conf.d/:ro
-      - ./certbot/www/:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
-    depends_on:
-      - django
     restart: on-failure
 
   frontend:
     build:
       context: frontend/
       dockerfile: prod.Dockerfile
-    platform: linux/amd64
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
+    labels:
+      # reverse proxy
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`timshee.ru`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      # watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
-      - load_balancer
+      - django
+    restart: on-failure
+
+  file_storage:
+    build:
+      context: file_storage/
+      dockerfile: prod.Dockerfile
+    volumes:
+      - prod.volume:/home/timshee_store_app/app/staticfiles
+      - prod-image.volume:/home/timshee_store_app/app/media/product_images
+    labels:
+      # reverse proxy
+      - "traefik.enable=true"
+      - "traefik.http.routers.file_storage.rule=Host(`timshee.ru`) && PathPrefix(`/backend/static`) || PathPrefix(`/backend/media`)"
+      - "traefik.http.routers.file_storage.entrypoints=websecure"
+      - "traefik.http.routers.file_storage.tls.certresolver=myresolver"
+      # watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
+    depends_on:
+      - django
     restart: on-failure
 
 volumes:
+  letsencrypt:
   prod.volume:
   prod-image.volume:
   postgres_data:
