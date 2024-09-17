@@ -8,7 +8,7 @@ git pull;
 cp .env.copy .env
 
 docker pull pavelbeard/django:unstable;
-docker pull pavelbeard/load_balancer:unstable;
+docker pull pavelbeard/file_storage:unstable;
 docker pull pavelbeard/frontend:unstable;
 
 docker-compose -f unstable.images.docker-compose.yml down;
