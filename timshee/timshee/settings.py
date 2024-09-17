@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'stuff.middleware.AuthSubstitutionMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -353,3 +354,5 @@ CORS_ALLOWED_HEADERS = (
     "X-Requested-With",
     "X-Api-Key",
 )
+
+# WHITENOISE
