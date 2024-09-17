@@ -1,6 +1,22 @@
 version: "3.9"
 
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
   postgresql:
     image: postgres:latest
     restart: always
@@ -41,7 +57,9 @@ services:
       - MJML_APP_ID=${MJML_APP_ID}
       - MJML_APP_KEY=${MJML_APP_KEY}
       - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
-      - CLIENT_REDIRECT=https://timshee.ru/
+      - CLIENT_REDIRECT=https://timshee.ru
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
@@ -54,6 +72,10 @@ services:
   load_balancer:
     image: pavelbeard/load_balancer.production:latest
     platform: linux/amd64
+    environment:
+      - DRF_API_KEY=${DRF_API_KEY}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "80:80"
       - "443:443"
@@ -66,23 +88,17 @@ services:
     depends_on:
       - django
     restart: always
-    command: ["nginx", "-g", "daemon off;"]
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
 
   frontend:
     image: pavelbeard/frontend.production:latest
     platform: linux/amd64
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - prod.volume:/home/timshee_store_app/app/staticfiles
       - prod-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
       - load_balancer
-    command: ["node", "react.start.js"]
     restart: on-failure
 
 volumes:

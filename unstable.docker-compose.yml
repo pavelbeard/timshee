@@ -75,7 +75,7 @@ services:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
-      - nginx
+      - load_balancer
     restart: on-failure
 
 volumes:
