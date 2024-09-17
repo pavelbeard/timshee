@@ -12,7 +12,7 @@ services:
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=heavycream9090icloud.com"
+      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
@@ -76,7 +76,7 @@ services:
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/static`) || PathPrefix(`/admin`) || PathPrefix(`/backend/media`)"
+      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/backend/static`) || PathPrefix(`/backend/media`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=myresolver"
       # watchtower
@@ -103,7 +103,7 @@ services:
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
-      - file_storage
+      - django
     restart: on-failure
 
 volumes:
