@@ -38,3 +38,4 @@ nginx
 certbot
 *.DS_Store
 */__pycache__
+letsencrypt
