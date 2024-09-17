@@ -47,8 +47,8 @@ Also remember to apply **chmod** to `prod.start-project.sh` or `prod.images.star
 
 **Start the project with a script**
 
-- For weak servers: `source prod.images.start-projects.sh`
-- For strong servers: `source prod.start-project.sh`
+- For weak servers (if your server can't build images): `source prod.images.start-projects.sh`
+- For strong servers (if your server can build images): `source prod.start-project.sh`
 
 The difference between these scripts is the way to build the project.
 
