@@ -36,3 +36,5 @@ ssh-github.pub
 load_balancer/certs/*
 nginx
 certbot
+*.DS_Store
+*/__pycache__
