@@ -8,7 +8,7 @@ from django.utils.translation import activate
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -17,7 +17,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from auxiliaries.auxiliaries_methods import get_logger
 from . import models, serializers, stuff_logic
-from .permissions import HasAPIKey
 
 # Create your views here.
 User = get_user_model()
@@ -39,7 +38,7 @@ def set_csrfmiddlewaretoken(rq, rs):
 class AuthViewSet(viewsets.ViewSet):
     authentication_classes = []
 
-    @action(detail=False, methods=['POST'], permission_classes=[HasAPIKey])
+    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def sign_up(self, request):
         try:
             serializer = serializers.SignupSerializer(data=request.data)
@@ -60,7 +59,7 @@ class AuthViewSet(viewsets.ViewSet):
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['POST'], permission_classes=[HasAPIKey])
+    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def sign_in(self, request, *args, **kwargs):
         try:
             serializer = serializers.SigninSerializer(data=request.data)
@@ -112,7 +111,7 @@ class AuthViewSet(viewsets.ViewSet):
         detail=False,
         methods=['POST'],
         authentication_classes=[JWTAuthentication],
-        permission_classes=[IsAuthenticated, HasAPIKey],
+        permission_classes=[IsAuthenticated],
     )
     def sign_out(self, request):
         try:
@@ -170,7 +169,7 @@ class CookieTokenRefreshView(TokenRefreshView):
 class ProfileViewSet(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def get_email_confirmation_status(self, request):
         result = stuff_logic.get_email_confirm_status(request)
         return Response({'confirmed': result}, status=status.HTTP_200_OK)
@@ -184,7 +183,6 @@ class ProfileViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(status=status.HTTP_200_OK)
-
 
     @action(
         detail=False,
@@ -242,7 +240,7 @@ class ProfileViewSet(viewsets.ViewSet):
         detail=False,
         methods=["POST"],
         authentication_classes=[],
-        permission_classes=[HasAPIKey],
+        permission_classes=[AllowAny],
     )
     def is_reset_password_request_valid(self, request):
         result, error = stuff_logic.is_reset_password_request_valid(request)
@@ -258,7 +256,7 @@ class ProfileViewSet(viewsets.ViewSet):
     @action(
         detail=False, methods=["POST"],
         authentication_classes=[],
-        permission_classes=[HasAPIKey],
+        permission_classes=[AllowAny],
     )
     def change_password(self, request):
         result, error = stuff_logic.change_password(request)
@@ -274,7 +272,7 @@ class ProfileViewSet(viewsets.ViewSet):
 
 class GetSettingsAPIView(generics.GenericAPIView):
     authentication_classes = []
-    permission_classes = [HasAPIKey, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     allowed_methods = ["GET"]
 
     def get(self, request):
@@ -306,7 +304,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
 
 class LanguageViewSet(viewsets.ViewSet):
     authentication_classes = []
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=["GET"])
     def get_languages(self, request):

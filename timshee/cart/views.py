@@ -1,10 +1,10 @@
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from stuff.permissions import HasAPIKey
 from . import serializers, models, cart_logic
 
 
@@ -12,7 +12,7 @@ from . import serializers, models, cart_logic
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = models.Cart.objects.all()
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):

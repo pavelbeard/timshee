@@ -76,8 +76,6 @@ services:
       context: load_balancer/
       dockerfile: prod.certs.Dockerfile
     platform: linux/amd64
-    environment:
-      - DRF_API_KEY=${DRF_API_KEY}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     ports:

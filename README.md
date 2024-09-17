@@ -25,11 +25,6 @@ Otherwise, fill the value which corresponds to your own rendering server:
 
 - **MJML_OWN_SERVER_URL:**
 
-For load_balancer:
-
-- **DRF_API_KEY:** one must be the same with **DJANGO_SECRET_KEY**
-- For other services, you can create your own API key and put in your code to access to Django API.
-
 Check the **.env**. This file contains secrets. 
 
 Also remember to apply **chmod** to `prod.start-project.sh` or `prod.images.start-project.sh`

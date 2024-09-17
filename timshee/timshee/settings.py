@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     # custom
     "rest_framework",
     'rest_framework.authtoken',
-    'rest_framework_api_key',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
@@ -255,7 +254,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
     'DEFAULT_PERMISSION_CLASSES': (
-        'stuff.permissions.HasAPIKey',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
     # 'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 9,
@@ -346,7 +345,6 @@ elif PRODUCTION:
     SITE_NAME = 'https://89.104.68.172'
 
 # REST FRAMEWORK API KEY
-API_KEY_CUSTOM_HEADER = 'HTTP_X_API_KEY'
 CORS_ALLOWED_HEADERS = (
     "Content-Type",
     "Accept",

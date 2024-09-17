@@ -72,8 +72,6 @@ services:
   load_balancer:
     image: pavelbeard/load_balancer.production:latest
     platform: linux/amd64
-    environment:
-      - DRF_API_KEY=${DRF_API_KEY}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     ports:

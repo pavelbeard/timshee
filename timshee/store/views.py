@@ -8,10 +8,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from stuff.permissions import HasAPIKey
 from . import models, serializers, write_serializers, filters
 
 User = get_user_model()
@@ -131,11 +131,11 @@ class ColorViewSet(viewsets.ModelViewSet):
 
 
 class WishlistViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.WishlistItemFilter
     queryset = models.Wishlist.objects.all()
-    permission_classes = [HasAPIKey]
-    authentication_classes = [JWTAuthentication]
 
     def get_serializer_class(self):
         if self.action in ['list', 'get_wishlist_by_user', 'create', 'add_item']:

@@ -3,13 +3,12 @@ import logging
 from django.contrib.sessions.models import Session
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from stuff.permissions import HasAPIKey
 from . import models, serializers, write_serializers, filters, order_logic
 
 logger = logging.getLogger(__name__)
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class CountryViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [HasAPIKey]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
     filter_backends = (DjangoFilterBackend,)
@@ -28,7 +27,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 
 class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [HasAPIKey]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.CountryPhoneCode.objects.all()
     serializer_class = serializers.CountryPhoneCodeSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -37,7 +36,7 @@ class CountryPhoneCodeViewSet(viewsets.ModelViewSet):
 
 class ProvinceViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [HasAPIKey]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = models.Province.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ProvinceFilter
@@ -51,7 +50,7 @@ class ProvinceViewSet(viewsets.ModelViewSet):
 
 class AddressViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
     queryset = models.Address.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.AddressFilter
@@ -149,7 +148,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
     queryset = models.Order.objects.all()
     filter_backends = (DjangoFilterBackend,)
@@ -233,7 +232,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class ShippingMethodViewSet(viewsets.ModelViewSet):
     authentication_classes = []
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
     queryset = models.ShippingMethod.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.ShippingMethodFilter

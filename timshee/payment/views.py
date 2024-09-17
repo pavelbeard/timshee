@@ -1,89 +1,15 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from stuff.permissions import HasAPIKey
 from . import serializers, models, payment_logic
 
-
-# {
-#   'id': 119,
-#   'shipping_address': {
-#     'id': 2,
-#     'first_name': 'AN',
-#     'last_name': 'DRE',
-#     'city': 'Alicante',
-#     'address1': 'Avda. Benito Pérez Galdós',
-#     'address2': '4',
-#     'postal_code': '03004',
-#     'email': 'heavycream9090@icloud.com',
-#     'phone_number': '622865890',
-#     'additional_data': '',
-#     'province': 1,
-#     'phone_code': 1
-#   },
-#   'order_number': '10146-AN',
-#   'ordered_items': {
-#     'data': [
-#       {
-#         'quantity': 1,
-#         'price': 349.99,
-#         'stock': {
-#           'id': 3,
-#           'item': {
-#             'id': 1,
-#             'name': 'Camiseta muy buena',
-#             'gender': 'F',
-#             'description': 'Элегантный и утончённый кашемировый пуловер – это идеальный выбор для тех, кто ценит комфорт и стиль. Изготовленный из 100% чистого кашемира, этот пуловер обладает невероятной мягкостью, которая приятна к телу, делая его идеальным для прохладной погоды. Шелковистая текстура кашемира не только комфортна, но и придает изысканный вид, подчеркивая вашу любовь к качественной одежде.\r\n\r\nПуловер имеет классический крой с круглым воротником, который легко сочетается как с более формальной одеждой, так и с повседневными нарядами. Эта универсальность делает его отличным выбором для различных случаев — от деловых встреч до дружеских собраний. Рукава и нижняя часть пуловера аккуратно оканчиваются эластичными манжетами, обеспечивающими идеальную посадку и сохраняющими тепло.\r\n\r\nМодель:\r\n\r\nРост: 177 см\r\nРазмер: М\r\nХипс: 85 см',
-#             'price': '349.99',
-#             'discount': '0.00',
-#             'image': '/timshee/media/product_images/item_images/_23f3935c-de39-46bd-bab4-d5e2d22c0c30.jpeg',
-#             'collection': {
-#               'id': 3,
-#               'name': 'aw2023/2024',
-#               'collection_image': '/timshee/media/product_images/collection_images/Calzoncillo-Calvin_Klein-Boxer-negro-cinturilla_ancha-_o8kfTJS.jpeg',
-#               'link': 'autum-winter-2023-2024'
-#             },
-#             'type': {
-#               'id': 7,
-#               'name': 'Camisetas',
-#               'category': {
-#                 'id': 3,
-#                 'name': 'Top',
-#                 'category_image': '/timshee/media/product_images/category_images/Calzoncillo-Calvin_Klein-Boxer-negro-cinturilla_ancha-MI_5HobKs6.jpeg'
-#               }
-#             }
-#           },
-#           'in_stock': 39,
-#           'size': {
-#             'id': 1,
-#             'value': 'XS'
-#           },
-#           'color': {
-#             'id': 9,
-#             'name': 'MEDIUM PURPLE',
-#             'hex': '#A661ED'
-#           }
-#         },
-#         'total_price': '349.99'
-#       }
-#     ],
-#     'total_price': 349.99
-#   },
-#   'status': 'pending_for_pay',
-#   'created_at': '2024-05-22T20:12:28.887534+03:00',
-#   'updated_at': '2024-05-22T20:13:03.712486+03:00',
-#   'shipping_method': {
-#     'id': 2,
-#     'shipping_name': 'DHL',
-#     'price': '30.00'
-#   }
-# }
 # Create your views here.
 class PaymentViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
     queryset = models.Payment.objects.all()
     lookup_field = 'store_order_id'
 

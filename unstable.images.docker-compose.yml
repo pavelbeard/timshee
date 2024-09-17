@@ -65,8 +65,6 @@ services:
 
   load_balancer:
     image: pavelbeard/load_balancer:unstable
-    environment:
-      - DRF_API_KEY=${DRF_API_KEY}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:

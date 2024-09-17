@@ -55,8 +55,6 @@ services:
     build:
       context: load_balancer/
       dockerfile: unstable.Dockerfile
-    environment:
-      - DRF_API_KEY=${DRF_API_KEY}
     ports:
       - "8112:80"
       - "443:443"
