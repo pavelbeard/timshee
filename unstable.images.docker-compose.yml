@@ -102,7 +102,7 @@ services:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
-      - file_storage
+      - django
     restart: on-failure
 
 volumes:
