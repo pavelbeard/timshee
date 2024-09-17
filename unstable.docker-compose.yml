@@ -76,7 +76,7 @@ services:
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/backend/static`) || PathPrefix(`/backend/media`)"
+      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=myresolver"
       # watchtower
@@ -85,7 +85,6 @@ services:
     depends_on:
       - postgresql
     restart: on-failure
-
 
   frontend:
     build:
@@ -100,6 +99,23 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`heavycream.es`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      # watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
+    depends_on:
+      - django
+    restart: on-failure
+
+  file_storage:
+    image: pavelbeard/file_storage:unstable
+    volumes:
+      - unstable.volume:/home/timshee_store_app/app/staticfiles
+      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    labels:
+      # reverse proxy
+      - "traefik.enable=true"
+      - "traefik.http.routers.file_storage.rule=Host(`heavycream.es`) && PathPrefix(`/backend/static`) || PathPrefix(`/backend/media`)"
+      - "traefik.http.routers.file_storage.entrypoints=websecure"
+      - "traefik.http.routers.file_storage.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
