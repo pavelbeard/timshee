@@ -73,7 +73,7 @@ services:
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/backend/static`) || PathPrefix(`/backend/media`)"
+      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
       - "traefik.http.routers.django.entrypoints=websecure"
       - "traefik.http.routers.django.tls.certresolver=myresolver"
       # watchtower
