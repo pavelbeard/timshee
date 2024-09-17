@@ -70,7 +70,6 @@ uritemplate==4.1.1
 urllib3==2.2.1
 uvicorn==0.28.0
 wheel==0.42.0
-whitenoise==6.7.0
 wrapt==1.16.0
 yarl==1.9.4
 yookassa==3.1.0
