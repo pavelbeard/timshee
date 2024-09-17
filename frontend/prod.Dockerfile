@@ -31,8 +31,6 @@ RUN \
    adduser --system --uid 1001 reactjs;
 
 COPY react.start.js .
-COPY env.sh .
-RUN chmod +x env.sh; mkdir -p ./config; chown -R reactjs:nodejs ./config
 
 COPY --from=builder /app /app
 COPY --from=builder --chown=reactjs:nodejs /app /app
