@@ -3,8 +3,10 @@ import {clsx} from "clsx";
 import MenuUnderHeaderItem from "./MenuUnderHeaderItem";
 import {useCategories} from "../../../lib/hooks";
 import {useCallback, useMemo} from "react";
+import {useGetDynamicSettingsQuery} from "../../../redux/features/api/stuffApiSlice";
 
 export default function MenuUnderHeader() {
+    const { data: dynamicSettings } = useGetDynamicSettingsQuery();
     const updatedCategories = useCategories();
     const { pathname } = useLocation();
     const visible = useMemo(() =>
@@ -18,7 +20,7 @@ export default function MenuUnderHeader() {
 
     return(
         <nav className={clsx(visible ? "lg:flex justify-center border-gray-200 border-y-[1px]" : 'hidden')}>
-            <MenuUnderHeaderItem withoutList={true} />
+            {dynamicSettings?.itemsForGenders && <MenuUnderHeaderItem withoutList={true} />}
             {headerItems}
         </nav>
     )

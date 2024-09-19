@@ -7,12 +7,14 @@ import {selectGenders} from "../../../redux/features/store/storeSlice";
 import {useParams, useSearchParams} from "react-router-dom";
 import {useCategories} from "../../../lib/hooks";
 import {useMemo, useState} from "react";
+import {useGetDynamicSettingsQuery} from "../../../redux/features/api/stuffApiSlice";
 
 export default function MenuLeftRecursive({ level, className, openMenus, setOpenMenus }) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const { gender } = useParams();
     const { collections } = useSelector(s => s.store);
+    const { data: dynamicSettings } = useGetDynamicSettingsQuery();
     const [search, _] = useSearchParams();
     const categories = useCategories();
     const genders = useSelector(selectGenders);
@@ -31,36 +33,32 @@ export default function MenuLeftRecursive({ level, className, openMenus, setOpen
     };
 
     const categoriesList = (url=null)  => {
-        const g = url.split('/')[0]
-        const toAllProducts = [{
-            code: `all-${g}`,
-            title: t(`header:${g}All`),
-            url: `/${g}/shop`,
-            close: true,
-            closeMenu: () => dispatch(toggleBurgerMenu(false)),
-        }];
-
-        return toAllProducts.concat(categories.map((category, idx) => ({
+        const g = url.split('/')[0];
+        const categoriesTmp = categories.map((category, idx) => ({
             code: `cat-${category.code}-${idx}`,
             title: category.name,
             url: null,
             disabled: category?.total === 0,
             subMenu: category?.total !== 0 && typesList(`${url}&categories=${category.code}`, category.types),
             close: true,
-        })));
-    };
+        }));
 
-    // {
-            // COMMENT THIS
-            // title: t('header:unisex'),
-            // url: `/${genders.unisex}/shop`,
-        // },
-        // SPLIT TO GENDERS
-        // gender !== undefined && {
-        //     title: t('header:products'),
-        //     url: null,
-        //     subMenu: categoriesList(`${gender}/${baseShopUrl}?${currentCollection}`)
-        // },
+        if (dynamicSettings?.itemsForGenders) {
+            const toAllProducts = [
+                {
+                    code: `all-${g}`,
+                    title: t(`header:${g}All`),
+                    url: `/${g}/shop`,
+                    close: true,
+                    closeMenu: () => dispatch(toggleBurgerMenu(false)),
+                }
+            ];
+
+            return toAllProducts.concat(categoriesTmp);
+        } else {
+            return categoriesTmp;
+        }
+    };
 
     const menuLeft = [
         {

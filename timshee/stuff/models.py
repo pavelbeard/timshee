@@ -42,6 +42,7 @@ class DynamicSettings(Singleton):
     experimental = models.BooleanField(default=False)
     international = models.BooleanField(default=False)
     compress_pics_on_server = models.BooleanField(default=False)
+    items_for_genders = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _('Dynamic Settings')
