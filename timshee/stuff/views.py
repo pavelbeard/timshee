@@ -289,7 +289,7 @@ class GetSettingsAPIView(generics.GenericAPIView):
             "onMaintenance": dyn_settings.on_maintenance,
             "experimental": dyn_settings.experimental,
             "international": dyn_settings.international,
-            "itemsForGenders": dyn_settings.itemsForGenders,
+            "itemsForGenders": dyn_settings.items_for_genders,
         }, status=status.HTTP_200_OK)
         if session:
             response.set_cookie(
