@@ -8,7 +8,7 @@ git pull;
 cp .env.copy .env
 
 docker pull pavelbeard/django.production:latest;
-docker pull pavelbeard/load_balancer.production:latest;
+docker pull pavelbeard/file_storage.production:latest;
 docker pull pavelbeard/frontend.production:latest;
 
 docker-compose -f prod.images.docker-compose.yml down;
