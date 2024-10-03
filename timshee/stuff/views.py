@@ -30,7 +30,6 @@ def set_csrfmiddlewaretoken(rq, rs):
         value=csrf.get_token(rq),
         httponly=True,
         samesite='Lax',
-
     )
     return rs
 
@@ -54,7 +53,7 @@ class AuthViewSet(viewsets.ViewSet):
 
             return response
         except IntegrityError:
-            return AuthenticationFailed('User already exists.')
+            return Response({'error': 'User already exists.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
