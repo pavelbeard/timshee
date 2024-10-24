@@ -1,5 +1,4 @@
 *Dockerfile
-project/node_modules
-project/src/setupProxy.mjs
+project/node_modules/*
 project/src/media/*
 project/.env
