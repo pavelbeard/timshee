@@ -1,5 +1,5 @@
 *Dockerfile
 timshee/node_modules
-timshee/src/setupProxy.js
+timshee/src/setupProxy.mjs
 timshee/src/media/*
 timshee/.env

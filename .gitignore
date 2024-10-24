@@ -39,3 +39,4 @@ certbot
 *.DS_Store
 */__pycache__
 letsencrypt
+/frontend/timshee/react.start.testserver.js

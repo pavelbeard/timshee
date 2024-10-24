@@ -1,3 +1,1 @@
-export default function House() {
-
-}
+export default function House() {}

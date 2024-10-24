@@ -1,23 +1,12 @@
-/** @type {import('tailwindcss').Config} */
-const defaultTheme = require('tailwindcss/defaultTheme');
-
-module.exports = {
-    content: [
-        "./src/**/*.{js,jsx,ts,tsx}",
-        "./public/index.html",
-    ],
-    screens: {
-        'xs': '600px',
-        'mdx': '800px',
-        ...defaultTheme.screens,
+/** @type{import('tailwindcss')}.Config*/
+export default {
+  content: ["./src/**/*.{js,jsx,ts,tsx}", "./index.html"],
+  theme: {
+    extend: {
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
     },
-    theme: {
-        extend: {
-            backgroundImage: {
-                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-            }
-        }
-    },
-    plugins: [],
-}
-
+  },
+  plugins: [],
+};
