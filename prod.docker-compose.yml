@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   reverse_proxy:
     image: traefik:v3.1
@@ -46,7 +44,7 @@ services:
 
   django:
     build:
-      context: timshee/
+      context: backend/
       dockerfile: prod.Dockerfile
     environment:
       - ALLOWED_ORIGINS=https://timshee.ru,http://89.104.68.172:8111

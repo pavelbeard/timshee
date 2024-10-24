@@ -4,7 +4,7 @@ FROM base AS builder
 
 WORKDIR /app
 
-COPY ./timshee .
+COPY ./project .
 
 RUN \
    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
