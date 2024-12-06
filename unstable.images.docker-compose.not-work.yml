@@ -1,24 +1,4 @@
 services:
-  reverse_proxy:
-    image: traefik:v3.1
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--entryPoints.web.address=:80"
-      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entryPoints.websecure.address=:443"
-    ports:
-      - "80:80"
-      - "443:443"
-
   watchtower:
     image: containrrr/watchtower
     volumes:
@@ -28,6 +8,8 @@ services:
       - "--interval"
       - "30"
       - "--rolling-restart"
+    networks:
+      - ext
 
   postgresql:
     image: postgres:16
@@ -38,12 +20,16 @@ services:
       - POSTGRES_DB=timshee_store
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ext
 
   mjml:
     image: danihodovic/mjml-server
     platform: linux/amd64
+    networks:
+      - ext
 
-  django:
+  djangoTimshee:
     image: pavelbeard/django:unstable
     platform: linux/amd64
     environment:
@@ -73,9 +59,9 @@ services:
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
-      - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=myresolver"
+      - "traefik.http.routers.djangoTimshee.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
+      - "traefik.http.routers.djangoTimshee.entrypoints=websecure"
+      - "traefik.http.routers.djangoTimshee.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
@@ -86,23 +72,25 @@ services:
       - mjml
       - postgresql
     restart: on-failure
+    networks:
+      - ext
 
-  frontend:
+  reactTimshee:
     image: pavelbeard/frontend:unstable
     platform: linux/amd64
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`heavycream.es`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.reactTimshee.rule=Host(`heavycream.es`)"
+      - "traefik.http.routers.reactTimshee.entrypoints=websecure"
+      - "traefik.http.routers.reactTimshee.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
-      - django
+      - djangoTimshee
     restart: on-failure
 
   file_storage:
@@ -119,11 +107,17 @@ services:
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
-      - django
+      - djangoTimshee
     restart: on-failure
+    networks:
+      - ext
 
 volumes:
   letsencrypt:
   unstable.volume:
   unstable-image.volume:
   postgres_data:
+
+networks:
+  ext:
+    external: true
