@@ -9,7 +9,7 @@ services:
       - "30"
       - "--rolling-restart"
     networks:
-      - default
+      - ext
 
   postgresql:
     image: postgres:16
@@ -21,15 +21,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - default
+      - ext
 
   mjml:
     image: danihodovic/mjml-server
     platform: linux/amd64
     networks:
-      - default
+      - ext
 
-  django:
+  djangoTimshee:
     image: pavelbeard/django:unstable
     platform: linux/amd64
     environment:
@@ -59,9 +59,9 @@ services:
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
-      - "traefik.http.routers.django.entrypoints=websecure"
-      - "traefik.http.routers.django.tls.certresolver=myresolver"
+      - "traefik.http.routers.djangoTimshee.rule=Host(`heavycream.es`) && PathPrefix(`/api`) || PathPrefix(`/admin`)"
+      - "traefik.http.routers.djangoTimshee.entrypoints=websecure"
+      - "traefik.http.routers.djangoTimshee.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
@@ -73,24 +73,24 @@ services:
       - postgresql
     restart: on-failure
     networks:
-      - default
+      - ext
 
-  frontend:
+  reactTimshee:
     image: pavelbeard/frontend:unstable
     platform: linux/amd64
     labels:
       # reverse proxy
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`heavycream.es`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.reactTimshee.rule=Host(`heavycream.es`)"
+      - "traefik.http.routers.reactTimshee.entrypoints=websecure"
+      - "traefik.http.routers.reactTimshee.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     volumes:
       - unstable.volume:/home/timshee_store_app/app/staticfiles
       - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
-      - django
+      - djangoTimshee
     restart: on-failure
 
   file_storage:
@@ -107,10 +107,10 @@ services:
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
-      - django
+      - djangoTimshee
     restart: on-failure
     networks:
-      - default
+      - ext
 
 volumes:
   letsencrypt:
@@ -119,5 +119,5 @@ volumes:
   postgres_data:
 
 networks:
-  default:
+  ext:
     external: true
