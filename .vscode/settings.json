@@ -1,0 +1,27 @@
+{
+    "i18n-ally.localesPaths": [
+        "backend/locale",
+        "translator/django/locale",
+        "frontend/project/public/locales",
+        "venvTimshee/lib/python3.12/site-packages/debug_toolbar/locale",
+        "venvTimshee/lib/python3.12/site-packages/colorfield/locale",
+        "venvTimshee/lib/python3.12/site-packages/django_filters/locale",
+        "venvTimshee/lib/python3.12/site-packages/rest_framework/locale",
+        "venvTimshee/lib/python3.12/site-packages/rest_framework_simplejwt/locale",
+        "venvTimshee/lib/python3.12/site-packages/aiogram/utils/i18n",
+        "venvTimshee/lib/python3.12/site-packages/django/conf/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/messages",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/admin/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/auth/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/admindocs/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/flatpages/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/contenttypes/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/gis/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/humanize/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/postgres/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/sessions/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/redirects/locale",
+        "venvTimshee/lib/python3.12/site-packages/django/contrib/sites/locale",
+        "venvTimshee/lib/python3.12/site-packages/rest_framework/templates/rest_framework/docs/langs"
+    ]
+}

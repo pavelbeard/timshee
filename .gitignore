@@ -36,6 +36,7 @@ load_balancer/certs/*
 nginx
 certbot
 *.DS_Store
+*/**/*.DS_Store
 */__pycache__
 letsencrypt
 /frontend/project/react.start.testserver.js

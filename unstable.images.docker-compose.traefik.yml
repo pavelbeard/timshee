@@ -1,4 +1,24 @@
 services:
+  reverse_proxy:
+    image: traefik:v3.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entryPoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+
   watchtower:
     image: containrrr/watchtower
     volumes:
@@ -8,8 +28,6 @@ services:
       - "--interval"
       - "30"
       - "--rolling-restart"
-    networks:
-      - default
 
   postgresql:
     image: postgres:16
@@ -20,14 +38,10 @@ services:
       - POSTGRES_DB=timshee_store
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - default
 
   mjml:
     image: danihodovic/mjml-server
     platform: linux/amd64
-    networks:
-      - default
 
   django:
     image: pavelbeard/django:unstable
@@ -72,8 +86,6 @@ services:
       - mjml
       - postgresql
     restart: on-failure
-    networks:
-      - default
 
   frontend:
     image: pavelbeard/frontend:unstable
@@ -109,16 +121,9 @@ services:
     depends_on:
       - django
     restart: on-failure
-    networks:
-      - default
 
 volumes:
   letsencrypt:
   unstable.volume:
   unstable-image.volume:
   postgres_data:
-
-networks:
-  default:
-    external:
-      name: heavycream_network
