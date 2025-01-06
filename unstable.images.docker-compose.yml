@@ -1,51 +1,79 @@
 services:
   reverse_proxy:
     image: traefik:v3.1
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
     command:
       - "--api.insecure=true"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
       - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entryPoints.websecure.address=:443"
     ports:
-      - "80:80"
-      - "443:443"
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   watchtower:
     image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - "--label-enable"
       - "--interval"
       - "30"
       - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   postgresql:
     image: postgres:16
-    restart: always
     environment:
       - POSTGRES_USER=main
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=timshee_store
+      # secrets
+      # TODO: create reader for secrets
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_db_password
+    secrets:
+      - postgres_db_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - timshee_postgres_data:/var/lib/postgresql/data
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   mjml:
     image: danihodovic/mjml-server
-    platform: linux/amd64
 
   django:
     image: pavelbeard/django:unstable
-    platform: linux/amd64
     environment:
       - ALLOWED_ORIGINS=https://heavycream.es,http://77.238.243.142:8112
       - DJANGO_SUPERUSER_USERNAME=admin
@@ -58,18 +86,20 @@ services:
       - POSTGRES_DB_NAME=timshee_store
       - POSTGRES_DB_USER=main
       - POSTGRES_DB_PORT=5432
-      - ACCOUNT_ID=${ACCOUNT_ID}
-      - SECRET_KEY=${SECRET_KEY}
-      - POSTGRES_DB_PASSWORD=${POSTGRES_DB_PASSWORD}
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
-      - EMAIL_PORT=${EMAIL_PORT}
-      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-      - MJML_APP_ID=${MJML_APP_ID}
-      - MJML_APP_KEY=${MJML_APP_KEY}
-      - MJML_OWN_SERVER_URL=${MJML_OWN_SERVER_URL}
       - CLIENT_REDIRECT=https://heavycream.es
+      # secrets
+      # TODO: create reader for secrets
+      - ACCOUNT_ID_FILE=/run/secrets/account_id
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - POSTGRES_DB_PASSWORD_FILE=/run/secrets/postgres_db_password
+      - DJANGO_SECRET_KEY_FILE=/run/secrets/django_secret_key
+      - DJANGO_SUPERUSER_PASSWORD_FILE=/run/secrets/django_superuser_password
+      - EMAIL_PORT_FILE=/run/secrets/email_port
+      - EMAIL_HOST_USER_FILE=/run/secrets/email_host_user
+      - EMAIL_HOST_PASSWORD_FILE=/run/secrets/email_host_password
+      - MJML_APP_ID_FILE=/run/secrets/mjml_app_id
+      - MJML_APP_KEY_FILE=/run/secrets/mjml_app_key
+      - MJML_OWN_SERVER_URL_FILE=/run/secrets/mjml_own_server_url
     labels:
       # reverse proxy
       - "traefik.enable=true"
@@ -78,18 +108,32 @@ services:
       - "traefik.http.routers.django.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
-    volumes:
-      - unstable.volume:/home/timshee_store_app/app/staticfiles
-      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
-    command: ["python", "/home/timshee_store_app/app/entrypoint.py"]
     depends_on:
       - mjml
       - postgresql
-    restart: on-failure
+    volumes:
+      - timshee_unstable.volume:/home/timshee_store_app/app/staticfiles
+      - timshee_unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    secrets:
+      - account_id
+      - secret_key
+      - postgres_db_password
+      - django_secret_key
+      - django_superuser_password
+      - email_port
+      - email_host_user
+      - email_host_password
+      - mjml_app_id
+      - mjml_app_key
+      - mjml_own_server_url
 
   frontend:
     image: pavelbeard/frontend:unstable
-    platform: linux/amd64
     labels:
       # reverse proxy
       - "traefik.enable=true"
@@ -98,18 +142,19 @@ services:
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
       # watchtower
       - "com.centurylinklabs.watchtower.enable=true"
-    volumes:
-      - unstable.volume:/home/timshee_store_app/app/staticfiles
-      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     depends_on:
       - django
-    restart: on-failure
+    volumes:
+      - timshee_unstable.volume:/home/timshee_store_app/app/staticfiles
+      - timshee_unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   file_storage:
     image: pavelbeard/file_storage:unstable
-    volumes:
-      - unstable.volume:/home/timshee_store_app/app/staticfiles
-      - unstable-image.volume:/home/timshee_store_app/app/media/product_images
     labels:
       # reverse proxy
       - "traefik.enable=true"
@@ -120,10 +165,44 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
       - django
-    restart: on-failure
+    volumes:
+      - timshee_unstable.volume:/home/timshee_store_app/app/staticfiles
+      - timshee_unstable-image.volume:/home/timshee_store_app/app/media/product_images
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
 volumes:
   letsencrypt:
-  unstable.volume:
-  unstable-image.volume:
-  postgres_data:
+  timshee_unstable.volume:
+    external: true
+  timshee_unstable-image.volume:
+    external: true
+  timshee_postgres_data:
+    external: true
+
+secrets:
+  account_id:
+    external: true
+  secret_key:
+    external: true
+  postgres_db_password:
+    external: true  
+  django_secret_key:
+    external: true
+  django_superuser_password:
+    external: true
+  email_port:
+    external: true
+  email_host_user:
+    external: true
+  email_host_password:
+    external: true
+  mjml_app_id:
+    external: true
+  mjml_app_key:
+    external: true
+  mjml_own_server_url:
+    external: true

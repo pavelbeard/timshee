@@ -35,21 +35,21 @@ export default function Core() {
   const callByTrigger = useCallback(() => {
     triggerWishlist()
       .unwrap()
-      .catch((err) => null);
+      .catch(() => null);
     triggerCartItems()
       .unwrap()
-      .catch((err) => null);
+      .catch(() => null);
   }, [triggerWishlist, triggerCartItems]);
 
-  const changeLang = async () => {
-    if (typeof i18n.changeLanguage === "function") {
-      await i18n.changeLanguage("en");
-    }
-  };
+  // const changeLang = async () => {
+  //   if (typeof i18n.changeLanguage === "function") {
+  //     await i18n.changeLanguage("ru");
+  //   }
+  // };
 
-  useEffect(() => {
-    changeLang();
-  }, [i18n.isInitialized]);
+  // useEffect(() => {
+  //   changeLang();
+  // }, [i18n.isInitialized]);
 
   useEffect(() => {
     if (i18n.isInitialized) {

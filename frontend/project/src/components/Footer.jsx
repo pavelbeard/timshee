@@ -20,7 +20,7 @@ export default function Footer() {
     changeLanguageMut({ lang })
       .unwrap()
       .then(() => i18n.changeLanguage(Cookies.get("server_language")))
-      .catch((err) => null);
+      .catch(() => null);
   };
 
   const languagesMenu = languages?.map((item, idx) => (

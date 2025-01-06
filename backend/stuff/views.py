@@ -1,5 +1,6 @@
+from auxiliaries.auxiliaries_methods import get_logger
 from django.conf import settings
-from django.contrib.auth import get_user_model, models, authenticate
+from django.contrib.auth import authenticate, get_user_model, models
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware import csrf
@@ -7,15 +8,18 @@ from django.utils import timezone
 from django.utils.translation import activate
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, AuthenticationFailed
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from auxiliaries.auxiliaries_methods import get_logger
 from . import models, serializers, stuff_logic
 
 # Create your views here.
