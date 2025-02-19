@@ -41,3 +41,4 @@ certbot
 letsencrypt
 /frontend/project/react.start.testserver.js
 secrets
+test.txt.*

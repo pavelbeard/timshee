@@ -1,9 +1,11 @@
 services:
   reverse_proxy:
-    image: traefik:v3.1
+    image: traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+      - /etc/letsencrypt/live/timshee.ru/fullchain.pem:/ets/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/timshee.ru/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
     command:
       - "--api.insecure=true"
       - "--providers.docker"
