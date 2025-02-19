@@ -5,7 +5,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/letsencrypt/live/timshee.ru/fullchain.pem:/ets/ssl/certs/fullchain.pem:ro
       - /etc/letsencrypt/live/timshee.ru/privkey.pem:/etc/ssl/private/privkey.pem:ro
-      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
     command:
       - "--api.insecure=true"
       - "--entryPoints.web.address=:80"
