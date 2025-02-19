@@ -2,8 +2,9 @@ services:
   reverse_proxy:
     image: traefik
     volumes:
+      - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/letsencrypt/live/timshee.ru/fullchain.pem:/ets/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/timshee.ru/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
       - /etc/letsencrypt/live/timshee.ru/privkey.pem:/etc/ssl/private/privkey.pem:ro
       - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
     command:
@@ -12,11 +13,8 @@ services:
       - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
       - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
       - "--entryPoints.websecure.address=:443"
-    labels:
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=http"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
