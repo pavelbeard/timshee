@@ -6,11 +6,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/letsencrypt/live/timshee.ru/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
       - /etc/letsencrypt/live/timshee.ru/privkey.pem:/etc/ssl/private/privkey.pem:ro
-      - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
+      # - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
     command:
       - "--api.insecure=true"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.myresolver.acme.caCertificates=/etc/ssl/certs/fullchain.pem,/etc/ssl/private/privkey.pem"
       - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entryPoints.web.address=:80"
