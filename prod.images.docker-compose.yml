@@ -8,15 +8,15 @@ services:
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
     command:
       - "--api.insecure=true"
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
       - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
       - "--entryPoints.websecure.address=:443"
+    labels:
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     ports:
       - "80:80"
       - "443:443"
