@@ -9,12 +9,14 @@ services:
       - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
     command:
       - "--api.insecure=true"
-      - "--entryPoints.web.address=:80"
-      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entryPoints.websecure.address=:443"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
       - "--certificatesresolvers.myresolver.acme.email=heavycream9090@icloud.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
     ports:
       - "80:80"
       - "443:443"
