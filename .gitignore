@@ -43,3 +43,6 @@ letsencrypt
 secrets
 test.txt.*
 .env.copy
+.venv
+./bot
+./backend/timshee/__pycache__
