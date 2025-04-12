@@ -31,7 +31,8 @@ export default function ItemCard({ item }) {
       <div className={itemPropsContainer} data-item-props="">
         <p className="roboto-text-xs">{item?.name}</p>
         <p className="roboto-text-xs">
-          {item?.price}
+          {"N/A"}
+          {/* {item?.price} */}
           <span className="roboto-text-xs">{t("shop:price")}</span>
         </p>
       </div>

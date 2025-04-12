@@ -97,7 +97,8 @@ const ItemDetail = () => {
           <div className="flex justify-between mb-2" data-price="">
             <span className="roboto-medium">{item?.name}</span>
             <span className="roboto-medium">
-              {item?.price}
+              {"N/A"}
+              {/* {item?.price} */}
               {t("shop:price")}
             </span>
           </div>
