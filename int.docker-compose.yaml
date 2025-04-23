@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: timshee_db
+    environment:
+      - POSTGRES_USER=timshee
+      - POSTGRES_PASSWORD=timshee
+      - POSTGRES_DB=timshee
+    ports:
+      - 5400:5432
+    volumes:
+      - timshee_db_data:/var/lib/postgresql/data
+
+volumes:
+  timshee_db_data:
