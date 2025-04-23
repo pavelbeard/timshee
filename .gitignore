@@ -1,13 +1,21 @@
-# Django
-*.sqlite3
-*.pyc
-.env
-.env.local
-/media
-/static
-.coverage
-*.log
+# Virtual environment
 .venv
+
+# Django
+backend/**/*.sqlite3
+backend/**/*.pyc
+backend/**/.env
+backend/**/.env.local
+backend/**/media
+backend/**/static
+backend/**/.coverage
+backend/**/*.log
+backend/**/.pdm-python
+backend/**/.pdm-build
+backend/**/.python-version
+backend/**/pdm.lock
+backend/**/__pypackages__
+backend/**/__pycache__
 
 # React
 /dist
@@ -18,7 +26,8 @@ node_modules
 dist
 dist-ssr
 *.local
-
+pnpm-lock.yaml
+package-lock.json
 
 ## Logs
 logs
