@@ -8,7 +8,9 @@ from rest_framework import serializers
 
 
 class RegisterSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=allauth_settings.SIGNUP_FIELDS['email']['required'])
+    email = serializers.EmailField(
+        required=allauth_settings.SIGNUP_FIELDS["email"]["required"]
+    )
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -16,7 +18,7 @@ class RegisterSerializer(serializers.Serializer):
 
     def validate_email(self, email):
         if allauth_settings.UNIQUE_EMAIL:
-            if email and EmailAddress.objects.is_verified(email):
+            if email and EmailAddress.objects.filter(email=email).exists():
                 raise serializers.ValidationError(
                     _("A user is already registered with this e-mail address."),
                 )
@@ -45,7 +47,7 @@ class RegisterSerializer(serializers.Serializer):
         user = adapter.save_user(request, user, self, commit=False)
         if "password" in self.cleaned_data:
             try:
-                adapter.clean_password(self.cleaned_data['password'], user=user)
+                adapter.clean_password(self.cleaned_data["password"], user=user)
             except DjangoValidationError as exc:
                 raise serializers.ValidationError(
                     detail=serializers.as_serializer_error(exc)

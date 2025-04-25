@@ -169,15 +169,15 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     # JWT
     "USE_JWT": True,
-    "JWT_AUTH_COOKIE": "__clientid",
     "JWT_AUTH_REFRESH_COOKIE": "__rclientid",
-    "JWT_AUTH_HTTPONLY": False,
+    "JWT_AUTH_HTTPONLY": True,
     "JWT_AUTH_SAMESITE": "Strict",
     # REGISTER
     "REGISTER_SERIALIZER": "auth.serializers.RegisterSerializer",
 }
 
 SIMPLE_JWT = {
+    "ACCESS_TOKEN_NAME": "__clientid",
     "ACCESS_TOKEN_LIFETIME": timezone.timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timezone.timedelta(days=1),
 }
@@ -190,4 +190,7 @@ ACCOUNT_SIGNUP_FIELDS = [
     "password*",
     "password2*",
 ]
+ACCOUNT_LOGIN_METHODS = ["email"]
 ACCOUNT_ADAPTER = "auth.services.CustomAccountAdapter"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_REQUIRED = False
