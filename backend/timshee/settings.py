@@ -56,6 +56,9 @@ INSTALLED_APPS = [
     # 3-rd party apps
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -69,6 +72,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -162,7 +166,7 @@ AUTH_USER_MODEL = "user.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
 
@@ -180,6 +184,9 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_NAME": "__clientid",
     "ACCESS_TOKEN_LIFETIME": timezone.timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timezone.timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "TOKEN_REFRESH_SERIALIZER": "auth.serializers.CustomRefreshSerializer",
 }
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
@@ -194,3 +201,8 @@ ACCOUNT_LOGIN_METHODS = ["email"]
 ACCOUNT_ADAPTER = "auth.services.CustomAccountAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_EMAIL_REQUIRED = False
+
+if DEBUG:
+    CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_CREDENTIALS = True
