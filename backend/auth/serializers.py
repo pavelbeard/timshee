@@ -2,9 +2,14 @@ from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from allauth.account.utils import setup_user_email
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt import serializers as jwt_serializers
+from rest_framework_simplejwt.settings import api_settings
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -55,3 +60,74 @@ class RegisterSerializer(serializers.Serializer):
         user.save()
         setup_user_email(request, user, [])
         return user
+
+
+class CustomRefreshSerializer(jwt_serializers.TokenRefreshSerializer):
+    """
+    Custom serializer to handle the refresh token response.
+    """
+
+    def validate(self, attrs):
+        refresh = self.token_class(attrs["refresh"])
+
+        # TODO: Find out how to use settings 
+        user_id = refresh.payload.get(api_settings.USER_ID_CLAIM, None)
+        if user_id and (
+            user := get_user_model().objects.get(
+                **{api_settings.USER_ID_FIELD: user_id}
+            )
+        ):
+            if not api_settings.USER_AUTHENTICATION_RULE(user):
+                raise AuthenticationFailed(
+                    self.error_messages["no_active_account"],
+                    "no_active_account",
+                )
+
+        #  Changing name of the access token to match the one in the login response
+        data = {settings.SIMPLE_JWT["ACCESS_TOKEN_NAME"]: str(refresh.access_token)}
+
+        if api_settings.ROTATE_REFRESH_TOKENS:
+            if api_settings.BLACKLIST_AFTER_ROTATION:
+                try:
+                    # Attempt to blacklist the given refresh token
+                    refresh.blacklist()
+                except AttributeError:
+                    # If blacklist app not installed, `blacklist` method will
+                    # not be present
+                    pass
+
+            refresh.set_jti()
+            refresh.set_exp()
+            refresh.set_iat()
+            refresh.outstand()
+
+            data["refresh"] = str(refresh)
+
+        return data
+
+
+class CustomCookieTokenRefreshSerializer(CustomRefreshSerializer):
+    """
+    Same as the default CookieTokenRefreshSerializer, but inherits from
+    CustomRefreshSerializer to use the custom access token name.
+    """
+
+    refresh = serializers.CharField(
+        required=False, help_text=_("Will override cookie.")
+    )
+
+    def extract_refresh_token(self):
+        request = self.context["request"]
+        if "refresh" in request.data and request.data["refresh"] != "":
+            return request.data["refresh"]
+        cookie_name = settings.REST_AUTH["JWT_AUTH_REFRESH_COOKIE"]
+        if cookie_name and cookie_name in request.COOKIES:
+            return request.COOKIES.get(cookie_name)
+        else:
+            from rest_framework_simplejwt.exceptions import InvalidToken
+
+            raise InvalidToken(_("No valid refresh token found."))
+
+    def validate(self, attrs):
+        attrs["refresh"] = self.extract_refresh_token()
+        return super().validate(attrs)
