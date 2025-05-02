@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 # Create your views here.
+from .serializers import CustomCookieTokenRefreshSerializer
 
 
 class CustomRegisterView(RegisterView):
@@ -100,8 +101,26 @@ class CustomLoginView(LoginView):
             response.data[settings.SIMPLE_JWT["ACCESS_TOKEN_NAME"]] = response.data.pop(
                 "access"
             )
+            # pop the refresh token from the response data, because it will be set in the cookie
+            response.data.pop("refresh", None)
 
             from dj_rest_auth.jwt_auth import set_jwt_refresh_cookie
 
             set_jwt_refresh_cookie(response, self.refresh_token)
         return response
+
+
+def get_refresh_view():
+    """
+    Returns the refresh view for the JWT authentication.
+
+    Contains a custom serializer in order to change access token name.
+    """
+    from dj_rest_auth.jwt_auth import get_refresh_view as get_refresh_view_dj_rest_auth
+
+    custom_refresh_view_with_cookie_support = get_refresh_view_dj_rest_auth()
+    custom_refresh_view_with_cookie_support.serializer_class = (
+        CustomCookieTokenRefreshSerializer
+    )
+
+    return custom_refresh_view_with_cookie_support
