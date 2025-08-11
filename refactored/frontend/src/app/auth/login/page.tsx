@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoginForm, RegisterForm } from '../../../components';
+import { LoginForm, RegisterForm } from '../../../components/auth';
 
 export default function LoginPage() {
   const [showRegister, setShowRegister] = useState(false);

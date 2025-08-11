@@ -1,4 +1,0 @@
-*Dockerfile
-project/node_modules/*
-project/src/media/*
-project/.env

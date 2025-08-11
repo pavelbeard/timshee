@@ -2,6 +2,8 @@
  * Login form component with validation
  */
 
+'use client';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

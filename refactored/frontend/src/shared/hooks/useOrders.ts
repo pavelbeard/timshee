@@ -57,7 +57,7 @@ export const useCreateOrder = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (_data: unknown) => {
+    mutationFn: () => {
       // TODO: Implement ordersApi.create(data)
       throw new Error('Orders API not implemented yet')
     },
@@ -77,7 +77,7 @@ export const useUpdateOrder = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id: _id, data: _data }: { id: number; data: unknown }) => {
+    mutationFn: () => {
       // TODO: Implement ordersApi.update(id, data)
       throw new Error('Orders API not implemented yet')
     },
@@ -100,7 +100,7 @@ export const useCancelOrder = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (_id: number) => {
+    mutationFn: () => {
       // TODO: Implement ordersApi.cancel(id)
       throw new Error('Orders API not implemented yet')
     },
