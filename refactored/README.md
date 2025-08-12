@@ -30,8 +30,9 @@ timshee/
 │       ├── public/
 │       ├── package.json
 │       └── next.config.js
-├── legacy/                    # Old Docker configurations
-└── backend/                   # Original backend (to be deprecated)
+└── legacy/                    # Old Docker configurations
+    ├─ backend/                   # Original backend (to be deprecated)
+
 ```
 
 ## Key Improvements

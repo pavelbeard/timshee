@@ -23,5 +23,6 @@
         "venvTimshee/lib/python3.12/site-packages/django/contrib/redirects/locale",
         "venvTimshee/lib/python3.12/site-packages/django/contrib/sites/locale",
         "venvTimshee/lib/python3.12/site-packages/rest_framework/templates/rest_framework/docs/langs"
-    ]
+    ],
+    "python.testing.pytestEnabled": true
 }

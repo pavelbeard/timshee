@@ -189,7 +189,7 @@ class Collection(TimestampMixin, models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"[{self.name}]"
+        return self.name
 
     def save(self, *args, **kwargs):
         if self.name and not self.link:
@@ -261,7 +261,7 @@ class Category(TimestampMixin, models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f"[{self.name}]"
+        return self.name
 
     def save(self, *args, **kwargs):
         if self.name and not self.code:

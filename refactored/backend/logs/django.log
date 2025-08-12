@@ -1,0 +1,22 @@
+INFO 2025-08-12 08:46:07,803 autoreload 96876 8305926336 Watching for file changes with StatReloader
+INFO 2025-08-12 08:52:39,439 autoreload 3788 8305926336 Watching for file changes with StatReloader
+WARNING 2025-08-12 08:52:48,456 log 3788 6123548672 Not Found: /
+WARNING 2025-08-12 08:52:48,456 basehttp 3788 6123548672 "GET / HTTP/1.1" 404 2793
+WARNING 2025-08-12 08:52:48,649 log 3788 6123548672 Not Found: /favicon.ico
+WARNING 2025-08-12 08:52:48,650 basehttp 3788 6123548672 "GET /favicon.ico HTTP/1.1" 404 2844
+INFO 2025-08-12 09:15:45,486 autoreload 13188 8305926336 Watching for file changes with StatReloader
+WARNING 2025-08-12 09:49:53,847 log 28100 8305926336 Not Found: /api/v1/auth/change-password/
+WARNING 2025-08-12 09:49:53,971 log 28100 8305926336 Not Found: /api/v1/auth/login/
+WARNING 2025-08-12 09:49:54,218 log 28100 8305926336 Not Found: /api/v1/auth/register/
+WARNING 2025-08-12 10:09:27,344 log 45620 8305926336 Not Found: /api/v1/auth/change-password/
+WARNING 2025-08-12 10:09:27,467 log 45620 8305926336 Not Found: /api/v1/auth/login/
+WARNING 2025-08-12 10:09:27,715 log 45620 8305926336 Not Found: /api/v1/auth/register/
+WARNING 2025-08-12 10:28:40,649 log 52674 8305926336 Not Found: /api/v1/auth/change-password/
+WARNING 2025-08-12 10:28:40,774 log 52674 8305926336 Not Found: /api/v1/auth/login/
+WARNING 2025-08-12 10:28:41,022 log 52674 8305926336 Not Found: /api/v1/auth/register/
+WARNING 2025-08-12 10:29:20,576 log 53012 8305926336 Not Found: /api/v1/auth/change-password/
+WARNING 2025-08-12 10:29:20,699 log 53012 8305926336 Not Found: /api/v1/auth/login/
+WARNING 2025-08-12 10:29:20,949 log 53012 8305926336 Not Found: /api/v1/auth/register/
+WARNING 2025-08-12 10:29:27,590 log 53638 8305926336 Not Found: /api/v1/auth/change-password/
+WARNING 2025-08-12 10:29:27,713 log 53638 8305926336 Not Found: /api/v1/auth/login/
+WARNING 2025-08-12 10:29:27,960 log 53638 8305926336 Not Found: /api/v1/auth/register/
